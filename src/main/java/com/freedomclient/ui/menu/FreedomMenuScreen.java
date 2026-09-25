@@ -145,8 +145,8 @@ public class FreedomMenuScreen extends Screen {
 
 		// Logo del cliente: las iniciales FC en pixel art con el halo encima, y el nombre en dos colores.
 		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
-		int logoCenterY = y + 15;
-		PixelSky.halo(g, logoCenterX, y + 4, 1, 6, 1.0F);
+		int logoCenterY = y + 16;
+		PixelSky.halo(g, logoCenterX, y + 6, 1, 6, 1.0F);
 		PixelSky.logo(g, logoCenterX, logoCenterY, 1, 1.0F);
 		int nameX = x + 6 + PixelSky.logoWidth() + 8;
 		int nameY = y + 10;
