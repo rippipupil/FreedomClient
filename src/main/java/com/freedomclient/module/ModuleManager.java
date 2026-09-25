@@ -4,7 +4,6 @@ import com.freedomclient.cosmetic.CapeCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
 import com.freedomclient.cosmetic.WingsCosmetic;
 import com.freedomclient.module.hud.AppleSkinModule;
-import com.freedomclient.module.hud.ArmorAlertHud;
 import com.freedomclient.module.hud.ArmorHud;
 import com.freedomclient.module.hud.ClockHud;
 import com.freedomclient.module.hud.ComboHud;
@@ -21,7 +20,13 @@ import com.freedomclient.module.hud.ReachHud;
 import com.freedomclient.module.hud.WatermarkHud;
 import com.freedomclient.module.performance.BundledModModule;
 import com.freedomclient.module.performance.GameOptimizerModule;
+import com.freedomclient.module.performance.CullLeavesModule;
+import com.freedomclient.module.performance.EntityCullingModule;
+import com.freedomclient.module.visual.BetterGrassModule;
+import com.freedomclient.module.visual.CapesModule;
+import com.freedomclient.module.visual.WavyCapesModule;
 import com.freedomclient.module.hud.TargetHud;
+import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.AutoTextModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.pvp.BetterHurtCamModule;
@@ -66,6 +71,7 @@ public class ModuleManager {
 		// PvP
 		add(new ToggleSprintModule());
 		add(new BetterCrosshairModule());
+		add(new AttackIndicatorModule());
 		add(new CenteredCrosshairModule());
 		add(new HitColorModule());
 		add(new BetterHurtCamModule());
@@ -86,7 +92,6 @@ public class ModuleManager {
 		add(new ReachHud());
 		add(new KeystrokesHud());
 		add(new ArmorHud());
-		add(new ArmorAlertHud());
 		add(new InventoryHud());
 		add(new PotionEffectsHud());
 		add(new ItemCounterHud());
@@ -103,6 +108,9 @@ public class ModuleManager {
 		add(new BlockOutlineModule());
 		add(new ShulkerPreviewModule());
 		add(new FcNametagModule());
+		add(new BetterGrassModule());
+		add(new WavyCapesModule());
+		add(new CapesModule());
 
 		// Utility
 		add(new WaypointsModule());
@@ -126,6 +134,8 @@ public class ModuleManager {
 
 		// Performance
 		add(new GameOptimizerModule());
+		add(new EntityCullingModule());
+		add(new CullLeavesModule());
 		add(new BundledModModule("Sodium", "sodium", "Modern rendering engine. The biggest FPS boost."));
 		add(new BundledModModule("Lithium", "lithium", "Optimizes physics, mob AI and game logic."));
 		add(new BundledModModule("FerriteCore", "ferritecore", "Greatly reduces memory usage."));

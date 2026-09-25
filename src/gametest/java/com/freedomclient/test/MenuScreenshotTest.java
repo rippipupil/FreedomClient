@@ -4,6 +4,7 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.hud.HudEditorScreen;
 import com.freedomclient.hud.HudModule;
 import com.freedomclient.module.Module;
+import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.visual.ZoomModule;
 import com.freedomclient.setting.ModeSetting;
@@ -37,6 +38,8 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"effect give @a speed 120 1",
 			"effect give @a strength 8 0",
 			"effect give @a fire_resistance 300 0",
+			// Un montículo de hierba a un lado para ver Better Grass.
+			"execute at @p run fill ~4 ~ ~5 ~7 ~1 ~8 grass_block",
 	};
 
 	@Override
@@ -132,6 +135,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.setScreen(() -> null);
 			context.waitTicks(5);
 			context.takeScreenshot("crosshair_custom");
+
+			// Custom Attack Indicator cargando justo después de atacar.
+			context.runOnClient(client -> {
+				FreedomClient.getModuleManager().get(AttackIndicatorModule.class).setEnabled(true);
+				client.player.resetAttackStrengthTicker();
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("attack_indicator");
 
 			// Misma vista con la escala de interfaz 2, para ver la ventana compacta en pantallas grandes.
 			context.runOnClient(client -> {

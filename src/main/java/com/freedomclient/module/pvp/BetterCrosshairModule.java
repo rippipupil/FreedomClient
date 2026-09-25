@@ -1,5 +1,6 @@
 package com.freedomclient.module.pvp;
 
+import com.freedomclient.FreedomClient;
 import com.freedomclient.hud.CombatTracker;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
@@ -68,11 +69,13 @@ public class BetterCrosshairModule extends Module {
 	public void render(GuiGraphics graphics, Minecraft client) {
 		LocalPlayer player = client.player;
 		float attack = player.getAttackStrengthScale(0.0F);
+		// Si el Custom Attack Indicator está activo, él se encarga de mostrar la carga del ataque.
+		boolean crosshairIndicator = !FreedomClient.getModuleManager().get(AttackIndicatorModule.class).isEnabled();
 		boolean aiming = client.crosshairPickEntity instanceof LivingEntity living && living.isAlive();
 
 		int drawColor = color.get();
 		if (targetColorEnabled.get() && aiming) drawColor = targetColor.get();
-		else if (attackIndicator.is("Color") && attack >= 1.0F) drawColor = readyColor.get();
+		else if (crosshairIndicator && attackIndicator.is("Color") && attack >= 1.0F) drawColor = readyColor.get();
 
 		graphics.pose().pushMatrix();
 		// Centro exacto de la pantalla (puede caer en medio píxel de la interfaz).
@@ -86,7 +89,7 @@ public class BetterCrosshairModule extends Module {
 		}
 		if (centerDot.get() && !style.is("Dot") && !style.is("Custom")) dot(graphics, drawColor);
 
-		if (attackIndicator.is("Bar") && attack < 1.0F) {
+		if (crosshairIndicator && attackIndicator.is("Bar") && attack < 1.0F) {
 			int barWidth = 16;
 			int barY = gap.getInt() + size.getInt() + 4;
 			rect(graphics, -barWidth / 2, barY, barWidth / 2, barY + 2, 0x80000000);

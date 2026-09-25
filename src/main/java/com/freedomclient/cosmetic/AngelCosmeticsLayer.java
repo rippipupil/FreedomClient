@@ -18,7 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
-/** Dibuja las alas y el halo 3D (modelos hechos de cubos) sobre el jugador. */
+/** Dibuja las alas y el halo 3D (modelos hechos de cubos) sobre el jugador, y la capa ondulada de Wavy Capes. */
 public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	private static final Identifier WINGS_TEXTURE = FreedomClient.id("textures/cosmetic/wings.png");
 	private static final Identifier HALO_TEXTURE = FreedomClient.id("textures/cosmetic/halo.png");
@@ -26,6 +26,7 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 	private final ModelPart wings = createWings();
 	private final ModelPart halo = createHalo();
+	private final WavyCapeRenderer wavyCape = new WavyCapeRenderer();
 
 	public AngelCosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
 		super(parent);
@@ -127,6 +128,10 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 	@Override
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, float yRot, float xRot) {
+		if (WavyCapeRenderer.shouldRender(state)) {
+			wavyCape.render(getParentModel(), poseStack, collector, light, state);
+		}
+
 		WingsCosmetic wingsModule = CosmeticModule.get(WingsCosmetic.class);
 		if (wingsModule != null && wingsModule.shouldRender(state)) {
 			renderWings(poseStack, collector, light, state, wingsModule);

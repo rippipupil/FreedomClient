@@ -7,11 +7,13 @@ import com.freedomclient.hud.HudRenderer;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
+import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
 import com.freedomclient.module.utility.LogCleanerModule;
+import com.freedomclient.module.visual.BetterGrassModule;
 import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.module.visual.ShulkerPreviewModule;
 import com.freedomclient.waypoint.WaypointsModule;
@@ -26,11 +28,16 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.client.AttackIndicatorStatus;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.OptionInstance;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -78,6 +85,8 @@ public class FreedomClient implements ClientModInitializer {
 		});
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> moduleManager.onShutdown(client));
+		BetterGrassModule.registerPack();
+		ClientLifecycleEvents.CLIENT_STARTED.register(client -> moduleManager.get(BetterGrassModule.class).syncWithPacks(client));
 
 		registerHud();
 		registerCosmetics();
@@ -120,24 +129,15 @@ public class FreedomClient implements ClientModInitializer {
 				moduleManager.get(AppleSkinModule.class).renderOverlay(graphics, Minecraft.getInstance()));
 
 		// Mira propia (Better Crosshair) o la de vanilla, opcionalmente centrada al píxel exacto.
-		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, vanilla -> (graphics, deltaTracker) -> {
-			Minecraft client = Minecraft.getInstance();
-			BetterCrosshairModule crosshair = moduleManager.get(BetterCrosshairModule.class);
-			if (crosshair.isEnabled()) {
-				if (crosshair.shouldRender(client)) crosshair.render(graphics, client);
-				return;
-			}
-			if (moduleManager.get(CenteredCrosshairModule.class).isEnabled()) {
-				// Vanilla dibuja en (ancho - 15) / 2 con división entera; se corrige el medio píxel perdido.
-				float offsetX = (graphics.guiWidth() - 15) / 2.0F - (graphics.guiWidth() - 15) / 2;
-				float offsetY = (graphics.guiHeight() - 15) / 2.0F - (graphics.guiHeight() - 15) / 2;
-				graphics.pose().pushMatrix();
-				graphics.pose().translate(offsetX, offsetY);
-				vanilla.render(graphics, deltaTracker);
-				graphics.pose().popMatrix();
-				return;
-			}
-			vanilla.render(graphics, deltaTracker);
+		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, vanilla -> (graphics, deltaTracker) ->
+				withoutVanillaAttackIndicator(() -> renderCrosshair(vanilla, graphics, deltaTracker)));
+
+		// Custom Attack Indicator: el propio se dibuja encima y el de vanilla se oculta en la mira y en la barra.
+		HudElementRegistry.replaceElement(VanillaHudElements.HOTBAR, vanilla -> (graphics, deltaTracker) ->
+				withoutVanillaAttackIndicator(() -> vanilla.render(graphics, deltaTracker)));
+		HudElementRegistry.attachElementAfter(VanillaHudElements.CROSSHAIR, id("attack_indicator"), (graphics, deltaTracker) -> {
+			AttackIndicatorModule indicator = moduleManager.get(AttackIndicatorModule.class);
+			if (indicator.isEnabled()) indicator.render(graphics, Minecraft.getInstance());
 		});
 
 		// Oculta los iconos de efectos de vanilla cuando el HUD de efectos propio lo pide.
@@ -146,6 +146,42 @@ public class FreedomClient implements ClientModInitializer {
 				vanilla.render(graphics, deltaTracker);
 			}
 		});
+	}
+
+	/** Ejecuta un dibujado de vanilla con su indicador de ataque desactivado si el Custom Attack Indicator está activo. */
+	private static void withoutVanillaAttackIndicator(Runnable render) {
+		if (!moduleManager.get(AttackIndicatorModule.class).isEnabled()) {
+			render.run();
+			return;
+		}
+		OptionInstance<AttackIndicatorStatus> option = Minecraft.getInstance().options.attackIndicator();
+		AttackIndicatorStatus saved = option.get();
+		option.set(AttackIndicatorStatus.OFF);
+		try {
+			render.run();
+		} finally {
+			option.set(saved);
+		}
+	}
+
+	private static void renderCrosshair(HudElement vanilla, GuiGraphics graphics, DeltaTracker deltaTracker) {
+		Minecraft client = Minecraft.getInstance();
+		BetterCrosshairModule crosshair = moduleManager.get(BetterCrosshairModule.class);
+		if (crosshair.isEnabled()) {
+			if (crosshair.shouldRender(client)) crosshair.render(graphics, client);
+			return;
+		}
+		if (moduleManager.get(CenteredCrosshairModule.class).isEnabled()) {
+			// Vanilla dibuja en (ancho - 15) / 2 con división entera; se corrige el medio píxel perdido.
+			float offsetX = (graphics.guiWidth() - 15) / 2.0F - (graphics.guiWidth() - 15) / 2;
+			float offsetY = (graphics.guiHeight() - 15) / 2.0F - (graphics.guiHeight() - 15) / 2;
+			graphics.pose().pushMatrix();
+			graphics.pose().translate(offsetX, offsetY);
+			vanilla.render(graphics, deltaTracker);
+			graphics.pose().popMatrix();
+			return;
+		}
+		vanilla.render(graphics, deltaTracker);
 	}
 
 	@SuppressWarnings("unchecked")
