@@ -39,10 +39,15 @@ Abre el menú de módulos (ClickGUI) con **Shift derecho**.
 Todas las teclas se pueden cambiar en *Opciones → Controles → Asignación de teclas → FreedomClient*.
 Los módulos activados se guardan en `config/freedomclient.json`.
 
+## Descarga
+
+**[⬇ Descargar FreedomClient-1.21.11.jar](https://github.com/rippipupil/FreedomClient/releases/download/latest/FreedomClient-1.21.11.jar)**
+(siempre es la última versión compilada)
+
 ## Instalación
 
 1. Instala [Fabric Loader](https://fabricmc.net/use/installer/) para Minecraft 1.21.11.
-2. Pon `freedomclient-<versión>.jar` en `.minecraft/mods`. Fabric API y los mods de rendimiento ya van dentro.
+2. Pon `FreedomClient-1.21.11.jar` en `.minecraft/mods`. Fabric API y los mods de rendimiento ya van dentro.
 3. Si ya tenías Sodium, Lithium, etc. en la carpeta `mods`, puedes borrarlos: Fabric usará la versión más nueva de cada uno.
 
 Consejo: dale 4 GB de RAM al juego (`-Xmx4G` en los argumentos de Java del launcher). Más memoria no da más FPS.

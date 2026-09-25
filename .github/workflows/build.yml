@@ -1,6 +1,15 @@
 name: build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches-ignore:
+      - ci-screenshots
+      - ci-probe
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -25,3 +34,22 @@ jobs:
         with:
           name: freedomclient
           path: build/libs/*.jar
+      # Publica el .jar en la release "latest" para poder descargarlo directamente desde GitHub.
+      - name: Publish the jar to the latest release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          jar=$(ls build/libs/*.jar | grep -v -- '-sources' | head -1)
+          cp "$jar" /tmp/FreedomClient-1.21.11.jar
+          notes="Última versión de FreedomClient para Minecraft 1.21.11 (compilada desde ${GITHUB_SHA::7}, rama ${GITHUB_REF_NAME}).
+
+          Instalación: instala Fabric Loader para Minecraft 1.21.11 y pon FreedomClient-1.21.11.jar en la carpeta .minecraft/mods. Fabric API y los mods de rendimiento ya van dentro."
+          git tag -f latest "$GITHUB_SHA"
+          git push -f origin refs/tags/latest
+          if gh release view latest > /dev/null 2>&1; then
+            gh release edit latest --title "FreedomClient (última versión)" --notes "$notes" --prerelease
+          else
+            gh release create latest --title "FreedomClient (última versión)" --notes "$notes" --prerelease --verify-tag
+          fi
+          gh release upload latest /tmp/FreedomClient-1.21.11.jar --clobber
