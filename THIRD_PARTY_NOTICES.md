@@ -15,7 +15,6 @@ el código fuente está disponible en los enlaces.
 | YetAnotherConfigLib | isXander | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/isXander/YetAnotherConfigLib |
 | Mouse Tweaks | YaLTeR | [BSD-3-Clause](https://github.com/YaLTeR/MouseTweaks/blob/HEAD/LICENSE) | https://github.com/YaLTeR/MouseTweaks |
 | Fast IP Ping | Fallen_Breath | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/Fallen-Breath/fast-ip-ping |
-| Dynamic FPS | juliand665 | [MIT](https://github.com/juliand665/Dynamic-FPS/blob/HEAD/LICENSE) | https://github.com/juliand665/Dynamic-FPS |
 
 Los mods bajo LGPL-3.0 se distribuyen como archivos .jar independientes dentro del de FreedomClient,
 por lo que pueden sustituirse por cualquier otra versión compatible.

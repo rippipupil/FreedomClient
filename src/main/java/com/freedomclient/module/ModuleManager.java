@@ -172,7 +172,6 @@ public class ModuleManager {
 		add(new BundledModModule("Lithium", "lithium", "Optimizes physics, mob AI and game logic."));
 		add(new BundledModModule("FerriteCore", "ferritecore", "Greatly reduces memory usage."));
 		add(new BundledModModule("ImmediatelyFast", "immediatelyfast", "Speeds up HUD, text and entity rendering."));
-		add(new BundledModModule("Dynamic FPS", "dynamic_fps", "Lowers FPS while the game is minimized or in the background."));
 	}
 
 	private void add(Module module) {

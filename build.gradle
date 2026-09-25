@@ -34,7 +34,6 @@ dependencies {
 	include(modImplementation("maven.modrinth:lithium:${project.lithium_version}"))
 	include(modImplementation("maven.modrinth:ferrite-core:${project.ferritecore_version}"))
 	include(modImplementation("maven.modrinth:immediatelyfast:${project.immediatelyfast_version}"))
-	include(modImplementation("maven.modrinth:dynamic-fps:${project.dynamicfps_version}"))
 
 	// Mods de utilidad y visuales incluidos (sus licencias permiten redistribuirlos, ver THIRD_PARTY_NOTICES.md).
 	include(modImplementation("maven.modrinth:continuity:${project.continuity_version}"))
