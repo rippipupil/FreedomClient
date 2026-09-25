@@ -7,10 +7,6 @@ import com.freedomclient.module.Module;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.visual.ZoomModule;
-import com.freedomclient.cosmetic.HaloCosmetic;
-import com.freedomclient.cosmetic.WingsCosmetic;
-import com.freedomclient.module.visual.BlockOutlineModule;
-import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
@@ -181,20 +177,6 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setXRot(55.0F));
 			context.waitTicks(5);
 			context.takeScreenshot("block_outline");
-			// Diagnóstico: la misma vista sin el relleno y sin los cosméticos.
-			context.runOnClient(client -> {
-				for (Setting<?> setting : FreedomClient.getModuleManager().get(BlockOutlineModule.class).getSettings()) {
-					if (setting instanceof BooleanSetting bool && bool.getName().equals("Fill block")) bool.set(false);
-				}
-			});
-			context.waitTicks(3);
-			context.takeScreenshot("block_outline_nofill");
-			context.runOnClient(client -> {
-				FreedomClient.getModuleManager().get(HaloCosmetic.class).setEnabled(false);
-				FreedomClient.getModuleManager().get(WingsCosmetic.class).setEnabled(false);
-			});
-			context.waitTicks(3);
-			context.takeScreenshot("block_outline_nocosmetics");
 			context.runOnClient(client -> client.player.setXRot(0.0F));
 
 			// Misma vista con la escala de interfaz 2, para ver la ventana compacta en pantallas grandes.
