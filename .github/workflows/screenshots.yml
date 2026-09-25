@@ -38,7 +38,7 @@ jobs:
         run: |
           ./gradlew runProductionClientGameTest --stacktrace > /tmp/gametest-output.txt 2>&1 &
           GRADLE_PID=$!
-          for i in $(seq 1 90); do
+          for i in $(seq 1 72); do
             sleep 10
             if ! kill -0 $GRADLE_PID 2>/dev/null; then
               wait $GRADLE_PID
