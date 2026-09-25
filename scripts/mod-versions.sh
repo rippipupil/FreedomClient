@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Lista las últimas versiones en Modrinth de los mods integrados para la versión de Minecraft del proyecto.
+# Las mods que no existen en Modrinth o no tienen versión para esta versión de Minecraft aparecen vacías.
 set -uo pipefail
 
 MC_VERSION=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
