@@ -84,6 +84,10 @@ public final class PetBehavior {
 	/** Para pruebas: fuerza un estado de ánimo durante un rato. */
 	public static void forceMood(Mood forced) {
 		long now = System.currentTimeMillis();
+		// Se borran los demás estados para que el forzado no quede tapado por uno con más prioridad.
+		joinedAt = 0;
+		killAt = 0;
+		lastActivityAt = now;
 		switch (forced) {
 			case WAVE -> joinedAt = now;
 			case CELEBRATE -> killAt = now;
