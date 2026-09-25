@@ -4,7 +4,10 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.hud.HudEditorScreen;
 import com.freedomclient.hud.HudModule;
 import com.freedomclient.module.Module;
+import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.visual.ZoomModule;
+import com.freedomclient.setting.ModeSetting;
+import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -82,6 +85,23 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_settings_zoom");
+
+			// Mira personalizada con el editor pixel visible.
+			context.runOnClient(client -> {
+				for (Setting<?> setting : FreedomClient.getModuleManager().get(BetterCrosshairModule.class).getSettings()) {
+					if (setting instanceof ModeSetting mode && mode.getName().equals("Style")) mode.set("Custom");
+				}
+			});
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.openModule(FreedomClient.getModuleManager().get(BetterCrosshairModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_crosshair");
+			context.setScreen(() -> null);
+			context.waitTicks(5);
+			context.takeScreenshot("crosshair_custom");
 
 			// Misma vista con la escala de interfaz 2, para ver la ventana compacta en pantallas grandes.
 			context.runOnClient(client -> {
