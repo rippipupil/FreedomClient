@@ -3,6 +3,7 @@ package com.freedomclient.gui;
 import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
+import com.freedomclient.performance.PerformanceSettings;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -34,6 +35,7 @@ public class ClickGuiScreen extends Screen {
 		int totalWidth = columnWidth * categories.length + COLUMN_GAP * (categories.length - 1);
 		int startX = (width - totalWidth) / 2;
 
+		int bottom = TOP + 14;
 		for (int i = 0; i < categories.length; i++) {
 			Category category = categories[i];
 			int x = startX + i * (columnWidth + COLUMN_GAP);
@@ -50,7 +52,18 @@ public class ClickGuiScreen extends Screen {
 						.build());
 				y += BUTTON_HEIGHT + 2;
 			}
+			bottom = Math.max(bottom, y);
 		}
+
+		addRenderableWidget(Button.builder(Component.literal("Optimizar ajustes para FPS"), button -> {
+					PerformanceSettings.apply(minecraft);
+					button.setMessage(Component.literal("Ajustes aplicados").withStyle(ChatFormatting.GREEN));
+				})
+				.bounds(width / 2 - 100, bottom + 10, 200, BUTTON_HEIGHT)
+				.tooltip(Tooltip.create(Component.literal(
+						"Desactiva VSync, nubes, sombras de entidades y mezcla de biomas, "
+								+ "quita el límite de FPS y pone las partículas al mínimo.")))
+				.build());
 	}
 
 	private static Component label(Module module) {

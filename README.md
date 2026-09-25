@@ -2,6 +2,23 @@
 
 Cliente de Minecraft **1.21.11** hecho como mod de [Fabric](https://fabricmc.net/).
 
+## Rendimiento
+
+FreedomClient está pensado para dar el máximo de FPS. Trae integrados estos mods (no hace falta instalarlos aparte):
+
+| Mod | Qué mejora |
+|---|---|
+| [Sodium](https://modrinth.com/mod/sodium) | Motor de renderizado nuevo: suele multiplicar los FPS |
+| [Lithium](https://modrinth.com/mod/lithium) | Optimiza la física, la IA de mobs y la lógica del juego |
+| [FerriteCore](https://modrinth.com/mod/ferrite-core) | Reduce mucho el uso de memoria RAM |
+| [ImmediatelyFast](https://modrinth.com/mod/immediatelyfast) | Acelera el dibujado de HUD, texto, mapas y entidades |
+| [Dynamic FPS](https://modrinth.com/mod/dynamic-fps) | Baja los FPS cuando el juego está minimizado o en segundo plano |
+
+Además, en la ClickGUI hay un botón **"Optimizar ajustes para FPS"**. Desactiva VSync, las nubes, las sombras de
+entidades y la mezcla de biomas, quita el límite de FPS y pone las partículas al mínimo.
+
+Licencias de los mods integrados: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ## Funciones
 
 Abre el menú de módulos (ClickGUI) con **Shift derecho**.
@@ -25,8 +42,10 @@ Los módulos activados se guardan en `config/freedomclient.json`.
 ## Instalación
 
 1. Instala [Fabric Loader](https://fabricmc.net/use/installer/) para Minecraft 1.21.11.
-2. Descarga [Fabric API](https://modrinth.com/mod/fabric-api) para 1.21.11 y ponlo en `.minecraft/mods`.
-3. Pon `freedomclient-<versión>.jar` en `.minecraft/mods`.
+2. Pon `freedomclient-<versión>.jar` en `.minecraft/mods`. Fabric API y los mods de rendimiento ya van dentro.
+3. Si ya tenías Sodium, Lithium, etc. en la carpeta `mods`, puedes borrarlos: Fabric usará la versión más nueva de cada uno.
+
+Consejo: dale 4 GB de RAM al juego (`-Xmx4G` en los argumentos de Java del launcher). Más memoria no da más FPS.
 
 ## Compilar
 

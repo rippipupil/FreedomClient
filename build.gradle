@@ -6,12 +6,34 @@ base {
 	archivesName = project.archives_base_name
 }
 
+repositories {
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	// Fabric API va incluido para que solo haga falta instalar Fabric Loader y FreedomClient.
+	include(modImplementation("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"))
+
+	// Mods de rendimiento que van dentro del .jar del cliente (Jar-in-Jar).
+	include(modImplementation("maven.modrinth:sodium:${project.sodium_version}"))
+	include(modImplementation("maven.modrinth:lithium:${project.lithium_version}"))
+	include(modImplementation("maven.modrinth:ferrite-core:${project.ferritecore_version}"))
+	include(modImplementation("maven.modrinth:immediatelyfast:${project.immediatelyfast_version}"))
+	include(modImplementation("maven.modrinth:dynamic-fps:${project.dynamicfps_version}"))
 }
 
 processResources {
@@ -25,6 +47,10 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
+}
+
+jar {
+	from("THIRD_PARTY_NOTICES.md")
 }
 
 java {
