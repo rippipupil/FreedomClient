@@ -73,6 +73,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(2);
 			context.takeScreenshot("hud");
 
+			// Cosméticos en tercera persona (de espaldas: alas y capa; de frente: halo).
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+			context.waitTicks(10);
+			context.takeScreenshot("cosmetics_back");
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(10);
+			context.takeScreenshot("cosmetics_front");
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+
 			context.setScreen(() -> new HudEditorScreen(null));
 			context.waitTicks(10);
 			context.takeScreenshot("hud_editor");

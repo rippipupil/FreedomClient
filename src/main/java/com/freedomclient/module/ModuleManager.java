@@ -1,5 +1,8 @@
 package com.freedomclient.module;
 
+import com.freedomclient.cosmetic.CapeCosmetic;
+import com.freedomclient.cosmetic.HaloCosmetic;
+import com.freedomclient.cosmetic.WingsCosmetic;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.ArmorAlertHud;
 import com.freedomclient.module.hud.ArmorHud;
@@ -87,6 +90,11 @@ public class ModuleManager {
 		add(new FovChangerModule());
 		add(new CustomHitboxesModule());
 		add(new CustomScreensModule());
+
+		// Cosméticos
+		add(new WingsCosmetic());
+		add(new HaloCosmetic());
+		add(new CapeCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

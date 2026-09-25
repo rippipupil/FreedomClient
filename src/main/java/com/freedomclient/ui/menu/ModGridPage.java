@@ -48,7 +48,7 @@ public class ModGridPage implements MenuPage {
 		int chipX = x;
 		chipX = renderChip(ui, "All", null, chipX, y);
 		for (Category category : Category.values()) {
-			if (category == Category.HUD) continue;
+			if (category == Category.HUD || category == Category.COSMETICS) continue;
 			chipX = renderChip(ui, category.getDisplayName(), category, chipX, y);
 		}
 		search.render(ui, x + w - searchWidth, y, searchWidth, BAR_HEIGHT, "Search...");
@@ -76,7 +76,7 @@ public class ModGridPage implements MenuPage {
 		String query = search.getText().toLowerCase(Locale.ROOT).trim();
 		return FreedomClient.getModuleManager().getModules().stream()
 				.filter(module -> fixedCategory != null ? module.getCategory() == fixedCategory
-						: filter == null ? module.getCategory() != Category.HUD : module.getCategory() == filter)
+						: filter == null ? module.getCategory() != Category.HUD && module.getCategory() != Category.COSMETICS : module.getCategory() == filter)
 				.filter(module -> query.isEmpty() || module.getName().toLowerCase(Locale.ROOT).contains(query))
 				.toList();
 	}

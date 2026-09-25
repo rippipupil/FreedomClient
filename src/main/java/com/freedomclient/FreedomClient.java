@@ -1,6 +1,7 @@
 package com.freedomclient;
 
 import com.freedomclient.config.Config;
+import com.freedomclient.cosmetic.AngelCosmeticsLayer;
 import com.freedomclient.hud.CombatTracker;
 import com.freedomclient.hud.HudRenderer;
 import com.freedomclient.module.ModuleManager;
@@ -15,11 +16,16 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionResult;
 import org.lwjgl.glfw.GLFW;
@@ -57,6 +63,7 @@ public class FreedomClient implements ClientModInitializer {
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> moduleManager.onShutdown(client));
 
 		registerHud();
+		registerCosmetics();
 
 		AttackEntityCallback.EVENT.register((player, level, hand, entity, hitResult) -> {
 			Minecraft client = Minecraft.getInstance();
@@ -103,6 +110,15 @@ public class FreedomClient implements ClientModInitializer {
 		HudElementRegistry.replaceElement(VanillaHudElements.STATUS_EFFECTS, vanilla -> (graphics, deltaTracker) -> {
 			if (!moduleManager.get(PotionEffectsHud.class).hidesVanillaEffects()) {
 				vanilla.render(graphics, deltaTracker);
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void registerCosmetics() {
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, renderer, helper, context) -> {
+			if (renderer instanceof AvatarRenderer<?> avatar) {
+				helper.register(new AngelCosmeticsLayer((RenderLayerParent<AvatarRenderState, PlayerModel>) (Object) avatar));
 			}
 		});
 	}

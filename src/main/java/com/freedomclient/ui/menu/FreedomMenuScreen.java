@@ -42,7 +42,7 @@ public class FreedomMenuScreen extends Screen {
 	private final Ui ui = new Ui();
 	private final ModGridPage modsPage = new ModGridPage(this, null);
 	private final HudPage hudPage = new HudPage(this);
-	private final CosmeticsPage cosmeticsPage = new CosmeticsPage();
+	private final CosmeticsPage cosmeticsPage = new CosmeticsPage(this);
 	private final ThemePage themePage = new ThemePage();
 	private Tab tab = lastTab;
 	private ModuleSettingsPage modulePage;
