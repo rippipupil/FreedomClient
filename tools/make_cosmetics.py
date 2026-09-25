@@ -18,52 +18,17 @@ RED = (215, 38, 61, 255)
 RED_DARK = (142, 20, 38, 255)
 RED_DEEP = (90, 12, 26, 255)
 
-# Silueta del ala (20 de ancho x 16 de alto). El borde izquierdo es el que se une a la espalda.
-WING = [
-    "..........##########",
-    "......##############",
-    "....################",
-    "..#################.",
-    ".#################..",
-    "#################...",
-    "##############......",
-    "#############.......",
-    "############........",
-    "###########.........",
-    "##########..........",
-    "#########...........",
-    "########............",
-    "#######.............",
-    "######..............",
-    "#####...............",
-]
-
-
-def wing_color(x, y):
-    """Plumas: bandas diagonales más oscuras cada 4 px y borde con contorno."""
-    feather = (x + y * 2) % 8
-    if feather in (0, 1):
-        return SHADE
-    if feather == 2:
-        return LIGHT
-    return WHITE
+BONE = (255, 252, 244, 255)
 
 
 def make_wings():
+    """Franjas sólidas de 4 px de alto, una por color. Las alas son voxel (AngelCosmeticsLayer) y cada cubo
+    usa una franja: contorno, blanco, claro, sombra y hueso."""
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
-    for y, row in enumerate(WING):
-        for x, char in enumerate(row):
-            if char != "#":
-                continue
-            edge = (
-                x + 1 >= len(row) or row[x + 1] != "#"
-                or y + 1 >= len(WING) or WING[y + 1][x] != "#"
-                or y == 0 or WING[y - 1][x] != "#"
-            )
-            color = OUTLINE if edge else wing_color(x, y)
-            # Cara delantera en (1,1) y trasera en (22,1) de una caja de 20x16x1; la trasera en espejo.
-            image.putpixel((1 + x, 1 + y), color)
-            image.putpixel((22 + (19 - x), 1 + y), color)
+    for index, color in enumerate((OUTLINE, WHITE, LIGHT, SHADE, BONE)):
+        for y in range(index * 4, index * 4 + 4):
+            for x in range(64):
+                image.putpixel((x, y), color)
     image.save(OUT / "wings.png")
 
 

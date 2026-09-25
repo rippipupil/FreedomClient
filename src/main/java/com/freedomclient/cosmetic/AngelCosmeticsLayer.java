@@ -31,15 +31,84 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		super(parent);
 	}
 
-	/** Dos alas planas (20x16x1) recortadas con la textura, unidas a la espalda. */
+	/**
+	 * Silueta de un ala en píxeles (24x18). La columna 0 se une a la espalda y la punta queda arriba a la derecha.
+	 * Cada letra es un color de la textura: b = hueso/borde superior, o = contorno, w = blanco, l = claro, s = sombra.
+	 */
+	private static final String[] WING = {
+			"................bbbbbbbb",
+			".............bbbwwwslwwo",
+			"..........bbbwwwwslwwwoo",
+			"........bbwwwwwslwwwwo..",
+			".....bbbwwwwwslwwwwwso..",
+			"...bblwwwwwslwwwwwsooo..",
+			".bblwwwwwslwwwwwsoo.....",
+			"blwwwwwslwwwwwslo.o.....",
+			"wwwwwslwwwwwsloo........",
+			"wwwslwwwwwslwo.o........",
+			"wslwwwwwslwoo...........",
+			"lwwwwwslwwo.o...........",
+			"wwwwslwwoo..............",
+			"wwslwwwo................",
+			"slwwwoo.................",
+			"wwwwo...................",
+			"wooo....................",
+			"o.......................",
+	};
+	/** Columna donde el ala se dobla: a partir de aquí los píxeles forman la punta, que gira aparte. */
+	private static final int WING_FOLD = 10;
+	/** Fila de la silueta que queda a la altura del pivote del ala. */
+	private static final int WING_ROOT_ROW = 10;
+
+	/**
+	 * Alas voxel: cada tramo de píxeles del mismo color de una fila es un cubo de 1 píxel de alto, así el ala
+	 * tiene volumen de verdad. El hueso superior y la base son más gruesos. Cada ala tiene una parte interior
+	 * y una punta que se dobla por separado.
+	 */
 	private static ModelPart createWings() {
 		MeshDefinition mesh = new MeshDefinition();
 		PartDefinition root = mesh.getRoot();
-		root.addOrReplaceChild("left", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -12.0F, 0.0F, 20, 16, 1),
-				PartPose.offset(1.0F, 3.0F, 2.5F));
-		root.addOrReplaceChild("right", CubeListBuilder.create().texOffs(0, 0).mirror().addBox(-20.0F, -12.0F, 0.0F, 20, 16, 1),
-				PartPose.offset(-1.0F, 3.0F, 2.5F));
+		PartDefinition left = root.addOrReplaceChild("left", wingBoxes(0, WING_FOLD, false), PartPose.offset(1.0F, 3.0F, 2.5F));
+		left.addOrReplaceChild("tip", wingBoxes(WING_FOLD, WING[0].length(), false), PartPose.offset(WING_FOLD, 0.0F, 0.0F));
+		PartDefinition right = root.addOrReplaceChild("right", wingBoxes(0, WING_FOLD, true), PartPose.offset(-1.0F, 3.0F, 2.5F));
+		right.addOrReplaceChild("tip", wingBoxes(WING_FOLD, WING[0].length(), true), PartPose.offset(-WING_FOLD, 0.0F, 0.0F));
 		return LayerDefinition.create(mesh, 64, 32).bakeRoot();
+	}
+
+	/** Cubos de las columnas [from, to) de la silueta, relativos al pivote de su parte (en {@code from}). */
+	private static CubeListBuilder wingBoxes(int from, int to, boolean mirrored) {
+		CubeListBuilder builder = CubeListBuilder.create();
+		for (int row = 0; row < WING.length; row++) {
+			String line = WING[row];
+			int x = from;
+			while (x < to) {
+				char color = line.charAt(x);
+				int end = x + 1;
+				while (end < to && line.charAt(end) == color) {
+					end++;
+				}
+				if (color != '.') {
+					int length = end - x;
+					int depth = color == 'b' || x < 4 ? 2 : 1;
+					float start = x - from;
+					float boxX = mirrored ? -start - length : start;
+					// La textura tiene una franja sólida de 4 px de alto por color, así cada cubo sale de un solo color.
+					builder.texOffs(0, colorRow(color)).addBox(boxX, row - WING_ROOT_ROW, -0.5F, length, 1, depth);
+				}
+				x = end;
+			}
+		}
+		return builder;
+	}
+
+	private static int colorRow(char color) {
+		return switch (color) {
+			case 'o' -> 0;
+			case 'w' -> 4;
+			case 'l' -> 8;
+			case 's' -> 12;
+			default -> 16;
+		};
 	}
 
 	/** Anillo de pequeños cubos alrededor de un círculo. */
@@ -76,10 +145,15 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 		ModelPart left = wings.getChild("left");
 		ModelPart right = wings.getChild("right");
-		left.yRot = -0.45F - flap;
-		left.zRot = -0.25F;
-		right.yRot = 0.45F + flap;
-		right.zRot = 0.25F;
+		ModelPart leftTip = left.getChild("tip");
+		ModelPart rightTip = right.getChild("tip");
+		left.yRot = -0.5F - flap;
+		left.zRot = -0.12F;
+		right.yRot = 0.5F + flap;
+		right.zRot = 0.12F;
+		// La punta se dobla hacia atrás y se mueve algo más que la base, como un ala de verdad.
+		leftTip.yRot = -0.3F - flap * 0.8F;
+		rightTip.yRot = 0.3F + flap * 0.8F;
 
 		poseStack.pushPose();
 		getParentModel().body.translateAndRotate(poseStack);
