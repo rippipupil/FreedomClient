@@ -11,6 +11,8 @@ import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 
@@ -50,6 +52,17 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.FreedomTitleScreen);
 		context.waitTicks(20);
 		context.takeScreenshot("title_screen");
+
+		// Abrir y cerrar Singleplayer y Multiplayer desde el menú principal (antes crasheaba al volver).
+		context.runOnClient(client -> client.setScreen(new SelectWorldScreen(client.screen)));
+		context.waitTicks(20);
+		context.runOnClient(client -> client.screen.onClose());
+		context.waitTicks(20);
+		context.runOnClient(client -> client.setScreen(new JoinMultiplayerScreen(client.screen)));
+		context.waitTicks(20);
+		context.runOnClient(client -> client.screen.onClose());
+		context.waitTicks(20);
+		context.takeScreenshot("title_after_menus");
 
 		// Pantalla de carga: se fuerza una recarga de recursos para verla.
 		context.runOnClient(client -> client.reloadResourcePacks());
