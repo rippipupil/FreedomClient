@@ -38,6 +38,7 @@ import com.freedomclient.module.pvp.ToggleSprintModule;
 import com.freedomclient.module.pvp.ViewModelModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
+import com.freedomclient.module.utility.CrashGuardModule;
 import com.freedomclient.module.utility.FastWorldJoinModule;
 import com.freedomclient.module.utility.LogCleanerModule;
 import com.freedomclient.module.utility.QuickPackModule;
@@ -120,6 +121,7 @@ public class ModuleManager {
 		add(new QuickPackModule());
 		add(new FastWorldJoinModule());
 		add(new LogCleanerModule());
+		add(new CrashGuardModule());
 
 		// Mods originales incluidos (siempre activos).
 		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));

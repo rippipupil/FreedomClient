@@ -67,17 +67,20 @@ public class FreedomClient implements ClientModInitializer {
 		Config.load(moduleManager);
 		moduleManager.get(LogCleanerModule.class).clean();
 
+		// Respaldo por si el menú principal de vanilla se abre por un camino que el mixin no cubre.
+		// Va al principio del tick, antes de que el juego actualice la pantalla actual.
+		ClientTickEvents.START_CLIENT_TICK.register(client -> {
+			if (client.screen instanceof TitleScreen && !(client.screen instanceof FreedomTitleScreen)
+					&& CustomScreensModule.mainMenuEnabled()) {
+				client.setScreen(new FreedomTitleScreen());
+			}
+		});
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (menuKey.consumeClick()) {
 				if (client.screen == null) {
 					client.setScreen(new FreedomMenuScreen());
 				}
-			}
-
-			// Respaldo por si el menú principal de vanilla se abre por un camino que el mixin no cubre.
-			if (client.screen instanceof TitleScreen && !(client.screen instanceof FreedomTitleScreen)
-					&& CustomScreensModule.mainMenuEnabled()) {
-				client.setScreen(new FreedomTitleScreen());
 			}
 
 			CombatTracker.tick(client);

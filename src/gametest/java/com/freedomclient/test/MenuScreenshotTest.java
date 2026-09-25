@@ -11,7 +11,10 @@ import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
+import com.freedomclient.ui.scene.CrashGuardScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
@@ -42,6 +45,9 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"effect give @a fire_resistance 300 0",
 			// Un montículo de hierba a un lado para ver Better Grass.
 			"execute at @p run fill ~4 ~ ~5 ~7 ~1 ~8 grass_block",
+			// Un cofre a la vista y otro detrás del montículo para Entity Culling.
+			"execute at @p run setblock ~-3 ~ ~4 chest",
+			"execute at @p run setblock ~6 ~ ~10 chest",
 	};
 
 	@Override
@@ -63,6 +69,21 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.runOnClient(client -> client.screen.onClose());
 		context.waitTicks(20);
 		context.takeScreenshot("title_after_menus");
+
+		// Crash Guard: una pantalla que falla al actualizarse no debe cerrar el juego.
+		context.runOnClient(client -> client.setScreen(new Screen(Component.literal("Crash test")) {
+			@Override
+			public void tick() {
+				throw new IllegalStateException("FreedomClient Crash Guard test");
+			}
+		}));
+		context.waitFor(client -> client.screen instanceof CrashGuardScreen, 20 * 10);
+		context.waitTicks(10);
+		context.takeScreenshot("crash_guard");
+		context.setScreen(() -> null);
+		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.FreedomTitleScreen);
+		// Espera a que pase la ventana de "crasheos seguidos" por si otra prueba lo necesita.
+		context.waitTicks(20 * 11);
 
 		// Pantalla de carga: se fuerza una recarga de recursos para verla.
 		context.runOnClient(client -> client.reloadResourcePacks());
