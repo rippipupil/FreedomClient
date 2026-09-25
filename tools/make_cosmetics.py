@@ -32,6 +32,58 @@ def make_wings():
     image.save(OUT / "wings.png")
 
 
+# Pluma pixel de 8x8 para Hit Particles: o = contorno, w = blanco, l = claro, q = cañón (dorado).
+FEATHER = [
+    "......oo",
+    ".....owo",
+    "....owlo",
+    "...owlo.",
+    "..owlo..",
+    ".owlo...",
+    ".oqo....",
+    "q.......",
+]
+
+
+def make_feather():
+    colors = {"o": OUTLINE, "w": WHITE, "l": LIGHT, "q": GOLD_DARK}
+    image = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    for y, row in enumerate(FEATHER):
+        for x, char in enumerate(row):
+            if char in colors:
+                image.putpixel((x, y), colors[char])
+    particle_dir = OUT.parent / "particle"
+    particle_dir.mkdir(parents=True, exist_ok=True)
+    image.save(particle_dir / "feather.png")
+
+
+# Paleta de la mascota Angel Devil: una franja de 4 px de alto por color, en este orden
+# (AngelDevilPetRenderer usa el índice de cada letra).
+PET_COLORS = [
+    GOLD,                   # g halo
+    GOLD_DARK,              # G halo oscuro
+    RED,                    # r pelo
+    RED_DARK,               # R pelo oscuro
+    (250, 214, 186, 255),   # s piel
+    (40, 18, 24, 255),      # e ojos
+    (226, 120, 130, 255),   # p boca
+    WHITE,                  # h camisa
+    (28, 22, 30, 255),      # k negro (corbata, pantalón)
+    (70, 62, 74, 255),      # K gris oscuro (zapatos)
+    (255, 255, 255, 255),   # w alas
+    LIGHT,                  # W alas sombra
+]
+
+
+def make_pet():
+    image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    for index, color in enumerate(PET_COLORS):
+        for y in range(index * 4, index * 4 + 4):
+            for x in range(64):
+                image.putpixel((x, y), color)
+    image.save(OUT / "pet.png")
+
+
 def make_halo():
     image = Image.new("RGBA", (16, 16), GOLD)
     for y in range(16):
@@ -85,6 +137,8 @@ def make_cape():
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     make_wings()
+    make_feather()
+    make_pet()
     make_halo()
     make_cape()
     print("cosmetic textures written to", OUT)

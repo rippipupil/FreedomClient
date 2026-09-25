@@ -9,11 +9,14 @@ import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.pvp.LowHealthWarningModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
 import com.freedomclient.module.utility.LogCleanerModule;
 import com.freedomclient.module.visual.BetterGrassModule;
+import com.freedomclient.module.visual.HitParticlesModule;
+import com.freedomclient.module.visual.VisualsModule;
 import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.module.visual.ShulkerPreviewModule;
 import com.freedomclient.waypoint.WaypointsModule;
@@ -89,7 +92,11 @@ public class FreedomClient implements ClientModInitializer {
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> moduleManager.onShutdown(client));
 		BetterGrassModule.registerPack();
-		ClientLifecycleEvents.CLIENT_STARTED.register(client -> moduleManager.get(BetterGrassModule.class).syncWithPacks(client));
+		VisualsModule.registerPacks();
+		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
+			moduleManager.get(BetterGrassModule.class).syncWithPacks(client);
+			moduleManager.get(VisualsModule.class).syncWithPacks(client);
+		});
 
 		registerHud();
 		registerCosmetics();
@@ -98,6 +105,8 @@ public class FreedomClient implements ClientModInitializer {
 			Minecraft client = Minecraft.getInstance();
 			if (player == client.player) {
 				CombatTracker.onAttack(client.player, entity, hitResult);
+				HitParticlesModule hitParticles = moduleManager.get(HitParticlesModule.class);
+				if (hitParticles.isEnabled()) hitParticles.onHit(entity);
 			}
 			return InteractionResult.PASS;
 		});
@@ -127,6 +136,11 @@ public class FreedomClient implements ClientModInitializer {
 		HudElementRegistry.addFirst(id("waypoints"), (graphics, deltaTracker) ->
 				moduleManager.get(WaypointsModule.class).render(graphics, Minecraft.getInstance()));
 		HudElementRegistry.addLast(id("hud"), (graphics, deltaTracker) -> HudRenderer.render(graphics));
+		// El aviso de poca vida va por debajo de todo el HUD (tiñe solo el mundo y los bordes).
+		HudElementRegistry.addFirst(id("low_health"), (graphics, deltaTracker) -> {
+			LowHealthWarningModule warning = moduleManager.get(LowHealthWarningModule.class);
+			if (warning.isEnabled()) warning.render(graphics, Minecraft.getInstance());
+		});
 
 		HudElementRegistry.attachElementAfter(VanillaHudElements.FOOD_BAR, id("appleskin"), (graphics, deltaTracker) ->
 				moduleManager.get(AppleSkinModule.class).renderOverlay(graphics, Minecraft.getInstance()));

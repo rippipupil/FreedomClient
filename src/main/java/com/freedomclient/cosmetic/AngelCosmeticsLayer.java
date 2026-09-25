@@ -27,6 +27,7 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 	private final ModelPart wings = createWings();
 	private final ModelPart halo = createHalo();
 	private final WavyCapeRenderer wavyCape = new WavyCapeRenderer();
+	private final AngelDevilPetRenderer pet = new AngelDevilPetRenderer();
 
 	public AngelCosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
 		super(parent);
@@ -135,6 +136,11 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		WingsCosmetic wingsModule = CosmeticModule.get(WingsCosmetic.class);
 		if (wingsModule != null && wingsModule.shouldRender(state)) {
 			renderWings(poseStack, collector, light, state, wingsModule);
+		}
+
+		PetCosmetic petModule = CosmeticModule.get(PetCosmetic.class);
+		if (petModule != null && petModule.shouldRender(state)) {
+			pet.render(poseStack, collector, light, state, petModule);
 		}
 
 		HaloCosmetic haloModule = CosmeticModule.get(HaloCosmetic.class);

@@ -6,6 +6,8 @@ import com.freedomclient.hud.HudModule;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.visual.HitParticlesModule;
+import com.freedomclient.module.visual.VisualsModule;
 import com.freedomclient.module.visual.ZoomModule;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.Setting;
@@ -48,7 +50,17 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			// Un cofre a la vista y otro detrás del montículo para Entity Culling.
 			"execute at @p run setblock ~-3 ~ ~4 chest",
 			"execute at @p run setblock ~6 ~ ~10 chest",
+			// Objetos tirados (física de objetos de Visuals) y un soporte de armadura para las plumas de Hit Particles.
+			"execute at @p run summon item ~-1 ~ ~3 {Item:{id:\"minecraft:diamond_sword\",count:1}}",
+			"execute at @p run summon item ~1 ~ ~3 {Item:{id:\"minecraft:golden_apple\",count:1}}",
+			"execute at @p run summon armor_stand ~ ~ ~3 {NoGravity:1b}",
 	};
+
+	private static void setMode(Module module, String name, String value) {
+		for (Setting<?> setting : module.getSettings()) {
+			if (setting instanceof ModeSetting mode && mode.getName().equals(name)) mode.set(value);
+		}
+	}
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
@@ -124,6 +136,30 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("cosmetics_front");
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+
+			// Visuals: cielo de atardecer FC.
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "FC Sunset"));
+			context.waitTicks(10);
+			context.takeScreenshot("visuals_sunset");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "Server"));
+
+			// Hit Particles: plumas al golpear el soporte de armadura.
+			context.runOnClient(client -> {
+				for (var entity : client.level.entitiesForRendering()) {
+					if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
+						FreedomClient.getModuleManager().get(HitParticlesModule.class).onHit(entity);
+					}
+				}
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("hit_particles");
+
+			// Aviso de poca vida a 2 corazones.
+			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> player.setHealth(4.0F)));
+			context.waitTicks(20);
+			context.takeScreenshot("low_health");
+			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> player.setHealth(20.0F)));
+			context.waitTicks(10);
 
 			context.setScreen(() -> new HudEditorScreen(null));
 			context.waitTicks(10);

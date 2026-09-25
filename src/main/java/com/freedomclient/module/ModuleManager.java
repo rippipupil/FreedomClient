@@ -2,6 +2,7 @@ package com.freedomclient.module;
 
 import com.freedomclient.cosmetic.CapeCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
+import com.freedomclient.cosmetic.PetCosmetic;
 import com.freedomclient.cosmetic.WingsCosmetic;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.ArmorHud;
@@ -14,6 +15,7 @@ import com.freedomclient.module.hud.InventoryHud;
 import com.freedomclient.module.hud.ItemCounterHud;
 import com.freedomclient.module.hud.KeystrokesHud;
 import com.freedomclient.module.hud.ModuleListHud;
+import com.freedomclient.module.hud.NowPlayingHud;
 import com.freedomclient.module.hud.PingHud;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.hud.ReachHud;
@@ -24,6 +26,8 @@ import com.freedomclient.module.performance.CullLeavesModule;
 import com.freedomclient.module.performance.EntityCullingModule;
 import com.freedomclient.module.visual.BetterGrassModule;
 import com.freedomclient.module.visual.CapesModule;
+import com.freedomclient.module.visual.HitParticlesModule;
+import com.freedomclient.module.visual.VisualsModule;
 import com.freedomclient.module.visual.WavyCapesModule;
 import com.freedomclient.module.hud.TargetHud;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
@@ -33,12 +37,14 @@ import com.freedomclient.module.pvp.BetterHurtCamModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.pvp.FreelookModule;
 import com.freedomclient.module.pvp.HealthIndicatorsModule;
+import com.freedomclient.module.pvp.LowHealthWarningModule;
 import com.freedomclient.module.pvp.ShieldFixModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
 import com.freedomclient.module.pvp.ViewModelModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
 import com.freedomclient.module.utility.CrashGuardModule;
+import com.freedomclient.module.utility.DiscordPresenceModule;
 import com.freedomclient.module.utility.FastWorldJoinModule;
 import com.freedomclient.module.utility.LogCleanerModule;
 import com.freedomclient.module.utility.QuickPackModule;
@@ -81,6 +87,7 @@ public class ModuleManager {
 		add(new ViewModelModule());
 		add(new ShieldFixModule());
 		add(new AutoTextModule());
+		add(new LowHealthWarningModule());
 
 		// HUD
 		add(new WatermarkHud());
@@ -98,6 +105,7 @@ public class ModuleManager {
 		add(new ItemCounterHud());
 		add(new ModuleListHud());
 		add(new TargetHud());
+		add(new NowPlayingHud());
 		add(new AppleSkinModule());
 
 		// Visual
@@ -112,6 +120,8 @@ public class ModuleManager {
 		add(new BetterGrassModule());
 		add(new WavyCapesModule());
 		add(new CapesModule());
+		add(new HitParticlesModule());
+		add(new VisualsModule());
 
 		// Utility
 		add(new WaypointsModule());
@@ -122,6 +132,7 @@ public class ModuleManager {
 		add(new FastWorldJoinModule());
 		add(new LogCleanerModule());
 		add(new CrashGuardModule());
+		add(new DiscordPresenceModule());
 
 		// Mods originales incluidos (siempre activos).
 		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));
@@ -133,6 +144,7 @@ public class ModuleManager {
 		add(new WingsCosmetic());
 		add(new HaloCosmetic());
 		add(new CapeCosmetic());
+		add(new PetCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());
