@@ -16,7 +16,7 @@ import java.util.List;
 
 /** Pantalla de Crash Guard: explica que el juego ha crasheado, dónde está el informe y deja volver al menú. */
 public class CrashGuardScreen extends Screen {
-	private static final int PANEL_WIDTH = 320;
+	private static final int PANEL_WIDTH = 348;
 	private static final int BUTTON_HEIGHT = 20;
 
 	private final Ui ui = new Ui();
