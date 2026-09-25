@@ -3,9 +3,11 @@
 		{
 			"type": "bitmap",
 			"file": "freedomclient:font/fc_icon.png",
-			"height": 8,
-			"ascent": 7,
-			"chars": [""]
+			"height": 11,
+			"ascent": 10,
+			"chars": [
+				""
+			]
 		}
 	]
 }
