@@ -1,6 +1,7 @@
 package com.freedomclient.mixin;
 
 import com.freedomclient.module.visual.HitParticlesModule;
+import com.freedomclient.module.visual.TotemPopModule;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.entity.Entity;
@@ -21,6 +22,7 @@ public class ParticleEngineMixin {
 	@Inject(method = "createTrackingEmitter(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/particles/ParticleOptions;I)V",
 			at = @At("HEAD"), cancellable = true)
 	private void freedomclient$hideCritsTimed(Entity entity, ParticleOptions options, int lifetime, CallbackInfo ci) {
-		if (HitParticlesModule.hidesVanilla(options)) ci.cancel();
+		// TotemPop: el tótem usa este emisor (30 ticks de partículas TOTEM_OF_UNDYING).
+		if (HitParticlesModule.hidesVanilla(options) || TotemPopModule.replaceParticles(entity, options)) ci.cancel();
 	}
 }

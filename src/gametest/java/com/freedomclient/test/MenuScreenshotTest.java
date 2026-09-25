@@ -38,7 +38,7 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"item replace entity @a armor.chest with diamond_chestplate[damage=500]",
 			"item replace entity @a armor.legs with iron_leggings",
 			"item replace entity @a armor.feet with golden_boots",
-			"item replace entity @a weapon.mainhand with diamond_sword",
+			"item replace entity @a weapon.mainhand with diamond_sword[damage=1500]",
 			"item replace entity @a weapon.offhand with cooked_beef 16",
 			"give @a ender_pearl 16",
 			"give @a golden_apple 12",
@@ -46,6 +46,11 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"give @a splash_potion 5",
 			"give @a arrow 64",
 			"give @a cobblestone 64",
+			"scoreboard objectives add fc dummy \"FreedomClient\"",
+			"scoreboard objectives setdisplay sidebar fc",
+			"scoreboard players set Kills fc 12",
+			"scoreboard players set Deaths fc 2",
+			"scoreboard players set Streak fc 5",
 			"effect give @a speed 120 1",
 			"effect give @a strength 8 0",
 			"effect give @a fire_resistance 300 0",
@@ -71,6 +76,11 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.getInput().resizeWindow(1920, 1080);
 
 		// Menú principal propio.
+		// La primera vez que se abre una versión salen las novedades.
+		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.WhatsNewScreen, 20 * 30);
+		context.waitTicks(10);
+		context.takeScreenshot("whats_new");
+		context.runOnClient(client -> client.screen.onClose());
 		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.FreedomTitleScreen);
 		context.waitTicks(20);
 		context.takeScreenshot("title_screen");
@@ -190,10 +200,20 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> player.setHealth(20.0F)));
 			context.waitTicks(10);
 
+			// TotemPop: un tótem en la mano izquierda y un golpe mortal.
+			singleplayer.getServer().runCommand("item replace entity @a weapon.offhand with totem_of_undying");
+			context.waitTicks(2);
+			singleplayer.getServer().runCommand("damage @p 60 minecraft:generic");
+			context.waitTicks(6);
+			context.takeScreenshot("totem_pop");
+			context.waitTicks(40);
+
 			context.setScreen(() -> new HudEditorScreen(null));
 			context.waitTicks(10);
 			context.takeScreenshot("hud_editor");
 
+			// Un mod favorito para ver la estrella (sale el primero de la lista).
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(ZoomModule.class).loadFavorite(true));
 			for (FreedomMenuScreen.Tab tab : FreedomMenuScreen.Tab.values()) {
 				context.setScreen(() -> {
 					FreedomMenuScreen screen = new FreedomMenuScreen();

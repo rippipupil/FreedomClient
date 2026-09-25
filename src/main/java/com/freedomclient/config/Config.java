@@ -55,6 +55,10 @@ public final class Config {
 	}
 
 	private static void loadModule(Module module, JsonObject data) {
+		JsonElement favorite = data.get("favorite");
+		if (favorite != null && favorite.isJsonPrimitive()) {
+			module.loadFavorite(favorite.getAsBoolean());
+		}
 		JsonElement enabled = data.get("enabled");
 		if (enabled != null && enabled.isJsonPrimitive()) {
 			module.loadEnabled(enabled.getAsBoolean());
@@ -85,6 +89,7 @@ public final class Config {
 
 			JsonObject data = new JsonObject();
 			data.addProperty("enabled", module.isEnabled());
+			if (module.isFavorite()) data.addProperty("favorite", true);
 			data.add("settings", settings);
 			modules.add(module.getId(), data);
 		}

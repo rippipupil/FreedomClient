@@ -1,0 +1,29 @@
+[
+	{
+		"title": "Totems, auras and a smarter menu",
+		"items": [
+			"TotemPop: smaller totem animation on screen and new totem particles (feathers with a glowing halo, or golden sparks).",
+			"Aura cosmetic: angel light, devil embers, sky sparkles, stars, hearts, feathers or music notes around you.",
+			"Hit Particles: new pixel feathers, like the wings.",
+			"Chat heads, a movable scoreboard without red numbers, Nether coords and a weapon break alert.",
+			"Favorite mods with the star, and the search now finds options inside every mod.",
+			"The client now tells you when there is an update and installs it with one click."
+		]
+	},
+	{
+		"title": "Sounds and options",
+		"items": [
+			"HitSounds: pixel pop, bell, laser, coin, punch, angel harp, devil and click, each with a crit version.",
+			"Every option with several modes now shows all of them at once."
+		]
+	},
+	{
+		"title": "Pets and skies",
+		"items": [
+			"Angel Devil and Cloud pets follow you, wave, celebrate your kills, nap when you are AFK and hide when you are low.",
+			"Halo styles: ring, broken, crown and devil horns.",
+			"Main menu sky: sunset, starry night, day or real time, with parallax.",
+			"Music Player for your own MP3 files and an animated gradient name."
+		]
+	}
+]

@@ -65,6 +65,11 @@ public class FreedomMenuScreen extends Screen {
 		modulePage = new ModuleSettingsPage(this, module);
 	}
 
+	/** Abre los ajustes de un mod marcando las opciones que contienen {@code highlight} (desde el buscador). */
+	public void openModule(Module module, String highlight) {
+		modulePage = new ModuleSettingsPage(this, module, highlight);
+	}
+
 	public void closeModule() {
 		if (returnTo != null) {
 			onClose();

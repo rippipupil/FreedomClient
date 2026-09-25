@@ -17,9 +17,11 @@ import com.freedomclient.module.hud.InventoryHud;
 import com.freedomclient.module.hud.ItemCounterHud;
 import com.freedomclient.module.hud.KeystrokesHud;
 import com.freedomclient.module.hud.ModuleListHud;
+import com.freedomclient.module.hud.NetherCoordsHud;
 import com.freedomclient.module.hud.MusicPlayerHud;
 import com.freedomclient.module.hud.NowPlayingHud;
 import com.freedomclient.module.hud.PingHud;
+import com.freedomclient.module.hud.ScoreboardHud;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.hud.ReachHud;
 import com.freedomclient.module.hud.WatermarkHud;
@@ -30,6 +32,7 @@ import com.freedomclient.module.performance.EntityCullingModule;
 import com.freedomclient.module.visual.BetterGrassModule;
 import com.freedomclient.module.visual.CapesModule;
 import com.freedomclient.module.visual.HitParticlesModule;
+import com.freedomclient.module.visual.TotemPopModule;
 import com.freedomclient.module.visual.VisualsModule;
 import com.freedomclient.module.visual.WavyCapesModule;
 import com.freedomclient.module.hud.TargetHud;
@@ -47,8 +50,10 @@ import com.freedomclient.module.pvp.ToggleSprintModule;
 import com.freedomclient.module.pvp.ViewModelModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
+import com.freedomclient.module.utility.ChatHeadsModule;
 import com.freedomclient.module.utility.CrashGuardModule;
 import com.freedomclient.module.utility.DiscordPresenceModule;
+import com.freedomclient.module.utility.UpdatesModule;
 import com.freedomclient.module.utility.FastWorldJoinModule;
 import com.freedomclient.module.utility.LogCleanerModule;
 import com.freedomclient.module.utility.QuickPackModule;
@@ -99,6 +104,7 @@ public class ModuleManager {
 		add(new FpsHud());
 		add(new PingHud());
 		add(new CoordinatesHud());
+		add(new NetherCoordsHud());
 		add(new ClockHud());
 		add(new CpsHud());
 		add(new ComboHud());
@@ -112,6 +118,7 @@ public class ModuleManager {
 		add(new TargetHud());
 		add(new NowPlayingHud());
 		add(new MusicPlayerHud());
+		add(new ScoreboardHud());
 		add(new AppleSkinModule());
 
 		// Visual
@@ -127,11 +134,13 @@ public class ModuleManager {
 		add(new WavyCapesModule());
 		add(new CapesModule());
 		add(new HitParticlesModule());
+		add(new TotemPopModule());
 		add(new VisualsModule());
 
 		// Utility
 		add(new WaypointsModule());
 		add(new ChatFilterModule());
+		add(new ChatHeadsModule());
 		add(new AnnouncementsModule());
 		add(new SoundTweaksModule());
 		add(new QuickPackModule());
@@ -139,6 +148,7 @@ public class ModuleManager {
 		add(new LogCleanerModule());
 		add(new CrashGuardModule());
 		add(new DiscordPresenceModule());
+		add(new UpdatesModule());
 
 		// Mods originales incluidos (siempre activos).
 		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));

@@ -2,11 +2,14 @@ package com.freedomclient.ui.scene;
 
 import com.freedomclient.FreedomClient;
 import com.freedomclient.module.visual.CustomScreensModule;
+import com.freedomclient.module.utility.UpdatesModule;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.UiText;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import com.freedomclient.ui.theme.ThemeManager;
+import com.freedomclient.update.UpdateChecker;
+import com.freedomclient.update.WhatsNew;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -86,6 +89,7 @@ public class FreedomTitleScreen extends TitleScreen {
 		String copyright = "Copyright Mojang AB. Do not distribute!";
 		graphics.drawString(font, copyright, width - font.width(copyright) - 4, height - 12, 0xCCF5F1E8, true);
 
+		renderUpdateBanner(graphics);
 		ui.end();
 	}
 
@@ -95,14 +99,18 @@ public class FreedomTitleScreen extends TitleScreen {
 	}
 
 	private void button(String label, int x, int y, int w, Runnable action) {
-		boolean hovered = ui.hovered(x, y, w, BUTTON_HEIGHT);
+		button(label, x, y, w, BUTTON_HEIGHT, action);
+	}
+
+	private void button(String label, int x, int y, int w, int h, Runnable action) {
+		boolean hovered = ui.hovered(x, y, w, h);
 		float hover = ui.animate("title:" + label, hovered ? 1.0F : 0.0F);
 		int fill = ThemeManager.mix(ThemeManager.withAlpha(ThemeManager.card(), 0.85F), ThemeManager.withAlpha(ThemeManager.cardHover(), 0.95F), hover);
 		int border = ThemeManager.mix(ThemeManager.border(), ThemeManager.accent(), hover);
-		Draw.bevelPanel(ui.g, x, y, w, BUTTON_HEIGHT, fill, border);
+		Draw.bevelPanel(ui.g, x, y, w, h, fill, border);
 		int textColor = ThemeManager.mix(ThemeManager.text(), ThemeManager.accent(), hover);
-		ui.g.drawCenteredString(font, label, x + w / 2, y + (BUTTON_HEIGHT - 8) / 2, textColor);
-		ui.click(x, y, w, BUTTON_HEIGHT, (mx, my, button) -> {
+		ui.g.drawCenteredString(font, label, x + w / 2, y + (h - 8) / 2, textColor);
+		ui.click(x, y, w, h, (mx, my, button) -> {
 			ui.playClick();
 			action.run();
 			return true;
@@ -121,6 +129,39 @@ public class FreedomTitleScreen extends TitleScreen {
 
 	@Override
 	public void tick() {
+		// Novedades: una vez tras actualizar.
+		UpdatesModule updates = FreedomClient.getModuleManager().get(UpdatesModule.class);
+		if (updates.isEnabled() && updates.whatsNew.get() && WhatsNew.shouldShow()) {
+			minecraft.setScreen(new WhatsNewScreen(this));
+		}
+	}
+
+	/** Aviso de actualización arriba del todo: descargar, o el progreso de la descarga. */
+	private void renderUpdateBanner(GuiGraphics graphics) {
+		if (!UpdateChecker.shouldShowBanner()) return;
+		UpdateChecker.State state = UpdateChecker.state();
+		String text = switch (state) {
+			case DOWNLOADING -> "Downloading the update...";
+			case READY -> "Update installed! Restart Minecraft to use it.";
+			case FAILED -> "The download failed. Try again?";
+			default -> "A new FreedomClient version is available!";
+		};
+		int bannerW = font.width(text) + (state == UpdateChecker.State.AVAILABLE || state == UpdateChecker.State.FAILED ? 100 : 30);
+		int x = (width - bannerW) / 2;
+		int y = 6;
+		Draw.bevelPanel(ui.g, x, y, bannerW, 20, ThemeManager.withAlpha(ThemeManager.background(), 0.92F), ThemeManager.accent());
+		graphics.drawString(font, text, x + 8, y + 6, ThemeManager.text(), false);
+		if (state == UpdateChecker.State.AVAILABLE || state == UpdateChecker.State.FAILED) {
+			int buttonX = x + bannerW - 88;
+			button(state == UpdateChecker.State.FAILED ? "Retry" : "Update", buttonX, y + 3, 60, 14, UpdateChecker::downloadAsync);
+		}
+		int closeX = x + bannerW - 18;
+		boolean closeHovered = ui.hovered(closeX, y + 4, 12, 12);
+		graphics.drawString(font, "x", closeX + 3, y + 6, closeHovered ? ThemeManager.accent() : ThemeManager.textMuted(), false);
+		ui.click(closeX, y + 4, 12, 12, (mx, my, b) -> {
+			UpdateChecker.dismiss();
+			return true;
+		});
 	}
 
 	@Override

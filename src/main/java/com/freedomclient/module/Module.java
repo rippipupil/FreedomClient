@@ -20,6 +20,7 @@ public abstract class Module {
 	private final List<Setting<?>> settings = new ArrayList<>();
 	private final KeybindSetting keybind;
 	private boolean enabled;
+	private boolean favorite;
 
 	protected Module(String name, String description, Category category, boolean enabledByDefault) {
 		this.name = name;
@@ -35,6 +36,21 @@ public abstract class Module {
 	protected <S extends Setting<?>> S add(S setting) {
 		settings.add(setting);
 		return setting;
+	}
+
+	/** Favorito: sale arriba del todo en la lista de mods. */
+	public boolean isFavorite() {
+		return favorite;
+	}
+
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+		Config.save(FreedomClient.getModuleManager());
+	}
+
+	/** Al cargar la config, sin volver a guardarla. */
+	public void loadFavorite(boolean favorite) {
+		this.favorite = favorite;
 	}
 
 	public void toggle() {

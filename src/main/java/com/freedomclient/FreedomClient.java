@@ -8,6 +8,7 @@ import com.freedomclient.hud.HudRenderer;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
+import com.freedomclient.module.hud.ScoreboardHud;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.pvp.HitSoundsModule;
@@ -16,6 +17,8 @@ import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
 import com.freedomclient.module.utility.ChatFilterModule;
 import com.freedomclient.module.utility.LogCleanerModule;
+import com.freedomclient.module.utility.UpdatesModule;
+import com.freedomclient.update.UpdateChecker;
 import com.freedomclient.module.visual.BetterGrassModule;
 import com.freedomclient.module.visual.HitParticlesModule;
 import com.freedomclient.module.visual.VisualsModule;
@@ -99,6 +102,7 @@ public class FreedomClient implements ClientModInitializer {
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			moduleManager.get(BetterGrassModule.class).syncWithPacks(client);
 			moduleManager.get(VisualsModule.class).syncWithPacks(client);
+			if (moduleManager.get(UpdatesModule.class).isEnabled()) UpdateChecker.checkAsync();
 		});
 
 		registerHud();
@@ -160,6 +164,11 @@ public class FreedomClient implements ClientModInitializer {
 		HudElementRegistry.attachElementAfter(VanillaHudElements.CROSSHAIR, id("attack_indicator"), (graphics, deltaTracker) -> {
 			AttackIndicatorModule indicator = moduleManager.get(AttackIndicatorModule.class);
 			if (indicator.isEnabled()) indicator.render(graphics, Minecraft.getInstance());
+		});
+
+		// Scoreboard: si el módulo está activo, lo dibuja él (movible y sin números) y se oculta el de vanilla.
+		HudElementRegistry.replaceElement(VanillaHudElements.SCOREBOARD, vanilla -> (graphics, deltaTracker) -> {
+			if (!moduleManager.get(ScoreboardHud.class).replacesVanilla()) vanilla.render(graphics, deltaTracker);
 		});
 
 		// Oculta los iconos de efectos de vanilla cuando el HUD de efectos propio lo pide.

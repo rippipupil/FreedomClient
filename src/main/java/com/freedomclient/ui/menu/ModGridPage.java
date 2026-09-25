@@ -4,6 +4,7 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.performance.BundledModModule;
+import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.ScrollArea;
 import com.freedomclient.ui.TextField;
@@ -11,6 +12,7 @@ import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.theme.ThemeManager;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -72,13 +74,37 @@ public class ModGridPage implements MenuPage {
 		return x + width + 3;
 	}
 
+	private String query() {
+		return search.getText().toLowerCase(Locale.ROOT).trim();
+	}
+
+	/** Mods visibles: los favoritos primero. La búsqueda mira el nombre, la descripción y todas las opciones del mod. */
 	private List<Module> visibleModules() {
-		String query = search.getText().toLowerCase(Locale.ROOT).trim();
+		String query = query();
 		return FreedomClient.getModuleManager().getModules().stream()
 				.filter(module -> fixedCategory != null ? module.getCategory() == fixedCategory
 						: filter == null ? module.getCategory() != Category.HUD && module.getCategory() != Category.COSMETICS : module.getCategory() == filter)
-				.filter(module -> query.isEmpty() || module.getName().toLowerCase(Locale.ROOT).contains(query))
+				.filter(module -> query.isEmpty() || nameMatches(module, query) || matchingSetting(module, query) != null)
+				.sorted(Comparator.comparing((Module module) -> !module.isFavorite()))
 				.toList();
+	}
+
+	private static boolean nameMatches(Module module, String query) {
+		return module.getName().toLowerCase(Locale.ROOT).contains(query) || module.getDescription().toLowerCase(Locale.ROOT).contains(query);
+	}
+
+	/** Primera opción del mod cuyo nombre o descripción contiene el texto buscado. */
+	private static Setting<?> matchingSetting(Module module, String query) {
+		for (Setting<?> setting : module.getSettings()) {
+			if (settingMatches(setting, query)) return setting;
+		}
+		return null;
+	}
+
+	public static boolean settingMatches(Setting<?> setting, String query) {
+		if (query == null || query.isEmpty()) return false;
+		String lower = query.toLowerCase(Locale.ROOT);
+		return setting.getName().toLowerCase(Locale.ROOT).contains(lower) || setting.getDescription().toLowerCase(Locale.ROOT).contains(lower);
 	}
 
 	private void renderGrid(Ui ui, int x, int y, int w, int h) {
@@ -102,6 +128,16 @@ public class ModGridPage implements MenuPage {
 		scroll.end(ui, x, y, innerW, h, contentHeight);
 	}
 
+	/** Estrella pixel de 8x8. */
+	private static void star(Ui ui, int x, int y, int color) {
+		String[] rows = {"...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"};
+		for (int row = 0; row < rows.length; row++) {
+			for (int col = 0; col < rows[row].length(); col++) {
+				if (rows[row].charAt(col) == '#') ui.g.fill(x + col, y + row, x + col + 1, y + row + 1, color);
+			}
+		}
+	}
+
 	private void renderCard(Ui ui, Module module, int x, int y, int w) {
 		boolean hovered = ui.hovered(x, y, w, CARD_HEIGHT);
 		float hover = ui.animate("hover:" + module.getId(), hovered ? 1.0F : 0.0F);
@@ -112,7 +148,8 @@ public class ModGridPage implements MenuPage {
 		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24);
 
 		int textX = x + 34;
-		int textWidth = w - 38;
+		// Se deja sitio a la derecha para la estrella de favorito.
+		int textWidth = w - 46;
 		// Los nombres largos pasan a dos líneas (y se omite el ON/OFF, que ya indica el interruptor).
 		boolean twoLines = ui.font.width(module.getName()) > textWidth;
 		if (twoLines) {
@@ -124,28 +161,49 @@ public class ModGridPage implements MenuPage {
 			ui.g.drawString(ui.font, module.getName(), textX, y + 6, ThemeManager.text(), false);
 		}
 
+		// Si el mod sale por una opción (no por su nombre), se muestra cuál.
+		String query = query();
+		Setting<?> matched = query.isEmpty() || nameMatches(module, query) ? null : matchingSetting(module, query);
+
 		int toggleX = x + w - 25;
 		int toggleY = y + CARD_HEIGHT - 15;
+		if (matched != null) {
+			String label = ui.font.plainSubstrByWidth("> " + matched.getName(), toggleX - textX - 3);
+			ui.g.drawString(ui.font, label, textX, y + 20, ThemeManager.highlight(), false);
+		}
 		if (module.canToggle()) {
 			boolean toggleHovered = ui.hovered(toggleX - 2, toggleY - 2, 24, 14);
 			float progress = ui.animate("toggle:" + module.getId(), module.isEnabled() ? 1.0F : 0.0F);
 			Draw.toggle(ui.g, toggleX, toggleY, progress, toggleHovered);
-			if (!twoLines) {
+			if (!twoLines && matched == null) {
 				ui.g.drawString(ui.font, module.isEnabled() ? "ON" : "OFF", textX, y + 20,
 						module.isEnabled() ? ThemeManager.accent() : ThemeManager.textMuted(), false);
 			}
-		} else if (!twoLines) {
+		} else if (!twoLines && matched == null) {
 			String label = module instanceof BundledModModule ? "Always on" : "Open >";
 			ui.g.drawString(ui.font, label, textX, y + 20, ThemeManager.accent(), false);
 		}
 
-		// El interruptor se registra después de la tarjeta para tener prioridad al hacer clic.
+		// Estrella de favorito arriba a la derecha: siempre visible si es favorito, y al pasar el ratón si no.
+		int starX = x + w - 11;
+		int starY = y + 3;
+		boolean starHovered = ui.hovered(starX - 1, starY - 1, 10, 10);
+		if (module.isFavorite() || hovered) {
+			star(ui, starX, starY, module.isFavorite() ? ThemeManager.accent() : starHovered ? ThemeManager.highlight() : ThemeManager.textMuted());
+		}
+
+		// El interruptor y la estrella se registran después de la tarjeta para tener prioridad al hacer clic.
 		ui.click(x, y, w, CARD_HEIGHT, (mx, my, button) -> {
 			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && module.canToggle()) {
 				module.toggle();
 			} else {
-				screen.openModule(module);
+				screen.openModule(module, query);
 			}
+			ui.playClick();
+			return true;
+		});
+		ui.click(starX - 1, starY - 1, 10, 10, (mx, my, button) -> {
+			module.setFavorite(!module.isFavorite());
 			ui.playClick();
 			return true;
 		});

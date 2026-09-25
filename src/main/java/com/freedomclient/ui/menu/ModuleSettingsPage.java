@@ -19,10 +19,17 @@ public class ModuleSettingsPage implements MenuPage {
 	private final Module module;
 	private final ScrollArea scroll = new ScrollArea();
 	private final SettingRows rows = new SettingRows();
+	/** Texto buscado: las opciones que lo contienen se marcan (vacío si no se viene de una búsqueda). */
+	private final String highlight;
 
 	public ModuleSettingsPage(FreedomMenuScreen screen, Module module) {
+		this(screen, module, "");
+	}
+
+	public ModuleSettingsPage(FreedomMenuScreen screen, Module module, String highlight) {
 		this.screen = screen;
 		this.module = module;
+		this.highlight = highlight;
 	}
 
 	@Override
@@ -74,7 +81,16 @@ public class ModuleSettingsPage implements MenuPage {
 		for (Setting<?> setting : module.getSettings()) {
 			if (!setting.isVisible()) continue;
 			anyVisible = true;
-			cursor += rows.render(ui, setting, x, cursor, innerW) + SettingRows.ROW_GAP;
+			int rowHeight = rows.render(ui, setting, x, cursor, innerW);
+			if (ModGridPage.settingMatches(setting, highlight)) {
+				// Opción encontrada con el buscador: marco con el color de acento.
+				int accent = ThemeManager.accent();
+				ui.g.fill(x, cursor, x + innerW, cursor + 1, accent);
+				ui.g.fill(x, cursor + rowHeight - 1, x + innerW, cursor + rowHeight, accent);
+				ui.g.fill(x, cursor, x + 1, cursor + rowHeight, accent);
+				ui.g.fill(x + innerW - 1, cursor, x + innerW, cursor + rowHeight, accent);
+			}
+			cursor += rowHeight + SettingRows.ROW_GAP;
 		}
 		if (!anyVisible) {
 			ui.g.drawString(ui.font, "This mod has no settings.", x, cursor, ThemeManager.textMuted(), false);

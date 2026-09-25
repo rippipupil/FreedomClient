@@ -81,12 +81,19 @@ tasks.register("runProductionClientGameTest", net.fabricmc.loom.task.prod.Client
 	useXVFB = true
 }
 
+// Commit con el que se compila, para el avisador de actualizaciones (en GitHub Actions viene en GITHUB_SHA).
+def buildCommit = System.getenv("GITHUB_SHA") ?: providers.exec {
+	commandLine "git", "rev-parse", "HEAD"
+	ignoreExitValue = true
+}.standardOutput.asText.getOrElse("").trim()
+
 processResources {
 	def version = project.version
 	inputs.property "version", version
+	inputs.property "commit", buildCommit
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand "version": version, "commit": buildCommit
 	}
 }
 

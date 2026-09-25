@@ -10,6 +10,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -28,6 +29,7 @@ public class ArmorHud extends HudModule {
 	private final BooleanSetting showHeld = add(new BooleanSetting("Show held item", "Also show the item in your hand.", true));
 	private final BooleanSetting alert = add(new BooleanSetting("Armor alert", "Red animated exclamation mark next to armor that is about to break.", true));
 	private final NumberSetting threshold = add(new NumberSetting("Warn below", "Durability that triggers the alert.", 15, 5, 50, 1, "%"));
+	private final BooleanSetting weaponAlert = add(new BooleanSetting("Weapon alert", "Also warn when your sword, axe, mace or trident is about to break.", true));
 	private final BooleanSetting sound = add(new BooleanSetting("Alert sound", "Play a sound when a piece becomes low.", true));
 	private boolean wasLow;
 
@@ -35,12 +37,13 @@ public class ArmorHud extends HudModule {
 		super("Armor HUD", "Shows your armor and held item with their durability, and warns you when armor is about to break.", true,
 				new HudPosition(HudPosition.Anchor.END, 2, HudPosition.Anchor.END, 2));
 		threshold.visibleWhen(alert::get);
+		weaponAlert.visibleWhen(alert::get);
 		sound.visibleWhen(alert::get);
 	}
 
-	/** Armor Alert: la pieza de armadura está por debajo del umbral. */
+	/** Armor Alert: la pieza de armadura (o el arma en la mano) está por debajo del umbral. */
 	private boolean isLow(ItemStack stack) {
-		if (!alert.get() || !stack.isDamageableItem() || !isArmor(stack)) return false;
+		if (!alert.get() || !stack.isDamageableItem() || !(isArmor(stack) || weaponAlert.get() && isWeapon(stack))) return false;
 		float fraction = 1.0F - (float) stack.getDamageValue() / stack.getMaxDamage();
 		return fraction <= threshold.getFloat() / 100.0F;
 	}
@@ -54,6 +57,12 @@ public class ArmorHud extends HudModule {
 		return false;
 	}
 
+	private static boolean isWeapon(ItemStack stack) {
+		LocalPlayer player = Minecraft.getInstance().player;
+		return player != null && player.getMainHandItem() == stack
+				&& (stack.is(ItemTags.SWORDS) || stack.is(ItemTags.AXES) || stack.is(Items.MACE) || stack.is(Items.TRIDENT));
+	}
+
 	@Override
 	public void onTick(Minecraft client) {
 		boolean low = false;
@@ -61,6 +70,7 @@ public class ArmorHud extends HudModule {
 			for (EquipmentSlot slot : ARMOR) {
 				low |= isLow(client.player.getItemBySlot(slot));
 			}
+			low |= isLow(client.player.getMainHandItem());
 		}
 		if (low && !wasLow && sound.get()) {
 			client.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ANVIL_LAND, 1.6F, 0.4F));
