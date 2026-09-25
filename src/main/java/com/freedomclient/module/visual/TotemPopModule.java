@@ -64,6 +64,11 @@ public class TotemPopModule extends Module {
 		ClientLevel level = client.level;
 		if (level == null) return;
 		float scale = amount.getFloat() / 100.0F;
+		// Tu propio tótem en primera persona: las partículas salen alrededor de la cámara, así que se alejan
+		// un poco y son más pequeñas para que no tapen la pantalla.
+		boolean ownFirstPerson = entity == client.player && client.options.getCameraType().isFirstPerson();
+		double spread = ownFirstPerson ? 1.3 : 0.0;
+		float size = ownFirstPerson ? 0.5F : 1.0F;
 		double x = entity.getX();
 		double y = entity.getY() + entity.getBbHeight() * 0.6;
 		double z = entity.getZ();
@@ -75,8 +80,9 @@ public class TotemPopModule extends Module {
 				double angle = random.nextDouble() * Mth.TWO_PI;
 				double up = random.nextDouble() * 0.5 - 0.1;
 				double speed = 0.25 + random.nextDouble() * 0.25;
-				client.particleEngine.add(new GlowParticle(level, x, y, z, Math.cos(angle) * speed, up, Math.sin(angle) * speed,
-						PixelParticles.sprite(random.nextBoolean() ? "spark" : "star"), 0.08F, 0.04F, 25 + random.nextInt(15)));
+				client.particleEngine.add(new GlowParticle(level, x + Math.cos(angle) * spread, y, z + Math.sin(angle) * spread,
+						Math.cos(angle) * speed, up, Math.sin(angle) * speed,
+						PixelParticles.sprite(random.nextBoolean() ? "spark" : "star"), 0.08F * size, 0.04F * size, 25 + random.nextInt(15)));
 			}
 			return;
 		}
@@ -86,8 +92,8 @@ public class TotemPopModule extends Module {
 		for (int i = 0; i < feathers; i++) {
 			double angle = random.nextDouble() * Mth.TWO_PI;
 			double speed = 0.2 + random.nextDouble() * 0.3;
-			client.particleEngine.add(new FeatherParticle(level, x, y, z, Math.cos(angle) * speed, 0.15 + random.nextDouble() * 0.3,
-					Math.sin(angle) * speed, PixelParticles.sprite("feather")));
+			client.particleEngine.add(new FeatherParticle(level, x + Math.cos(angle) * spread, y, z + Math.sin(angle) * spread,
+					Math.cos(angle) * speed, 0.15 + random.nextDouble() * 0.3, Math.sin(angle) * speed, PixelParticles.sprite("feather")).scale(size));
 		}
 		// Halo dorado que aparece sobre la cabeza, crece y se desvanece, con un anillo de chispas alrededor.
 		client.particleEngine.add(new GlowParticle(level, x, top, z, 0, 0.01, 0, PixelParticles.sprite("halo_ring"), 0.25F, 0.9F, 30));

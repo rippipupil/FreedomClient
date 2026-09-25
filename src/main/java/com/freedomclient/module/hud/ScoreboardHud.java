@@ -34,7 +34,7 @@ public class ScoreboardHud extends HudModule {
 
 	public ScoreboardHud() {
 		super("Scoreboard", "Move and resize the server scoreboard and hide its red numbers.", true,
-				new HudPosition(HudPosition.Anchor.END, 2, HudPosition.Anchor.CENTER, 0));
+				new HudPosition(HudPosition.Anchor.START, 2, HudPosition.Anchor.CENTER, -28));
 	}
 
 	/** Si el scoreboard de vanilla debe ocultarse (lo dibuja este módulo). */
