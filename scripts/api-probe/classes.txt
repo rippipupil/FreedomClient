@@ -1,8 +1,12 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
-net.minecraft.client.renderer.texture.DynamicTexture
-net.minecraft.client.renderer.texture.TextureManager
-com.mojang.blaze3d.platform.NativeImage
-net.minecraft.client.gui.screens.options.VideoSettingsScreen
-net.minecraft.client.OptionInstance
-net.minecraft.client.gui.components.EditBox
-org.joml.Matrix3x2fStack
+net.minecraft.client.gui.Gui
+net.minecraft.world.effect.MobEffectInstance
+net.minecraft.world.effect.MobEffect
+net.minecraft.world.food.FoodData
+net.minecraft.world.food.FoodProperties
+net.minecraft.world.entity.player.Inventory
+net.minecraft.world.entity.player.Player
+net.minecraft.world.item.Items
+net.minecraft.core.component.DataComponents
+net.minecraft.world.item.alchemy.PotionContents
+net.minecraft.client.multiplayer.MultiPlayerGameMode
