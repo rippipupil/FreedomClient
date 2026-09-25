@@ -29,6 +29,7 @@ import com.freedomclient.module.pvp.ShieldFixModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
 import com.freedomclient.module.pvp.ViewModelModule;
 import com.freedomclient.module.visual.CustomHitboxesModule;
+import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.module.visual.FovChangerModule;
 import com.freedomclient.module.visual.FullbrightModule;
 import com.freedomclient.module.visual.HitColorModule;
@@ -85,6 +86,7 @@ public class ModuleManager {
 		add(new ZoomModule());
 		add(new FovChangerModule());
 		add(new CustomHitboxesModule());
+		add(new CustomScreensModule());
 
 		// Performance
 		add(new GameOptimizerModule());

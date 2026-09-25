@@ -43,6 +43,16 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 	public void runTest(ClientGameTestContext context) {
 		context.getInput().resizeWindow(1920, 1080);
 
+		// Menú principal propio.
+		context.waitTicks(20);
+		context.takeScreenshot("title_screen");
+
+		// Pantalla de carga: se fuerza una recarga de recursos para verla.
+		context.runOnClient(client -> client.reloadResourcePacks());
+		context.waitTicks(30);
+		context.takeScreenshot("loading_screen");
+		context.waitFor(client -> client.getOverlay() == null, 20 * 120);
+
 		try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
 			singleplayer.getClientWorld().waitForChunksRender();
 			for (String command : SETUP_COMMANDS) {

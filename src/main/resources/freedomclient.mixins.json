@@ -9,6 +9,8 @@
 		"EntityRendererMixin",
 		"GameRendererMixin",
 		"ItemInHandRendererMixin",
+		"LoadingOverlayMixin",
+		"MinecraftMixin",
 		"MouseHandlerMixin",
 		"accessor.OverlayTextureAccessor"
 	],
