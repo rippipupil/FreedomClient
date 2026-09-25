@@ -27,15 +27,19 @@ jobs:
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
       - name: Install virtual display
-        run: sudo apt-get update && sudo apt-get install -y xvfb mesa-utils libgl1-mesa-dri
+        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Run client game tests
-        run: xvfb-run -a -s "-screen 0 1920x1080x24" ./gradlew runClientGameTest --stacktrace
+        # Loom ya lanza el juego dentro de xvfb cuando detecta CI.
+        run: ./gradlew runClientGameTest 2>&1 | tee /tmp/gametest-output.txt; exit ${PIPESTATUS[0]}
       - name: Collect screenshots
         if: always()
         run: |
           mkdir -p /tmp/shots
           find . -path ./.git -prune -o -name '*.png' -path '*screenshots*' -print -exec cp {} /tmp/shots/ \;
           find . -path ./.git -prune -o -name 'latest.log' -print -exec cp {} /tmp/shots/latest.log \;
+          find . -path ./.git -prune -o -path '*crash-reports*' -name '*.txt' -print -exec cp {} /tmp/shots/ \;
+          find . -path ./.git -prune -o -name 'hs_err_pid*.log' -print -exec cp {} /tmp/shots/ \;
+          grep -v -E '^\s+at (org\.gradle|java\.base)' /tmp/gametest-output.txt | tail -400 > /tmp/shots/gametest-output.txt || true
           ls -la /tmp/shots
       - uses: actions/upload-artifact@v4
         if: always()

@@ -19,4 +19,4 @@ por lo que pueden sustituirse por cualquier otra versión compatible.
 
 | Recurso | Autor | Licencia |
 |---|---|---|
-| Fuente [VT323](https://fonts.google.com/specimen/VT323) | Peter Hull | [SIL Open Font License 1.1](src/main/resources/assets/freedomclient/font/vt323-OFL.txt) |
+| Fuente [VT323](https://fonts.google.com/specimen/VT323) | Peter Hull | [SIL Open Font License 1.1](src/main/resources/assets/freedomclient/font/vt323-ofl.txt) |
