@@ -8,7 +8,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.BlockOutlineRenderState;
 import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,24 +43,62 @@ public class LevelRendererMixin {
 
 		Vec3 camera = levelState.cameraRenderState.pos;
 		BlockPos pos = outline.pos();
+		ClientLevel level = Minecraft.getInstance().level;
 		VertexConsumer consumer = bufferSource.getBuffer(RenderTypes.debugQuads());
 		PoseStack.Pose pose = poseStack.last();
 		for (AABB box : outline.shape().toAabbs()) {
 			// Un poco más grande que el bloque para que no parpadee contra sus caras.
 			AABB b = box.move(pos.getX() - camera.x, pos.getY() - camera.y, pos.getZ() - camera.z).inflate(0.002);
-			freedomclient$box(consumer, pose, (float) b.minX, (float) b.minY, (float) b.minZ, (float) b.maxX, (float) b.maxY, (float) b.maxZ, color);
+			for (Direction face : Direction.values()) {
+				// Este relleno no usa la profundidad: solo se dibujan las caras que miran a la cámara
+				// y que no están pegadas a un bloque opaco, que son las que se ven de verdad.
+				if (!freedomclient$facesCamera(b, face)) continue;
+				if (level != null && freedomclient$onBlockEdge(box, face)
+						&& level.getBlockState(pos.relative(face)).isSolidRender()) continue;
+				freedomclient$face(consumer, pose, b, face, color);
+			}
 		}
 		bufferSource.endLastBatch();
 	}
 
+	/** La cámara está en el origen: la cara se ve si está delante de ella según su normal. */
 	@Unique
-	private static void freedomclient$box(VertexConsumer c, PoseStack.Pose p, float x0, float y0, float z0, float x1, float y1, float z1, int color) {
-		freedomclient$quad(c, p, color, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1);
-		freedomclient$quad(c, p, color, x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0);
-		freedomclient$quad(c, p, color, x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0);
-		freedomclient$quad(c, p, color, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1);
-		freedomclient$quad(c, p, color, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0);
-		freedomclient$quad(c, p, color, x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1);
+	private static boolean freedomclient$facesCamera(AABB b, Direction face) {
+		return switch (face) {
+			case DOWN -> b.minY > 0;
+			case UP -> b.maxY < 0;
+			case NORTH -> b.minZ > 0;
+			case SOUTH -> b.maxZ < 0;
+			case WEST -> b.minX > 0;
+			case EAST -> b.maxX < 0;
+		};
+	}
+
+	/** Si la cara de esta caja coincide con el borde del bloque (si no, está dentro de él y no la tapa el vecino). */
+	@Unique
+	private static boolean freedomclient$onBlockEdge(AABB box, Direction face) {
+		return switch (face) {
+			case DOWN -> box.minY <= 0.0;
+			case UP -> box.maxY >= 1.0;
+			case NORTH -> box.minZ <= 0.0;
+			case SOUTH -> box.maxZ >= 1.0;
+			case WEST -> box.minX <= 0.0;
+			case EAST -> box.maxX >= 1.0;
+		};
+	}
+
+	@Unique
+	private static void freedomclient$face(VertexConsumer c, PoseStack.Pose p, AABB b, Direction face, int color) {
+		float x0 = (float) b.minX, y0 = (float) b.minY, z0 = (float) b.minZ;
+		float x1 = (float) b.maxX, y1 = (float) b.maxY, z1 = (float) b.maxZ;
+		switch (face) {
+			case DOWN -> freedomclient$quad(c, p, color, x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1);
+			case UP -> freedomclient$quad(c, p, color, x0, y1, z0, x0, y1, z1, x1, y1, z1, x1, y1, z0);
+			case NORTH -> freedomclient$quad(c, p, color, x0, y0, z0, x0, y1, z0, x1, y1, z0, x1, y0, z0);
+			case SOUTH -> freedomclient$quad(c, p, color, x0, y0, z1, x1, y0, z1, x1, y1, z1, x0, y1, z1);
+			case WEST -> freedomclient$quad(c, p, color, x0, y0, z0, x0, y0, z1, x0, y1, z1, x0, y1, z0);
+			case EAST -> freedomclient$quad(c, p, color, x1, y0, z0, x1, y1, z0, x1, y1, z1, x1, y0, z1);
+		}
 	}
 
 	@Unique
