@@ -1,24 +1,10 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método; "@ruta" muestra un fichero del jar.
-@assets/minecraft/atlases/particles.json
-net.minecraft.client.particle.Particle
-net.minecraft.client.particle.SingleQuadParticle
-net.minecraft.client.particle.SingleQuadParticle$Layer
-net.minecraft.client.particle.HeartParticle
-net.minecraft.client.particle.HeartParticle$Provider#createParticle
-net.minecraft.client.particle.ParticleEngine
-net.minecraft.client.renderer.texture.TextureAtlas
-net.minecraft.data.AtlasIds
-net.minecraft.client.resources.model.AtlasManager
-net.minecraft.client.player.LocalPlayer
-net.minecraft.client.renderer.entity.ItemEntityRenderer
-net.minecraft.client.renderer.entity.ItemEntityRenderer#submit
-net.minecraft.client.renderer.entity.ItemEntityRenderer#extractRenderState
-net.minecraft.client.renderer.entity.state.ItemEntityRenderState
-net.minecraft.client.multiplayer.ClientLevel$ClientLevelData
-net.minecraft.world.level.Level
-net.minecraft.client.renderer.SkyRenderer
-net.minecraft.client.renderer.texture.TextureManager
-net.minecraft.client.renderer.texture.AbstractTexture
-net.minecraft.client.multiplayer.ServerData
-net.minecraft.client.multiplayer.ClientPacketListener
+net.minecraft.client.renderer.entity.LivingEntityRenderer#shouldShowName
+net.minecraft.client.renderer.entity.player.AvatarRenderer#shouldShowName
+net.minecraft.client.sounds.MusicManager
+net.minecraft.client.resources.sounds.SimpleSoundInstance
+net.minecraft.client.renderer.entity.state.EntityRenderState
+net.minecraft.client.renderer.entity.state.LivingEntityRenderState
+net.minecraft.client.renderer.entity.LivingEntityRenderer#setupRotations
+net.minecraft.client.renderer.entity.LivingEntityRenderer#scale
