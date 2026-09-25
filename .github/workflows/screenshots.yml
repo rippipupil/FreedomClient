@@ -34,9 +34,22 @@ jobs:
       - name: Install virtual display
         run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri
       - name: Run client game tests
-        timeout-minutes: 15
-        # Loom ya lanza el juego dentro de xvfb cuando detecta CI.
-        run: ./gradlew runProductionClientGameTest --stacktrace 2>&1 | tee /tmp/gametest-output.txt; exit ${PIPESTATUS[0]}
+        # Loom ya lanza el juego dentro de xvfb cuando detecta CI. Si se cuelga, se guarda un volcado de hilos.
+        run: |
+          ./gradlew runProductionClientGameTest --stacktrace > /tmp/gametest-output.txt 2>&1 &
+          GRADLE_PID=$!
+          for i in $(seq 1 90); do
+            sleep 10
+            if ! kill -0 $GRADLE_PID 2>/dev/null; then
+              wait $GRADLE_PID
+              exit $?
+            fi
+          done
+          echo "Timed out, dumping threads"
+          for pid in $(pgrep -f KnotClient); do jstack $pid >> /tmp/threads.txt 2>&1 || true; done
+          kill $GRADLE_PID || true
+          pkill -f KnotClient || true
+          exit 1
       - name: Collect screenshots
         if: always()
         run: |
@@ -46,6 +59,7 @@ jobs:
           find . -path ./.git -prune -o -path '*crash-reports*' -name '*.txt' -print -exec cp {} /tmp/shots/ \;
           find . -path ./.git -prune -o -name 'hs_err_pid*.log' -print -exec cp {} /tmp/shots/ \;
           grep -v -E '^\s+at (org\.gradle|java\.base)' /tmp/gametest-output.txt | tail -400 > /tmp/shots/gametest-output.txt || true
+          cp /tmp/threads.txt /tmp/shots/threads.txt 2>/dev/null || true
           ls -la /tmp/shots
       - uses: actions/upload-artifact@v4
         if: always()
