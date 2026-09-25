@@ -44,6 +44,7 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.getInput().resizeWindow(1920, 1080);
 
 		// Menú principal propio.
+		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.FreedomTitleScreen);
 		context.waitTicks(20);
 		context.takeScreenshot("title_screen");
 

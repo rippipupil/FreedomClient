@@ -9,7 +9,9 @@ import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
+import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
+import com.freedomclient.ui.scene.FreedomTitleScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -22,6 +24,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
@@ -54,6 +57,12 @@ public class FreedomClient implements ClientModInitializer {
 				if (client.screen == null) {
 					client.setScreen(new FreedomMenuScreen());
 				}
+			}
+
+			// Respaldo por si el menú principal de vanilla se abre por un camino que el mixin no cubre.
+			if (client.screen instanceof TitleScreen && !(client.screen instanceof FreedomTitleScreen)
+					&& CustomScreensModule.mainMenuEnabled()) {
+				client.setScreen(new FreedomTitleScreen());
 			}
 
 			CombatTracker.tick(client);
