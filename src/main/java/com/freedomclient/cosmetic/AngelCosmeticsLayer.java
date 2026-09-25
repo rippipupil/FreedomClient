@@ -22,12 +22,18 @@ import net.minecraft.util.Mth;
 public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> {
 	private static final Identifier WINGS_TEXTURE = FreedomClient.id("textures/cosmetic/wings.png");
 	private static final Identifier HALO_TEXTURE = FreedomClient.id("textures/cosmetic/halo.png");
+	/** Franjas de color (32x16): dorado en v = 0, dorado oscuro en 4, rojo en 8 y rojo oscuro en 12. */
+	private static final Identifier HALO_STYLES_TEXTURE = FreedomClient.id("textures/cosmetic/halo_styles.png");
 	private static final int HALO_SEGMENTS = 16;
 
 	private final ModelPart wings = createWings();
 	private final ModelPart halo = createHalo();
+	private final ModelPart brokenHalo = createBrokenHalo();
+	private final ModelPart crown = createCrown();
+	private final ModelPart horns = createHorns();
 	private final WavyCapeRenderer wavyCape = new WavyCapeRenderer();
 	private final AngelDevilPetRenderer pet = new AngelDevilPetRenderer();
+	private final CloudPetRenderer cloudPet = new CloudPetRenderer();
 
 	public AngelCosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
 		super(parent);
@@ -127,6 +133,54 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		return LayerDefinition.create(mesh, 16, 16).bakeRoot();
 	}
 
+	/** Halo roto: al anillo le falta un trozo y dos segmentos están torcidos y más oscuros, como agrietados. */
+	private static ModelPart createBrokenHalo() {
+		MeshDefinition mesh = new MeshDefinition();
+		PartDefinition root = mesh.getRoot();
+		float radius = 4.5F;
+		for (int i = 0; i < HALO_SEGMENTS; i++) {
+			if (i == 4 || i == 5 || i == 12) continue;
+			float angle = (float) (i * Math.PI * 2 / HALO_SEGMENTS);
+			boolean cracked = i == 3 || i == 6 || i == 11;
+			root.addOrReplaceChild("segment" + i,
+					CubeListBuilder.create().texOffs(0, cracked ? 4 : 0).addBox(-1.0F, -0.5F, -0.5F, 2, 1, 1),
+					PartPose.offsetAndRotation(Mth.cos(angle) * radius, cracked ? 0.4F : 0.0F, Mth.sin(angle) * radius,
+							0.0F, -angle + (float) Math.PI / 2, cracked ? 0.35F : 0.0F));
+		}
+		return LayerDefinition.create(mesh, 32, 16).bakeRoot();
+	}
+
+	/** Corona: un anillo dorado con picos que alternan alto y bajo. */
+	private static ModelPart createCrown() {
+		MeshDefinition mesh = new MeshDefinition();
+		PartDefinition root = mesh.getRoot();
+		int segments = 12;
+		float radius = 4.2F;
+		for (int i = 0; i < segments; i++) {
+			float angle = (float) (i * Math.PI * 2 / segments);
+			int spike = i % 2 == 0 ? 3 : 2;
+			root.addOrReplaceChild("segment" + i, CubeListBuilder.create()
+							.texOffs(0, 4).addBox(-1.2F, -0.5F, -0.5F, 2, 1, 1)
+							.texOffs(0, 0).addBox(-0.5F, -0.5F - spike, -0.5F, 1, spike, 1),
+					PartPose.offsetAndRotation(Mth.cos(angle) * radius, 0.0F, Mth.sin(angle) * radius, 0.0F, -angle + (float) Math.PI / 2, 0.0F));
+		}
+		return LayerDefinition.create(mesh, 32, 16).bakeRoot();
+	}
+
+	/** Cuernos de demonio: tres bloques por cuerno que suben curvándose hacia fuera. */
+	private static ModelPart createHorns() {
+		MeshDefinition mesh = new MeshDefinition();
+		PartDefinition root = mesh.getRoot();
+		for (int side = -1; side <= 1; side += 2) {
+			root.addOrReplaceChild(side < 0 ? "right" : "left", CubeListBuilder.create()
+							.texOffs(0, 8).addBox(-1.0F, -2.0F, -1.0F, 2, 2, 2)
+							.texOffs(0, 8).addBox(-1.0F + side * 0.6F, -3.5F, -0.8F, 2, 2, 2)
+							.texOffs(0, 12).addBox(-0.5F + side * 1.4F, -5.0F, -0.5F, 1, 2, 1),
+					PartPose.offsetAndRotation(side * 2.5F, -8.0F, -1.5F, -0.2F, 0.0F, side * 0.35F));
+		}
+		return LayerDefinition.create(mesh, 32, 16).bakeRoot();
+	}
+
 	@Override
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, float yRot, float xRot) {
 		if (WavyCapeRenderer.shouldRender(state)) {
@@ -141,6 +195,11 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		PetCosmetic petModule = CosmeticModule.get(PetCosmetic.class);
 		if (petModule != null && petModule.shouldRender(state)) {
 			pet.render(poseStack, collector, light, state, petModule);
+		}
+
+		CloudPetCosmetic cloudModule = CosmeticModule.get(CloudPetCosmetic.class);
+		if (cloudModule != null && cloudModule.shouldRender(state)) {
+			cloudPet.render(poseStack, collector, light, state, cloudModule);
 		}
 
 		HaloCosmetic haloModule = CosmeticModule.get(HaloCosmetic.class);
@@ -176,13 +235,23 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 	private void renderHalo(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, HaloCosmetic module) {
 		float time = state.ageInTicks;
-		float bob = module.spin.get() ? Mth.sin(time * 0.08F) * 0.6F : 0.0F;
-		halo.yRot = module.spin.get() ? time * 0.03F : 0.0F;
-		halo.y = -8.0F - module.height.getFloat() - bob;
-
 		poseStack.pushPose();
 		getParentModel().head.translateAndRotate(poseStack);
-		collector.submitModelPart(halo, poseStack, RenderTypes.entityCutoutNoCull(HALO_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+		if (module.style.is("Horns")) {
+			collector.submitModelPart(horns, poseStack, RenderTypes.entityCutoutNoCull(HALO_STYLES_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+			poseStack.popPose();
+			return;
+		}
+
+		boolean crownStyle = module.style.is("Crown");
+		ModelPart part = crownStyle ? crown : module.style.is("Broken") ? brokenHalo : halo;
+		float bob = module.spin.get() ? Mth.sin(time * 0.08F) * 0.6F : 0.0F;
+		// La corona gira más rápido; el halo roto se tambalea un poco.
+		part.yRot = module.spin.get() ? time * (crownStyle ? 0.06F : 0.03F) : 0.0F;
+		part.zRot = part == brokenHalo ? Mth.sin(time * 0.05F) * 0.08F : 0.0F;
+		part.y = -8.0F - module.height.getFloat() - bob;
+		Identifier texture = part == halo ? HALO_TEXTURE : HALO_STYLES_TEXTURE;
+		collector.submitModelPart(part, poseStack, RenderTypes.entityCutoutNoCull(texture), light, OverlayTexture.NO_OVERLAY, null);
 		poseStack.popPose();
 	}
 }

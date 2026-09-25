@@ -18,6 +18,7 @@ repositories {
 			includeGroup "maven.modrinth"
 		}
 	}
+	mavenCentral()
 }
 
 dependencies {
@@ -41,6 +42,9 @@ dependencies {
 	include(modImplementation("maven.modrinth:yacl:${project.yacl_version}"))
 	include(modImplementation("maven.modrinth:mouse-tweaks:${project.mousetweaks_version}"))
 	include(modImplementation("maven.modrinth:fast-ip-ping:${project.fastipping_version}"))
+
+	// Decodificador de MP3 en Java puro (LGPL) para el reproductor de música local.
+	include(implementation("javazoom:jlayer:1.0.1"))
 
 	// El paquete de Fabric API no incluye la API de tests de cliente; solo se añade al ejecutar los tests.
 	productionRuntimeMods fabricApi.module("fabric-client-gametest-api-v1", project.fabric_api_version)

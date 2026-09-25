@@ -99,7 +99,7 @@ def paint_box(image, u, v, w, h, d, top, bottom, right, front, left, back):
     paint_face(image, u + d + w + d, v + d, back)
 
 
-def make_pet():
+def make_pet(sleeping=False):
     image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
     # Cabeza 8x8x8 en (0, 0).
     hair_side = ["rrrrrrrr", "rRrrrrLr", "rrrRrrrr", "rrrrrRrr", "rRrrrrrr", "rrrrrrrs", "rrRrrrrs", "rrrrrrss"]
@@ -107,7 +107,12 @@ def make_pet():
               top=["rrrLrrrr", "rrrLrrrr", "rrrRrrrr", "rrrRrrrr", "rrrRrrrr", "rrrrrrrr", "rrrrrrrr", "rrrrrrrr"],
               bottom=["rsssssr ".replace(" ", "r"), "rssssssr", "rssssssr", "rssssssr", "rssssssr", "rssssssr", "rrrrrrrr", "rrrrrrrr"],
               right=[row[::-1] for row in hair_side],
-              front=["rrrLrrrr", "rrRrrRrr", "rrsRRsrr", "rssssssr", "rsewsewr", "rseeseer", "rbssssbr", "rssmmssr"],
+              front=["rrrLrrrr", "rrRrrRrr", "rrsRRsrr", "rssssssr",
+                     # Dormida: ojos cerrados (una línea) y la boca pequeña.
+                     "rssssssr" if sleeping else "rsewsewr",
+                     "rseeseer",
+                     "rbssssbr",
+                     "rsssmssr" if sleeping else "rssmmssr"],
               left=hair_side,
               back=["rrrrrrrr", "rrRrrLrr", "rrrrrrrr", "rRrrrRrr", "rrrrrrrr", "rrrRrrrr", "rRrrrrRr", "rrrrrrrr"])
     # Pelo largo por detrás, 8x4x2 en (32, 0).
@@ -137,7 +142,65 @@ def make_pet():
         for y in range(40 + index * 4, 44 + index * 4):
             for x in range(64):
                 image.putpixel((x, y), color)
-    image.save(OUT / "pet.png")
+    image.save(OUT / ("pet_sleep.png" if sleeping else "pet.png"))
+
+
+def make_halo_styles():
+    """Franjas de color para los estilos de halo (anillo roto, corona y cuernos): dorado, dorado oscuro, rojo y rojo oscuro."""
+    image = Image.new("RGBA", (32, 16), (0, 0, 0, 0))
+    for index, color in enumerate((GOLD, GOLD_DARK, RED, RED_DEEP)):
+        for y in range(index * 4, index * 4 + 4):
+            for x in range(32):
+                image.putpixel((x, y), color)
+    image.save(OUT / "halo_styles.png")
+
+
+# Nube con alas (AngelCloudPetRenderer): cuerpo y bultos con UV de caja, y franjas de color para alas y halo.
+CLOUD = {
+    "w": (255, 255, 255, 255),   # blanco
+    "s": (230, 236, 248, 255),   # sombra azulada
+    "S": (200, 210, 230, 255),   # sombra de abajo
+    "e": (40, 30, 50, 255),      # ojos y boca
+    "b": (255, 170, 190, 255),   # rubor
+}
+# Franjas desde v = 40: alas, alas claras, alas sombra, contorno de las alas y halo.
+CLOUD_STRIPS = [(255, 255, 255, 255), LIGHT, SHADE, OUTLINE, GOLD, GOLD_DARK]
+
+
+def paint_cloud_face(image, u, v, rows):
+    for y, row in enumerate(rows):
+        for x, char in enumerate(row):
+            if char in CLOUD:
+                image.putpixel((u + x, v + y), CLOUD[char])
+
+
+def paint_cloud_box(image, u, v, w, h, d, front=None):
+    """Caja de nube: blanca, con sombra azulada en los lados y la base más oscura."""
+    side = ["w" * d] * (h - 1) + ["s" * d]
+    paint_cloud_face(image, u + d, v, ["w" * w] * d)            # arriba
+    paint_cloud_face(image, u + d + w, v, ["S" * w] * d)        # abajo
+    paint_cloud_face(image, u, v + d, side)                     # lado
+    paint_cloud_face(image, u + d, v + d, front or (["w" * w] * (h - 1) + ["s" * w]))
+    paint_cloud_face(image, u + d + w, v + d, side)             # otro lado
+    paint_cloud_face(image, u + d + w + d, v + d, ["w" * w] * (h - 1) + ["s" * w])
+
+
+def make_cloud_pet(sleeping=False):
+    image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    if sleeping:
+        face = ["wwwwwwwwww", "wwwwwwwwww", "wbeewweebw", "wwwweewwww", "ssssssssss"]
+    else:
+        face = ["wwwwwwwwww", "wwewwwweww", "wbewwwwebw", "wwwweewwww", "ssssssssss"]
+    paint_cloud_box(image, 0, 0, 10, 5, 6, front=face)   # cuerpo 10x5x6
+    paint_cloud_box(image, 0, 16, 4, 3, 4)               # bulto de arriba izquierda
+    paint_cloud_box(image, 16, 16, 5, 4, 4)              # bulto de arriba derecha
+    paint_cloud_box(image, 36, 0, 3, 3, 4)               # bulto lateral
+    paint_cloud_box(image, 36, 8, 3, 3, 4)               # el otro bulto lateral
+    for index, color in enumerate(CLOUD_STRIPS):
+        for y in range(40 + index * 4, 44 + index * 4):
+            for x in range(64):
+                image.putpixel((x, y), color)
+    image.save(OUT / ("cloud_pet_sleep.png" if sleeping else "cloud_pet.png"))
 
 
 def make_halo():
@@ -195,7 +258,11 @@ def main():
     make_wings()
     make_feather()
     make_pet()
+    make_pet(sleeping=True)
+    make_cloud_pet()
+    make_cloud_pet(sleeping=True)
     make_halo()
+    make_halo_styles()
     make_cape()
     print("cosmetic textures written to", OUT)
 

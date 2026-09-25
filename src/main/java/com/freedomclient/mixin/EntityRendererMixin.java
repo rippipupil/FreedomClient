@@ -17,7 +17,8 @@ public class EntityRendererMixin {
 	private void freedomclient$healthInName(Entity entity, CallbackInfoReturnable<Component> cir) {
 		Component name = cir.getReturnValue();
 		if (name != null) {
-			Component modified = FcNametagModule.decorateNametag(entity, HealthIndicatorsModule.decorateName(entity, name));
+			Component modified = FcNametagModule.decorateNametag(entity,
+					HealthIndicatorsModule.decorateName(entity, FcNametagModule.gradientName(entity, name)));
 			if (modified != name) cir.setReturnValue(modified);
 		}
 	}

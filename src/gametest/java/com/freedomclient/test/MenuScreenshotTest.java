@@ -6,6 +6,9 @@ import com.freedomclient.hud.HudModule;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.cosmetic.HaloCosmetic;
+import com.freedomclient.cosmetic.PetBehavior;
+import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.module.visual.HitParticlesModule;
 import com.freedomclient.module.visual.VisualsModule;
 import com.freedomclient.module.visual.ZoomModule;
@@ -53,7 +56,7 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			// Objetos tirados (física de objetos de Visuals) y un soporte de armadura para las plumas de Hit Particles.
 			"execute at @p run summon item ~-1 ~ ~3 {Item:{id:\"minecraft:diamond_sword\",count:1}}",
 			"execute at @p run summon item ~1 ~ ~3 {Item:{id:\"minecraft:golden_apple\",count:1}}",
-			"execute at @p run summon armor_stand ~ ~ ~3 {NoGravity:1b}",
+			"execute at @p run summon armor_stand ~2 ~ ~4 {NoGravity:1b}",
 	};
 
 	private static void setMode(Module module, String name, String value) {
@@ -70,6 +73,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.waitFor(client -> client.screen instanceof com.freedomclient.ui.scene.FreedomTitleScreen);
 		context.waitTicks(20);
 		context.takeScreenshot("title_screen");
+
+		// Fondos del menú principal: noche estrellada y día.
+		context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(CustomScreensModule.class), "Menu sky", "Starry night"));
+		context.waitTicks(3);
+		context.takeScreenshot("title_night");
+		context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(CustomScreensModule.class), "Menu sky", "Day"));
+		context.waitTicks(3);
+		context.takeScreenshot("title_day");
+		context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(CustomScreensModule.class), "Menu sky", "Sunset"));
 
 		// Abrir y cerrar Singleplayer y Multiplayer desde el menú principal (antes crasheaba al volver).
 		context.runOnClient(client -> client.setScreen(new SelectWorldScreen(client.screen)));
@@ -135,6 +147,22 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(10);
 			context.takeScreenshot("cosmetics_front");
+
+			// Estilos de halo y reacciones de las mascotas (de frente).
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(HaloCosmetic.class), "Style", "Crown"));
+			context.waitTicks(5);
+			context.takeScreenshot("halo_crown");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(HaloCosmetic.class), "Style", "Horns"));
+			context.waitTicks(5);
+			context.takeScreenshot("halo_horns");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(HaloCosmetic.class), "Style", "Broken"));
+			context.runOnClient(client -> PetBehavior.forceMood(PetBehavior.Mood.WAVE));
+			context.waitTicks(10);
+			context.takeScreenshot("pets_wave");
+			context.runOnClient(client -> PetBehavior.forceMood(PetBehavior.Mood.SLEEP));
+			context.waitTicks(10);
+			context.takeScreenshot("pets_sleep");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(HaloCosmetic.class), "Style", "Ring"));
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
 			// Visuals: cielo de atardecer FC.

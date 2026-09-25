@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Mascota: un Angel Devil en miniatura hecho como un mini jugador (cabeza de 8x8x8 con flequillo y pelo largo,
@@ -22,6 +23,7 @@ import net.minecraft.util.Mth;
  */
 public final class AngelDevilPetRenderer {
 	private static final Identifier TEXTURE = FreedomClient.id("textures/cosmetic/pet.png");
+	private static final Identifier SLEEP_TEXTURE = FreedomClient.id("textures/cosmetic/pet_sleep.png");
 	private static final int HALO_SEGMENTS = 12;
 	/** Franjas de color de pet.png para el halo y las alas. */
 	private static final int STRIP_GOLD = 40;
@@ -120,13 +122,15 @@ public final class AngelDevilPetRenderer {
 	}
 
 	public void render(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, PetCosmetic module) {
+		Vec3 position = module.follower.modelPosition(state.x, state.y, state.z, state.bodyRot, state.scale, state.ageInTicks % 1.0F);
+		if (position == null) return;
 		float time = state.ageInTicks;
+		PetBehavior.Mood mood = PetBehavior.mood();
+		float moodTime = PetBehavior.moodSeconds();
+
+		// Pose normal: flota, aletea, balancea los brazos y mira un poco a los lados.
 		float bob = Mth.sin(time * 0.1F) * 1.2F;
-		// Alas: se abren hacia atrás y aletean suave.
 		float flap = 0.45F + Mth.sin(time * 0.3F) * 0.3F;
-		rightWing.yRot = flap;
-		leftWing.yRot = -flap;
-		// Brazos: un pequeño balanceo; cabeza: mira un poco a los lados.
 		rightArm.xRot = Mth.sin(time * 0.1F) * 0.15F;
 		leftArm.xRot = -Mth.sin(time * 0.1F) * 0.15F;
 		rightArm.zRot = 0.1F;
@@ -134,14 +138,54 @@ public final class AngelDevilPetRenderer {
 		head.yRot = Mth.sin(time * 0.03F) * 0.25F;
 		head.xRot = Mth.sin(time * 0.05F) * 0.05F;
 		halo.yRot = time * 0.04F;
+		float shake = 0.0F;
+		Identifier texture = TEXTURE;
 
-		// En el espacio del modelo del jugador: x negativo es su derecha, y negativo es hacia arriba, 16 = 1 bloque.
-		float side = module.side.is("Right") ? -1.0F : 1.0F;
+		switch (mood) {
+			case WAVE -> {
+				// Saluda con la mano derecha levantada.
+				rightArm.xRot = -2.7F;
+				rightArm.zRot = 0.2F + Mth.sin(moodTime * 12.0F) * 0.35F;
+				head.yRot = 0.3F;
+			}
+			case CELEBRATE -> {
+				// Brazos arriba, da saltitos y aletea deprisa.
+				rightArm.xRot = -2.9F;
+				leftArm.xRot = -2.9F;
+				rightArm.zRot = 0.35F;
+				leftArm.zRot = -0.35F;
+				bob -= Math.abs(Mth.sin(moodTime * 9.0F)) * 3.0F;
+				flap = 0.45F + Mth.sin(time * 1.2F) * 0.5F;
+			}
+			case SLEEP -> {
+				// Cabeza caída, ojos cerrados, alas plegadas y respiración lenta.
+				head.xRot = 0.45F;
+				head.yRot = 0.0F;
+				flap = 0.05F;
+				bob = Mth.sin(time * 0.05F) * 0.6F;
+				rightArm.xRot = 0.0F;
+				leftArm.xRot = 0.0F;
+				texture = SLEEP_TEXTURE;
+			}
+			case HIDE -> {
+				// Escondida detrás de ti, temblando.
+				head.xRot = 0.3F;
+				flap = 0.1F;
+				shake = Mth.sin(time * 3.0F) * 0.3F;
+				rightArm.xRot = -1.2F;
+				leftArm.xRot = -1.2F;
+			}
+			default -> {
+			}
+		}
+		rightWing.yRot = flap;
+		leftWing.yRot = -flap;
+
 		poseStack.pushPose();
-		poseStack.translate(side * 14.0F / 16.0F, (-1.0F + bob) / 16.0F, 2.0F / 16.0F);
+		poseStack.translate(position.x + shake / 16.0F, position.y + bob / 16.0F, position.z);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
-		collector.submitModelPart(root, poseStack, RenderTypes.entityCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+		collector.submitModelPart(root, poseStack, RenderTypes.entityCutoutNoCull(texture), light, OverlayTexture.NO_OVERLAY, null);
 		poseStack.popPose();
 	}
 }

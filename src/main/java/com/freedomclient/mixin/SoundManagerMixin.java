@@ -1,5 +1,6 @@
 package com.freedomclient.mixin;
 
+import com.freedomclient.module.pvp.HitSoundsModule;
 import com.freedomclient.module.utility.SoundTweaksModule;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
@@ -13,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SoundManagerMixin {
 	@Inject(method = "play", at = @At("HEAD"), cancellable = true)
 	private void freedomclient$muteSounds(SoundInstance sound, CallbackInfoReturnable<SoundEngine.PlayResult> cir) {
-		if (SoundTweaksModule.shouldMute(sound)) {
+		if (SoundTweaksModule.shouldMute(sound) || HitSoundsModule.shouldMute(sound)) {
 			cir.setReturnValue(SoundEngine.PlayResult.NOT_STARTED);
 		}
 	}

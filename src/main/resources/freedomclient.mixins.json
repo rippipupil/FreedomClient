@@ -19,6 +19,7 @@
 		"LeavesBlockMixin",
 		"LevelMixin",
 		"LevelRendererMixin",
+		"LivingEntityRendererMixin",
 		"LoadingOverlayMixin",
 		"MinecraftMixin",
 		"MouseHandlerMixin",

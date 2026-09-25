@@ -1,6 +1,7 @@
 package com.freedomclient.module;
 
 import com.freedomclient.cosmetic.CapeCosmetic;
+import com.freedomclient.cosmetic.CloudPetCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
 import com.freedomclient.cosmetic.PetCosmetic;
 import com.freedomclient.cosmetic.WingsCosmetic;
@@ -15,6 +16,7 @@ import com.freedomclient.module.hud.InventoryHud;
 import com.freedomclient.module.hud.ItemCounterHud;
 import com.freedomclient.module.hud.KeystrokesHud;
 import com.freedomclient.module.hud.ModuleListHud;
+import com.freedomclient.module.hud.MusicPlayerHud;
 import com.freedomclient.module.hud.NowPlayingHud;
 import com.freedomclient.module.hud.PingHud;
 import com.freedomclient.module.hud.PotionEffectsHud;
@@ -37,6 +39,7 @@ import com.freedomclient.module.pvp.BetterHurtCamModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.pvp.FreelookModule;
 import com.freedomclient.module.pvp.HealthIndicatorsModule;
+import com.freedomclient.module.pvp.HitSoundsModule;
 import com.freedomclient.module.pvp.LowHealthWarningModule;
 import com.freedomclient.module.pvp.ShieldFixModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
@@ -88,6 +91,7 @@ public class ModuleManager {
 		add(new ShieldFixModule());
 		add(new AutoTextModule());
 		add(new LowHealthWarningModule());
+		add(new HitSoundsModule());
 
 		// HUD
 		add(new WatermarkHud());
@@ -106,6 +110,7 @@ public class ModuleManager {
 		add(new ModuleListHud());
 		add(new TargetHud());
 		add(new NowPlayingHud());
+		add(new MusicPlayerHud());
 		add(new AppleSkinModule());
 
 		// Visual
@@ -145,6 +150,7 @@ public class ModuleManager {
 		add(new HaloCosmetic());
 		add(new CapeCosmetic());
 		add(new PetCosmetic());
+		add(new CloudPetCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

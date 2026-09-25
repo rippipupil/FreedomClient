@@ -2,6 +2,7 @@ package com.freedomclient;
 
 import com.freedomclient.config.Config;
 import com.freedomclient.cosmetic.AngelCosmeticsLayer;
+import com.freedomclient.cosmetic.PetBehavior;
 import com.freedomclient.hud.CombatTracker;
 import com.freedomclient.hud.HudRenderer;
 import com.freedomclient.module.ModuleManager;
@@ -9,6 +10,7 @@ import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.pvp.HitSoundsModule;
 import com.freedomclient.module.pvp.LowHealthWarningModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.module.utility.AnnouncementsModule;
@@ -87,6 +89,7 @@ public class FreedomClient implements ClientModInitializer {
 			}
 
 			CombatTracker.tick(client);
+			PetBehavior.tick(client);
 			moduleManager.onTick(client);
 		});
 
@@ -107,6 +110,8 @@ public class FreedomClient implements ClientModInitializer {
 				CombatTracker.onAttack(client.player, entity, hitResult);
 				HitParticlesModule hitParticles = moduleManager.get(HitParticlesModule.class);
 				if (hitParticles.isEnabled()) hitParticles.onHit(entity);
+				HitSoundsModule hitSounds = moduleManager.get(HitSoundsModule.class);
+				if (hitSounds.isEnabled()) hitSounds.onHit(entity);
 			}
 			return InteractionResult.PASS;
 		});

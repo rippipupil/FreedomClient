@@ -1,6 +1,7 @@
 package com.freedomclient.ui.scene;
 
 import com.freedomclient.FreedomClient;
+import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.UiText;
@@ -46,7 +47,10 @@ public class FreedomTitleScreen extends TitleScreen {
 
 	@Override
 	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-		PixelSky.render(graphics, width, height, 1.0F);
+		// Paralaje: las capas del cielo se desplazan un poco según dónde esté el ratón.
+		float parallaxX = CustomScreensModule.parallaxEnabled() ? Math.max(-1.0F, Math.min(1.0F, (mouseX - width / 2.0F) / (width / 2.0F))) : 0.0F;
+		float parallaxY = CustomScreensModule.parallaxEnabled() ? Math.max(-1.0F, Math.min(1.0F, (mouseY - height / 2.0F) / (height / 2.0F))) : 0.0F;
+		PixelSky.render(graphics, width, height, 1.0F, parallaxX, parallaxY);
 	}
 
 	@Override

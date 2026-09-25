@@ -25,3 +25,10 @@ por lo que pueden sustituirse por cualquier otra versión compatible.
 | Recurso | Autor | Licencia |
 |---|---|---|
 | Fuente [VT323](https://fonts.google.com/specimen/VT323) | Peter Hull | [SIL Open Font License 1.1](src/main/resources/assets/freedomclient/font/vt323-ofl.txt) |
+
+## JLayer 1.0.1
+
+Pure Java MP3 decoder used by the Music Player to play your own MP3 files.
+Copyright (c) JavaZOOM. Licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1).
+Source: https://github.com/umjammer/jlayer (original: http://www.javazoom.net/javalayer/javalayer.html).
+It is included unmodified inside the FreedomClient jar and can be replaced with another build of the same library.
