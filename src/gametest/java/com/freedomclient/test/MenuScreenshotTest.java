@@ -74,6 +74,16 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(2);
 			context.takeScreenshot("hud");
 
+			// Un waypoint delante del jugador.
+			context.runOnClient(client -> {
+				var player = client.player;
+				com.freedomclient.waypoint.WaypointStore.add(new com.freedomclient.waypoint.Waypoint("Base",
+						player.getBlockX() + 2, player.getBlockY(), player.getBlockZ() + 12,
+						player.level().dimension().toString(), 0xFF5DADE2, false));
+			});
+			context.waitTicks(5);
+			context.takeScreenshot("waypoint");
+
 			// Cosméticos en tercera persona (de espaldas: alas y capa; de frente: halo).
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
 			context.waitTicks(10);

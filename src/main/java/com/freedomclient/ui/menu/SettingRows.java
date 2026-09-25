@@ -14,6 +14,9 @@ import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.TextField;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.theme.ThemeManager;
+import com.freedomclient.waypoint.Waypoint;
+import com.freedomclient.waypoint.WaypointListSetting;
+import com.freedomclient.waypoint.WaypointStore;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -34,6 +37,7 @@ public class SettingRows {
 		if (setting instanceof NumberSetting number) return renderNumber(ui, number, x, y, w);
 		if (setting instanceof StringSetting text) return renderText(ui, text, x, y, w);
 		if (setting instanceof PixelGridSetting grid) return renderGrid(ui, grid, x, y, w);
+		if (setting instanceof WaypointListSetting) return renderWaypoints(ui, x, y, w);
 		if (setting instanceof ColorSetting color) {
 			return renderColor(ui, color, setting.getName(), setting.getDescription(), x, y, w,
 					color::get, color::set, color.allowsAlpha());
@@ -137,6 +141,47 @@ public class SettingRows {
 		smallButton(ui, "Reset", buttonX, gridY + 16, setting::reset);
 		ui.g.drawString(ui.font, "Left: draw", buttonX, gridY + 38, ThemeManager.textMuted(), false);
 		ui.g.drawString(ui.font, "Right: erase", buttonX, gridY + 48, ThemeManager.textMuted(), false);
+		return height;
+	}
+
+	/** Lista de waypoints del mundo actual: color, nombre, coordenadas, visible y borrar. */
+	private int renderWaypoints(Ui ui, int x, int y, int w) {
+		java.util.List<Waypoint> waypoints = ui.minecraft.level != null ? WaypointStore.current() : java.util.List.of();
+		int height = ROW_HEIGHT + Math.max(1, waypoints.size()) * 16 + 4;
+		row(ui, "Waypoints in this world", "Toggle or delete your waypoints.", x, y, w, height);
+
+		int rowY = y + ROW_HEIGHT;
+		if (waypoints.isEmpty()) {
+			String empty = ui.minecraft.level != null ? "No waypoints yet. Press the add key in game." : "Join a world to see its waypoints.";
+			ui.g.drawString(ui.font, empty, x + 8, rowY + 3, ThemeManager.textMuted(), false);
+			return height;
+		}
+
+		for (Waypoint waypoint : java.util.List.copyOf(waypoints)) {
+			ui.g.fill(x + 8, rowY + 2, x + 16, rowY + 10, waypoint.color);
+			String text = waypoint.name + "  " + waypoint.x + ", " + waypoint.y + ", " + waypoint.z;
+			ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(text, w - 90), x + 20, rowY + 2, waypoint.visible ? ThemeManager.text() : ThemeManager.textMuted(), false);
+
+			int toggleX = x + w - 52;
+			Draw.toggle(ui.g, toggleX, rowY + 1, waypoint.visible ? 1.0F : 0.0F, ui.hovered(toggleX, rowY, 20, 12));
+			ui.click(toggleX, rowY, 20, 12, (mx, my, button) -> {
+				waypoint.visible = !waypoint.visible;
+				WaypointStore.save();
+				ui.playClick();
+				return true;
+			});
+
+			int deleteX = x + w - 24;
+			boolean hovered = ui.hovered(deleteX, rowY, 14, 12);
+			Draw.panel(ui.g, deleteX, rowY, 14, 12, hovered ? 0xFFD7263D : ThemeManager.shade(), ThemeManager.border());
+			ui.g.drawString(ui.font, "x", deleteX + 4, rowY + 1, ThemeManager.text(), false);
+			ui.click(deleteX, rowY, 14, 12, (mx, my, button) -> {
+				WaypointStore.remove(waypoint);
+				ui.playClick();
+				return true;
+			});
+			rowY += 16;
+		}
 		return height;
 	}
 

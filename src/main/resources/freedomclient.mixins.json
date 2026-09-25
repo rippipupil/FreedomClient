@@ -10,9 +10,13 @@
 		"EntityRendererMixin",
 		"GameRendererMixin",
 		"ItemInHandRendererMixin",
+		"ItemStackMixin",
+		"LevelRendererMixin",
 		"LoadingOverlayMixin",
 		"MinecraftMixin",
 		"MouseHandlerMixin",
+		"PlayerTabOverlayMixin",
+		"SoundManagerMixin",
 		"accessor.OverlayTextureAccessor"
 	],
 	"injectors": {

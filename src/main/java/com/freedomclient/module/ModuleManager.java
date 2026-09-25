@@ -31,7 +31,17 @@ import com.freedomclient.module.pvp.HealthIndicatorsModule;
 import com.freedomclient.module.pvp.ShieldFixModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
 import com.freedomclient.module.pvp.ViewModelModule;
+import com.freedomclient.module.utility.AnnouncementsModule;
+import com.freedomclient.module.utility.ChatFilterModule;
+import com.freedomclient.module.utility.FastWorldJoinModule;
+import com.freedomclient.module.utility.LogCleanerModule;
+import com.freedomclient.module.utility.QuickPackModule;
+import com.freedomclient.module.utility.SoundTweaksModule;
+import com.freedomclient.module.visual.BlockOutlineModule;
 import com.freedomclient.module.visual.CustomHitboxesModule;
+import com.freedomclient.module.visual.FcNametagModule;
+import com.freedomclient.module.visual.ShulkerPreviewModule;
+import com.freedomclient.waypoint.WaypointsModule;
 import com.freedomclient.module.visual.CustomScreensModule;
 import com.freedomclient.module.visual.FovChangerModule;
 import com.freedomclient.module.visual.FullbrightModule;
@@ -90,6 +100,18 @@ public class ModuleManager {
 		add(new FovChangerModule());
 		add(new CustomHitboxesModule());
 		add(new CustomScreensModule());
+		add(new BlockOutlineModule());
+		add(new ShulkerPreviewModule());
+		add(new FcNametagModule());
+
+		// Utility
+		add(new WaypointsModule());
+		add(new ChatFilterModule());
+		add(new AnnouncementsModule());
+		add(new SoundTweaksModule());
+		add(new QuickPackModule());
+		add(new FastWorldJoinModule());
+		add(new LogCleanerModule());
 
 		// Cosméticos
 		add(new WingsCosmetic());

@@ -9,7 +9,12 @@ import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
 import com.freedomclient.module.pvp.CenteredCrosshairModule;
+import com.freedomclient.module.utility.AnnouncementsModule;
+import com.freedomclient.module.utility.ChatFilterModule;
+import com.freedomclient.module.utility.LogCleanerModule;
 import com.freedomclient.module.visual.CustomScreensModule;
+import com.freedomclient.module.visual.ShulkerPreviewModule;
+import com.freedomclient.waypoint.WaypointsModule;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import com.freedomclient.ui.scene.FreedomTitleScreen;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -18,6 +23,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
@@ -51,6 +58,7 @@ public class FreedomClient implements ClientModInitializer {
 
 		moduleManager = new ModuleManager();
 		Config.load(moduleManager);
+		moduleManager.get(LogCleanerModule.class).clean();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (menuKey.consumeClick()) {
@@ -82,13 +90,30 @@ public class FreedomClient implements ClientModInitializer {
 			return InteractionResult.PASS;
 		});
 
+		registerChat();
+
+		TooltipComponentCallback.EVENT.register(data ->
+				data instanceof ShulkerPreviewModule.Contents contents ? new ShulkerPreviewModule.PreviewComponent(contents) : null);
+
 		ItemTooltipCallback.EVENT.register((stack, context, flag, lines) ->
 				moduleManager.get(AppleSkinModule.class).appendTooltip(stack, lines));
 
 		LOGGER.info("{} loaded with {} mods", NAME, moduleManager.getModules().size());
 	}
 
+	private static void registerChat() {
+		ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signed, sender, params, timestamp) ->
+				moduleManager.get(ChatFilterModule.class).allowChat(message, sender));
+		ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) ->
+				overlay || moduleManager.get(ChatFilterModule.class).allowGame(message));
+		ClientReceiveMessageEvents.MODIFY_GAME.register((message, overlay) ->
+				moduleManager.get(AnnouncementsModule.class).modify(message, overlay));
+	}
+
 	private static void registerHud() {
+		// Los waypoints van primero para quedar por debajo del resto del HUD.
+		HudElementRegistry.addFirst(id("waypoints"), (graphics, deltaTracker) ->
+				moduleManager.get(WaypointsModule.class).render(graphics, Minecraft.getInstance()));
 		HudElementRegistry.addLast(id("hud"), (graphics, deltaTracker) -> HudRenderer.render(graphics));
 
 		HudElementRegistry.attachElementAfter(VanillaHudElements.FOOD_BAR, id("appleskin"), (graphics, deltaTracker) ->
