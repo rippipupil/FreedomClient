@@ -64,9 +64,14 @@ public final class UpdateChecker {
 				.orElse("");
 	}
 
+	/** Con el launcher de FreedomClient el mod no se actualiza solo: lo hace el launcher antes de abrir el juego. */
+	public static boolean managedByLauncher() {
+		return Boolean.getBoolean("freedomclient.launcher");
+	}
+
 	public static void checkAsync() {
 		String current = currentCommit();
-		if (current.isEmpty() || state != State.IDLE) return;
+		if (current.isEmpty() || state != State.IDLE || managedByLauncher()) return;
 		state = State.CHECKING;
 		HttpRequest request = HttpRequest.newBuilder(URI.create(TAG_API)).timeout(Duration.ofSeconds(10))
 				.header("Accept", "application/vnd.github+json").header("User-Agent", "FreedomClient").GET().build();

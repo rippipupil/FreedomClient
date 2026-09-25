@@ -87,6 +87,8 @@ public class DiscordPresenceModule extends Module {
 	/** En el hilo de Discord: conecta si hace falta y manda la actividad si ha cambiado. */
 	private void update() {
 		String id = applicationId.get().trim();
+		// Si aquí no hay ID se usa el que le pasa el launcher.
+		if (id.isEmpty()) id = System.getProperty("freedomclient.discordAppId", "").trim();
 		if (id.isEmpty() || !id.chars().allMatch(Character::isDigit)) return;
 		try {
 			if (ipc == null || !id.equals(connectedId)) {

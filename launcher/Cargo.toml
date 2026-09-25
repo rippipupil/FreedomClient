@@ -1,0 +1,11 @@
+[workspace]
+members = ["core", "app"]
+resolver = "3"
+
+# El launcher tiene que ser pequeño y ligero: se optimiza por tamaño y se quita todo lo que sobra.
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

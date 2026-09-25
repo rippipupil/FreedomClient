@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FreedomClient</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="sky"></canvas>
+
+  <header class="titlebar" data-tauri-drag-region>
+    <img class="titlebar-logo" src="img/logo.png" alt="" data-tauri-drag-region>
+    <span class="titlebar-name" data-tauri-drag-region>Freedom<b>Client</b></span>
+    <span class="titlebar-version" id="launcher-version" data-tauri-drag-region></span>
+    <div class="titlebar-spacer" data-tauri-drag-region></div>
+    <button class="account" id="account-button" title="Accounts">
+      <img id="account-head" src="img/icon.png" alt="">
+      <span id="account-name">No account</span>
+    </button>
+    <button class="window-btn" id="minimize" title="Minimize"><i class="px-min"></i></button>
+    <button class="window-btn close" id="close" title="Close"><i class="px-close"></i></button>
+  </header>
+
+  <nav class="sidebar">
+    <button class="nav active" data-page="play"><i class="icon icon-play"></i><span>Play</span></button>
+    <button class="nav" data-page="profiles"><i class="icon icon-profiles"></i><span>Profiles</span></button>
+    <button class="nav" data-page="settings"><i class="icon icon-settings"></i><span>Settings</span></button>
+  </nav>
+
+  <main>
+    <!-- Jugar -->
+    <section class="page active" id="page-play">
+      <div class="hero">
+        <img class="hero-logo" src="img/logo.png" alt="FreedomClient">
+        <h1>Freedom<b>Client</b></h1>
+        <p class="subtitle">Minecraft <span id="mc-version">1.21.11</span> · Fabric · PvP</p>
+
+        <div class="launch-box">
+          <button class="launch" id="launch">
+            <span class="launch-label" id="launch-label">LAUNCH</span>
+            <span class="launch-progress" id="launch-progress"></span>
+          </button>
+          <div class="launch-status" id="launch-status"></div>
+          <button class="profile-picker" id="profile-picker">
+            <i class="swatch" id="picker-swatch"></i>
+            <span id="picker-name">FreedomClient</span>
+            <i class="px-caret"></i>
+          </button>
+          <div class="menu hidden" id="profile-menu"></div>
+        </div>
+
+        <div class="quick">
+          <button class="btn" data-open="game"><i class="icon icon-folder"></i>.minecraft</button>
+          <button class="btn" data-open="mods"><i class="icon icon-mods"></i>Mods</button>
+          <button class="btn" data-open="log"><i class="icon icon-log"></i>Log</button>
+        </div>
+      </div>
+      <footer class="play-footer">
+        <span id="client-version"></span>
+        <span id="memory-info"></span>
+      </footer>
+    </section>
+
+    <!-- Perfiles -->
+    <section class="page" id="page-profiles">
+      <div class="split">
+        <aside class="panel profile-list">
+          <div class="panel-title">Profiles <button class="btn small" id="new-profile">+ New</button></div>
+          <div id="profiles"></div>
+        </aside>
+        <div class="panel profile-detail" id="profile-detail">
+          <div class="field-row">
+            <label class="field grow">Name<input id="p-name" maxlength="32"></label>
+            <div class="field">Color<div class="swatches" id="p-colors"></div></div>
+          </div>
+          <div class="field-row">
+            <label class="field grow">Join server on launch <small>(optional)</small><input id="p-server" placeholder="play.example.net"></label>
+            <label class="field grow">Memory <small id="p-memory-label">Settings default</small>
+              <input type="range" id="p-memory" min="0" max="16384" step="512">
+            </label>
+          </div>
+          <label class="field">Extra Java arguments <small>(advanced)</small><input id="p-jvm" placeholder="-Dexample=true"></label>
+
+          <div class="mods-head">
+            <h3>Mods <small>Fabric 1.21.11 · FreedomClient is always included</small></h3>
+            <div class="row">
+              <button class="btn" id="add-mods">+ Add mods</button>
+              <button class="btn" data-open="mods"><i class="icon icon-folder"></i>Folder</button>
+            </div>
+          </div>
+          <div class="mods" id="mods"><div class="empty">Drop .jar files here or use "Add mods".</div></div>
+
+          <div class="row end profile-actions">
+            <button class="btn" data-open="game"><i class="icon icon-folder"></i>.minecraft</button>
+            <button class="btn" data-open="log"><i class="icon icon-log"></i>Log</button>
+            <button class="btn danger" id="delete-profile">Delete</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configuración -->
+    <section class="page" id="page-settings">
+      <div class="settings">
+        <div class="panel">
+          <div class="panel-title">Game</div>
+          <div class="setting">
+            <div><b>Memory (RAM)</b><small id="memory-hint"></small></div>
+            <div class="memory">
+              <label class="toggle"><input type="checkbox" id="s-memory-auto"><span></span>Auto</label>
+              <input type="range" id="s-memory" min="1024" max="16384" step="256">
+              <span class="value" id="s-memory-value"></span>
+            </div>
+          </div>
+          <div class="setting">
+            <div><b>Garbage collector</b><small>Optimized G1 gives the smoothest frames on most PCs.</small></div>
+            <div class="chips" id="s-gc" data-options="optimized:Optimized G1|zgc:ZGC|vanilla:Java default"></div>
+          </div>
+          <div class="setting">
+            <div><b>Window size</b><small>Size of the game window when it opens.</small></div>
+            <div class="row">
+              <input class="num" id="s-width" type="number" min="640" max="7680"> × <input class="num" id="s-height" type="number" min="480" max="4320">
+              <label class="toggle"><input type="checkbox" id="s-fullscreen"><span></span>Fullscreen</label>
+            </div>
+          </div>
+          <div class="setting">
+            <div><b>Extra Java arguments</b><small>Added to every profile.</small></div>
+            <input id="s-jvm" class="wide" placeholder="-Dexample=true">
+          </div>
+          <div class="setting">
+            <div><b>Java</b><small>Empty = the Java 21 that the launcher downloads from Mojang.</small></div>
+            <input id="s-java" class="wide" placeholder="Automatic">
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Launcher</div>
+          <div class="setting">
+            <div><b>When the game starts</b><small>Closing the launcher frees all its memory while you play.</small></div>
+            <div class="chips" id="s-after" data-options="close:Close launcher|minimize:Minimize|keep_open:Keep open"></div>
+          </div>
+          <div class="setting">
+            <div><b>Update FreedomClient automatically</b><small>Downloads the newest build before launching.</small></div>
+            <label class="toggle"><input type="checkbox" id="s-autoupdate"><span></span></label>
+          </div>
+          <div class="setting">
+            <div><b>Parallel downloads</b><small>Lower it on slow connections.</small></div>
+            <div class="chips" id="s-downloads" data-options="8:8|16:16|32:32|64:64"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Discord</div>
+          <div class="setting">
+            <div><b>Rich Presence</b><small>Shows FreedomClient on your Discord profile.</small></div>
+            <label class="toggle"><input type="checkbox" id="s-discord"><span></span></label>
+          </div>
+          <div class="setting">
+            <div><b>Application ID</b><small>From the Discord Developer Portal.</small></div>
+            <input id="s-discord-id" class="wide" placeholder="000000000000000000">
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Advanced</div>
+          <div class="setting">
+            <div><b>Microsoft application ID</b><small>Azure app approved for Minecraft login.</small></div>
+            <input id="s-ms-id" class="wide" placeholder="00000000-0000-0000-0000-000000000000">
+          </div>
+          <div class="setting">
+            <div><b>Launcher folder</b><small id="data-dir"></small></div>
+            <button class="btn" data-open="launcher"><i class="icon icon-folder"></i>Open</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Cuentas -->
+  <div class="overlay hidden" id="accounts">
+    <div class="dialog">
+      <div class="panel-title">Accounts <button class="btn small" data-close>✕</button></div>
+      <div id="account-list"></div>
+      <div class="row">
+        <button class="btn primary" id="add-microsoft">Microsoft login</button>
+      </div>
+      <div class="row offline-row" id="offline-row">
+        <input id="offline-name" placeholder="Offline name" maxlength="16">
+        <button class="btn" id="add-offline">Add offline</button>
+      </div>
+      <p class="hint" id="offline-hint">Offline accounts unlock after logging in once with a Microsoft account that owns Minecraft.</p>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="login">
+    <div class="dialog center">
+      <div class="panel-title">Microsoft login <button class="btn small" data-close>✕</button></div>
+      <p>Open the page and enter this code:</p>
+      <div class="code" id="login-code">--------</div>
+      <div class="row center">
+        <button class="btn primary" id="login-open">Open microsoft.com/link</button>
+        <button class="btn" id="login-copy">Copy code</button>
+      </div>
+      <p class="hint" id="login-status">Waiting for you to log in…</p>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="sky.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

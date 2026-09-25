@@ -1,0 +1,138 @@
+name: launcher
+
+# Launcher de FreedomClient (Rust + Tauri):
+# - En Linux instala Minecraft 1.21.11 + Fabric + FreedomClient desde cero con el núcleo del launcher,
+#   lanza el juego en una pantalla virtual y abre también la app para hacer capturas (rama "ci-launcher").
+# - En Windows compila la app y publica el instalador en la release "launcher".
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore:
+      - ci-screenshots
+      - ci-probe
+      - ci-launcher
+    paths:
+      - launcher/**
+      - .github/workflows/launcher.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: launcher-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  launch-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri imagemagick libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: launcher
+      - name: Unit tests
+        working-directory: launcher
+        run: cargo test -p fc-core
+      - name: Install and launch the game with the launcher core
+        working-directory: launcher
+        env:
+          FC_LAUNCHER_HOME: /tmp/fc
+          FC_CI_READY_FILE: /tmp/fc-ready
+        run: |
+          mkdir -p /tmp/shots
+          cargo build -p fc-core --bin fc-ci
+          Xvfb :99 -screen 0 1280x720x24 &
+          export DISPLAY=:99
+          ./target/debug/fc-ci 900 2>&1 | tee /tmp/shots/fc-ci.txt &
+          CI_PID=$!
+          for i in $(seq 1 450); do
+            if [ -f /tmp/fc-ready ]; then import -window root /tmp/shots/game.png; break; fi
+            if ! kill -0 $CI_PID 2>/dev/null; then break; fi
+            sleep 2
+          done
+          wait $CI_PID
+      - name: Open the launcher app
+        if: always()
+        working-directory: launcher
+        env:
+          FC_LAUNCHER_HOME: /tmp/fc
+        run: |
+          cargo build -p freedom-launcher
+          export DISPLAY=:99
+          pgrep Xvfb || (Xvfb :99 -screen 0 1280x720x24 &)
+          sleep 1
+          WEBKIT_DISABLE_COMPOSITING_MODE=1 ./target/debug/freedom-launcher > /tmp/shots/app-output.txt 2>&1 &
+          sleep 12
+          import -window root /tmp/shots/launcher.png
+          pkill freedom-launcher || true
+      - name: Collect logs
+        if: always()
+        run: |
+          cp /tmp/fc/instances/ci/logs/latest.log /tmp/shots/ 2>/dev/null || true
+          cp /tmp/fc/instances/ci/logs/launcher-output.log /tmp/shots/ 2>/dev/null || true
+          cp /tmp/fc/instances/ci/options.txt /tmp/shots/ 2>/dev/null || true
+          ls -la /tmp/shots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: launcher-test
+          path: /tmp/shots
+      - name: Publish results branch
+        if: always()
+        run: |
+          cd /tmp/shots
+          git init -q -b ci-launcher
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Launcher test from ${GITHUB_SHA} (${GITHUB_REF_NAME})" > README.md
+          git add -A
+          git commit -q -m "Launcher test from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-launcher
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: launcher
+      - name: Build the launcher
+        working-directory: launcher/app
+        run: npx --yes @tauri-apps/cli@^2 build
+      - name: Collect the builds
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp launcher/target/release/freedom-launcher.exe dist/FreedomClient-Launcher-Portable.exe
+          cp launcher/target/release/bundle/nsis/*-setup.exe dist/FreedomClient-Launcher-Setup.exe
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: launcher-windows
+          path: dist
+      - name: Publish to the launcher release
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="FreedomClient Launcher para Windows (compilado desde ${GITHUB_SHA::7}, rama ${GITHUB_REF_NAME}).
+
+          FreedomClient-Launcher-Setup.exe: instalador. FreedomClient-Launcher-Portable.exe: sin instalar (necesita WebView2, que ya viene con Windows 10 y 11)."
+          git tag -f launcher "$GITHUB_SHA"
+          git push -f origin refs/tags/launcher
+          if gh release view launcher > /dev/null 2>&1; then
+            gh release edit launcher --title "FreedomClient Launcher" --notes "$notes" --prerelease
+          else
+            gh release create launcher --title "FreedomClient Launcher" --notes "$notes" --prerelease --verify-tag
+          fi
+          gh release upload launcher dist/FreedomClient-Launcher-Setup.exe dist/FreedomClient-Launcher-Portable.exe --clobber

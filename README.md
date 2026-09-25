@@ -47,7 +47,20 @@ Los módulos activados se guardan en `config/freedomclient.json`.
 **[⬇ Descargar FreedomClient-1.21.11.jar](https://github.com/rippipupil/FreedomClient/releases/download/latest/FreedomClient-1.21.11.jar)**
 (siempre es la última versión compilada)
 
-## Instalación
+## Launcher
+
+**[⬇ Descargar FreedomClient Launcher para Windows](https://github.com/rippipupil/FreedomClient/releases/download/launcher/FreedomClient-Launcher-Setup.exe)**
+([versión portable](https://github.com/rippipupil/FreedomClient/releases/download/launcher/FreedomClient-Launcher-Portable.exe))
+
+El launcher instala Minecraft 1.21.11, Fabric, Java 21 y FreedomClient él solo y los mantiene actualizados.
+Tiene perfiles (cada uno con su carpeta `.minecraft`, sus mods externos y su servidor para entrar directo),
+botones para abrir la carpeta del juego y el log, Discord Rich Presence y ajustes de RAM y Java.
+Viene configurado para gastar lo mínimo: memoria automática según tu PC, G1 afinado para que no haya tirones,
+opciones del juego pensadas para FPS y el launcher se cierra al empezar la partida.
+
+Código en [`launcher/`](launcher): `core` (Rust: descargas, instalación y lanzamiento) y `app` (Tauri + la interfaz en `ui`).
+
+## Instalación manual
 
 1. Instala [Fabric Loader](https://fabricmc.net/use/installer/) para Minecraft 1.21.11.
 2. Pon `FreedomClient-1.21.11.jar` en `.minecraft/mods`. Fabric API y los mods de rendimiento ya van dentro.
