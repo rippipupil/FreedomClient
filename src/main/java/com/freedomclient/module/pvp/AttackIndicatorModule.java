@@ -1,5 +1,6 @@
 package com.freedomclient.module.pvp;
 
+import com.freedomclient.hud.CombatTracker;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import com.freedomclient.setting.BooleanSetting;
@@ -9,18 +10,28 @@ import com.freedomclient.setting.NumberSetting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.Locale;
+
 /**
  * Custom Attack Indicator: sustituye el indicador de ataque de vanilla por uno configurable
- * (espada pixel, barra, anillo o porcentaje), bajo la mira o junto a la barra de objetos.
+ * (barra de vanilla, barra, anillo, espada pixel o solo texto), bajo la mira o junto a la barra de objetos,
+ * con el tiempo exacto que falta para que el golpe esté cargado.
  */
 public class AttackIndicatorModule extends Module {
 	private static final long FLASH_MS = 400;
+	private static final Identifier CROSSHAIR_FULL = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_full");
+	private static final Identifier CROSSHAIR_BACKGROUND = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_background");
+	private static final Identifier CROSSHAIR_PROGRESS = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_progress");
+	private static final Identifier HOTBAR_BACKGROUND = Identifier.withDefaultNamespace("hud/hotbar_attack_indicator_background");
+	private static final Identifier HOTBAR_PROGRESS = Identifier.withDefaultNamespace("hud/hotbar_attack_indicator_progress");
 	/** Espada pixel de 12x12: o = contorno, b = hoja (se rellena con la carga), h = empuñadura. */
 	private static final String[] SWORD = {
 			".........ooo",
@@ -37,11 +48,14 @@ public class AttackIndicatorModule extends Module {
 			"oo..........",
 	};
 
-	private final ModeSetting style = add(new ModeSetting("Style", "How the indicator looks.", "Sword", "Sword", "Bar", "Circle", "Percent"));
+	private final ModeSetting style = add(new ModeSetting("Style", "How the indicator looks.", "Vanilla bar",
+			"Vanilla bar", "Bar", "Circle", "Sword", "Text only"));
 	private final ModeSetting position = add(new ModeSetting("Position", "Where the indicator is drawn.", "Crosshair", "Crosshair", "Hotbar"));
 	private final NumberSetting scale = add(new NumberSetting("Scale", "Size of the indicator.", 1, 0.5, 3, 0.25, "x"));
+	private final ModeSetting cooldownText = add(new ModeSetting("Cooldown text", "Exact time left until your hit is fully charged.",
+			"Seconds", "Off", "Seconds", "Ticks", "Percent"));
 	private final ModeSetting showWhen = add(new ModeSetting("Show", "When the indicator is visible.", "Charging + flash",
-			"Charging", "Charging + flash", "Always"));
+			"After hitting", "Charging", "Charging + flash", "Always"));
 	private final BooleanSetting onlyWeapons = add(new BooleanSetting("Only with weapons", "Only show it while holding a sword, axe, mace or trident.", false));
 	private final ColorSetting chargingColor = add(new ColorSetting("Charging color", "Color while the attack is charging.", 0xFFF5F1E8, true));
 	private final ColorSetting readyColor = add(new ColorSetting("Ready color", "Color when the attack is fully charged.", 0xFFF2C94C, true));
@@ -53,7 +67,7 @@ public class AttackIndicatorModule extends Module {
 	private long readyAt;
 
 	public AttackIndicatorModule() {
-		super("Custom Attack Indicator", "Replaces the vanilla attack indicator with a customizable sword, bar, ring or percent.", Category.PVP, false);
+		super("Custom Attack Indicator", "Shows the exact cooldown of your hit as the vanilla bar, a bar, a ring, a sword or text.", Category.PVP, false);
 		targetColor.visibleWhen(targetColorEnabled::get);
 	}
 
@@ -80,6 +94,8 @@ public class AttackIndicatorModule extends Module {
 		boolean ready = strength >= 1.0F;
 		boolean flashing = now - readyAt < FLASH_MS;
 		if (ready && !(showWhen.is("Always") || showWhen.is("Charging + flash") && flashing)) return;
+		// "After hitting": solo mientras se recarga un golpe dado a una entidad (no al cambiar de objeto).
+		if (showWhen.is("After hitting") && now - CombatTracker.getLastHitAt() > player.getCurrentItemAttackStrengthDelay() * 50 + 100) return;
 		boolean crosshair = position.is("Crosshair");
 		if (crosshair && !client.options.getCameraType().isFirstPerson()) return;
 
@@ -105,13 +121,64 @@ public class AttackIndicatorModule extends Module {
 		graphics.pose().translate(x, y);
 		float s = scale.getFloat();
 		graphics.pose().scale(s, s);
+		int textY;
 		switch (style.get()) {
-			case "Bar" -> bar(graphics, strength, fill, crosshair);
-			case "Circle" -> circle(graphics, strength, fill, crosshair);
-			case "Percent" -> percent(graphics, client, strength, fill);
-			default -> sword(graphics, strength, fill);
+			case "Bar" -> {
+				bar(graphics, strength, fill, crosshair);
+				textY = crosshair ? 4 : -4;
+			}
+			case "Circle" -> {
+				circle(graphics, strength, fill, crosshair);
+				textY = crosshair ? 0 : -4;
+			}
+			case "Sword" -> {
+				sword(graphics, strength, fill);
+				textY = crosshair ? 8 : -4;
+			}
+			case "Text only" -> textY = -4;
+			default -> textY = vanilla(graphics, strength, ready && aiming, crosshair);
+		}
+		String text = cooldownText(player, strength);
+		if (text != null) {
+			if (crosshair || style.is("Text only")) {
+				graphics.drawString(client.font, text, -client.font.width(text) / 2, textY, fill, true);
+			} else {
+				// Junto a la barra de objetos el texto va al lado del indicador, hacia fuera.
+				boolean right = player.getMainArm() == HumanoidArm.RIGHT;
+				graphics.drawString(client.font, text, right ? 12 : -12 - client.font.width(text), textY, fill, true);
+			}
 		}
 		graphics.pose().popMatrix();
+	}
+
+	/** Tiempo que falta para el golpe cargado, calculado con la velocidad de ataque del objeto en la mano. */
+	private String cooldownText(LocalPlayer player, float strength) {
+		if (cooldownText.is("Off") && !style.is("Text only")) return null;
+		float delayTicks = player.getCurrentItemAttackStrengthDelay();
+		float remaining = Math.max(0.0F, (1.0F - strength) * delayTicks);
+		return switch (cooldownText.get()) {
+			case "Ticks" -> String.valueOf(Math.round(remaining));
+			case "Percent", "Off" -> Math.round(strength * 100) + "%";
+			default -> String.format(Locale.ROOT, "%.2fs", remaining / 20.0F);
+		};
+	}
+
+	/** Los sprites del indicador de vanilla. Devuelve la altura donde poner el texto. */
+	private int vanilla(GuiGraphics graphics, float strength, boolean readyOnTarget, boolean crosshair) {
+		if (crosshair) {
+			if (readyOnTarget) {
+				graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CROSSHAIR_FULL, -8, -8, 16, 16);
+				return 9;
+			}
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CROSSHAIR_BACKGROUND, -8, 0, 16, 4);
+			int width = (int) (strength * 17.0F);
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CROSSHAIR_PROGRESS, 16, 4, 0, 0, -8, 0, width, 4);
+			return 6;
+		}
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_BACKGROUND, -9, -9, 18, 18);
+		int height = (int) (strength * 19.0F);
+		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_PROGRESS, 18, 18, 0, 18 - height, -9, 9 - height, 18, height);
+		return -4;
 	}
 
 	/** Espada que se llena en diagonal desde la empuñadura hasta la punta. */
@@ -170,11 +237,6 @@ public class AttackIndicatorModule extends Module {
 				graphics.fill(x, centerY + y, x + 1, centerY + y + 1, edge ? color : darker(color));
 			}
 		}
-	}
-
-	private void percent(GuiGraphics graphics, Minecraft client, float strength, int fill) {
-		String text = Math.round(strength * 100) + "%";
-		graphics.drawString(client.font, text, -client.font.width(text) / 2, -4, fill, true);
 	}
 
 	private static int darker(int argb) {

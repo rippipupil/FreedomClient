@@ -173,6 +173,12 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(4);
 			context.takeScreenshot("attack_indicator");
 
+			// Block Outline: mirando al suelo, el bloque apuntado se tiñe del color elegido.
+			context.runOnClient(client -> client.player.setXRot(55.0F));
+			context.waitTicks(5);
+			context.takeScreenshot("block_outline");
+			context.runOnClient(client -> client.player.setXRot(0.0F));
+
 			// Misma vista con la escala de interfaz 2, para ver la ventana compacta en pantallas grandes.
 			context.runOnClient(client -> {
 				client.options.guiScale().set(2);
