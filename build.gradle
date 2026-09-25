@@ -34,6 +34,9 @@ dependencies {
 	include(modImplementation("maven.modrinth:ferrite-core:${project.ferritecore_version}"))
 	include(modImplementation("maven.modrinth:immediatelyfast:${project.immediatelyfast_version}"))
 	include(modImplementation("maven.modrinth:dynamic-fps:${project.dynamicfps_version}"))
+
+	// El paquete de Fabric API no incluye la API de tests de cliente; solo se añade al ejecutar los tests.
+	productionRuntimeMods fabricApi.module("fabric-client-gametest-api-v1", project.fabric_api_version)
 }
 
 // Tests de cliente: abren el juego, el menú y hacen capturas (ver .github/workflows/screenshots.yml).
