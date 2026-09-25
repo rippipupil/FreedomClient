@@ -1,12 +1,21 @@
 package com.freedomclient.module;
 
-import com.freedomclient.module.hud.ArmorStatusModule;
-import com.freedomclient.module.hud.CoordinatesModule;
-import com.freedomclient.module.hud.FpsModule;
-import com.freedomclient.module.hud.KeystrokesModule;
-import com.freedomclient.module.hud.ModuleListModule;
-import com.freedomclient.module.hud.PingModule;
-import com.freedomclient.module.hud.WatermarkModule;
+import com.freedomclient.module.hud.AppleSkinModule;
+import com.freedomclient.module.hud.ArmorAlertHud;
+import com.freedomclient.module.hud.ArmorHud;
+import com.freedomclient.module.hud.ClockHud;
+import com.freedomclient.module.hud.ComboHud;
+import com.freedomclient.module.hud.CoordinatesHud;
+import com.freedomclient.module.hud.CpsHud;
+import com.freedomclient.module.hud.FpsHud;
+import com.freedomclient.module.hud.InventoryHud;
+import com.freedomclient.module.hud.ItemCounterHud;
+import com.freedomclient.module.hud.KeystrokesHud;
+import com.freedomclient.module.hud.ModuleListHud;
+import com.freedomclient.module.hud.PingHud;
+import com.freedomclient.module.hud.PotionEffectsHud;
+import com.freedomclient.module.hud.ReachHud;
+import com.freedomclient.module.hud.WatermarkHud;
 import com.freedomclient.module.performance.BundledModModule;
 import com.freedomclient.module.performance.GameOptimizerModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
@@ -32,13 +41,22 @@ public class ModuleManager {
 		add(new ToggleSprintModule());
 
 		// HUD
-		add(new WatermarkModule());
-		add(new FpsModule());
-		add(new PingModule());
-		add(new CoordinatesModule());
-		add(new KeystrokesModule());
-		add(new ArmorStatusModule());
-		add(new ModuleListModule());
+		add(new WatermarkHud());
+		add(new FpsHud());
+		add(new PingHud());
+		add(new CoordinatesHud());
+		add(new ClockHud());
+		add(new CpsHud());
+		add(new ComboHud());
+		add(new ReachHud());
+		add(new KeystrokesHud());
+		add(new ArmorHud());
+		add(new ArmorAlertHud());
+		add(new InventoryHud());
+		add(new PotionEffectsHud());
+		add(new ItemCounterHud());
+		add(new ModuleListHud());
+		add(new AppleSkinModule());
 
 		// Visual
 		add(new FullbrightModule());

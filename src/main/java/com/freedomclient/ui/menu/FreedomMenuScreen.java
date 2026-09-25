@@ -46,6 +46,8 @@ public class FreedomMenuScreen extends Screen {
 	private final ThemePage themePage = new ThemePage();
 	private Tab tab = lastTab;
 	private ModuleSettingsPage modulePage;
+	/** Pantalla a la que volver al cerrar (por ejemplo, el editor de HUD), o null para volver al juego. */
+	private Screen returnTo;
 	private long openedAt;
 
 	public FreedomMenuScreen() {
@@ -63,7 +65,28 @@ public class FreedomMenuScreen extends Screen {
 	}
 
 	public void closeModule() {
-		modulePage = null;
+		if (returnTo != null) {
+			onClose();
+		} else {
+			modulePage = null;
+		}
+	}
+
+	/** Abre directamente los ajustes de un mod y vuelve a {@code parent} al cerrarlos. */
+	public static FreedomMenuScreen forModule(Module module, Screen parent) {
+		FreedomMenuScreen screen = new FreedomMenuScreen();
+		screen.returnTo = parent;
+		screen.openModule(module);
+		return screen;
+	}
+
+	@Override
+	public void onClose() {
+		if (returnTo != null) {
+			minecraft.setScreen(returnTo);
+		} else {
+			super.onClose();
+		}
 	}
 
 	@Override
