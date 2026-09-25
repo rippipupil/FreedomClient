@@ -14,6 +14,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Build
         run: ./gradlew build --stacktrace
+      - name: Show Fabric Loader requirements of bundled mods
+        run: |
+          jar=$(ls build/libs/*.jar | grep -v -- '-sources' | head -1)
+          mkdir -p /tmp/nested && cd /tmp/nested && unzip -q -o "$GITHUB_WORKSPACE/$jar" 'META-INF/jars/*'
+          for nested in META-INF/jars/*.jar; do
+            echo "$(basename "$nested"): $(unzip -p "$nested" fabric.mod.json | tr -d '\n\t ' | grep -o '"fabricloader":"[^"]*"' || echo 'no loader requirement')"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: freedomclient
