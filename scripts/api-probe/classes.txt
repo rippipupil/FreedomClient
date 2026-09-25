@@ -1,9 +1,26 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método.
-net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer#showHitboxes
-net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer#emitGizmos
-net.minecraft.gizmos.Gizmos
-net.minecraft.gizmos.GizmoStyle
-net.minecraft.client.renderer.debug.DebugRenderer
-net.minecraft.client.gui.components.debug.DebugScreenEntries
-net.minecraft.client.gui.components.debug.DebugScreenEntryList
+net.minecraft.client.gui.screens.LoadingOverlay
+net.minecraft.client.gui.screens.LoadingOverlay#render
+net.minecraft.client.gui.screens.TitleScreen
+net.minecraft.client.gui.screens.worldselection.SelectWorldScreen
+net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
+net.minecraft.client.gui.screens.multiplayer.SafetyScreen
+net.minecraft.client.gui.screens.options.OptionsScreen
+net.minecraft.client.Minecraft#setScreen
+net.minecraft.world.entity.player.PlayerSkin
+net.minecraft.core.ClientAsset
+net.minecraft.core.ClientAsset$ResourceTexture
+net.minecraft.core.ClientAsset$Texture
+net.minecraft.client.renderer.entity.player.AvatarRenderer
+net.minecraft.client.renderer.entity.state.AvatarRenderState
+net.minecraft.client.renderer.entity.layers.RenderLayer
+net.minecraft.client.renderer.entity.layers.CapeLayer
+net.minecraft.client.renderer.OrderedSubmitNodeCollector
+net.minecraft.client.renderer.rendertype.RenderTypes
+net.minecraft.client.model.geom.builders.LayerDefinition
+net.minecraft.client.model.geom.builders.CubeListBuilder
+net.minecraft.client.model.geom.builders.PartDefinition
+net.minecraft.client.model.geom.PartPose
+net.minecraft.client.model.geom.ModelPart
+net.minecraft.client.model.player.PlayerModel

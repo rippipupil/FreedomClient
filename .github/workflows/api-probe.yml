@@ -1,5 +1,8 @@
 name: api-probe
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -9,13 +12,31 @@ on:
 
 jobs:
   probe:
-    runs-on: ubuntu-latest
+    runs-permissions:
+  contents: write
+
+on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: 21
+          distributipermissions:
+  contents: write
+
+on: temurin
+          java-versipermissions:
+  contents: write
+
+on: 21
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew compileJava --stacktrace
-      - run: ./scripts/api-probe/probe.sh
+      - run: ./scripts/api-probe/probe.sh > /tmp/probe.txt 2>&1; cat /tmp/probe.txt | tail -50
+      - name: Publish probe output to the ci-probe branch
+        run: |
+          mkdir -p /tmp/probe-branch && cp /tmp/probe.txt /tmp/probe-branch/probe.txt && cd /tmp/probe-branch
+          git init -q -b ci-probe
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Probe from ${GITHUB_SHA}" > README.md
+          git add -A && git commit -q -m "Probe from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-probe
