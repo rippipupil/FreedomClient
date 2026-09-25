@@ -4,7 +4,7 @@
 set -uo pipefail
 
 MC_VERSION=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
-MODS="${MODS:-sodium lithium ferrite-core immediatelyfast dynamic-fps continuity cull-less-leaves debugify mouse-tweaks not-enough-crashes crashpatch lambdabettergrass enhanced-block-entities moreculling entityculling very-many-players c2me-fabric servercore fast-ip-ping optigui cit-resewn wavey-capes shulkerboxtooltip scalablelux noisium}"
+MODS="${MODS:-sodium lithium ferrite-core immediatelyfast dynamic-fps continuity debugify yacl mouse-tweaks fast-ip-ping}"
 
 for mod in $MODS; do
 	echo "== $mod (Minecraft $MC_VERSION)"
