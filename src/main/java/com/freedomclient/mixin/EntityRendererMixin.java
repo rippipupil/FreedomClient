@@ -1,6 +1,7 @@
 package com.freedomclient.mixin;
 
 import com.freedomclient.module.pvp.HealthIndicatorsModule;
+import com.freedomclient.module.visual.FcNametagModule;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +17,7 @@ public class EntityRendererMixin {
 	private void freedomclient$healthInName(Entity entity, CallbackInfoReturnable<Component> cir) {
 		Component name = cir.getReturnValue();
 		if (name != null) {
-			Component modified = HealthIndicatorsModule.decorateName(entity, name);
+			Component modified = FcNametagModule.decorateNametag(entity, HealthIndicatorsModule.decorateName(entity, name));
 			if (modified != name) cir.setReturnValue(modified);
 		}
 	}

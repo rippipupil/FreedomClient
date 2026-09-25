@@ -1,17 +1,6 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método.
-net.minecraft.client.renderer.state.BlockOutlineRenderState
-net.minecraft.client.renderer.ShapeRenderer
-net.minecraft.client.renderer.rendertype.RenderTypes
-net.minecraft.client.renderer.LevelRenderer
-net.minecraft.client.sounds.SoundManager
-net.minecraft.client.resources.sounds.SoundInstance
-net.minecraft.client.gui.screens.LevelLoadingScreen
-net.minecraft.client.gui.screens.ReceivingLevelScreen
-net.minecraft.world.item.component.ItemContainerContents
-net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
-net.minecraft.world.item.ItemStack
-net.minecraft.client.gui.components.PlayerTabOverlay
-net.minecraft.client.gui.screens.packs.PackSelectionScreen
-net.minecraft.world.inventory.tooltip.TooltipComponent
-net.minecraft.client.multiplayer.ServerData
+net.minecraft.client.sounds.SoundEngine$PlayResult
+net.minecraft.client.renderer.GameRenderer#projectPointToScreen
+com.mojang.authlib.GameProfile
+net.minecraft.client.Camera
