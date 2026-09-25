@@ -22,8 +22,15 @@ echo "Jar: $jar"
 classpath="$jar"
 while IFS= read -r lib; do classpath="$classpath:$lib"; done < <(find "$HOME/.gradle/caches/modules-2" -name '*.jar' 2>/dev/null)
 
-grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r class; do
+# Una línea "Clase" muestra sus firmas; "Clase#metodo" muestra el bytecode de ese método (útil para mixins).
+grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 	echo
-	echo "==================== $class"
-	javap -p -cp "$classpath" "$class" 2>&1 | grep -v -E 'lambda\$|access\$|\$\$' || true
+	echo "==================== $line"
+	if [[ "$line" == *"#"* ]]; then
+		class="${line%%#*}"
+		method="${line##*#}"
+		javap -c -p -cp "$classpath" "$class" 2>&1 | awk -v m=" $method(" 'index($0, m) && /\(/ {p=1} p {print} p && /^$/ {p=0}'
+	else
+		javap -p -cp "$classpath" "$line" 2>&1 | grep -v -E 'lambda\$|access\$|\$\$' || true
+	fi
 done
