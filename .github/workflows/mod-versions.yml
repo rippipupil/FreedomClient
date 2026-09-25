@@ -1,0 +1,15 @@
+name: mod-versions
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - scripts/mod-versions.sh
+      - .github/workflows/mod-versions.yml
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/mod-versions.sh
