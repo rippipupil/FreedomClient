@@ -1,5 +1,6 @@
 package com.freedomclient.module;
 
+import com.freedomclient.cosmetic.AuraCosmetic;
 import com.freedomclient.cosmetic.CapeCosmetic;
 import com.freedomclient.cosmetic.CloudPetCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
@@ -151,6 +152,7 @@ public class ModuleManager {
 		add(new CapeCosmetic());
 		add(new PetCosmetic());
 		add(new CloudPetCosmetic());
+		add(new AuraCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

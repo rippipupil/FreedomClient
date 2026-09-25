@@ -1,14 +1,14 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método; "@ruta" muestra un fichero del jar.
-net.minecraft.client.renderer.GameRenderer
-net.minecraft.client.renderer.GameRenderer#displayItemActivation
-net.minecraft.client.renderer.GameRenderer#renderItemActivation
-net.minecraft.client.multiplayer.ClientPacketListener#handleEntityEvent
-net.minecraft.client.gui.components.ChatComponent
-net.minecraft.client.gui.components.ChatComponent#addMessageToDisplayQueue
-net.minecraft.client.gui.components.ChatComponent#render
-net.minecraft.client.GuiMessage
-net.minecraft.client.GuiMessage$Line
-net.minecraft.client.gui.Gui#displayScoreboardSidebar
-net.minecraft.client.gui.components.PlayerFaceRenderer
-net.minecraft.client.multiplayer.PlayerInfo
+net.minecraft.client.renderer.ScreenEffectRenderer
+net.minecraft.client.renderer.ScreenEffectRenderer#renderItemActivationAnimation
+net.minecraft.world.scores.Scoreboard
+net.minecraft.world.scores.PlayerScoreEntry
+net.minecraft.world.scores.PlayerTeam
+net.minecraft.world.scores.DisplaySlot
+net.minecraft.network.chat.Component
+net.minecraft.network.chat.contents.objects.PlayerSprite
+net.minecraft.network.chat.contents.objects.ObjectInfo
+net.minecraft.network.chat.contents.ObjectContents
+net.minecraft.world.item.component.ResolvableProfile
+net.minecraft.client.gui.Gui#renderScoreboardSidebar

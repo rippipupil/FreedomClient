@@ -32,29 +32,90 @@ def make_wings():
     image.save(OUT / "wings.png")
 
 
-# Pluma pixel de 8x8 para Hit Particles: o = contorno, w = blanco, l = claro, q = cañón (dorado).
-FEATHER = [
-    "......oo",
-    ".....owo",
-    "....owlo",
-    "...owlo.",
-    "..owlo..",
-    ".owlo...",
-    ".oqo....",
-    "q.......",
-]
+def feather_image(size=16):
+    """Pluma pixel en diagonal (cañón dorado del abajo-izquierda al arriba-derecha), con barbas sombreadas y contorno."""
+    import math
+    image = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    x0, y0, x1, y1 = 2.0, size - 3.0, size - 3.0, 2.0
+    dx, dy = x1 - x0, y1 - y0
+    length = math.hypot(dx, dy)
+    ux, uy = dx / length, dy / length
+    filled = {}
+    for y in range(size):
+        for x in range(size):
+            px, py = x + 0.5 - x0, y + 0.5 - y0
+            along = (px * ux + py * uy) / length
+            side = px * -uy + py * ux
+            if along < -0.02 or along > 1.02:
+                continue
+            width = 3.4 * math.sin(math.pi * min(1.0, max(0.0, (along - 0.12) / 0.9))) ** 0.7
+            if abs(side) < 0.6 and along < 0.95:
+                filled[(x, y)] = GOLD_DARK if along < 0.2 else GOLD
+            elif along > 0.12 and abs(side) <= width:
+                # Barbas: rayas diagonales cada 3 píxeles; un lado más claro que el otro.
+                stripe = int(along * length * 1.1 + abs(side) * 0.6) % 3 == 0
+                if side > 0:
+                    filled[(x, y)] = WHITE
+                else:
+                    filled[(x, y)] = LIGHT if stripe else WHITE
+    for (x, y), color in filled.items():
+        image.putpixel((x, y), color)
+    for (x, y) in list(filled):
+        for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            p = (x + ox, y + oy)
+            if p not in filled and 0 <= p[0] < size and 0 <= p[1] < size:
+                image.putpixel(p, OUTLINE)
+    return image
+
+
+# Sprites de partículas para las auras y TotemPop (letra -> color; '.' transparente).
+PARTICLE_COLORS = {
+    "g": GOLD, "G": GOLD_DARK, "y": GOLD_LIGHT, "w": (255, 255, 255, 255), "W": (220, 230, 255, 255),
+    "r": RED, "R": RED_DARK, "o": (255, 140, 66, 255), "O": (255, 196, 110, 255), "p": (255, 120, 170, 255),
+    "P": (200, 60, 110, 255), "b": (93, 173, 226, 255), "B": (46, 110, 168, 255), "k": (58, 5, 8, 255),
+}
+PARTICLES = {
+    # Chispa dorada de ángel.
+    "spark": ["...y...", "...g...", "..ygy..", "ygggggy", "..ygy..", "...g...", "...y..."],
+    # Brasa de demonio.
+    "ember": [".rr..", "roOr.", "rOOor", ".roor", "..rr."],
+    # Estrella blanca que parpadea.
+    "star": ["...w...", "...w...", "..wWw..", "wwWWWww", "..wWw..", "...w...", "...w..."],
+    # Corazón rosa.
+    "heart": [".PP.PP.", "PppPppP", "PpppppP", "PpppppP", ".PpppP.", "..PpP..", "...P..."],
+    # Chispa azul cielo.
+    "sky_spark": ["..b..", ".bWb.", "bWWWb", ".bWb.", "..b.."],
+    # Nota musical.
+    "note": ["...kkk", "...kgk", "...kgk", "...k.k", "kkkk..", "kggk..", "kkkk.."],
+}
+
+
+def halo_ring_image():
+    """Anillo del halo visto un poco desde arriba (para el brillo del tótem)."""
+    image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    for y in range(16):
+        for x in range(16):
+            d = ((x + 0.5 - 8) / 7.0) ** 2 + ((y + 0.5 - 8) / 3.2) ** 2
+            if 0.55 <= d <= 1.0:
+                image.putpixel((x, y), GOLD_LIGHT if y < 8 else GOLD)
+    return image
 
 
 def make_feather():
-    colors = {"o": OUTLINE, "w": WHITE, "l": LIGHT, "q": GOLD_DARK}
-    image = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
-    for y, row in enumerate(FEATHER):
-        for x, char in enumerate(row):
-            if char in colors:
-                image.putpixel((x, y), colors[char])
     particle_dir = OUT.parent / "particle"
     particle_dir.mkdir(parents=True, exist_ok=True)
-    image.save(particle_dir / "feather.png")
+    feather_image().save(particle_dir / "feather.png")
+    halo_ring_image().save(particle_dir / "halo_ring.png")
+    for name, rows in PARTICLES.items():
+        image = Image.new("RGBA", (len(rows[0]), len(rows)), (0, 0, 0, 0))
+        for y, row in enumerate(rows):
+            for x, char in enumerate(row):
+                if char in PARTICLE_COLORS:
+                    image.putpixel((x, y), PARTICLE_COLORS[char])
+        # Los sprites del atlas deben ser cuadrados como mucho del mismo tamaño; se centran en un lienzo de 8x8.
+        canvas = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+        canvas.paste(image, ((8 - image.width) // 2, (8 - image.height) // 2))
+        canvas.save(particle_dir / f"{name}.png")
 
 
 # Mascota Angel Devil: un mini jugador (cabeza, pelo largo, cuerpo, brazos y piernas) con UV de caja como las skins,

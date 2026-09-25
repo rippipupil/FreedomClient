@@ -19,7 +19,7 @@ public class FeatherParticle extends SingleQuadParticle {
 		this.friction = 0.9F;
 		this.hasPhysics = true;
 		this.lifetime = 30 + random.nextInt(20);
-		this.quadSize = 0.09F + random.nextFloat() * 0.05F;
+		this.quadSize = 0.13F + random.nextFloat() * 0.06F;
 		this.roll = random.nextFloat() * Mth.TWO_PI;
 		this.oRoll = roll;
 		this.spin = (random.nextFloat() - 0.5F) * 0.25F;

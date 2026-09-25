@@ -1,9 +1,9 @@
 package com.freedomclient.module.visual;
 
-import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import com.freedomclient.particle.FeatherParticle;
+import com.freedomclient.particle.PixelParticles;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ColorSetting;
 import com.freedomclient.setting.NumberSetting;
@@ -11,15 +11,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 
 /** Hit Particles: plumas pixel al golpear, en lugar de las partículas de crítico de vanilla. */
 public class HitParticlesModule extends Module {
-	private static final Identifier FEATHER = FreedomClient.id("feather");
 	private static HitParticlesModule instance;
 
 	private final NumberSetting amount = add(new NumberSetting("Amount", "Feathers per hit.", 6, 1, 20, 1));
@@ -47,7 +44,7 @@ public class HitParticlesModule extends Module {
 	public void onHit(Entity target) {
 		Minecraft client = Minecraft.getInstance();
 		if (client.level == null) return;
-		TextureAtlasSprite sprite = client.getAtlasManager().getAtlasOrThrow(AtlasIds.PARTICLES).getSprite(FEATHER);
+		TextureAtlasSprite sprite = PixelParticles.sprite("feather");
 		AABB box = target.getBoundingBox();
 		int rgb = color.get();
 		for (int i = 0; i < amount.getInt(); i++) {
