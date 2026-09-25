@@ -22,6 +22,8 @@ public final class CombatTracker {
 	private static long lastReachAt;
 
 	private static LivingEntity pendingTarget;
+	private static LivingEntity lastTarget;
+	private static long lastTargetAt;
 	private static int pendingTicks;
 	private static int lastPlayerHurtTime;
 
@@ -36,6 +38,8 @@ public final class CombatTracker {
 		lastReachAt = System.currentTimeMillis();
 
 		if (target instanceof LivingEntity living) {
+			lastTarget = living;
+			lastTargetAt = System.currentTimeMillis();
 			pendingTarget = living;
 			pendingTicks = HIT_CONFIRM_TICKS;
 		}
@@ -71,6 +75,16 @@ public final class CombatTracker {
 		}
 
 		if (combo > 0 && System.currentTimeMillis() - lastHitAt > COMBO_TIMEOUT_MS) combo = 0;
+	}
+
+	/** Momento (ms) del último golpe confirmado, para el hit marker de la mira. */
+	public static long getLastHitAt() {
+		return lastHitAt;
+	}
+
+	/** Última entidad atacada en los últimos {@code maxAgeMs} ms, o null. */
+	public static LivingEntity getTarget(long maxAgeMs) {
+		return lastTarget != null && System.currentTimeMillis() - lastTargetAt <= maxAgeMs ? lastTarget : null;
 	}
 
 	public static int getCombo() {

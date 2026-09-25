@@ -6,6 +6,8 @@ import com.freedomclient.hud.HudRenderer;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
+import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.pvp.CenteredCrosshairModule;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
@@ -75,6 +77,27 @@ public class FreedomClient implements ClientModInitializer {
 
 		HudElementRegistry.attachElementAfter(VanillaHudElements.FOOD_BAR, id("appleskin"), (graphics, deltaTracker) ->
 				moduleManager.get(AppleSkinModule.class).renderOverlay(graphics, Minecraft.getInstance()));
+
+		// Mira propia (Better Crosshair) o la de vanilla, opcionalmente centrada al píxel exacto.
+		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, vanilla -> (graphics, deltaTracker) -> {
+			Minecraft client = Minecraft.getInstance();
+			BetterCrosshairModule crosshair = moduleManager.get(BetterCrosshairModule.class);
+			if (crosshair.isEnabled()) {
+				if (crosshair.shouldRender(client)) crosshair.render(graphics, client);
+				return;
+			}
+			if (moduleManager.get(CenteredCrosshairModule.class).isEnabled()) {
+				// Vanilla dibuja en (ancho - 15) / 2 con división entera; se corrige el medio píxel perdido.
+				float offsetX = (graphics.guiWidth() - 15) / 2.0F - (graphics.guiWidth() - 15) / 2;
+				float offsetY = (graphics.guiHeight() - 15) / 2.0F - (graphics.guiHeight() - 15) / 2;
+				graphics.pose().pushMatrix();
+				graphics.pose().translate(offsetX, offsetY);
+				vanilla.render(graphics, deltaTracker);
+				graphics.pose().popMatrix();
+				return;
+			}
+			vanilla.render(graphics, deltaTracker);
+		});
 
 		// Oculta los iconos de efectos de vanilla cuando el HUD de efectos propio lo pide.
 		HudElementRegistry.replaceElement(VanillaHudElements.STATUS_EFFECTS, vanilla -> (graphics, deltaTracker) -> {

@@ -35,6 +35,14 @@ public final class ModIcons {
 		return icon != null ? icon : fallback;
 	}
 
+	private static final Map<Identifier, Identifier> FALLBACKS = new HashMap<>();
+
+	/** Devuelve el icono si existe en los recursos, o el engranaje genérico si no. */
+	public static Identifier orFallback(Identifier icon) {
+		return FALLBACKS.computeIfAbsent(icon, id -> Minecraft.getInstance().getResourceManager().getResource(id).isPresent()
+				? id : FreedomClient.id("textures/icon/gear.png"));
+	}
+
 	/** Tamaño en píxeles de la textura de un icono (los iconos propios son de 16x16). */
 	public static int textureSize(Identifier icon) {
 		return TEXTURE_SIZES.getOrDefault(icon, DEFAULT_TEXTURE_SIZE);

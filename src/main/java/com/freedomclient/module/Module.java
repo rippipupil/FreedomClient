@@ -4,6 +4,7 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.config.Config;
 import com.freedomclient.setting.KeybindSetting;
 import com.freedomclient.setting.Setting;
+import com.freedomclient.util.ModIcons;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
@@ -85,9 +86,9 @@ public abstract class Module {
 		return true;
 	}
 
-	/** Icono de 16x16 de la tarjeta del módulo. */
+	/** Icono de 16x16 de la tarjeta del módulo (o un engranaje si todavía no tiene icono propio). */
 	public Identifier getIcon() {
-		return FreedomClient.id("textures/icon/" + getId() + ".png");
+		return ModIcons.orFallback(FreedomClient.id("textures/icon/" + getId() + ".png"));
 	}
 
 	/** Nombre en minúsculas y sin espacios, usado para iconos y claves de la config. */

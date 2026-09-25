@@ -3,7 +3,13 @@
 	"package": "com.freedomclient.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"MouseHandlerMixin"
+		"CameraMixin",
+		"EntityMixin",
+		"EntityRendererMixin",
+		"GameRendererMixin",
+		"ItemInHandRendererMixin",
+		"MouseHandlerMixin",
+		"accessor.OverlayTextureAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

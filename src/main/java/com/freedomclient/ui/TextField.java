@@ -16,6 +16,10 @@ public class TextField {
 		return text;
 	}
 
+	public void setText(String text) {
+		this.text = text.length() > maxLength ? text.substring(0, maxLength) : text;
+	}
+
 	public void render(Ui ui, int x, int y, int w, int h, String placeholder) {
 		boolean focused = ui.isFocused(this);
 		boolean hovered = ui.hovered(x, y, w, h);

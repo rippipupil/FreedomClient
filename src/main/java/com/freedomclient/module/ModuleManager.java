@@ -18,8 +18,19 @@ import com.freedomclient.module.hud.ReachHud;
 import com.freedomclient.module.hud.WatermarkHud;
 import com.freedomclient.module.performance.BundledModModule;
 import com.freedomclient.module.performance.GameOptimizerModule;
+import com.freedomclient.module.hud.TargetHud;
+import com.freedomclient.module.pvp.AutoTextModule;
+import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.pvp.BetterHurtCamModule;
+import com.freedomclient.module.pvp.CenteredCrosshairModule;
+import com.freedomclient.module.pvp.FreelookModule;
+import com.freedomclient.module.pvp.HealthIndicatorsModule;
+import com.freedomclient.module.pvp.ShieldFixModule;
 import com.freedomclient.module.pvp.ToggleSprintModule;
+import com.freedomclient.module.pvp.ViewModelModule;
+import com.freedomclient.module.visual.FovChangerModule;
 import com.freedomclient.module.visual.FullbrightModule;
+import com.freedomclient.module.visual.HitColorModule;
 import com.freedomclient.module.visual.ZoomModule;
 import com.freedomclient.setting.KeybindSetting;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -39,6 +50,15 @@ public class ModuleManager {
 	public ModuleManager() {
 		// PvP
 		add(new ToggleSprintModule());
+		add(new BetterCrosshairModule());
+		add(new CenteredCrosshairModule());
+		add(new HitColorModule());
+		add(new BetterHurtCamModule());
+		add(new HealthIndicatorsModule());
+		add(new FreelookModule());
+		add(new ViewModelModule());
+		add(new ShieldFixModule());
+		add(new AutoTextModule());
 
 		// HUD
 		add(new WatermarkHud());
@@ -56,11 +76,13 @@ public class ModuleManager {
 		add(new PotionEffectsHud());
 		add(new ItemCounterHud());
 		add(new ModuleListHud());
+		add(new TargetHud());
 		add(new AppleSkinModule());
 
 		// Visual
 		add(new FullbrightModule());
 		add(new ZoomModule());
+		add(new FovChangerModule());
 
 		// Performance
 		add(new GameOptimizerModule());

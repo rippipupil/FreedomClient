@@ -6,9 +6,12 @@ import com.freedomclient.setting.ColorSetting;
 import com.freedomclient.setting.KeybindSetting;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.NumberSetting;
+import com.freedomclient.setting.PixelGridSetting;
 import com.freedomclient.setting.Setting;
+import com.freedomclient.setting.StringSetting;
 import com.freedomclient.ui.ColorPicker;
 import com.freedomclient.ui.Draw;
+import com.freedomclient.ui.TextField;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.theme.ThemeManager;
 import org.lwjgl.glfw.GLFW;
@@ -23,11 +26,14 @@ public class SettingRows {
 
 	private final Map<Object, ColorPicker> pickers = new HashMap<>();
 	private final Map<ActionSetting, Long> actionFeedback = new HashMap<>();
+	private final Map<StringSetting, TextField> textFields = new HashMap<>();
 	private Object expandedColor;
 
 	/** Dibuja la fila de un ajuste y devuelve la altura que ocupa. */
 	public int render(Ui ui, Setting<?> setting, int x, int y, int w) {
 		if (setting instanceof NumberSetting number) return renderNumber(ui, number, x, y, w);
+		if (setting instanceof StringSetting text) return renderText(ui, text, x, y, w);
+		if (setting instanceof PixelGridSetting grid) return renderGrid(ui, grid, x, y, w);
 		if (setting instanceof ColorSetting color) {
 			return renderColor(ui, color, setting.getName(), setting.getDescription(), x, y, w,
 					color::get, color::set, color.allowsAlpha());
@@ -80,6 +86,70 @@ public class SettingRows {
 			return true;
 		});
 		return height;
+	}
+
+	private int renderText(Ui ui, StringSetting setting, int x, int y, int w) {
+		int height = ROW_HEIGHT + 16;
+		row(ui, setting.getName(), setting.getDescription(), x, y, w, height);
+
+		TextField field = textFields.computeIfAbsent(setting, s -> {
+			TextField created = new TextField(s.getMaxLength());
+			created.setText(s.get());
+			return created;
+		});
+		field.render(ui, x + 6, y + 16, w - 12, 14, "Type here...");
+		if (!field.getText().equals(setting.get())) setting.set(field.getText());
+		return height;
+	}
+
+	/** Editor de la mira: haz clic o arrastra sobre la cuadrícula para pintar píxeles; clic derecho borra. */
+	private int renderGrid(Ui ui, PixelGridSetting setting, int x, int y, int w) {
+		int cell = 7;
+		int gridSize = setting.getSize() * cell;
+		int height = ROW_HEIGHT + gridSize + 8;
+		row(ui, setting.getName(), setting.getDescription(), x, y, w, height);
+
+		int gridX = x + 8;
+		int gridY = y + ROW_HEIGHT;
+		ui.g.fill(gridX - 1, gridY - 1, gridX + gridSize + 1, gridY + gridSize + 1, ThemeManager.border());
+		for (int gy = 0; gy < setting.getSize(); gy++) {
+			for (int gx = 0; gx < setting.getSize(); gx++) {
+				boolean center = gx == setting.getSize() / 2 && gy == setting.getSize() / 2;
+				int empty = center ? ThemeManager.mix(ThemeManager.shade(), ThemeManager.highlight(), 0.3F) : ((gx + gy) % 2 == 0 ? ThemeManager.shade() : ThemeManager.mix(ThemeManager.shade(), 0xFF000000, 0.3F));
+				int color = setting.isSet(gx, gy) ? ThemeManager.accent() : empty;
+				ui.g.fill(gridX + gx * cell, gridY + gy * cell, gridX + gx * cell + cell, gridY + gy * cell + cell, color);
+			}
+		}
+
+		ui.click(gridX, gridY, gridSize, gridSize, (mx, my, button) -> {
+			boolean paint = button != GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+			ui.startDrag((dx, dy) -> {
+				int gx = (int) ((dx - gridX) / cell);
+				int gy = (int) ((dy - gridY) / cell);
+				if (gx >= 0 && gy >= 0 && gx < setting.getSize() && gy < setting.getSize()) setting.setPixel(gx, gy, paint);
+			}, mx, my);
+			return true;
+		});
+
+		// Botones para limpiar y volver al diseño por defecto.
+		int buttonX = gridX + gridSize + 10;
+		smallButton(ui, "Clear", buttonX, gridY, setting::clear);
+		smallButton(ui, "Reset", buttonX, gridY + 16, setting::reset);
+		ui.g.drawString(ui.font, "Left: draw", buttonX, gridY + 38, ThemeManager.textMuted(), false);
+		ui.g.drawString(ui.font, "Right: erase", buttonX, gridY + 48, ThemeManager.textMuted(), false);
+		return height;
+	}
+
+	private void smallButton(Ui ui, String label, int x, int y, Runnable action) {
+		int w = ui.font.width(label) + 12;
+		boolean hovered = ui.hovered(x, y, w, 12);
+		Draw.panel(ui.g, x, y, w, 12, hovered ? ThemeManager.cardHover() : ThemeManager.shade(), hovered ? ThemeManager.highlight() : ThemeManager.border());
+		ui.g.drawString(ui.font, label, x + 6, y + 2, ThemeManager.text(), false);
+		ui.click(x, y, w, 12, (mx, my, button) -> {
+			action.run();
+			ui.playClick();
+			return true;
+		});
 	}
 
 	private void renderMode(Ui ui, ModeSetting setting, int x, int y, int w) {
