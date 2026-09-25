@@ -57,28 +57,84 @@ def make_feather():
     image.save(particle_dir / "feather.png")
 
 
-# Paleta de la mascota Angel Devil: una franja de 4 px de alto por color, en este orden
-# (AngelDevilPetRenderer usa el índice de cada letra).
-PET_COLORS = [
-    GOLD,                   # g halo
-    GOLD_DARK,              # G halo oscuro
-    RED,                    # r pelo
-    RED_DARK,               # R pelo oscuro
-    (250, 214, 186, 255),   # s piel
-    (40, 18, 24, 255),      # e ojos
-    (226, 120, 130, 255),   # p boca
-    WHITE,                  # h camisa
-    (28, 22, 30, 255),      # k negro (corbata, pantalón)
-    (70, 62, 74, 255),      # K gris oscuro (zapatos)
-    (255, 255, 255, 255),   # w alas
-    LIGHT,                  # W alas sombra
-]
+# Mascota Angel Devil: un mini jugador (cabeza, pelo largo, cuerpo, brazos y piernas) con UV de caja como las skins,
+# más unas franjas de color para el halo y las alas (AngelDevilPetRenderer).
+PET = {
+    "r": RED,                    # pelo
+    "R": RED_DARK,               # mechones oscuros
+    "L": (240, 86, 100, 255),    # brillo del pelo
+    "s": (250, 214, 186, 255),   # piel
+    "S": (226, 184, 156, 255),   # piel en sombra
+    "e": (40, 18, 24, 255),      # ojos
+    "w": (255, 255, 255, 255),   # brillo de los ojos / camisa
+    "b": (244, 150, 160, 255),   # rubor
+    "m": (196, 90, 104, 255),    # boca
+    "h": WHITE,                  # camisa
+    "H": (200, 194, 186, 255),   # camisa en sombra
+    "k": (28, 22, 30, 255),      # corbata y pantalón
+    "K": (70, 62, 74, 255),      # zapatos
+}
+# Franjas de color (v = 40, 44, 48...): halo, halo oscuro, ala, ala clara, ala sombra, contorno del ala.
+PET_STRIPS = [GOLD, GOLD_DARK, (255, 255, 255, 255), LIGHT, SHADE, OUTLINE]
+
+
+def paint_face(image, u, v, rows):
+    for y, row in enumerate(rows):
+        for x, char in enumerate(row):
+            if char in PET:
+                image.putpixel((u + x, v + y), PET[char])
+
+
+def fill(image, u, v, w, h, char):
+    paint_face(image, u, v, [char * w] * h)
+
+
+def paint_box(image, u, v, w, h, d, top, bottom, right, front, left, back):
+    """UV de caja de Minecraft: arriba/abajo en la fila v, lados, frente y espalda en la fila v + d."""
+    paint_face(image, u + d, v, top)
+    paint_face(image, u + d + w, v, bottom)
+    paint_face(image, u, v + d, right)
+    paint_face(image, u + d, v + d, front)
+    paint_face(image, u + d + w, v + d, left)
+    paint_face(image, u + d + w + d, v + d, back)
 
 
 def make_pet():
     image = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    for index, color in enumerate(PET_COLORS):
-        for y in range(index * 4, index * 4 + 4):
+    # Cabeza 8x8x8 en (0, 0).
+    hair_side = ["rrrrrrrr", "rRrrrrLr", "rrrRrrrr", "rrrrrRrr", "rRrrrrrr", "rrrrrrrs", "rrRrrrrs", "rrrrrrss"]
+    paint_box(image, 0, 0, 8, 8, 8,
+              top=["rrrLrrrr", "rrrLrrrr", "rrrRrrrr", "rrrRrrrr", "rrrRrrrr", "rrrrrrrr", "rrrrrrrr", "rrrrrrrr"],
+              bottom=["rsssssr ".replace(" ", "r"), "rssssssr", "rssssssr", "rssssssr", "rssssssr", "rssssssr", "rrrrrrrr", "rrrrrrrr"],
+              right=[row[::-1] for row in hair_side],
+              front=["rrrLrrrr", "rrRrrRrr", "rrsRRsrr", "rssssssr", "rsewsewr", "rseeseer", "rbssssbr", "rssmmssr"],
+              left=hair_side,
+              back=["rrrrrrrr", "rrRrrLrr", "rrrrrrrr", "rRrrrRrr", "rrrrrrrr", "rrrRrrrr", "rRrrrrRr", "rrrrrrrr"])
+    # Pelo largo por detrás, 8x4x2 en (32, 0).
+    long_hair = ["rrrrrrrr", "rRrrRrrr", "rrrRrrRr", "RrrrrrrR"]
+    paint_box(image, 32, 0, 8, 4, 2,
+              top=["rrrrrrrr"] * 2, bottom=["RRRRRRRR"] * 2,
+              right=["rr", "rR", "rr", "RR"], front=long_hair, left=["rr", "Rr", "rr", "RR"], back=long_hair)
+    # Cuerpo 6x6x3 en (0, 16): camisa blanca con corbata negra y el cinturón del pantalón.
+    paint_box(image, 0, 16, 6, 6, 3,
+              top=["hhhhhh"] * 3, bottom=["kkkkkk"] * 3,
+              right=["hhh", "hhh", "hHh", "hhh", "hhH", "kkk"],
+              front=["Hhkkhh", "hhkkhh", "hhkkhh", "hhhkhH", "hhhhhh", "kkkkkk"],
+              left=["hhh", "hhh", "hHh", "hhh", "Hhh", "kkk"],
+              back=["hhhhhh", "hhhhhh", "hHhhHh", "hhhhhh", "hhhhhh", "kkkkkk"])
+    # Brazos 2x6x2 en (18, 16) y (26, 16): mangas blancas y manos.
+    for u in (18, 26):
+        sleeve = ["hh", "hh", "hH", "hh", "Hh", "ss"]
+        paint_box(image, u, 16, 2, 6, 2, top=["hh"] * 2, bottom=["ss"] * 2,
+                  right=sleeve, front=sleeve, left=sleeve, back=sleeve)
+    # Piernas 3x5x3 en (0, 26) y (12, 26): pantalón negro y zapatos.
+    for u in (0, 12):
+        leg = ["kkk", "kkk", "kkk", "kkk", "KKK"]
+        paint_box(image, u, 26, 3, 5, 3, top=["kkk"] * 3, bottom=["KKK"] * 3,
+                  right=leg, front=leg, left=leg, back=leg)
+    # Franjas de color para el halo y las alas.
+    for index, color in enumerate(PET_STRIPS):
+        for y in range(40 + index * 4, 44 + index * 4):
             for x in range(64):
                 image.putpixel((x, y), color)
     image.save(OUT / "pet.png")
