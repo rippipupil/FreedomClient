@@ -6,6 +6,7 @@ import com.freedomclient.hud.HudModule;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.pvp.AttackIndicatorModule;
 import com.freedomclient.module.pvp.BetterCrosshairModule;
+import com.freedomclient.module.pvp.HitSoundsModule;
 import com.freedomclient.cosmetic.HaloCosmetic;
 import com.freedomclient.cosmetic.PetBehavior;
 import com.freedomclient.module.visual.CustomScreensModule;
@@ -211,6 +212,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_settings_zoom");
+
+			// Selector de opciones con todas a la vista (HitSounds).
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.openModule(FreedomClient.getModuleManager().get(HitSoundsModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_hitsounds");
 
 			// Mira personalizada con el editor pixel visible.
 			context.runOnClient(client -> {

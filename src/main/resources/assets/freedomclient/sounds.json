@@ -1,0 +1,98 @@
+{
+	"hit.pop": {
+		"sounds": [
+			"freedomclient:hit/pop"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.pop_crit": {
+		"sounds": [
+			"freedomclient:hit/pop_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.bell": {
+		"sounds": [
+			"freedomclient:hit/bell"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.bell_crit": {
+		"sounds": [
+			"freedomclient:hit/bell_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.laser": {
+		"sounds": [
+			"freedomclient:hit/laser"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.laser_crit": {
+		"sounds": [
+			"freedomclient:hit/laser_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.coin": {
+		"sounds": [
+			"freedomclient:hit/coin"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.coin_crit": {
+		"sounds": [
+			"freedomclient:hit/coin_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.punch": {
+		"sounds": [
+			"freedomclient:hit/punch"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.punch_crit": {
+		"sounds": [
+			"freedomclient:hit/punch_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.angel": {
+		"sounds": [
+			"freedomclient:hit/angel"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.angel_crit": {
+		"sounds": [
+			"freedomclient:hit/angel_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.devil": {
+		"sounds": [
+			"freedomclient:hit/devil"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.devil_crit": {
+		"sounds": [
+			"freedomclient:hit/devil_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.click": {
+		"sounds": [
+			"freedomclient:hit/click"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"hit.click_crit": {
+		"sounds": [
+			"freedomclient:hit/click_crit"
+		],
+		"subtitle": "freedomclient.subtitle.hit"
+	}
+}

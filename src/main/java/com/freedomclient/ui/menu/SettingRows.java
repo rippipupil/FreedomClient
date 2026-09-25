@@ -38,6 +38,7 @@ public class SettingRows {
 		if (setting instanceof StringSetting text) return renderText(ui, text, x, y, w);
 		if (setting instanceof PixelGridSetting grid) return renderGrid(ui, grid, x, y, w);
 		if (setting instanceof WaypointListSetting) return renderWaypoints(ui, x, y, w);
+		if (setting instanceof ModeSetting mode) return renderMode(ui, mode, x, y, w);
 		if (setting instanceof ColorSetting color) {
 			return renderColor(ui, color, setting.getName(), setting.getDescription(), x, y, w,
 					color::get, color::set, color.allowsAlpha());
@@ -45,7 +46,6 @@ public class SettingRows {
 
 		row(ui, setting.getName(), setting.getDescription(), x, y, w, ROW_HEIGHT);
 		if (setting instanceof BooleanSetting bool) renderBoolean(ui, bool, x, y, w);
-		else if (setting instanceof ModeSetting mode) renderMode(ui, mode, x, y, w);
 		else if (setting instanceof KeybindSetting keybind) renderKeybind(ui, keybind, x, y, w);
 		else if (setting instanceof ActionSetting action) renderAction(ui, action, x, y, w);
 		return ROW_HEIGHT;
@@ -197,22 +197,57 @@ public class SettingRows {
 		});
 	}
 
-	private void renderMode(Ui ui, ModeSetting setting, int x, int y, int w) {
-		int boxW = Math.max(70, ui.font.width(setting.get()) + 26);
-		int boxX = x + w - boxW - 4;
-		int boxY = y + 3;
-		boolean hovered = ui.hovered(boxX, boxY, boxW, 12);
-		Draw.panel(ui.g, boxX, boxY, boxW, 12, ThemeManager.shade(), hovered ? ThemeManager.highlight() : ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F));
-		ui.g.drawString(ui.font, "<", boxX + 3, boxY + 2, ThemeManager.accent(), false);
-		ui.g.drawString(ui.font, ">", boxX + boxW - 8, boxY + 2, ThemeManager.accent(), false);
-		ui.g.drawCenteredString(ui.font, setting.get(), boxX + boxW / 2, boxY + 2, ThemeManager.text());
+	/**
+	 * Selector de modo: todas las opciones a la vista como fichas debajo del nombre (en varias líneas si no caben).
+	 * La elegida va resaltada con el color de acento; basta con hacer clic en otra para cambiarla.
+	 */
+	private int renderMode(Ui ui, ModeSetting setting, int x, int y, int w) {
+		int chipHeight = 12;
+		int gap = 3;
+		int left = x + 6;
+		int right = x + w - 6;
 
-		ui.click(boxX, boxY, boxW, 12, (mx, my, button) -> {
-			boolean left = mx < boxX + boxW / 2.0 || button == GLFW.GLFW_MOUSE_BUTTON_RIGHT;
-			setting.cycle(left ? -1 : 1);
-			ui.playClick();
-			return true;
-		});
+		// Primero se colocan las fichas para saber cuántas líneas ocupan.
+		java.util.List<int[]> chips = new java.util.ArrayList<>();
+		int chipX = left;
+		int line = 0;
+		for (String mode : setting.getModes()) {
+			int chipW = ui.font.width(mode) + 10;
+			if (chipX + chipW > right && chipX > left) {
+				line++;
+				chipX = left;
+			}
+			chips.add(new int[]{chipX, line, chipW});
+			chipX += chipW + gap;
+		}
+		int top = y + ROW_HEIGHT - 2;
+		int height = ROW_HEIGHT + (line + 1) * (chipHeight + gap) + 2;
+		row(ui, setting.getName(), setting.getDescription(), x, y, w, height);
+
+		for (int i = 0; i < chips.size(); i++) {
+			String mode = setting.getModes().get(i);
+			int[] chip = chips.get(i);
+			int cx = chip[0];
+			int cy = top + chip[1] * (chipHeight + gap);
+			int cw = chip[2];
+			boolean selected = setting.is(mode);
+			boolean hovered = ui.hovered(cx, cy, cw, chipHeight);
+			float progress = ui.animate(setting.getName() + ":" + mode, selected ? 1.0F : 0.0F);
+			int fill = ThemeManager.mix(hovered ? ThemeManager.cardHover() : ThemeManager.shade(), ThemeManager.accent(), progress);
+			int border = selected ? ThemeManager.mix(ThemeManager.accent(), 0xFF000000, 0.35F)
+					: hovered ? ThemeManager.highlight() : ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F);
+			Draw.panel(ui.g, cx, cy, cw, chipHeight, fill, border);
+			int textColor = selected ? ThemeManager.shade() : hovered ? ThemeManager.highlight() : ThemeManager.text();
+			ui.g.drawString(ui.font, mode, cx + (cw - ui.font.width(mode)) / 2, cy + 2, textColor, false);
+			ui.click(cx, cy, cw, chipHeight, (mx, my, button) -> {
+				if (!setting.is(mode)) {
+					setting.set(mode);
+					ui.playClick();
+				}
+				return true;
+			});
+		}
+		return height;
 	}
 
 	private void renderKeybind(Ui ui, KeybindSetting setting, int x, int y, int w) {
