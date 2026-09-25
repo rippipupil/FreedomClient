@@ -1,7 +1,35 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
-# "Clase#metodo" muestra el bytecode del método.
-net.minecraft.client.sounds.SoundEngine$PlayResult
-net.minecraft.client.renderer.GameRenderer#projectPointToScreen
-com.mojang.authlib.GameProfile
-net.minecraft.client.Camera
-# probe run
+# "Clase#metodo" muestra el bytecode del método; "@ruta" muestra un fichero del jar.
+@version.json
+@assets/minecraft/models/block/grass_block.json
+@assets/minecraft/models/block/grass_block_snow.json
+@assets/minecraft/models/block/mycelium.json
+@assets/minecraft/models/block/podzol.json
+net.minecraft.client.renderer.entity.layers.CapeLayer
+net.minecraft.client.renderer.entity.layers.CapeLayer#submit
+net.minecraft.client.model.player.PlayerCapeModel
+net.minecraft.client.model.player.PlayerCapeModel#setupAnim
+net.minecraft.client.model.player.PlayerCapeModel#createCapeLayer
+net.minecraft.client.renderer.entity.state.AvatarRenderState
+net.minecraft.client.renderer.entity.EntityRenderDispatcher
+net.minecraft.client.renderer.entity.EntityRenderer
+net.minecraft.world.level.block.state.BlockBehaviour
+net.minecraft.world.level.block.LeavesBlock
+net.minecraft.client.OptionInstance
+net.minecraft.client.AttackIndicatorStatus
+net.minecraft.client.gui.Gui#renderCrosshair
+net.minecraft.client.gui.Gui#renderItemHotbar
+net.minecraft.client.renderer.texture.DynamicTexture
+com.mojang.blaze3d.platform.NativeImage
+net.minecraft.client.renderer.texture.TextureManager
+net.minecraft.world.level.ClipContext
+net.minecraft.client.player.AbstractClientPlayer
+net.minecraft.world.entity.Avatar
+net.minecraft.client.multiplayer.ClientLevel
+net.minecraft.client.renderer.LevelRenderer
+net.minecraft.server.packs.repository.PackRepository
+net.minecraft.tags.ItemTags
+net.fabricmc.fabric.api.resource.ResourceManagerHelper
+net.fabricmc.fabric.api.resource.v1.ResourceLoader
+net.fabricmc.fabric.api.resource.v1.pack.PackActivationType
+net.fabricmc.fabric.api.resource.ResourcePackActivationType

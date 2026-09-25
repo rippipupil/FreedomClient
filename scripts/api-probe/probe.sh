@@ -26,7 +26,9 @@ while IFS= read -r lib; do classpath="$classpath:$lib"; done < <(find "$HOME/.gr
 grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 	echo
 	echo "==================== $line"
-	if [[ "$line" == *"#"* ]]; then
+	if [[ "$line" == @* ]]; then
+		unzip -p "$jar" "${line#@}" 2>&1 | head -40
+	elif [[ "$line" == *"#"* ]]; then
 		class="${line%%#*}"
 		method="${line##*#}"
 		javap -c -p -cp "$classpath" "$class" 2>&1 | awk -v m=" $method(" 'index($0, m) && /\(/ {p=1} p {print} p && /^$/ {p=0}'
