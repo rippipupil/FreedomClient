@@ -11,5 +11,5 @@ for mod in $MODS; do
 		--data-urlencode "game_versions=[\"$MC_VERSION\"]" \
 		--data-urlencode 'loaders=["fabric"]' \
 		-H 'User-Agent: FreedomClient/mod-versions' |
-		jq -r '.[:3][] | "  \(.version_number)  [\(.version_type), \(.date_published[:10])]  deps: \([.dependencies[] | select(.dependency_type == "required") | .project_id] | join(","))"'
+		jq -r '.[:3][] | "  \(.version_number)  id=\(.id)  [\(.version_type), \(.date_published[:10])]  deps: \([.dependencies[] | select(.dependency_type == "required") | .project_id] | join(","))"'
 done
