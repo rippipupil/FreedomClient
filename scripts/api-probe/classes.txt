@@ -1,19 +1,8 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
-net.minecraft.network.chat.Style
-net.minecraft.network.chat.FontDescription
-net.minecraft.network.chat.FontDescription$Resource
-net.minecraft.client.gui.GuiGraphics
-net.minecraft.client.gui.Font
-net.minecraft.client.gui.screens.Screen
-net.minecraft.client.gui.components.events.GuiEventListener
-net.minecraft.client.gui.components.events.ContainerEventHandler
-net.minecraft.client.input.MouseButtonEvent
-net.minecraft.client.input.MouseButtonInfo
-net.minecraft.client.input.KeyEvent
-net.minecraft.client.input.CharacterEvent
-net.minecraft.client.input.InputWithModifiers
-net.minecraft.client.renderer.RenderPipelines
-com.mojang.blaze3d.platform.Window
-com.mojang.blaze3d.platform.InputConstants
-net.minecraft.client.Minecraft
-net.minecraft.client.MouseHandler
+net.minecraft.client.renderer.texture.DynamicTexture
+net.minecraft.client.renderer.texture.TextureManager
+com.mojang.blaze3d.platform.NativeImage
+net.minecraft.client.gui.screens.options.VideoSettingsScreen
+net.minecraft.client.OptionInstance
+net.minecraft.client.gui.components.EditBox
+org.joml.Matrix3x2fStack
