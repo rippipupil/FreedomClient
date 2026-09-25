@@ -28,7 +28,7 @@ public class ItemCounterHud extends HudModule {
 
 	public ItemCounterHud() {
 		super("Item Counter", "Counts your totems, golden apples, pearls, arrows and splash potions.", false,
-				new HudPosition(HudPosition.Anchor.END, 2, HudPosition.Anchor.CENTER, 70));
+				new HudPosition(HudPosition.Anchor.END, 2, HudPosition.Anchor.START, 40));
 		counter("Totems", Items.TOTEM_OF_UNDYING, Set.of(Items.TOTEM_OF_UNDYING));
 		counter("Golden apples", Items.GOLDEN_APPLE, Set.of(Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE));
 		counter("Ender pearls", Items.ENDER_PEARL, Set.of(Items.ENDER_PEARL));
