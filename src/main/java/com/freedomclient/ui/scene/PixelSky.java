@@ -30,18 +30,21 @@ public final class PixelSky {
 			".########.",
 	};
 
+	/** Logo "FC": F y C de trazo doble con la C redondeada (16x10). */
 	private static final String[] FC = {
-			"#######...#######",
-			"#######..########",
-			"##......###......",
-			"##......##.......",
-			"######..##.......",
-			"######..##.......",
-			"##......##.......",
-			"##......###......",
-			"##.......########",
-			"##........#######",
+			"#######...######",
+			"#######..#######",
+			"##.......##.....",
+			"##.......##.....",
+			"######...##.....",
+			"######...##.....",
+			"##.......##.....",
+			"##.......##.....",
+			"##.......#######",
+			"##........######",
 	};
+	/** Color de cada fila del logo: blanco arriba, crema y dorado abajo, con la última fila roja como sombra. */
+	private static final int[] FC_ROWS = {0xFFFFFF, 0xF5F1E8, 0xF5F1E8, 0xF5F1E8, 0xF7E6C8, 0xF7E6C8, 0xF5D98A, 0xF2C94C, 0xE8A93A, 0xD7263D};
 
 	private PixelSky() {
 	}
@@ -130,25 +133,47 @@ public final class PixelSky {
 		}
 	}
 
-	/** Las iniciales "FC" en pixel art con contorno, centradas en (cx, cy). */
+	/** Las iniciales "FC" en pixel art con contorno, sombra y degradado, centradas en (cx, cy). */
 	public static void logo(GuiGraphics g, int cx, int cy, int p, float alpha) {
 		int w = FC[0].length() * p;
 		int h = FC.length * p;
 		int x = cx - w / 2;
 		int y = cy - h / 2;
-		// Contorno oscuro: la forma desplazada en las 4 direcciones.
 		int outline = color(0x1A0508, alpha);
+		// Sombra abajo a la derecha y contorno oscuro alrededor.
+		shape(g, FC, x + p * 2, y + p * 2, p, color(0x1A0508, alpha * 0.45F), color(0x1A0508, alpha * 0.45F));
 		shape(g, FC, x - p, y, p, outline, outline);
 		shape(g, FC, x + p, y, p, outline, outline);
 		shape(g, FC, x, y - p, p, outline, outline);
 		shape(g, FC, x, y + p, p, outline, outline);
-		shape(g, FC, x, y, p, color(0xF5F1E8, alpha), color(0xD7263D, alpha));
+		for (int row = 0; row < FC.length; row++) {
+			int c = color(FC_ROWS[row], alpha);
+			for (int column = 0; column < FC[row].length(); column++) {
+				if (FC[row].charAt(column) == '#') {
+					g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, c);
+				}
+			}
+		}
+	}
+
+	/** Ancho y alto del logo en píxeles de logo (sin contorno). */
+	public static int logoWidth() {
+		return FC[0].length();
+	}
+
+	public static int logoHeight() {
+		return FC.length;
 	}
 
 	/** Halo dorado (anillo pixelado) que flota arriba y abajo. */
 	public static void halo(GuiGraphics g, int cx, int cy, int p, float alpha) {
+		halo(g, cx, cy, p, 9, alpha);
+	}
+
+	/** Halo con un radio horizontal de {@code radius} píxeles de logo. */
+	public static void halo(GuiGraphics g, int cx, int cy, int p, int radius, float alpha) {
 		int bob = (int) Math.round(Math.sin(System.currentTimeMillis() / 400.0) * 1.5) * p;
-		int rx = p * 9;
+		int rx = p * radius;
 		int ry = p * 2;
 		int gold = color(0xF2C94C, alpha);
 		int dark = color(0xC98F1E, alpha);

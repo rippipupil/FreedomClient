@@ -5,8 +5,9 @@ import com.freedomclient.config.Config;
 import com.freedomclient.module.Module;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.Ui;
-import com.freedomclient.ui.UiText;
+import com.freedomclient.ui.scene.PixelSky;
 import com.freedomclient.ui.theme.ThemeManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
@@ -142,8 +143,16 @@ public class FreedomMenuScreen extends Screen {
 		g.fill(x + 1, y + 1, x + w - 1, y + HEADER_HEIGHT, headerFill);
 		g.fill(x + 1, y + HEADER_HEIGHT, x + w - 1, y + HEADER_HEIGHT + 1, ThemeManager.border());
 
-		Draw.icon(g, FreedomClient.id("textures/icon/watermark.png"), x + 5, y + 4, 16);
-		g.drawString(font, UiText.title("FreedomClient"), x + 25, y + 5, ThemeManager.text(), false);
+		// Logo del cliente: las iniciales FC en pixel art con el halo encima, y el nombre en dos colores.
+		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
+		int logoCenterY = y + 15;
+		PixelSky.halo(g, logoCenterX, y + 4, 1, 6, 1.0F);
+		PixelSky.logo(g, logoCenterX, logoCenterY, 1, 1.0F);
+		int nameX = x + 6 + PixelSky.logoWidth() + 8;
+		int nameY = y + 10;
+		g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
+		int clientX = nameX + font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
+		g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
 
 		// Pestañas alineadas a la derecha.
 		int tabX = x + w - 4;
