@@ -47,6 +47,26 @@ fabricApi {
 	}
 }
 
+// Ejecuta los tests de cliente con el .jar real que se distribuye (con todos los mods incluidos dentro),
+// en vez de con el entorno de desarrollo. Así se prueba exactamente lo que instala el jugador.
+def gametestJar = tasks.register("gametestJar", Jar) {
+	from sourceSets.gametest.output
+	archiveClassifier = "gametest-dev"
+}
+
+def remapGametestJar = tasks.register("remapGametestJar", net.fabricmc.loom.task.RemapJarTask) {
+	inputFile = gametestJar.flatMap { it.archiveFile }
+	archiveClassifier = "gametest"
+	addNestedDependencies = false
+}
+
+tasks.register("runProductionClientGameTest", net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+	mods.from(remapGametestJar)
+	jvmArgs.add("-Dfabric.client.gametest")
+	jvmArgs.add("-Dfabric.client.gametest.disableNetworkSynchronizer=true")
+	useXVFB = true
+}
+
 processResources {
 	def version = project.version
 	inputs.property "version", version
