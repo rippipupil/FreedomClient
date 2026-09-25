@@ -14,6 +14,10 @@ FreedomClient está pensado para dar el máximo de FPS. Trae integrados estos mo
 | [ImmediatelyFast](https://modrinth.com/mod/immediatelyfast) | Acelera el dibujado de HUD, texto, mapas y entidades |
 | [Dynamic FPS](https://modrinth.com/mod/dynamic-fps) | Baja los FPS cuando el juego está minimizado o en segundo plano |
 
+También van incluidos [Continuity](https://modrinth.com/mod/continuity) (texturas conectadas),
+[Debugify](https://modrinth.com/mod/debugify) (arregla bugs de vanilla), [Mouse Tweaks](https://modrinth.com/mod/mouse-tweaks)
+(mejores controles del inventario) y [Fast IP Ping](https://modrinth.com/mod/fast-ip-ping) (lista de servidores más rápida).
+
 Además, en la ClickGUI hay un botón **"Optimizar ajustes para FPS"**. Desactiva VSync, las nubes, las sombras de
 entidades y la mezcla de biomas, quita el límite de FPS y pone las partículas al mínimo.
 

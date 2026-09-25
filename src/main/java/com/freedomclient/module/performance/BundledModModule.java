@@ -10,7 +10,11 @@ public class BundledModModule extends Module {
 	private final String modId;
 
 	public BundledModModule(String name, String modId, String description) {
-		super(name, description, Category.PERFORMANCE, true);
+		this(name, modId, description, Category.PERFORMANCE);
+	}
+
+	public BundledModModule(String name, String modId, String description, Category category) {
+		super(name, description, category, true);
 		this.modId = modId;
 	}
 

@@ -113,6 +113,12 @@ public class ModuleManager {
 		add(new FastWorldJoinModule());
 		add(new LogCleanerModule());
 
+		// Mods originales incluidos (siempre activos).
+		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));
+		add(new BundledModModule("Mouse Tweaks", "mousetweaks", "Better inventory controls: drag to move items, scroll to move stacks.", Category.UTILITY));
+		add(new BundledModModule("Debugify", "debugify", "Fixes many vanilla Minecraft bugs.", Category.UTILITY));
+		add(new BundledModModule("Fast IP Ping", "fastipping", "Makes the server list ping servers much faster.", Category.UTILITY));
+
 		// Cosméticos
 		add(new WingsCosmetic());
 		add(new HaloCosmetic());
