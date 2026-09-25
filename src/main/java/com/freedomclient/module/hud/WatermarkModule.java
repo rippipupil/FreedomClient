@@ -1,15 +1,18 @@
 package com.freedomclient.module.hud;
 
 import com.freedomclient.FreedomClient;
+import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.util.ColorUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 
 public class WatermarkModule extends TextHudModule {
+	private final BooleanSetting rainbow = add(new BooleanSetting("Rainbow", "Animated rainbow text instead of the text color.", false));
 	private final String text;
 
 	public WatermarkModule() {
-		super("Watermark", "Muestra el nombre y la versión del cliente.", true);
+		super("Watermark", "Shows the client name and version.", true);
+		textColor.set(0xFFF2C94C);
 		String version = FabricLoader.getInstance().getModContainer(FreedomClient.MOD_ID)
 				.map(container -> container.getMetadata().getVersion().getFriendlyString())
 				.orElse("dev");
@@ -23,6 +26,6 @@ public class WatermarkModule extends TextHudModule {
 
 	@Override
 	public int getColor() {
-		return ColorUtil.rainbow(0);
+		return rainbow.get() ? ColorUtil.rainbow(0) : super.getColor();
 	}
 }

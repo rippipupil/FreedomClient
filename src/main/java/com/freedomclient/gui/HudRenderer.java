@@ -28,9 +28,11 @@ public final class HudRenderer {
 				String line = text.getText(client);
 				if (line == null) continue;
 
-				int width = client.font.width(line);
-				graphics.fill(MARGIN - 2, y - 2, MARGIN + width + 2, y + LINE_HEIGHT - 2, 0x80000000);
-				graphics.drawString(client.font, line, MARGIN, y, text.getColor(), true);
+				if (text.hasBackground()) {
+					int width = client.font.width(line);
+					graphics.fill(MARGIN - 2, y - 2, MARGIN + width + 2, y + LINE_HEIGHT - 2, 0x80000000);
+				}
+				graphics.drawString(client.font, line, MARGIN, y, text.getColor(), text.hasShadow());
 				y += LINE_HEIGHT;
 			}
 		}

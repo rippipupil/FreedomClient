@@ -1,16 +1,13 @@
-package com.freedomclient.module.movement;
+package com.freedomclient.module.pvp;
 
-import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
 
 /** Mantiene pulsada la tecla de correr para no tener que sujetarla. */
 public class ToggleSprintModule extends Module {
 	public ToggleSprintModule() {
-		super("ToggleSprint", "Corre siempre sin mantener la tecla de sprint.", Category.MOVEMENT, true);
-		setToggleKey(FreedomClient.registerKey("togglesprint", GLFW.GLFW_KEY_V));
+		super("Toggle Sprint", "Always sprint without holding the sprint key.", Category.PVP, true);
 	}
 
 	@Override

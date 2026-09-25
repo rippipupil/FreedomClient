@@ -2,21 +2,38 @@ package com.freedomclient.module;
 
 import com.freedomclient.FreedomClient;
 import com.freedomclient.config.Config;
-import net.minecraft.client.KeyMapping;
+import com.freedomclient.setting.KeybindSetting;
+import com.freedomclient.setting.Setting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public abstract class Module {
 	private final String name;
 	private final String description;
 	private final Category category;
+	private final List<Setting<?>> settings = new ArrayList<>();
+	private final KeybindSetting keybind;
 	private boolean enabled;
-	private KeyMapping toggleKey;
 
 	protected Module(String name, String description, Category category, boolean enabledByDefault) {
 		this.name = name;
 		this.description = description;
 		this.category = category;
 		this.enabled = enabledByDefault;
+		this.keybind = new KeybindSetting("Keybind", "Key that toggles this mod.", KeybindSetting.NONE);
+		if (canToggle()) {
+			settings.add(keybind);
+		}
+	}
+
+	protected <S extends Setting<?>> S add(S setting) {
+		settings.add(setting);
+		return setting;
 	}
 
 	public void toggle() {
@@ -24,7 +41,7 @@ public abstract class Module {
 	}
 
 	public void setEnabled(boolean enabled) {
-		if (this.enabled == enabled) return;
+		if (this.enabled == enabled || !canToggle()) return;
 
 		this.enabled = enabled;
 		Minecraft client = Minecraft.getInstance();
@@ -39,7 +56,9 @@ public abstract class Module {
 
 	/** Aplica el estado guardado sin ejecutar onEnable/onDisable (el juego aún no ha terminado de cargar). */
 	public void loadEnabled(boolean enabled) {
-		this.enabled = enabled;
+		if (canToggle()) {
+			this.enabled = enabled;
+		}
 	}
 
 	protected void onEnable(Minecraft client) {
@@ -61,6 +80,21 @@ public abstract class Module {
 		return true;
 	}
 
+	/** Los módulos que no se pueden apagar (como los mods de rendimiento) devuelven false. */
+	public boolean canToggle() {
+		return true;
+	}
+
+	/** Icono de 16x16 de la tarjeta del módulo. */
+	public Identifier getIcon() {
+		return FreedomClient.id("textures/icon/" + getId() + ".png");
+	}
+
+	/** Nombre en minúsculas y sin espacios, usado para iconos y claves de la config. */
+	public String getId() {
+		return name.toLowerCase(Locale.ROOT).replace(' ', '_');
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -77,11 +111,11 @@ public abstract class Module {
 		return enabled;
 	}
 
-	public KeyMapping getToggleKey() {
-		return toggleKey;
+	public KeybindSetting getKeybind() {
+		return keybind;
 	}
 
-	public void setToggleKey(KeyMapping toggleKey) {
-		this.toggleKey = toggleKey;
+	public List<Setting<?>> getSettings() {
+		return Collections.unmodifiableList(settings);
 	}
 }

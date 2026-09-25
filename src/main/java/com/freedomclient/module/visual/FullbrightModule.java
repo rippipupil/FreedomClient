@@ -1,19 +1,16 @@
-package com.freedomclient.module.render;
+package com.freedomclient.module.visual;
 
-import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import org.lwjgl.glfw.GLFW;
 
 /** Visión completa en la oscuridad mediante un efecto de visión nocturna solo en el cliente. */
 public class FullbrightModule extends Module {
 	public FullbrightModule() {
-		super("Fullbright", "Ilumina todo como si fuera de día.", Category.RENDER, false);
-		setToggleKey(FreedomClient.registerKey("fullbright", GLFW.GLFW_KEY_G));
+		super("Fullbright", "Lights up everything as if it were daytime.", Category.VISUAL, false);
 	}
 
 	@Override

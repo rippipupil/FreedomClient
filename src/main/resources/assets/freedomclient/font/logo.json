@@ -1,0 +1,11 @@
+{
+	"providers": [
+		{
+			"type": "ttf",
+			"file": "freedomclient:vt323.ttf",
+			"size": 25.0,
+			"oversample": 2.0,
+			"shift": [0.0, 0.0]
+		}
+	]
+}

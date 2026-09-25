@@ -36,6 +36,17 @@ dependencies {
 	include(modImplementation("maven.modrinth:dynamic-fps:${project.dynamicfps_version}"))
 }
 
+// Tests de cliente: abren el juego, el menú y hacen capturas (ver .github/workflows/screenshots.yml).
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "freedomclient-test"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
 processResources {
 	def version = project.version
 	inputs.property "version", version

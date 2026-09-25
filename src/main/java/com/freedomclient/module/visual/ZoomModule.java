@@ -1,29 +1,32 @@
-package com.freedomclient.module.render;
+package com.freedomclient.module.visual;
 
-import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
-import net.minecraft.client.KeyMapping;
+import com.freedomclient.setting.BooleanSetting;
+import com.freedomclient.setting.KeybindSetting;
+import com.freedomclient.setting.NumberSetting;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
-/** Zoom estilo OptiFine: mantén la tecla (C por defecto) para acercar la cámara. */
+/** Zoom estilo OptiFine: mantén la tecla de zoom para acercar la cámara. */
 public class ZoomModule extends Module {
-	private static final int ZOOM_FOV = 30;
+	private final KeybindSetting zoomKey = add(new KeybindSetting("Zoom key", "Hold this key to zoom.", GLFW.GLFW_KEY_C));
+	private final NumberSetting zoomFov = add(new NumberSetting("Zoom FOV", "Field of view while zooming (lower is closer).", 30, 30, 70, 1));
+	private final BooleanSetting smoothCamera = add(new BooleanSetting("Smooth camera", "Cinematic camera while zooming.", true));
 
-	private final KeyMapping zoomKey;
 	private boolean zooming;
 	private int savedFov;
 	private boolean savedSmoothCamera;
 
 	public ZoomModule() {
-		super("Zoom", "Mantén la tecla de zoom (C) para acercar la vista.", Category.RENDER, true);
-		this.zoomKey = FreedomClient.registerKey("zoom", GLFW.GLFW_KEY_C);
+		super("Zoom", "Hold the zoom key to look closer.", Category.VISUAL, true);
 	}
 
 	@Override
 	public void onTick(Minecraft client) {
-		boolean wantZoom = zoomKey.isDown() && client.screen == null;
+		boolean wantZoom = zoomKey.isBound() && client.screen == null
+				&& InputConstants.isKeyDown(client.getWindow(), zoomKey.get());
 		if (wantZoom && !zooming) {
 			startZoom(client);
 		} else if (!wantZoom && zooming) {
@@ -34,8 +37,8 @@ public class ZoomModule extends Module {
 	private void startZoom(Minecraft client) {
 		savedFov = client.options.fov().get();
 		savedSmoothCamera = client.options.smoothCamera;
-		client.options.fov().set(ZOOM_FOV);
-		client.options.smoothCamera = true;
+		client.options.fov().set(zoomFov.getInt());
+		client.options.smoothCamera = smoothCamera.get() || savedSmoothCamera;
 		zooming = true;
 	}
 

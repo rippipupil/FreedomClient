@@ -1,0 +1,15 @@
+{
+	"schemaVersion": 1,
+	"id": "freedomclient-test",
+	"version": "1.0.0",
+	"name": "FreedomClient tests",
+	"environment": "client",
+	"entrypoints": {
+		"fabric-client-gametest": [
+			"com.freedomclient.test.MenuScreenshotTest"
+		]
+	},
+	"depends": {
+		"freedomclient": "*"
+	}
+}

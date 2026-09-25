@@ -6,7 +6,7 @@ import net.minecraft.client.multiplayer.PlayerInfo;
 
 public class PingModule extends TextHudModule {
 	public PingModule() {
-		super("Ping", "Muestra tu latencia con el servidor.", true);
+		super("Ping", "Shows your latency to the server.", true);
 	}
 
 	@Override

@@ -14,3 +14,9 @@ el código fuente está disponible en los enlaces.
 
 Los mods bajo LGPL-3.0 se distribuyen como archivos .jar independientes dentro del de FreedomClient,
 por lo que pueden sustituirse por cualquier otra versión compatible.
+
+## Recursos
+
+| Recurso | Autor | Licencia |
+|---|---|---|
+| Fuente [VT323](https://fonts.google.com/specimen/VT323) | Peter Hull | [SIL Open Font License 1.1](src/main/resources/assets/freedomclient/font/vt323-OFL.txt) |

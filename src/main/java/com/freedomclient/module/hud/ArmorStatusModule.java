@@ -14,7 +14,7 @@ public class ArmorStatusModule extends Module {
 	};
 
 	public ArmorStatusModule() {
-		super("ArmorStatus", "Muestra tu armadura, el objeto en mano y su durabilidad.", Category.HUD, true);
+		super("Armor HUD", "Shows your armor, held item and their durability.", Category.HUD, true);
 	}
 
 	/** Dibuja la armadura y devuelve la altura ocupada. */

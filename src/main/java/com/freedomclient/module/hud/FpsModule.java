@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 
 public class FpsModule extends TextHudModule {
 	public FpsModule() {
-		super("FPS", "Muestra los fotogramas por segundo.", true);
+		super("FPS", "Shows your frames per second.", true);
 	}
 
 	@Override

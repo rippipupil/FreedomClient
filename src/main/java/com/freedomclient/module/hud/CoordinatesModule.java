@@ -5,7 +5,7 @@ import net.minecraft.client.player.LocalPlayer;
 
 public class CoordinatesModule extends TextHudModule {
 	public CoordinatesModule() {
-		super("Coordinates", "Muestra tus coordenadas y hacia dónde miras.", true);
+		super("Coordinates", "Shows your coordinates and facing direction.", true);
 	}
 
 	@Override

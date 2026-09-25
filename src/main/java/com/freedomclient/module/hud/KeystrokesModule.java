@@ -12,7 +12,7 @@ public class KeystrokesModule extends Module {
 	private static final int GAP = 2;
 
 	public KeystrokesModule() {
-		super("Keystrokes", "Muestra las teclas de movimiento y los clics que pulsas.", Category.HUD, true);
+		super("Keystrokes", "Shows your movement keys and mouse clicks.", Category.HUD, true);
 	}
 
 	/** Dibuja las teclas y devuelve la altura ocupada. */

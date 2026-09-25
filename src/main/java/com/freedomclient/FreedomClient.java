@@ -1,9 +1,9 @@
 package com.freedomclient;
 
 import com.freedomclient.config.Config;
-import com.freedomclient.gui.ClickGuiScreen;
 import com.freedomclient.gui.HudRenderer;
 import com.freedomclient.module.ModuleManager;
+import com.freedomclient.ui.menu.FreedomMenuScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
@@ -36,7 +36,7 @@ public class FreedomClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (clickGuiKey.consumeClick()) {
 				if (client.screen == null) {
-					client.setScreen(new ClickGuiScreen());
+					client.setScreen(new FreedomMenuScreen());
 				}
 			}
 
@@ -47,7 +47,7 @@ public class FreedomClient implements ClientModInitializer {
 
 		HudElementRegistry.addLast(id("hud"), (graphics, deltaTracker) -> HudRenderer.render(graphics));
 
-		LOGGER.info("{} cargado con {} módulos", NAME, moduleManager.getModules().size());
+		LOGGER.info("{} loaded with {} mods", NAME, moduleManager.getModules().size());
 	}
 
 	public static KeyMapping registerKey(String name, int defaultKey) {

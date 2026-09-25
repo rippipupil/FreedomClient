@@ -31,4 +31,29 @@ public final class ColorUtil {
 
 		return ((int) (r * 255.0F) << 16) | ((int) (g * 255.0F) << 8) | (int) (b * 255.0F);
 	}
+
+	/** Convierte RGB (0xRRGGBB) a HSV; devuelve {hue, saturation, value} en 0..1. */
+	public static float[] rgbToHsv(int rgb) {
+		float r = ((rgb >> 16) & 0xFF) / 255.0F;
+		float g = ((rgb >> 8) & 0xFF) / 255.0F;
+		float b = (rgb & 0xFF) / 255.0F;
+		float max = Math.max(r, Math.max(g, b));
+		float min = Math.min(r, Math.min(g, b));
+		float delta = max - min;
+
+		float hue;
+		if (delta == 0.0F) {
+			hue = 0.0F;
+		} else if (max == r) {
+			hue = ((g - b) / delta) / 6.0F;
+		} else if (max == g) {
+			hue = ((b - r) / delta + 2.0F) / 6.0F;
+		} else {
+			hue = ((r - g) / delta + 4.0F) / 6.0F;
+		}
+		if (hue < 0.0F) hue += 1.0F;
+
+		float saturation = max == 0.0F ? 0.0F : delta / max;
+		return new float[] {hue, saturation, max};
+	}
 }
