@@ -19,13 +19,13 @@ public class KeystrokesHud extends HudModule {
 	private final BooleanSetting showMouse = add(new BooleanSetting("Show mouse", "Show left and right mouse buttons.", true));
 	private final BooleanSetting showCps = add(new BooleanSetting("Show CPS", "Show clicks per second under the mouse buttons.", true));
 	private final BooleanSetting showSpace = add(new BooleanSetting("Show space", "Show the jump key.", true));
-	private final ColorSetting keyColor = add(new ColorSetting("Key color", "Background of released keys.", 0x803A0F1A, true));
+	private final ColorSetting keyColor = add(new ColorSetting("Key color", "Background of released keys.", 0xB03A0F1A, true));
 	private final ColorSetting pressedColor = add(new ColorSetting("Pressed color", "Background of pressed keys.", 0xE0F2C94C, true));
 	private final ColorSetting textColor = add(new ColorSetting("Text color", "Color of the key labels.", 0xFFF5F1E8, false));
 	private final ColorSetting pressedTextColor = add(new ColorSetting("Pressed text color", "Label color while pressed.", 0xFF3A0F1A, false));
 
 	public KeystrokesHud() {
-		super("Keystrokes", "Shows your movement keys, clicks and CPS.", true, new HudPosition(HudPosition.Anchor.START, 2, HudPosition.Anchor.END, 2));
+		super("Keystrokes", "Shows your movement keys, clicks and CPS.", true, new HudPosition(HudPosition.Anchor.START, 2, HudPosition.Anchor.CENTER, 30));
 		showCps.visibleWhen(showMouse::get);
 	}
 

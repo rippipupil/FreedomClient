@@ -113,8 +113,16 @@ public class ModGridPage implements MenuPage {
 
 		int textX = x + 34;
 		int textWidth = w - 38;
-		String name = ui.font.plainSubstrByWidth(module.getName(), textWidth);
-		ui.g.drawString(ui.font, name, textX, y + 6, ThemeManager.text(), false);
+		// Los nombres largos pasan a dos líneas (y se omite el ON/OFF, que ya indica el interruptor).
+		boolean twoLines = ui.font.width(module.getName()) > textWidth;
+		if (twoLines) {
+			List<net.minecraft.util.FormattedCharSequence> lines = ui.font.split(net.minecraft.network.chat.Component.literal(module.getName()), textWidth);
+			for (int i = 0; i < Math.min(2, lines.size()); i++) {
+				ui.g.drawString(ui.font, lines.get(i), textX, y + 5 + i * 10, ThemeManager.text(), false);
+			}
+		} else {
+			ui.g.drawString(ui.font, module.getName(), textX, y + 6, ThemeManager.text(), false);
+		}
 
 		int toggleX = x + w - 25;
 		int toggleY = y + CARD_HEIGHT - 15;
@@ -122,9 +130,11 @@ public class ModGridPage implements MenuPage {
 			boolean toggleHovered = ui.hovered(toggleX - 2, toggleY - 2, 24, 14);
 			float progress = ui.animate("toggle:" + module.getId(), module.isEnabled() ? 1.0F : 0.0F);
 			Draw.toggle(ui.g, toggleX, toggleY, progress, toggleHovered);
-			ui.g.drawString(ui.font, module.isEnabled() ? "ON" : "OFF", textX, y + 20,
-					module.isEnabled() ? ThemeManager.accent() : ThemeManager.textMuted(), false);
-		} else {
+			if (!twoLines) {
+				ui.g.drawString(ui.font, module.isEnabled() ? "ON" : "OFF", textX, y + 20,
+						module.isEnabled() ? ThemeManager.accent() : ThemeManager.textMuted(), false);
+			}
+		} else if (!twoLines) {
 			String label = module instanceof BundledModModule ? "Always on" : "Open >";
 			ui.g.drawString(ui.font, label, textX, y + 20, ThemeManager.accent(), false);
 		}

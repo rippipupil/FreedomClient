@@ -3,6 +3,7 @@ package com.freedomclient.hud;
 import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.ModuleManager;
+import com.freedomclient.ui.menu.FreedomMenuScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -16,7 +17,7 @@ public final class HudRenderer {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		if (manager == null || client.player == null || client.options.hideGui) return;
 		// El editor dibuja los elementos por su cuenta.
-		if (client.screen instanceof HudEditorScreen) return;
+		if (client.screen instanceof HudEditorScreen || client.screen instanceof FreedomMenuScreen) return;
 
 		for (Module module : manager.getModules()) {
 			if (module instanceof HudModule hud && hud.isEnabled() && hud.shouldRender(client)) {

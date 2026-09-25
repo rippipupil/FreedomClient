@@ -23,7 +23,7 @@ public class InventoryHud extends HudModule {
 	private final BooleanSetting slotOutlines = add(new BooleanSetting("Slot outlines", "Draw a frame around every slot.", true));
 
 	public InventoryHud() {
-		super("Inventory HUD", "Shows the items in your main inventory.", false, new HudPosition(HudPosition.Anchor.START, 2, HudPosition.Anchor.CENTER, 0));
+		super("Inventory HUD", "Shows the items in your main inventory.", false, new HudPosition(HudPosition.Anchor.START, 2, HudPosition.Anchor.CENTER, -40));
 		backgroundColor.visibleWhen(background::get);
 	}
 

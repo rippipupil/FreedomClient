@@ -1,9 +1,9 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método.
-net.minecraft.client.Camera#setup
-net.minecraft.client.renderer.SubmitNodeCollector
-net.minecraft.client.renderer.OrderedSubmitNodeCollector
-net.minecraft.client.renderer.entity.EntityRenderer#submitNameTag
-net.minecraft.client.player.AbstractClientPlayer
-net.minecraft.client.renderer.entity.EntityRenderDispatcher
-net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer
+net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer#showHitboxes
+net.minecraft.client.renderer.debug.EntityHitboxDebugRenderer#emitGizmos
+net.minecraft.gizmos.Gizmos
+net.minecraft.gizmos.GizmoStyle
+net.minecraft.client.renderer.debug.DebugRenderer
+net.minecraft.client.gui.components.debug.DebugScreenEntries
+net.minecraft.client.gui.components.debug.DebugScreenEntryList

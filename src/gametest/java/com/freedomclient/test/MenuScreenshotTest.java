@@ -55,6 +55,9 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				}
 			});
 			context.waitTicks(40);
+			// Quita las notificaciones de logros para que no tapen las capturas.
+			context.runOnClient(client -> client.getToastManager().clear());
+			context.waitTicks(2);
 			context.takeScreenshot("hud");
 
 			context.setScreen(() -> new HudEditorScreen(null));

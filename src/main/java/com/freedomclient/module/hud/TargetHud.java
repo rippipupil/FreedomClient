@@ -29,7 +29,7 @@ public class TargetHud extends HudModule {
 
 	public TargetHud() {
 		super("Target HUD", "Shows the health and armor of the player you are fighting.", true,
-				new HudPosition(HudPosition.Anchor.CENTER, 70, HudPosition.Anchor.CENTER, 30));
+				new HudPosition(HudPosition.Anchor.CENTER, 0, HudPosition.Anchor.END, 70));
 	}
 
 	private LivingEntity target(Minecraft client) {
