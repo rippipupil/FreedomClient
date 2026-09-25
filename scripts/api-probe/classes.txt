@@ -1,18 +1,11 @@
 # Clases de Minecraft a inspeccionar con el workflow api-probe (una por línea, nombres de Mojang).
 # "Clase#metodo" muestra el bytecode del método; "@ruta" muestra un fichero del jar.
-net.minecraft.client.Minecraft
-net.minecraft.client.Minecraft#run
-net.minecraft.client.Minecraft#emergencySaveAndCrash
-net.minecraft.client.Minecraft#disconnectWithSavingScreen
-net.minecraft.CrashReport
-net.minecraft.ReportType
-net.minecraft.ReportedException
-net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
-net.minecraft.client.renderer.LevelRenderer#extractVisibleBlockEntities
-net.minecraft.client.gui.screens.TitleScreen
-net.minecraft.client.gui.screens.TitleScreen#init
-net.minecraft.client.gui.screens.TitleScreen#added
-net.minecraft.client.gui.screens.TitleScreen#removed
-net.minecraft.client.gui.screens.Screen
-net.minecraft.client.gui.screens.worldselection.SelectWorldScreen#onClose
-net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen#onClose
+net.minecraft.gizmos.Gizmos
+net.minecraft.gizmos.GizmoStyle
+net.minecraft.client.renderer.LevelRenderer#renderHitOutline
+net.minecraft.client.renderer.LevelRenderer#renderBlockOutline
+net.minecraft.client.renderer.ShapeRenderer
+net.minecraft.client.renderer.rendertype.RenderTypes
+net.minecraft.client.gui.GuiGraphics
+net.minecraft.client.gui.Gui
+net.minecraft.world.entity.player.Player
