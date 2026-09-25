@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "freedomclient",
+	"version": "${version}",
+	"name": "FreedomClient",
+	"description": "Cliente de Minecraft 1.21.11 con HUD, ClickGUI y módulos de utilidad.",
+	"authors": [
+		"rippipupil"
+	],
+	"contact": {
+		"sources": "https://github.com/rippipupil/FreedomClient"
+	},
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.freedomclient.FreedomClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
