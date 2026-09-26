@@ -27,7 +27,7 @@ grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 	echo
 	echo "==================== $line"
 	if [[ "$line" == \?* ]]; then
-		unzip -l "$jar" | grep -i -- "${line#?}" | head -20
+		unzip -l "$jar" | grep -i -- "${line#?}" | head -20 || true
 	elif [[ "$line" == @* ]]; then
 		unzip -p "$jar" "${line#@}" 2>&1 | head -40
 	elif [[ "$line" == *"#"* ]]; then

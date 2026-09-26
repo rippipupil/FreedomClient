@@ -12,7 +12,7 @@ net.minecraft.network.chat.contents.objects.ObjectInfo
 net.minecraft.network.chat.contents.ObjectContents
 net.minecraft.world.item.component.ResolvableProfile
 net.minecraft.client.gui.Gui#renderScoreboardSidebar
-?GraphicsPreset
-?GraphicsStatus
+?Graphics
+?Preset
 net.minecraft.client.GraphicsPreset
 net.minecraft.client.Options#applyGraphicsPreset

@@ -1,9 +1,10 @@
 name: launcher
 
 # Launcher de FreedomClient (Rust + Tauri):
-# - En Linux instala Minecraft 1.21.11 + Fabric + FreedomClient desde cero con el núcleo del launcher,
-#   lanza el juego en una pantalla virtual y abre también la app para hacer capturas (rama "ci-launcher").
-# - En Windows compila la app y publica el instalador en la release "launcher".
+# - En Linux instala Minecraft 1.21.11 + Fabric + FreedomClient desde cero con el núcleo del launcher
+#   y lanza el juego en una pantalla virtual.
+# - En Windows compila la app, la abre para hacer una captura, prueba la instalación y publica el instalador
+#   en la release "launcher". Las capturas y los logs se publican en la rama "ci-launcher".
 on:
   workflow_dispatch:
   push:
@@ -32,7 +33,7 @@ jobs:
         run: |
           mkdir -p /tmp/shots
           sudo apt-get update
-          sudo apt-get install -y xvfb libgl1-mesa-dri imagemagick libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev
+          sudo apt-get install -y xvfb libgl1-mesa-dri imagemagick
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: launcher
@@ -57,21 +58,6 @@ jobs:
             sleep 2
           done
           wait $CI_PID
-      - name: Open the launcher app
-        if: always()
-        working-directory: launcher
-        env:
-          FC_LAUNCHER_HOME: /tmp/fc
-        run: |
-          cargo build -p freedom-launcher
-          export DISPLAY=:99
-          pgrep Xvfb || (Xvfb :99 -screen 0 1280x720x24 &)
-          sleep 1
-          WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 LIBGL_ALWAYS_SOFTWARE=1 \
-            ./target/debug/freedom-launcher > /tmp/shots/app-output.txt 2>&1 &
-          sleep 25
-          import -window root /tmp/shots/launcher.png
-          pkill freedom-launcher || true
       - name: Collect logs
         if: always()
         run: |
@@ -82,19 +68,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: launcher-test
+          name: linux-test
           path: /tmp/shots
-      - name: Publish results branch
-        if: always()
-        run: |
-          cd /tmp/shots
-          git init -q -b ci-launcher
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          echo "Launcher test from ${GITHUB_SHA} (${GITHUB_REF_NAME})" > README.md
-          git add -A
-          git commit -q -m "Launcher test from ${GITHUB_SHA}"
-          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-launcher
 
   windows:
     runs-on: windows-latest
@@ -138,3 +113,63 @@ jobs:
             gh release create launcher --title "FreedomClient Launcher" --notes "$notes" --prerelease --verify-tag
           fi
           gh release upload launcher dist/FreedomClient-Launcher-Setup.exe dist/FreedomClient-Launcher-Portable.exe --clobber
+
+      - name: Open the launcher and take a screenshot
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force shots | Out-Null
+          $env:FC_LAUNCHER_HOME = "$env:RUNNER_TEMP\fc-app"
+          $app = Start-Process -PassThru dist\FreedomClient-Launcher-Portable.exe
+          Start-Sleep -Seconds 15
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+          $bitmap.Save("shots\launcher-windows.png")
+          # Memoria que usa el launcher (su proceso y los de WebView2).
+          $procs = Get-Process FreedomClient-Launcher-Portable, msedgewebview2 -ErrorAction SilentlyContinue
+          $total = [math]::Round(($procs | Measure-Object WorkingSet64 -Sum).Sum / 1MB)
+          ($procs | Select-Object Name, Id, @{n="MB";e={[math]::Round($_.WorkingSet64 / 1MB)}} | Format-Table | Out-String) + "Total: $total MB" | Set-Content shots\launcher-process.txt
+          Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+      - name: Install and start the game on Windows
+        # Los runners de Windows no tienen OpenGL: se comprueba la instalación y que Fabric carga los mods.
+        shell: bash
+        working-directory: launcher
+        env:
+          FC_LAUNCHER_HOME: ${{ runner.temp }}/fc
+          FC_CI_UNTIL: "Loading"
+        run: |
+          cargo build -p fc-core --bin fc-ci
+          ./target/debug/fc-ci 600 2>&1 | tee ../shots/fc-ci-windows.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-test
+          path: shots
+
+  results:
+    needs: [launch-test, windows]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-test
+          path: /tmp/shots/linux
+        continue-on-error: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-test
+          path: /tmp/shots/windows
+        continue-on-error: true
+      - name: Publish results branch
+        run: |
+          mkdir -p /tmp/shots && cd /tmp/shots
+          git init -q -b ci-launcher
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Launcher test from ${GITHUB_SHA} (${GITHUB_REF_NAME}): linux ${{ needs.launch-test.result }}, windows ${{ needs.windows.result }}" > README.md
+          git add -A
+          git commit -q -m "Launcher test from ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-launcher

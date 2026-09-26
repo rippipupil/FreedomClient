@@ -54,13 +54,29 @@ async fn main() -> Result<()> {
     let mut child = spawn(command, &prepared.game_dir)?;
     let log = prepared.game_dir.join("logs").join("latest.log");
     let deadline = Instant::now() + Duration::from_secs(timeout);
+    // Sin gráficos (Windows en CI) basta con ver que Fabric carga los mods: FC_CI_UNTIL="Loading".
+    let until = std::env::var("FC_CI_UNTIL").ok();
+    let reached = |text: &str| match &until {
+        Some(marker) => text.contains(marker.as_str()),
+        None => text.contains("FreedomClient loaded") && text.contains("Created:"),
+    };
     loop {
         if let Some(status) = child.try_wait()? {
+            let text = std::fs::read_to_string(&log).unwrap_or_default();
             print_output(&prepared.game_dir);
+            if until.is_some() && reached(&text) {
+                println!("The game got far enough before exiting ({status})");
+                return Ok(());
+            }
             bail!("the game exited early with {status}");
         }
         let text = std::fs::read_to_string(&log).unwrap_or_default();
-        if text.contains("FreedomClient loaded") && text.contains("Created:") {
+        if until.is_some() && reached(&text) {
+            println!("The game got far enough");
+            let _ = child.kill();
+            return Ok(());
+        }
+        if reached(&text) {
             // Se deja unos segundos para que llegue a la pantalla de título y se hace la captura desde el workflow.
             tokio::time::sleep(Duration::from_secs(20)).await;
             println!("The game started correctly");
