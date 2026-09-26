@@ -90,7 +90,7 @@ pub async fn ensure_latest(http: &reqwest::Client, paths: &Paths, auto_update: b
         return Ok((jar, false));
     }
     let download = Download::new(JAR_URL, &jar, None, None);
-    let _ = std::fs::remove_file(jar.with_extension("part"));
+    let _ = std::fs::remove_file(http::part_path(&jar));
     let result = http::download_file(http, &download, &AtomicU64::new(0)).await;
     if let Err(e) = result {
         if present {

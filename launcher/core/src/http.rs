@@ -47,6 +47,14 @@ impl Download {
     }
 }
 
+/// Archivo temporal de una descarga: se añade ".part" al nombre entero. (Cambiar la extensión haría que
+/// java.security y java.policy compartieran "java.part" y se pisaran al bajarse a la vez.)
+pub fn part_path(path: &Path) -> PathBuf {
+    let mut name = path.file_name().unwrap_or_default().to_os_string();
+    name.push(".part");
+    path.with_file_name(name)
+}
+
 pub fn sha1_bytes(bytes: &[u8]) -> String {
     hex::encode(Sha1::digest(bytes))
 }
@@ -85,7 +93,7 @@ pub async fn download_file(http: &reqwest::Client, item: &Download, bytes_done: 
 }
 
 async fn try_download(http: &reqwest::Client, item: &Download, bytes_done: &AtomicU64) -> Result<()> {
-    let part = item.path.with_extension("part");
+    let part = part_path(&item.path);
     let response = http.get(&item.url).send().await?.error_for_status()?;
     let mut file = tokio::fs::File::create(&part).await?;
     let mut hasher = Sha1::new();
@@ -225,4 +233,15 @@ pub async fn fetch_text(http: &reqwest::Client, url: &str) -> Result<String> {
 
 pub fn read_json<T: DeserializeOwned>(path: &Path) -> Result<T> {
     Ok(serde_json::from_slice(&std::fs::read(path)?)?)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn part_paths_do_not_collide() {
+        let a = super::part_path(std::path::Path::new("conf/security/java.security"));
+        let b = super::part_path(std::path::Path::new("conf/security/java.policy"));
+        assert_ne!(a, b);
+        assert!(a.ends_with("java.security.part"));
+    }
 }

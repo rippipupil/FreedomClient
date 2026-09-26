@@ -19,7 +19,8 @@
         "center": true,
         "decorations": false,
         "resizable": true,
-        "backgroundColor": "#1A0B2E"
+        "backgroundColor": "#1A0B2E",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --disable-background-networking --disable-component-update --disable-extensions --disable-sync --no-first-run --renderer-process-limit=1 --in-process-gpu"
       }
     ],
     "security": {
@@ -28,13 +29,23 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "category": "Game",
     "shortDescription": "FreedomClient Launcher",
     "copyright": "FreedomClient",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico", "icons/icon.png"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
     "windows": {
-      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
       "nsis": {
         "installMode": "currentUser",
         "displayLanguageSelector": false

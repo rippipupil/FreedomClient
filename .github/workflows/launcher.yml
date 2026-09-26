@@ -47,6 +47,7 @@ jobs:
           FC_CI_READY_FILE: /tmp/fc-ready
         run: |
           mkdir -p /tmp/shots
+          set -o pipefail
           cargo build -p fc-core --bin fc-ci
           Xvfb :99 -screen 0 1280x720x24 &
           export DISPLAY=:99
@@ -140,6 +141,7 @@ jobs:
           FC_LAUNCHER_HOME: ${{ runner.temp }}/fc
           FC_CI_UNTIL: "Loading"
         run: |
+          set -o pipefail
           cargo build -p fc-core --bin fc-ci
           ./target/debug/fc-ci 600 2>&1 | tee ../shots/fc-ci-windows.txt
       - uses: actions/upload-artifact@v4
