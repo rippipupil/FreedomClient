@@ -5,6 +5,7 @@ import com.freedomclient.cosmetic.AngelCosmeticsLayer;
 import com.freedomclient.cosmetic.PetBehavior;
 import com.freedomclient.hud.CombatTracker;
 import com.freedomclient.hud.HudRenderer;
+import com.freedomclient.launcher.AutoJoin;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.PotionEffectsHud;
@@ -82,6 +83,7 @@ public class FreedomClient implements ClientModInitializer {
 					&& CustomScreensModule.mainMenuEnabled()) {
 				client.setScreen(new FreedomTitleScreen());
 			}
+			AutoJoin.tick(client);
 		});
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {

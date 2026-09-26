@@ -99,6 +99,10 @@ fn write_profile(minecraft: &Path, settings: &Settings, profile: &Profile, versi
     if settings.discord_rpc && !settings.discord_app_id.trim().is_empty() {
         java_args.push(format!("-Dfreedomclient.discordAppId={}", settings.discord_app_id.trim()));
     }
+    // El launcher oficial no deja pasar --quickPlayMultiplayer: el mod se conecta él solo al llegar al menú.
+    if !profile.server.trim().is_empty() {
+        java_args.push(format!("-Dfreedomclient.autoJoin={}", profile.server.trim()));
+    }
     java_args.extend(split_args(&settings.extra_jvm_args));
     java_args.extend(split_args(&profile.extra_jvm_args));
     let quoted: Vec<String> = java_args.iter().map(|a| if a.contains(' ') { format!("\"{a}\"") } else { a.clone() }).collect();
