@@ -11,7 +11,7 @@ public class PetCosmetic extends CosmeticModule {
 	public final PetFollower follower = new PetFollower();
 
 	public PetCosmetic() {
-		super("Angel Devil Pet", "A tiny Angel Devil that follows you, waves, celebrates your kills, naps when you are AFK and hides when you are low.");
+		super("Angel Devil Pet", "A tiny Angel Devil that follows you, waves, celebrates your kills, naps when you are AFK and hides when you are low.", CosmeticSlot.PET);
 	}
 
 	@Override

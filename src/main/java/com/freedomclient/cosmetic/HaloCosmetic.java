@@ -11,7 +11,7 @@ public class HaloCosmetic extends CosmeticModule {
 	public final BooleanSetting spin = add(new BooleanSetting("Spin", "The halo slowly spins and floats up and down.", true));
 
 	public HaloCosmetic() {
-		super("Halo", "A golden halo over your head: ring, broken, crown or devil horns.");
+		super("Halo", "A golden halo over your head: ring, broken, crown or devil horns.", CosmeticSlot.HAT);
 		height.visibleWhen(() -> !style.is("Horns"));
 		spin.visibleWhen(() -> !style.is("Horns"));
 	}

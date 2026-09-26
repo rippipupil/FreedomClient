@@ -1,6 +1,8 @@
 package com.freedomclient.ui.menu;
 
 import com.freedomclient.FreedomClient;
+import com.freedomclient.cosmetic.CosmeticModule;
+import com.freedomclient.cosmetic.CosmeticSlot;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.performance.BundledModModule;
@@ -22,12 +24,15 @@ public class ModGridPage implements MenuPage {
 	private static final int CARD_HEIGHT = 34;
 	private static final int GAP = 4;
 	private static final int BAR_HEIGHT = 12;
+	private static final int SECTION_HEADER = 14;
 
 	private final FreedomMenuScreen screen;
 	private final Category fixedCategory;
 	private final ScrollArea scroll = new ScrollArea();
 	private final TextField search = new TextField(32);
 	private Category filter;
+	/** En la pestaña Cosmetics: sección elegida en los filtros ({@code null} = todas). */
+	private CosmeticSlot slotFilter;
 
 	/** @param fixedCategory categoría fija (pestaña HUD) o {@code null} para mostrar filtros de todas. */
 	public ModGridPage(FreedomMenuScreen screen, Category fixedCategory) {
@@ -41,8 +46,84 @@ public class ModGridPage implements MenuPage {
 		if (fixedCategory == null) {
 			renderFilterBar(ui, x, y, w);
 			gridY += BAR_HEIGHT + 6;
+		} else if (isCosmetics()) {
+			renderSlotBar(ui, x, y, w);
+			gridY += BAR_HEIGHT + 6;
 		}
-		renderGrid(ui, x, gridY, w, y + h - gridY);
+		if (isCosmetics()) {
+			renderSections(ui, x, gridY, w, y + h - gridY);
+		} else {
+			renderGrid(ui, x, gridY, w, y + h - gridY);
+		}
+	}
+
+	private boolean isCosmetics() {
+		return fixedCategory == Category.COSMETICS;
+	}
+
+	/** Filtros de la pestaña Cosmetics: todas las secciones o solo sombreros, capas, alas, mascotas o efectos. */
+	private void renderSlotBar(Ui ui, int x, int y, int w) {
+		int searchWidth = Math.min(90, w / 4);
+		int chipX = renderSlotChip(ui, "All", null, x, y);
+		for (CosmeticSlot slot : CosmeticSlot.values()) {
+			chipX = renderSlotChip(ui, slot.getDisplayName(), slot, chipX, y);
+		}
+		search.render(ui, x + w - searchWidth, y, searchWidth, BAR_HEIGHT, "Search...");
+	}
+
+	private int renderSlotChip(Ui ui, String label, CosmeticSlot slot, int x, int y) {
+		int width = ui.font.width(label) + 10;
+		boolean selected = slotFilter == slot;
+		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
+		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
+		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
+		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
+		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
+			slotFilter = slot;
+			scroll.reset();
+			ui.playClick();
+			return true;
+		});
+		return x + width + 3;
+	}
+
+	private static CosmeticSlot slotOf(Module module) {
+		return module instanceof CosmeticModule cosmetic ? cosmetic.getSlot() : CosmeticSlot.EFFECT;
+	}
+
+	/** Cosméticos agrupados por sección, cada una con su título y su cuadrícula. */
+	private void renderSections(Ui ui, int x, int y, int w, int h) {
+		List<Module> modules = visibleModules();
+		int innerW = w - 6;
+		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
+		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
+
+		int offset = scroll.begin(ui, x, y, innerW, h);
+		int cursor = 0;
+		for (CosmeticSlot slot : CosmeticSlot.values()) {
+			List<Module> section = modules.stream().filter(module -> slotOf(module) == slot).toList();
+			if (section.isEmpty()) continue;
+			int headerY = y + cursor - offset;
+			if (headerY + SECTION_HEADER > y && headerY < y + h) {
+				String title = slot.getDisplayName();
+				ui.g.drawString(ui.font, title, x + 1, headerY + 2, ThemeManager.accent(), false);
+				int lineX = x + ui.font.width(title) + 6;
+				ui.g.fill(lineX, headerY + 6, x + innerW, headerY + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+			}
+			cursor += SECTION_HEADER;
+			for (int i = 0; i < section.size(); i++) {
+				int cardX = x + (i % columns) * (cardWidth + GAP);
+				int cardY = y + cursor + (i / columns) * (CARD_HEIGHT + GAP) - offset;
+				if (cardY + CARD_HEIGHT < y || cardY > y + h) continue;
+				renderCard(ui, section.get(i), cardX, cardY, cardWidth);
+			}
+			int rows = (section.size() + columns - 1) / columns;
+			cursor += rows * (CARD_HEIGHT + GAP) + GAP;
+		}
+		if (modules.isEmpty()) {
+			ui.g.drawCenteredString(ui.font, "No cosmetics found", x + innerW / 2, y + 20, ThemeManager.textMuted());
+		}
+		scroll.end(ui, x, y, innerW, h, Math.max(0, cursor - GAP * 2));
 	}
 
 	private void renderFilterBar(Ui ui, int x, int y, int w) {
@@ -84,6 +165,7 @@ public class ModGridPage implements MenuPage {
 		return FreedomClient.getModuleManager().getModules().stream()
 				.filter(module -> fixedCategory != null ? module.getCategory() == fixedCategory
 						: filter == null ? module.getCategory() != Category.HUD && module.getCategory() != Category.COSMETICS : module.getCategory() == filter)
+				.filter(module -> !isCosmetics() || slotFilter == null || slotOf(module) == slotFilter)
 				.filter(module -> query.isEmpty() || nameMatches(module, query) || matchingSetting(module, query) != null)
 				.sorted(Comparator.comparing((Module module) -> !module.isFavorite()))
 				.toList();

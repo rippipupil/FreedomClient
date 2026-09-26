@@ -19,7 +19,7 @@ public class AuraCosmetic extends CosmeticModule {
 	private final RandomSource random = RandomSource.create();
 
 	public AuraCosmetic() {
-		super("Aura", "Little pixel lights floating around you: angel light, devil embers, sky sparkles, stars, hearts, feathers or notes.");
+		super("Aura", "Little pixel lights floating around you: angel light, devil embers, sky sparkles, stars, hearts, feathers or notes.", CosmeticSlot.EFFECT);
 	}
 
 	@Override

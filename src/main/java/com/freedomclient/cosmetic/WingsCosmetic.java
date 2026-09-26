@@ -8,6 +8,6 @@ public class WingsCosmetic extends CosmeticModule {
 	public final BooleanSetting flap = add(new BooleanSetting("Flap", "Wings move gently, faster while sprinting or flying.", true));
 
 	public WingsCosmetic() {
-		super("Wings", "White angel wings on your back (visible in third person).");
+		super("Wings", "White angel wings on your back (visible in third person).", CosmeticSlot.WINGS);
 	}
 }

@@ -10,7 +10,7 @@ public class CloudPetCosmetic extends CosmeticModule {
 	public final PetFollower follower = new PetFollower();
 
 	public CloudPetCosmetic() {
-		super("Cloud Pet", "A little winged pixel cloud that follows you around and reacts like the Angel Devil pet.");
+		super("Cloud Pet", "A little winged pixel cloud that follows you around and reacts like the Angel Devil pet.", CosmeticSlot.PET);
 	}
 
 	@Override

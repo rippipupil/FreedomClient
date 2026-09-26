@@ -9,8 +9,16 @@ import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 
 /** Cosmético de Angel Devil. Por ahora solo lo ve el propio jugador (en F5 y en el inventario). */
 public abstract class CosmeticModule extends Module {
-	protected CosmeticModule(String name, String description) {
+	private final CosmeticSlot slot;
+
+	protected CosmeticModule(String name, String description, CosmeticSlot slot) {
 		super(name, description, Category.COSMETICS, true);
+		this.slot = slot;
+	}
+
+	/** Sección de la pestaña Cosmetics (sombreros, capas, alas, mascotas, efectos). */
+	public CosmeticSlot getSlot() {
+		return slot;
 	}
 
 	@Override
