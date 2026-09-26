@@ -4,6 +4,8 @@ use std::path::Path;
 /// Opciones de Minecraft para un perfil nuevo, pensadas para dar el máximo de FPS en PvP.
 /// Solo se escriben si el perfil todavía no tiene options.txt: lo que cambie el jugador se respeta.
 const OPTIMIZED: &[(&str, &str)] = &[
+    // En 1.21.11 los presets (fast/fancy/fabulous) pisan las opciones gráficas: "custom" respeta las de abajo.
+    ("graphicsPreset", "\"custom\""),
     ("enableVsync", "false"),
     ("maxFps", "260"),
     ("renderDistance", "10"),
