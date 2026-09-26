@@ -59,6 +59,10 @@ Por defecto, **Launch** prepara FreedomClient en el launcher oficial de Minecraf
 con tus mods, la RAM y los flags de Java optimizados) y lo abre con ese perfil elegido: solo hay que darle a Jugar,
 y el inicio de sesión es el de Mojang. En Configuración → Launch with se puede cambiar a lanzar directamente desde
 FreedomClient (necesita el ID de aplicación de Azure para el login de Microsoft).
+Para llevar tu configuración a otro PC: en Perfiles, **Export** guarda el perfil en un archivo `.fcprofile`
+(opciones y teclas de Minecraft, la configuración de todos los mods, la lista de servidores y, si quieres, los mods,
+resource packs y shaders; nunca los mundos) y en el otro PC **Import** (o arrastrar el archivo a la ventana) lo
+crea como un perfil nuevo.
 Viene configurado para gastar lo mínimo: memoria automática según tu PC, G1 afinado para que no haya tirones,
 opciones del juego pensadas para FPS y el launcher se cierra al empezar la partida.
 

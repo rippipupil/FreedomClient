@@ -5,7 +5,7 @@ use fc_core::discord::{Activity, Presence};
 use fc_core::launch::{LaunchOptions, build_command, log_file, spawn};
 use fc_core::paths::Paths;
 use fc_core::settings::{self, Account, Accounts, AfterLaunch, LaunchWith, Profile, Settings, now};
-use fc_core::{auth, client, mods, official};
+use fc_core::{auth, client, mods, official, transfer};
 use serde::Serialize;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -239,6 +239,35 @@ fn open_path(app: AppHandle, state: State<'_, AppState>, id: String, target: Str
         std::fs::create_dir_all(&path).map_err(err)?;
     }
     app.opener().open_path(path.to_string_lossy(), None::<&str>).map_err(err)
+}
+
+#[tauri::command]
+async fn export_profile(state: State<'_, AppState>, id: String, path: String, options: transfer::ExportOptions) -> CmdResult<transfer::Summary> {
+    let profile = state.profile(&id)?;
+    let mut target = PathBuf::from(path);
+    if target.extension().map(|e| e != transfer::EXTENSION).unwrap_or(true) {
+        target.set_extension(transfer::EXTENSION);
+    }
+    let paths = state.paths.clone();
+    tauri::async_runtime::spawn_blocking(move || transfer::export(&paths, &profile, &target, options))
+        .await
+        .map_err(err)?
+        .map_err(|e| format!("{e:#}"))
+}
+
+#[tauri::command]
+async fn import_profile(state: State<'_, AppState>, path: String) -> CmdResult<Profile> {
+    let names: Vec<String> = state.profiles.lock().unwrap().iter().map(|p| p.name.clone()).collect();
+    let paths = state.paths.clone();
+    let profile = tauri::async_runtime::spawn_blocking(move || transfer::import(&paths, std::path::Path::new(&path), &names))
+        .await
+        .map_err(err)?
+        .map_err(|e| format!("{e:#}"))?;
+    state.profiles.lock().unwrap().push(profile.clone());
+    state.save_profiles()?;
+    state.settings.lock().unwrap().selected_profile = profile.id.clone();
+    state.save_settings()?;
+    Ok(profile)
 }
 
 #[tauri::command]
@@ -499,6 +528,8 @@ fn main() {
             remove_mod,
             open_path,
             open_url,
+            export_profile,
+            import_profile,
             login_start,
             login_poll,
             add_offline,

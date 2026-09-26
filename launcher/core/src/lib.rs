@@ -15,6 +15,7 @@ pub mod paths;
 pub mod rules;
 pub mod settings;
 pub mod system;
+pub mod transfer;
 
 pub use reqwest;
 

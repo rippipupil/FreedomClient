@@ -284,6 +284,44 @@
     openProfile(selectedProfile().id);
   });
 
+  // Exportar e importar perfiles (.fcprofile) para llevar la configuración a otro PC.
+  $("export-profile").addEventListener("click", () => $("export").classList.remove("hidden"));
+  $("export-save").addEventListener("click", async () => {
+    if (!editing) return;
+    const safe = editing.name.replace(/[\\/:*?"<>|]/g, "").trim() || "profile";
+    const path = await tauri.dialog.save({
+      title: "Export profile",
+      defaultPath: safe + ".fcprofile",
+      filters: [{ name: "FreedomClient profile", extensions: ["fcprofile"] }],
+    });
+    if (!path) return;
+    const options = {
+      mods: $("export-mods").checked,
+      resource_packs: $("export-packs").checked,
+      shaders: $("export-shaders").checked,
+    };
+    const summary = await call("export_profile", { id: editing.id, path, options });
+    $("export").classList.add("hidden");
+    toast(`Profile exported (${summary.files} files, ${mb(Math.max(1, Math.round(summary.bytes / 1048576)))})`);
+  });
+
+  async function importProfile(path) {
+    const profile = await call("import_profile", { path });
+    toast(`Profile "${profile.name}" imported`);
+    await reload();
+    showPage("profiles");
+    openProfile(profile.id);
+  }
+
+  $("import-profile").addEventListener("click", async () => {
+    const picked = await tauri.dialog.open({
+      title: "Import profile",
+      multiple: false,
+      filters: [{ name: "FreedomClient profile", extensions: ["fcprofile"] }],
+    });
+    if (picked) importProfile(Array.isArray(picked) ? picked[0] : picked);
+  });
+
   // Mods del perfil
   async function loadMods() {
     if (!editing) return;
@@ -331,7 +369,12 @@
     const onProfiles = $("page-profiles").classList.contains("active");
     const type = event.payload.type;
     $("mods").classList.toggle("drop", onProfiles && (type === "enter" || type === "over"));
-    if (type === "drop" && onProfiles) addMods(event.payload.paths || []);
+    if (type === "drop") {
+      const paths = event.payload.paths || [];
+      // Un .fcprofile se importa se suelte donde se suelte.
+      paths.filter((p) => p.toLowerCase().endsWith(".fcprofile")).forEach(importProfile);
+      if (onProfiles) addMods(paths);
+    }
   });
 
   // ---------- Configuración ----------

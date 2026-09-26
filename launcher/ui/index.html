@@ -66,7 +66,7 @@
     <section class="page" id="page-profiles">
       <div class="split">
         <aside class="panel profile-list">
-          <div class="panel-title">Profiles <button class="btn small" id="new-profile">+ New</button></div>
+          <div class="panel-title">Profiles <span class="row"><button class="btn small" id="import-profile" title="Import a .fcprofile file">Import</button><button class="btn small" id="new-profile">+ New</button></span></div>
           <div id="profiles"></div>
         </aside>
         <div class="panel profile-detail" id="profile-detail">
@@ -94,6 +94,7 @@
           <div class="row end profile-actions">
             <button class="btn" data-open="game"><i class="icon icon-folder"></i>.minecraft</button>
             <button class="btn" data-open="log"><i class="icon icon-log"></i>Log</button>
+            <button class="btn" id="export-profile" title="Save this profile's settings to use them on another PC">Export</button>
             <button class="btn danger" id="delete-profile">Delete</button>
           </div>
         </div>
@@ -207,6 +208,18 @@
         <button class="btn" id="login-copy">Copy code</button>
       </div>
       <p class="hint" id="login-status">Waiting for you to log in…</p>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="export">
+    <div class="dialog">
+      <div class="panel-title">Export profile <button class="btn small" data-close>✕</button></div>
+      <p>Saves this profile to a <b>.fcprofile</b> file. On the other PC, use <b>Import</b> in Profiles.</p>
+      <p class="hint">Always included: Minecraft settings and keybinds, the settings of every mod (FreedomClient HUD, cosmetics, theme, Sodium…) and your server list. Worlds are not included.</p>
+      <label class="toggle"><input type="checkbox" id="export-mods" checked><span></span>External mods</label>
+      <label class="toggle"><input type="checkbox" id="export-packs"><span></span>Resource packs</label>
+      <label class="toggle"><input type="checkbox" id="export-shaders"><span></span>Shaders</label>
+      <div class="row end"><button class="btn primary" id="export-save">Export…</button></div>
     </div>
   </div>
 
