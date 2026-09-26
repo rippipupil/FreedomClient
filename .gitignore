@@ -42,3 +42,4 @@ replay_*.log
 # Launcher
 launcher/target/
 launcher/app/gen/
+!launcher/core/src/bin/
