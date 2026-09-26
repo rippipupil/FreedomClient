@@ -67,8 +67,9 @@ jobs:
           export DISPLAY=:99
           pgrep Xvfb || (Xvfb :99 -screen 0 1280x720x24 &)
           sleep 1
-          WEBKIT_DISABLE_COMPOSITING_MODE=1 ./target/debug/freedom-launcher > /tmp/shots/app-output.txt 2>&1 &
-          sleep 12
+          WEBKIT_DISABLE_COMPOSITING_MODE=1 WEBKIT_DISABLE_DMABUF_RENDERER=1 LIBGL_ALWAYS_SOFTWARE=1 \
+            ./target/debug/freedom-launcher > /tmp/shots/app-output.txt 2>&1 &
+          sleep 25
           import -window root /tmp/shots/launcher.png
           pkill freedom-launcher || true
       - name: Collect logs
