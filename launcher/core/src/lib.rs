@@ -9,6 +9,7 @@ pub mod java;
 pub mod launch;
 pub mod minecraft;
 pub mod mods;
+pub mod official;
 pub mod options;
 pub mod paths;
 pub mod rules;

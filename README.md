@@ -55,6 +55,10 @@ Los módulos activados se guardan en `config/freedomclient.json`.
 El launcher instala Minecraft 1.21.11, Fabric, Java 21 y FreedomClient él solo y los mantiene actualizados.
 Tiene perfiles (cada uno con su carpeta `.minecraft`, sus mods externos y su servidor para entrar directo),
 botones para abrir la carpeta del juego y el log, Discord Rich Presence y ajustes de RAM y Java.
+Por defecto, **Launch** prepara FreedomClient en el launcher oficial de Minecraft (Fabric, un perfil "FreedomClient"
+con tus mods, la RAM y los flags de Java optimizados) y lo abre con ese perfil elegido: solo hay que darle a Jugar,
+y el inicio de sesión es el de Mojang. En Configuración → Launch with se puede cambiar a lanzar directamente desde
+FreedomClient (necesita el ID de aplicación de Azure para el login de Microsoft).
 Viene configurado para gastar lo mínimo: memoria automática según tu PC, G1 afinado para que no haya tirones,
 opciones del juego pensadas para FPS y el launcher se cierra al empezar la partida.
 

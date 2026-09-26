@@ -4,8 +4,8 @@
 use fc_core::discord::{Activity, Presence};
 use fc_core::launch::{LaunchOptions, build_command, log_file, spawn};
 use fc_core::paths::Paths;
-use fc_core::settings::{self, Account, Accounts, AfterLaunch, Profile, Settings, now};
-use fc_core::{auth, client, mods};
+use fc_core::settings::{self, Account, Accounts, AfterLaunch, LaunchWith, Profile, Settings, now};
+use fc_core::{auth, client, mods, official};
 use serde::Serialize;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -325,9 +325,63 @@ async fn launch(app: AppHandle, state: State<'_, AppState>, id: String) -> CmdRe
     result
 }
 
+fn progress_emitter(app: &AppHandle) -> fc_core::Progress {
+    let emitter = app.clone();
+    Arc::new(move |stage: &str, done: u64, total: u64| {
+        let _ = emitter.emit("progress", ProgressEvent { stage: stage.to_string(), done, total });
+    })
+}
+
+/// Cierra o minimiza el launcher según Configuración. Devuelve true si se va a cerrar.
+fn after_launch(app: &AppHandle, settings: &Settings) -> bool {
+    match settings.after_launch {
+        AfterLaunch::Close => {
+            // El juego sigue solo; el launcher se cierra para no gastar memoria mientras juegas.
+            let app = app.clone();
+            tauri::async_runtime::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+                app.exit(0);
+            });
+            true
+        }
+        AfterLaunch::Minimize => {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.minimize();
+            }
+            false
+        }
+        AfterLaunch::KeepOpen => false,
+    }
+}
+
+/// Launch con el launcher oficial: lo deja todo listo, abre el launcher oficial con el perfil elegido
+/// y el juego arranca con su login al darle a Jugar.
+async fn launch_official(app: &AppHandle, state: &AppState, settings: &Settings, profile: &Profile) -> CmdResult<()> {
+    let progress = progress_emitter(app);
+    official::install(&state.http, &state.paths, settings, profile, &progress).await.map_err(|e| format!("{e:#}"))?;
+    progress("Opening the Minecraft Launcher", 0, 0);
+    if !official::open_launcher() {
+        return Err("FreedomClient is ready in the official Minecraft Launcher, but the launcher was not found. \
+            Install it from minecraft.net, or choose \"FreedomClient\" in Settings → Launch with."
+            .into());
+    }
+    if let Some(p) = state.profiles.lock().unwrap().iter_mut().find(|p| p.id == profile.id) {
+        p.last_played = now();
+    }
+    let _ = state.save_profiles();
+    // El launcher oficial se encarga del juego: aquí no hay proceso que vigilar.
+    *state.running.lock().unwrap() = None;
+    let _ = app.emit("launched-official", profile.id.clone());
+    after_launch(app, settings);
+    Ok(())
+}
+
 async fn launch_inner(app: &AppHandle, state: &AppState, id: &str) -> CmdResult<()> {
     let settings = state.settings.lock().unwrap().clone();
     let profile = state.profile(id)?;
+    if settings.launch_with == LaunchWith::Official {
+        return launch_official(app, state, &settings, &profile).await;
+    }
     let account = {
         let accounts = state.accounts.lock().unwrap();
         accounts
@@ -340,10 +394,7 @@ async fn launch_inner(app: &AppHandle, state: &AppState, id: &str) -> CmdResult<
     };
     state.set_presence("Launching the game", &profile.name);
 
-    let emitter = app.clone();
-    let progress: fc_core::Progress = Arc::new(move |stage: &str, done: u64, total: u64| {
-        let _ = emitter.emit("progress", ProgressEvent { stage: stage.to_string(), done, total });
-    });
+    let progress = progress_emitter(app);
     let account = match &account {
         Account::Microsoft { .. } => {
             progress("Logging in", 0, 0);
@@ -388,22 +439,8 @@ async fn launch_inner(app: &AppHandle, state: &AppState, id: &str) -> CmdResult<
     state.set_presence("Playing Minecraft 1.21.11", &profile.name);
     let _ = app.emit("launched", profile.id.clone());
 
-    match settings.after_launch {
-        AfterLaunch::Close => {
-            // El juego sigue solo; el launcher se cierra para no gastar memoria mientras juegas.
-            let app = app.clone();
-            tauri::async_runtime::spawn(async move {
-                tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
-                app.exit(0);
-            });
-            return Ok(());
-        }
-        AfterLaunch::Minimize => {
-            if let Some(window) = app.get_webview_window("main") {
-                let _ = window.minimize();
-            }
-        }
-        AfterLaunch::KeepOpen => {}
+    if after_launch(app, &settings) {
+        return Ok(());
     }
 
     let app = app.clone();

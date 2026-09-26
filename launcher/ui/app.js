@@ -76,6 +76,8 @@
     const account = selectedAccount();
     $("account-name").textContent = account ? account.name : "Add account";
     $("account-head").src = head(account);
+    // Con el launcher oficial el login lo hace Mojang: aquí no hacen falta cuentas.
+    $("account-button").classList.toggle("hidden", officialMode());
     const profile = selectedProfile();
     $("picker-name").textContent = profile.name;
     $("picker-swatch").style.background = profile.color;
@@ -85,6 +87,10 @@
     renderLaunch();
     renderSettings();
     renderProfiles();
+  }
+
+  function officialMode() {
+    return state.settings.launch_with === "official";
   }
 
   function memoryFor(profile) {
@@ -105,7 +111,7 @@
 
   $("launch").addEventListener("click", async () => {
     if (busy) return;
-    if (!state.accounts.length) {
+    if (!officialMode() && !state.accounts.length) {
       openAccounts();
       toast("Add an account to play");
       return;
@@ -115,6 +121,12 @@
     $("launch-label").textContent = "Preparing…";
     try {
       await invoke("launch", { id: selectedProfile().id });
+      if (officialMode()) {
+        busy = false;
+        renderLaunch();
+        $("launch-status").textContent = 'Press PLAY in the Minecraft Launcher ("FreedomClient" is already selected)';
+        return;
+      }
       $("launch-label").textContent = "PLAYING";
       $("launch-status").textContent = "Have fun!";
       $("launch-progress").style.width = "100%";
@@ -347,6 +359,11 @@
     $("memory-hint").textContent = state.total_memory_mb
       ? `Your PC has ${mb(Math.round(state.total_memory_mb / 1024) * 1024)}. Auto uses ${mb(state.auto_memory_mb)}; more is not faster.`
       : "Auto picks the best amount for your PC.";
+    renderChips("s-launch-with", s.launch_with, (v) => update({ launch_with: v }));
+    $("launch-with-hint").textContent =
+      s.launch_with === "official"
+        ? "Launch opens the official launcher with FreedomClient ready: just press Play. It uses its Microsoft login."
+        : "Starts the game from here with your own Microsoft login (needs the Azure app ID).";
     renderChips("s-gc", s.gc, (v) => update({ gc: v }));
     renderChips("s-after", s.after_launch, (v) => update({ after_launch: v }));
     renderChips("s-downloads", s.concurrent_downloads, (v) => update({ concurrent_downloads: Number(v) }));
@@ -465,6 +482,6 @@
 
   // ---------- inicio ----------
   reload().then(() => {
-    if (!state.accounts.length) openAccounts();
+    if (!officialMode() && !state.accounts.length) openAccounts();
   });
 })();

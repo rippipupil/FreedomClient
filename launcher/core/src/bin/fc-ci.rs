@@ -38,6 +38,19 @@ async fn main() -> Result<()> {
     fc_core::prepare(&http, &paths, &settings, &profile, &progress).await?;
     println!("Second prepare took {:.2}s", again.elapsed().as_secs_f32());
 
+    // Modo "launcher oficial": instala Fabric y el perfil en una .minecraft de prueba y lo enseña.
+    if std::env::var_os("FC_OFFICIAL_MINECRAFT").is_some() {
+        fc_core::official::install(&http, &paths, &settings, &profile, &progress).await?;
+        let dir = fc_core::official::minecraft_dir();
+        let root: serde_json::Value = serde_json::from_slice(&std::fs::read(dir.join("launcher_profiles.json"))?)?;
+        let mut entry = root["profiles"]["freedomclient-ci"].clone();
+        entry["icon"] = serde_json::Value::String("(png)".into());
+        println!("Official launcher profile: {}", serde_json::to_string_pretty(&entry)?);
+        for version in std::fs::read_dir(dir.join("versions"))? {
+            println!("Official launcher version: {}", version?.file_name().to_string_lossy());
+        }
+    }
+
     let options = LaunchOptions {
         account: Account::offline("FreedomCI"),
         memory_mb: fc_core::memory_for(&settings, &profile),

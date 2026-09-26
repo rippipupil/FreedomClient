@@ -45,6 +45,7 @@ jobs:
         env:
           FC_LAUNCHER_HOME: /tmp/fc
           FC_CI_READY_FILE: /tmp/fc-ready
+          FC_OFFICIAL_MINECRAFT: /tmp/official-minecraft
         run: |
           mkdir -p /tmp/shots
           set -o pipefail

@@ -43,6 +43,18 @@ const G1_FLAGS: &[&str] = &[
 
 const ZGC_FLAGS: &[&str] = &["-XX:+UseZGC", "-XX:+ZGenerational", "-XX:+DisableExplicitGC", "-XX:+PerfDisableSharedMem"];
 
+/// Memoria y recolector de basura: lo mismo para nuestro lanzamiento y para el perfil del launcher oficial.
+pub fn jvm_tuning(memory_mb: u32, gc: GcPreset) -> Vec<String> {
+    let memory = memory_mb.max(1024);
+    let mut args = vec![format!("-Xms{}M", memory.min(1024)), format!("-Xmx{memory}M")];
+    match gc {
+        GcPreset::Optimized => args.extend(G1_FLAGS.iter().map(|s| s.to_string())),
+        GcPreset::Zgc => args.extend(ZGC_FLAGS.iter().map(|s| s.to_string())),
+        GcPreset::Vanilla => {}
+    }
+    args
+}
+
 /// Separa argumentos como una consola: por espacios, respetando comillas.
 pub fn split_args(text: &str) -> Vec<String> {
     let mut args = Vec::new();
@@ -159,15 +171,7 @@ pub fn build_command(paths: &Paths, prepared: &Prepared, options: &LaunchOptions
         ("quickPlayMultiplayer", options.server.trim().to_string()),
     ]);
 
-    let mut args: Vec<String> = Vec::new();
-    let memory = options.memory_mb.max(1024);
-    args.push(format!("-Xms{}M", memory.min(1024)));
-    args.push(format!("-Xmx{memory}M"));
-    match options.gc {
-        GcPreset::Optimized => args.extend(G1_FLAGS.iter().map(|s| s.to_string())),
-        GcPreset::Zgc => args.extend(ZGC_FLAGS.iter().map(|s| s.to_string())),
-        GcPreset::Vanilla => {}
-    }
+    let mut args = jvm_tuning(options.memory_mb, options.gc);
     // El mod no se autoactualiza cuando lo gestiona el launcher.
     args.push("-Dfreedomclient.launcher=true".into());
     if !options.discord_app_id.trim().is_empty() {

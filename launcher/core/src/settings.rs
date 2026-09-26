@@ -28,9 +28,21 @@ pub enum AfterLaunch {
     KeepOpen,
 }
 
+/// Con qué se abre el juego al pulsar Launch.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum LaunchWith {
+    /// Launcher oficial de Minecraft con el perfil FreedomClient (su login; por defecto).
+    #[default]
+    Official,
+    /// Directamente desde este launcher (necesita el login de Microsoft propio).
+    Freedom,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    pub launch_with: LaunchWith,
     /// Memoria para el juego en MB; 0 = automática según la RAM del PC.
     pub memory_mb: u32,
     pub gc: GcPreset,
@@ -54,6 +66,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            launch_with: LaunchWith::Official,
             memory_mb: 0,
             gc: GcPreset::Optimized,
             extra_jvm_args: String::new(),
