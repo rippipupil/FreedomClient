@@ -1,0 +1,55 @@
+Checking Minecraft
+Checking Fabric
+Checking assets
+Downloading Minecraft: 0%
+Downloading Minecraft: 10%
+Downloading Minecraft: 20%
+Downloading Minecraft: 30%
+Downloading Minecraft: 40%
+Downloading Minecraft: 50%
+Downloading Minecraft: 60%
+Downloading Minecraft: 70%
+Downloading Minecraft: 80%
+Downloading Minecraft: 90%
+Downloading Minecraft: 100%
+Checking Java
+Downloading Java: 0%
+Downloading Java: 10%
+Downloading Java: 20%
+Downloading Java: 30%
+Downloading Java: 40%
+Downloading Java: 50%
+Downloading Java: 60%
+Downloading Java: 70%
+Downloading Java: 80%
+Downloading Java: 90%
+Downloading Java: 100%
+Updating FreedomClient
+Prepared in 19.6s (java: /tmp/fc/runtime/java-runtime-delta/bin/java)
+Checking Minecraft
+Checking Fabric
+Checking assets
+Checking Java
+Updating FreedomClient
+Second prepare took 0.60s
+Checking Fabric
+Updating FreedomClient
+Setting up the official launcher
+Official launcher profile: {
+  "created": "2026-09-26T02:00:28.000Z",
+  "gameDir": "/tmp/fc/instances/ci",
+  "icon": "(png)",
+  "javaArgs": "-Xms1024M -Xmx4096M -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:MaxGCPauseMillis=37 -XX:G1NewSizePercent=23 -XX:G1ReservePercent=20 -XX:G1HeapRegionSize=16M -XX:G1HeapWastePercent=20 -XX:G1MixedGCCountTarget=3 -XX:InitiatingHeapOccupancyPercent=10 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -XX:+PerfDisableSharedMem -Dfreedomclient.discordAppId=1553214754758074368",
+  "lastUsed": "2026-09-26T02:00:28.000Z",
+  "lastVersionId": "fabric-loader-0.19.5-1.21.11",
+  "name": "FreedomClient",
+  "resolution": {
+    "height": 720,
+    "width": 1280
+  },
+  "type": "custom"
+}
+Official launcher version: fabric-loader-0.19.5-1.21.11
+Command: ["-Xms1024M", "-Xmx4096M", "-XX:+UnlockExperimentalVMOptions", "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=37", "-XX:G1NewSizePercent=23", "-XX:G1ReservePercent=20", "-XX:G1HeapRegionSize=16M", "-XX:G1HeapWastePercent=20", "-XX:G1MixedGCCountTarget=3", "-XX:InitiatingHeapOccupancyPercent=10", "-XX:SurvivorRatio=32", "-XX:MaxTenuringThreshold=1", "-XX:+ParallelRefProcEnabled", "-XX:+DisableExplicitGC", "-XX:+PerfDisableSharedMem", "-Dfreedomclient.launcher=true", "-DFabricMcEmu= net.minecraft.client.main.Main ", "-Dminecraft.launcher.brand=FreedomClient", "-Dminecraft.launcher.version=0.1.0", "-cp", "net.fabricmc.loader.impl.launch.knot.KnotClient", "--username", "FreedomCI", "--version", "1.21.11", "--gameDir", "--assetsDir", "--assetIndex", "29", "--uuid", "9f528377f8d4393d8d097d5adeef9a7c", "--accessToken", "0", "--clientId", "", "--xuid", "0", "--versionType", "release", "--width", "1280", "--height", "720"]
+The game started correctly
+Profile transfer OK: 12 files, 27 KB, 11 entries in config/
