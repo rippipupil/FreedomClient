@@ -1,0 +1,669 @@
+Jar: .gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-75e28b9ec0/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-75e28b9ec0-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
+
+==================== net.minecraft.client.renderer.ScreenEffectRenderer
+Compiled from "ScreenEffectRenderer.java"
+public class net.minecraft.client.renderer.ScreenEffectRenderer {
+  private static final net.minecraft.resources.Identifier UNDERWATER_LOCATION;
+  private final net.minecraft.client.Minecraft minecraft;
+  private final net.minecraft.client.resources.model.MaterialSet materials;
+  private final net.minecraft.client.renderer.MultiBufferSource bufferSource;
+  public static final int ITEM_ACTIVATION_ANIMATION_LENGTH;
+  private net.minecraft.world.item.ItemStack itemActivationItem;
+  private int itemActivationTicks;
+  private float itemActivationOffX;
+  private float itemActivationOffY;
+  public net.minecraft.client.renderer.ScreenEffectRenderer(net.minecraft.client.Minecraft, net.minecraft.client.resources.model.MaterialSet, net.minecraft.client.renderer.MultiBufferSource);
+  public void tick();
+  public void renderScreenEffect(boolean, float, net.minecraft.client.renderer.SubmitNodeCollector);
+  private void renderItemActivationAnimation(com.mojang.blaze3d.vertex.PoseStack, float, net.minecraft.client.renderer.SubmitNodeCollector);
+  public void resetItemActivation();
+  public void displayItemActivation(net.minecraft.world.item.ItemStack, net.minecraft.util.RandomSource);
+  private static net.minecraft.world.level.block.state.BlockState getViewBlockingState(net.minecraft.world.entity.player.Player);
+  private static void renderTex(net.minecraft.client.renderer.texture.TextureAtlasSprite, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.MultiBufferSource);
+  private static void renderWater(net.minecraft.client.Minecraft, com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.MultiBufferSource);
+  private static void renderFire(com.mojang.blaze3d.vertex.PoseStack, net.minecraft.client.renderer.MultiBufferSource, net.minecraft.client.renderer.texture.TextureAtlasSprite);
+  static {};
+}
+
+==================== net.minecraft.client.renderer.ScreenEffectRenderer#renderItemActivationAnimation
+  private void renderItemActivationAnimation(com.mojang.blaze3d.vertex.PoseStack, float, net.minecraft.client.renderer.SubmitNodeCollector);
+    Code:
+       0: aload_0
+       1: getfield      #62                 // Field itemActivationItem:Lnet/minecraft/world/item/ItemStack;
+       4: ifnull        14
+       7: aload_0
+       8: getfield      #60                 // Field itemActivationTicks:I
+      11: ifgt          15
+      14: return
+      15: bipush        40
+      17: aload_0
+      18: getfield      #60                 // Field itemActivationTicks:I
+      21: isub
+      22: istore        4
+      24: iload         4
+      26: i2f
+      27: fload_2
+      28: fadd
+      29: ldc           #176                // float 40.0f
+      31: fdiv
+      32: fstore        5
+      34: fload         5
+      36: fload         5
+      38: fmul
+      39: fstore        6
+      41: fload         5
+      43: fload         6
+      45: fmul
+      46: fstore        7
+      48: ldc           #177                // float 10.25f
+      50: fload         7
+      52: fmul
+      53: fload         6
+      55: fmul
+      56: ldc           #178                // float 24.95f
+      58: fload         6
+      60: fmul
+      61: fload         6
+      63: fmul
+      64: fsub
+      65: ldc           #179                // float 25.5f
+      67: fload         7
+      69: fmul
+      70: fadd
+      71: ldc           #180                // float 13.8f
+      73: fload         6
+      75: fmul
+      76: fsub
+      77: ldc           #181                // float 4.0f
+      79: fload         5
+      81: fmul
+      82: fadd
+      83: fstore        8
+      85: fload         8
+      87: ldc           #182                // float 3.1415927f
+      89: fmul
+      90: fstore        9
+      92: aload_0
+      93: getfield      #51                 // Field minecraft:Lnet/minecraft/client/Minecraft;
+      96: invokevirtual #186                // Method net/minecraft/client/Minecraft.getWindow:()Lcom/mojang/blaze3d/platform/Window;
+      99: invokevirtual #192                // Method com/mojang/blaze3d/platform/Window.getWidth:()I
+     102: i2f
+     103: aload_0
+     104: getfield      #51                 // Field minecraft:Lnet/minecraft/client/Minecraft;
+     107: invokevirtual #186                // Method net/minecraft/client/Minecraft.getWindow:()Lcom/mojang/blaze3d/platform/Window;
+     110: invokevirtual #195                // Method com/mojang/blaze3d/platform/Window.getHeight:()I
+     113: i2f
+     114: fdiv
+     115: fstore        10
+     117: aload_0
+     118: getfield      #197                // Field itemActivationOffX:F
+     121: ldc           #198                // float 0.3f
+     123: fmul
+     124: fload         10
+     126: fmul
+     127: fstore        11
+     129: aload_0
+     130: getfield      #200                // Field itemActivationOffY:F
+     133: ldc           #198                // float 0.3f
+     135: fmul
+     136: fstore        12
+     138: aload_1
+     139: invokevirtual #203                // Method com/mojang/blaze3d/vertex/PoseStack.pushPose:()V
+     142: aload_1
+     143: fload         11
+     145: fload         9
+     147: fconst_2
+     148: fmul
+     149: f2d
+     150: invokestatic  #209                // Method net/minecraft/util/Mth.sin:(D)F
+     153: invokestatic  #213                // Method net/minecraft/util/Mth.abs:(F)F
+     156: fmul
+     157: fload         12
+     159: fload         9
+     161: fconst_2
+     162: fmul
+     163: f2d
+     164: invokestatic  #209                // Method net/minecraft/util/Mth.sin:(D)F
+     167: invokestatic  #213                // Method net/minecraft/util/Mth.abs:(F)F
+     170: fmul
+     171: ldc           #214                // float -10.0f
+     173: ldc           #215                // float 9.0f
+     175: fload         9
+     177: f2d
+     178: invokestatic  #209                // Method net/minecraft/util/Mth.sin:(D)F
+     181: fmul
+     182: fadd
+     183: invokevirtual #219                // Method com/mojang/blaze3d/vertex/PoseStack.translate:(FFF)V
+     186: ldc           #220                // float 0.8f
+     188: fstore        13
+     190: aload_1
+     191: ldc           #220                // float 0.8f
+     193: ldc           #220                // float 0.8f
+     195: ldc           #220                // float 0.8f
+     197: invokevirtual #223                // Method com/mojang/blaze3d/vertex/PoseStack.scale:(FFF)V
+     200: aload_1
+     201: getstatic     #229                // Field com/mojang/math/Axis.YP:Lcom/mojang/math/Axis;
+     204: ldc           #230                // float 900.0f
+     206: fload         9
+     208: f2d
+     209: invokestatic  #209                // Method net/minecraft/util/Mth.sin:(D)F
+     212: invokestatic  #213                // Method net/minecraft/util/Mth.abs:(F)F
+     215: fmul
+     216: invokeinterface #234,  2          // InterfaceMethod com/mojang/math/Axis.rotationDegrees:(F)Lorg/joml/Quaternionf;
+     221: invokevirtual #238                // Method com/mojang/blaze3d/vertex/PoseStack.mulPose:(Lorg/joml/Quaternionfc;)V
+     224: aload_1
+     225: getstatic     #241                // Field com/mojang/math/Axis.XP:Lcom/mojang/math/Axis;
+     228: ldc           #242                // float 6.0f
+     230: fload         5
+     232: ldc           #243                // float 8.0f
+     234: fmul
+     235: f2d
+     236: invokestatic  #246                // Method net/minecraft/util/Mth.cos:(D)F
+     239: fmul
+     240: invokeinterface #234,  2          // InterfaceMethod com/mojang/math/Axis.rotationDegrees:(F)Lorg/joml/Quaternionf;
+     245: invokevirtual #238                // Method com/mojang/blaze3d/vertex/PoseStack.mulPose:(Lorg/joml/Quaternionfc;)V
+     248: aload_1
+     249: getstatic     #249                // Field com/mojang/math/Axis.ZP:Lcom/mojang/math/Axis;
+     252: ldc           #242                // float 6.0f
+     254: fload         5
+     256: ldc           #243                // float 8.0f
+     258: fmul
+     259: f2d
+     260: invokestatic  #246                // Method net/minecraft/util/Mth.cos:(D)F
+     263: fmul
+     264: invokeinterface #234,  2          // InterfaceMethod com/mojang/math/Axis.rotationDegrees:(F)Lorg/joml/Quaternionf;
+     269: invokevirtual #238                // Method com/mojang/blaze3d/vertex/PoseStack.mulPose:(Lorg/joml/Quaternionfc;)V
+     272: aload_0
+     273: getfield      #51                 // Field minecraft:Lnet/minecraft/client/Minecraft;
+     276: getfield      #253                // Field net/minecraft/client/Minecraft.gameRenderer:Lnet/minecraft/client/renderer/GameRenderer;
+     279: invokevirtual #259                // Method net/minecraft/client/renderer/GameRenderer.getLighting:()Lcom/mojang/blaze3d/platform/Lighting;
+     282: getstatic     #263                // Field com/mojang/blaze3d/platform/Lighting$Entry.ITEMS_3D:Lcom/mojang/blaze3d/platform/Lighting$Entry;
+     285: invokevirtual #267                // Method com/mojang/blaze3d/platform/Lighting.setupFor:(Lcom/mojang/blaze3d/platform/Lighting$Entry;)V
+     288: new           #269                // class net/minecraft/client/renderer/item/ItemStackRenderState
+     291: dup
+     292: invokespecial #270                // Method net/minecraft/client/renderer/item/ItemStackRenderState."<init>":()V
+     295: astore        14
+     297: aload_0
+     298: getfield      #51                 // Field minecraft:Lnet/minecraft/client/Minecraft;
+     301: invokevirtual #274                // Method net/minecraft/client/Minecraft.getItemModelResolver:()Lnet/minecraft/client/renderer/item/ItemModelResolver;
+     304: aload         14
+     306: aload_0
+     307: getfield      #62                 // Field itemActivationItem:Lnet/minecraft/world/item/ItemStack;
+     310: getstatic     #280                // Field net/minecraft/world/item/ItemDisplayContext.FIXED:Lnet/minecraft/world/item/ItemDisplayContext;
+     313: aload_0
+     314: getfield      #51                 // Field minecraft:Lnet/minecraft/client/Minecraft;
+     317: getfield      #284                // Field net/minecraft/client/Minecraft.level:Lnet/minecraft/client/multiplayer/ClientLevel;
+     320: aconst_null
+     321: iconst_0
+     322: invokevirtual #290                // Method net/minecraft/client/renderer/item/ItemModelResolver.updateForTopItem:(Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/ItemOwner;I)V
+     325: aload         14
+     327: aload_1
+     328: aload_3
+     329: ldc_w         #291                // int 15728880
+     332: getstatic     #296                // Field net/minecraft/client/renderer/texture/OverlayTexture.NO_OVERLAY:I
+     335: iconst_0
+     336: invokevirtual #300                // Method net/minecraft/client/renderer/item/ItemStackRenderState.submit:(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;III)V
+     339: aload_1
+     340: invokevirtual #303                // Method com/mojang/blaze3d/vertex/PoseStack.popPose:()V
+     343: return
+
+
+==================== net.minecraft.world.scores.Scoreboard
+Compiled from "Scoreboard.java"
+public class net.minecraft.world.scores.Scoreboard {
+  public static final java.lang.String HIDDEN_SCORE_PREFIX;
+  private static final org.slf4j.Logger LOGGER;
+  private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<java.lang.String, net.minecraft.world.scores.Objective> objectivesByName;
+  private final it.unimi.dsi.fastutil.objects.Reference2ObjectMap<net.minecraft.world.scores.criteria.ObjectiveCriteria, java.util.List<net.minecraft.world.scores.Objective>> objectivesByCriteria;
+  private final java.util.Map<java.lang.String, net.minecraft.world.scores.PlayerScores> playerScores;
+  private final java.util.Map<net.minecraft.world.scores.DisplaySlot, net.minecraft.world.scores.Objective> displayObjectives;
+  private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<java.lang.String, net.minecraft.world.scores.PlayerTeam> teamsByName;
+  private final it.unimi.dsi.fastutil.objects.Object2ObjectMap<java.lang.String, net.minecraft.world.scores.PlayerTeam> teamsByPlayer;
+  public net.minecraft.world.scores.Scoreboard();
+  public net.minecraft.world.scores.Objective getObjective(java.lang.String);
+  public net.minecraft.world.scores.Objective addObjective(java.lang.String, net.minecraft.world.scores.criteria.ObjectiveCriteria, net.minecraft.network.chat.Component, net.minecraft.world.scores.criteria.ObjectiveCriteria$RenderType, boolean, net.minecraft.network.chat.numbers.NumberFormat);
+  public final void forAllObjectives(net.minecraft.world.scores.criteria.ObjectiveCriteria, net.minecraft.world.scores.ScoreHolder, java.util.function.Consumer<net.minecraft.world.scores.ScoreAccess>);
+  private net.minecraft.world.scores.PlayerScores getOrCreatePlayerInfo(java.lang.String);
+  public net.minecraft.world.scores.ScoreAccess getOrCreatePlayerScore(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  public net.minecraft.world.scores.ScoreAccess getOrCreatePlayerScore(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective, boolean);
+  public net.minecraft.world.scores.ReadOnlyScoreInfo getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  public java.util.Collection<net.minecraft.world.scores.PlayerScoreEntry> listPlayerScores(net.minecraft.world.scores.Objective);
+  public java.util.Collection<net.minecraft.world.scores.Objective> getObjectives();
+  public java.util.Collection<java.lang.String> getObjectiveNames();
+  public java.util.Collection<net.minecraft.world.scores.ScoreHolder> getTrackedPlayers();
+  public void resetAllPlayerScores(net.minecraft.world.scores.ScoreHolder);
+  public void resetSinglePlayerScore(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  public it.unimi.dsi.fastutil.objects.Object2IntMap<net.minecraft.world.scores.Objective> listPlayerScores(net.minecraft.world.scores.ScoreHolder);
+  public void removeObjective(net.minecraft.world.scores.Objective);
+  public void setDisplayObjective(net.minecraft.world.scores.DisplaySlot, net.minecraft.world.scores.Objective);
+  public net.minecraft.world.scores.Objective getDisplayObjective(net.minecraft.world.scores.DisplaySlot);
+  public net.minecraft.world.scores.PlayerTeam getPlayerTeam(java.lang.String);
+  public net.minecraft.world.scores.PlayerTeam addPlayerTeam(java.lang.String);
+  public void removePlayerTeam(net.minecraft.world.scores.PlayerTeam);
+  public boolean addPlayerToTeam(java.lang.String, net.minecraft.world.scores.PlayerTeam);
+  public boolean removePlayerFromTeam(java.lang.String);
+  public void removePlayerFromTeam(java.lang.String, net.minecraft.world.scores.PlayerTeam);
+  public java.util.Collection<java.lang.String> getTeamNames();
+  public java.util.Collection<net.minecraft.world.scores.PlayerTeam> getPlayerTeams();
+  public net.minecraft.world.scores.PlayerTeam getPlayersTeam(java.lang.String);
+  public void onObjectiveAdded(net.minecraft.world.scores.Objective);
+  public void onObjectiveChanged(net.minecraft.world.scores.Objective);
+  public void onObjectiveRemoved(net.minecraft.world.scores.Objective);
+  protected void onScoreChanged(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective, net.minecraft.world.scores.Score);
+  protected void onScoreLockChanged(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  public void onPlayerRemoved(net.minecraft.world.scores.ScoreHolder);
+  public void onPlayerScoreRemoved(net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  public void onTeamAdded(net.minecraft.world.scores.PlayerTeam);
+  public void onTeamChanged(net.minecraft.world.scores.PlayerTeam);
+  public void onTeamRemoved(net.minecraft.world.scores.PlayerTeam);
+  public void entityRemoved(net.minecraft.world.entity.Entity);
+  protected java.util.List<net.minecraft.world.scores.Scoreboard$PackedScore> packPlayerScores();
+  protected void loadPlayerScore(net.minecraft.world.scores.Scoreboard$PackedScore);
+  protected java.util.List<net.minecraft.world.scores.PlayerTeam$Packed> packPlayerTeams();
+  protected void loadPlayerTeam(net.minecraft.world.scores.PlayerTeam$Packed);
+  protected java.util.List<net.minecraft.world.scores.Objective$Packed> packObjectives();
+  protected void loadObjective(net.minecraft.world.scores.Objective$Packed);
+  protected java.util.Map<net.minecraft.world.scores.DisplaySlot, java.lang.String> packDisplaySlots();
+  private static java.util.stream.Stream method_67457(java.util.Map$Entry);
+  private static net.minecraft.world.scores.Scoreboard$PackedScore method_67456(java.lang.String, java.util.Map$Entry);
+  private static void method_55424(net.minecraft.world.scores.Objective, java.util.List, java.lang.String, net.minecraft.world.scores.PlayerScores);
+  private static void method_55427(org.apache.commons.lang3.mutable.MutableBoolean, net.minecraft.world.scores.Score);
+  private static net.minecraft.world.scores.PlayerScores method_55432(java.lang.String);
+  private void method_1182(java.util.function.Consumer, net.minecraft.world.scores.ScoreHolder, net.minecraft.world.scores.Objective);
+  private static java.util.List method_1179(java.lang.Object);
+  static {};
+}
+
+==================== net.minecraft.world.scores.PlayerScoreEntry
+Compiled from "PlayerScoreEntry.java"
+public final class net.minecraft.world.scores.PlayerScoreEntry extends java.lang.Record {
+  private final java.lang.String owner;
+  private final int value;
+  private final net.minecraft.network.chat.Component display;
+  private final net.minecraft.network.chat.numbers.NumberFormat numberFormatOverride;
+  public net.minecraft.world.scores.PlayerScoreEntry(java.lang.String, int, net.minecraft.network.chat.Component, net.minecraft.network.chat.numbers.NumberFormat);
+  public boolean isHidden();
+  public net.minecraft.network.chat.Component ownerName();
+  public net.minecraft.network.chat.MutableComponent formatValue(net.minecraft.network.chat.numbers.NumberFormat);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public java.lang.String owner();
+  public int value();
+  public net.minecraft.network.chat.Component display();
+  public net.minecraft.network.chat.numbers.NumberFormat numberFormatOverride();
+}
+
+==================== net.minecraft.world.scores.PlayerTeam
+Compiled from "PlayerTeam.java"
+public class net.minecraft.world.scores.PlayerTeam extends net.minecraft.world.scores.Team {
+  private static final int BIT_FRIENDLY_FIRE;
+  private static final int BIT_SEE_INVISIBLES;
+  private final net.minecraft.world.scores.Scoreboard scoreboard;
+  private final java.lang.String name;
+  private final java.util.Set<java.lang.String> players;
+  private net.minecraft.network.chat.Component displayName;
+  private net.minecraft.network.chat.Component playerPrefix;
+  private net.minecraft.network.chat.Component playerSuffix;
+  private boolean allowFriendlyFire;
+  private boolean seeFriendlyInvisibles;
+  private net.minecraft.world.scores.Team$Visibility nameTagVisibility;
+  private net.minecraft.world.scores.Team$Visibility deathMessageVisibility;
+  private net.minecraft.ChatFormatting color;
+  private net.minecraft.world.scores.Team$CollisionRule collisionRule;
+  private final net.minecraft.network.chat.Style displayNameStyle;
+  public net.minecraft.world.scores.PlayerTeam(net.minecraft.world.scores.Scoreboard, java.lang.String);
+  public net.minecraft.world.scores.PlayerTeam$Packed pack();
+  public net.minecraft.world.scores.Scoreboard getScoreboard();
+  public java.lang.String getName();
+  public net.minecraft.network.chat.Component getDisplayName();
+  public net.minecraft.network.chat.MutableComponent getFormattedDisplayName();
+  public void setDisplayName(net.minecraft.network.chat.Component);
+  public void setPlayerPrefix(net.minecraft.network.chat.Component);
+  public net.minecraft.network.chat.Component getPlayerPrefix();
+  public void setPlayerSuffix(net.minecraft.network.chat.Component);
+  public net.minecraft.network.chat.Component getPlayerSuffix();
+  public java.util.Collection<java.lang.String> getPlayers();
+  public net.minecraft.network.chat.MutableComponent getFormattedName(net.minecraft.network.chat.Component);
+  public static net.minecraft.network.chat.MutableComponent formatNameForTeam(net.minecraft.world.scores.Team, net.minecraft.network.chat.Component);
+  public boolean isAllowFriendlyFire();
+  public void setAllowFriendlyFire(boolean);
+  public boolean canSeeFriendlyInvisibles();
+  public void setSeeFriendlyInvisibles(boolean);
+  public net.minecraft.world.scores.Team$Visibility getNameTagVisibility();
+  public net.minecraft.world.scores.Team$Visibility getDeathMessageVisibility();
+  public void setNameTagVisibility(net.minecraft.world.scores.Team$Visibility);
+  public void setDeathMessageVisibility(net.minecraft.world.scores.Team$Visibility);
+  public net.minecraft.world.scores.Team$CollisionRule getCollisionRule();
+  public void setCollisionRule(net.minecraft.world.scores.Team$CollisionRule);
+  public int packOptions();
+  public void unpackOptions(int);
+  public void setColor(net.minecraft.ChatFormatting);
+  public net.minecraft.ChatFormatting getColor();
+}
+
+==================== net.minecraft.world.scores.DisplaySlot
+Compiled from "DisplaySlot.java"
+public final class net.minecraft.world.scores.DisplaySlot extends java.lang.Enum<net.minecraft.world.scores.DisplaySlot> implements net.minecraft.util.StringRepresentable {
+  public static final net.minecraft.world.scores.DisplaySlot LIST;
+  public static final net.minecraft.world.scores.DisplaySlot SIDEBAR;
+  public static final net.minecraft.world.scores.DisplaySlot BELOW_NAME;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_BLACK;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_BLUE;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_GREEN;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_AQUA;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_RED;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_PURPLE;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_GOLD;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_GRAY;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_DARK_GRAY;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_BLUE;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_GREEN;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_AQUA;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_RED;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_LIGHT_PURPLE;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_YELLOW;
+  public static final net.minecraft.world.scores.DisplaySlot TEAM_WHITE;
+  public static final net.minecraft.util.StringRepresentable$EnumCodec<net.minecraft.world.scores.DisplaySlot> CODEC;
+  public static final java.util.function.IntFunction<net.minecraft.world.scores.DisplaySlot> BY_ID;
+  private final int id;
+  private final java.lang.String name;
+  private static final net.minecraft.world.scores.DisplaySlot[] $VALUES;
+  public static net.minecraft.world.scores.DisplaySlot[] values();
+  public static net.minecraft.world.scores.DisplaySlot valueOf(java.lang.String);
+  private net.minecraft.world.scores.DisplaySlot(int, java.lang.String);
+  public int id();
+  public java.lang.String getSerializedName();
+  public static net.minecraft.world.scores.DisplaySlot teamColorToSlot(net.minecraft.ChatFormatting);
+  private static net.minecraft.world.scores.DisplaySlot[] $values();
+  static {};
+}
+
+==================== net.minecraft.network.chat.Component
+Compiled from "Component.java"
+public interface net.minecraft.network.chat.Component extends com.mojang.brigadier.Message,net.minecraft.network.chat.FormattedText {
+  public abstract net.minecraft.network.chat.Style getStyle();
+  public abstract net.minecraft.network.chat.ComponentContents getContents();
+  public default java.lang.String getString();
+  public default java.lang.String getString(int);
+  public abstract java.util.List<net.minecraft.network.chat.Component> getSiblings();
+  public default java.lang.String tryCollapseToString();
+  public default net.minecraft.network.chat.MutableComponent plainCopy();
+  public default net.minecraft.network.chat.MutableComponent copy();
+  public abstract net.minecraft.util.FormattedCharSequence getVisualOrderText();
+  public default <T> java.util.Optional<T> visit(net.minecraft.network.chat.FormattedText$StyledContentConsumer<T>, net.minecraft.network.chat.Style);
+  public default <T> java.util.Optional<T> visit(net.minecraft.network.chat.FormattedText$ContentConsumer<T>);
+  public default java.util.List<net.minecraft.network.chat.Component> toFlatList();
+  public default java.util.List<net.minecraft.network.chat.Component> toFlatList(net.minecraft.network.chat.Style);
+  public default boolean contains(net.minecraft.network.chat.Component);
+  public static net.minecraft.network.chat.Component nullToEmpty(java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent literal(java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent translatable(java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent translatable(java.lang.String, java.lang.Object...);
+  public static net.minecraft.network.chat.MutableComponent translatableEscape(java.lang.String, java.lang.Object...);
+  public static net.minecraft.network.chat.MutableComponent translatableWithFallback(java.lang.String, java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent translatableWithFallback(java.lang.String, java.lang.String, java.lang.Object...);
+  public static net.minecraft.network.chat.MutableComponent empty();
+  public static net.minecraft.network.chat.MutableComponent keybind(java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent nbt(java.lang.String, boolean, java.util.Optional<net.minecraft.network.chat.Component>, net.minecraft.network.chat.contents.data.DataSource);
+  public static net.minecraft.network.chat.MutableComponent score(net.minecraft.commands.arguments.selector.SelectorPattern, java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent score(java.lang.String, java.lang.String);
+  public static net.minecraft.network.chat.MutableComponent selector(net.minecraft.commands.arguments.selector.SelectorPattern, java.util.Optional<net.minecraft.network.chat.Component>);
+  public static net.minecraft.network.chat.MutableComponent object(net.minecraft.network.chat.contents.objects.ObjectInfo);
+  public static net.minecraft.network.chat.Component translationArg(java.util.Date);
+  public static net.minecraft.network.chat.Component translationArg(com.mojang.brigadier.Message);
+  public static net.minecraft.network.chat.Component translationArg(java.util.UUID);
+  public static net.minecraft.network.chat.Component translationArg(net.minecraft.resources.Identifier);
+  public static net.minecraft.network.chat.Component translationArg(net.minecraft.world.level.ChunkPos);
+  public static net.minecraft.network.chat.Component translationArg(java.net.URI);
+  private static java.util.Optional method_36135(java.util.List, net.minecraft.network.chat.Style, java.lang.String);
+  private static java.util.Optional method_27655(int, java.lang.StringBuilder, java.lang.String);
+}
+
+==================== net.minecraft.network.chat.contents.objects.PlayerSprite
+Compiled from "PlayerSprite.java"
+public final class net.minecraft.network.chat.contents.objects.PlayerSprite extends java.lang.Record implements net.minecraft.network.chat.contents.objects.ObjectInfo {
+  private final net.minecraft.world.item.component.ResolvableProfile player;
+  private final boolean hat;
+  public static final com.mojang.serialization.MapCodec<net.minecraft.network.chat.contents.objects.PlayerSprite> MAP_CODEC;
+  public net.minecraft.network.chat.contents.objects.PlayerSprite(net.minecraft.world.item.component.ResolvableProfile, boolean);
+  public net.minecraft.network.chat.FontDescription fontDescription();
+  public java.lang.String description();
+  public com.mojang.serialization.MapCodec<net.minecraft.network.chat.contents.objects.PlayerSprite> codec();
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.world.item.component.ResolvableProfile player();
+  public boolean hat();
+  private static java.lang.String method_74070(java.lang.String);
+  private static com.mojang.datafixers.kinds.App method_74069(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+  static {};
+}
+
+==================== net.minecraft.network.chat.contents.objects.ObjectInfo
+Compiled from "ObjectInfo.java"
+public interface net.minecraft.network.chat.contents.objects.ObjectInfo {
+  public abstract net.minecraft.network.chat.FontDescription fontDescription();
+  public abstract java.lang.String description();
+  public abstract com.mojang.serialization.MapCodec<? extends net.minecraft.network.chat.contents.objects.ObjectInfo> codec();
+}
+
+==================== net.minecraft.network.chat.contents.ObjectContents
+Compiled from "ObjectContents.java"
+public final class net.minecraft.network.chat.contents.ObjectContents extends java.lang.Record implements net.minecraft.network.chat.ComponentContents {
+  private final net.minecraft.network.chat.contents.objects.ObjectInfo contents;
+  private static final java.lang.String PLACEHOLDER;
+  public static final com.mojang.serialization.MapCodec<net.minecraft.network.chat.contents.ObjectContents> MAP_CODEC;
+  public net.minecraft.network.chat.contents.ObjectContents(net.minecraft.network.chat.contents.objects.ObjectInfo);
+  public com.mojang.serialization.MapCodec<net.minecraft.network.chat.contents.ObjectContents> codec();
+  public <T> java.util.Optional<T> visit(net.minecraft.network.chat.FormattedText$ContentConsumer<T>);
+  public <T> java.util.Optional<T> visit(net.minecraft.network.chat.FormattedText$StyledContentConsumer<T>, net.minecraft.network.chat.Style);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public net.minecraft.network.chat.contents.objects.ObjectInfo contents();
+  private static com.mojang.datafixers.kinds.App method_73174(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+  static {};
+}
+
+==================== net.minecraft.world.item.component.ResolvableProfile
+Compiled from "ResolvableProfile.java"
+public abstract class net.minecraft.world.item.component.ResolvableProfile implements net.minecraft.world.item.component.TooltipProvider {
+  private static final com.mojang.serialization.Codec<net.minecraft.world.item.component.ResolvableProfile> FULL_CODEC;
+  public static final com.mojang.serialization.Codec<net.minecraft.world.item.component.ResolvableProfile> CODEC;
+  public static final net.minecraft.network.codec.StreamCodec<io.netty.buffer.ByteBuf, net.minecraft.world.item.component.ResolvableProfile> STREAM_CODEC;
+  protected final com.mojang.authlib.GameProfile partialProfile;
+  protected final net.minecraft.world.entity.player.PlayerSkin$Patch skinPatch;
+  private static net.minecraft.world.item.component.ResolvableProfile create(com.mojang.datafixers.util.Either<com.mojang.authlib.GameProfile, net.minecraft.world.item.component.ResolvableProfile$Partial>, net.minecraft.world.entity.player.PlayerSkin$Patch);
+  public static net.minecraft.world.item.component.ResolvableProfile createResolved(com.mojang.authlib.GameProfile);
+  public static net.minecraft.world.item.component.ResolvableProfile createUnresolved(java.lang.String);
+  public static net.minecraft.world.item.component.ResolvableProfile createUnresolved(java.util.UUID);
+  protected abstract com.mojang.datafixers.util.Either<com.mojang.authlib.GameProfile, net.minecraft.world.item.component.ResolvableProfile$Partial> unpack();
+  protected net.minecraft.world.item.component.ResolvableProfile(com.mojang.authlib.GameProfile, net.minecraft.world.entity.player.PlayerSkin$Patch);
+  public abstract java.util.concurrent.CompletableFuture<com.mojang.authlib.GameProfile> resolveProfile(net.minecraft.server.players.ProfileResolver);
+  public com.mojang.authlib.GameProfile partialProfile();
+  public net.minecraft.world.entity.player.PlayerSkin$Patch skinPatch();
+  static com.mojang.authlib.GameProfile createPartialProfile(java.util.Optional<java.lang.String>, java.util.Optional<java.util.UUID>, com.mojang.authlib.properties.PropertyMap);
+  public abstract java.util.Optional<java.lang.String> name();
+  private static java.util.UUID method_73310(java.util.Optional);
+  private static net.minecraft.world.item.component.ResolvableProfile method_73309(net.minecraft.world.entity.player.PlayerSkin$Patch, net.minecraft.world.item.component.ResolvableProfile$Partial);
+  private static net.minecraft.world.item.component.ResolvableProfile$Dynamic method_73315(net.minecraft.world.item.component.ResolvableProfile$Partial, net.minecraft.world.entity.player.PlayerSkin$Patch);
+  private static net.minecraft.world.item.component.ResolvableProfile$Dynamic method_73316(net.minecraft.world.entity.player.PlayerSkin$Patch, java.lang.String);
+  private static net.minecraft.world.item.component.ResolvableProfile method_73314(net.minecraft.world.entity.player.PlayerSkin$Patch, com.mojang.authlib.GameProfile);
+  private static com.mojang.datafixers.kinds.App method_74888(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+  static {};
+}
+
+==================== net.minecraft.client.gui.Gui#renderScoreboardSidebar
+  private void renderScoreboardSidebar(net.minecraft.client.gui.GuiGraphics, net.minecraft.client.DeltaTracker);
+    Code:
+       0: aload_0
+       1: getfield      #199                // Field minecraft:Lnet/minecraft/client/Minecraft;
+       4: getfield      #705                // Field net/minecraft/client/Minecraft.level:Lnet/minecraft/client/multiplayer/ClientLevel;
+       7: invokevirtual #711                // Method net/minecraft/client/multiplayer/ClientLevel.getScoreboard:()Lnet/minecraft/world/scores/Scoreboard;
+      10: astore_3
+      11: aconst_null
+      12: astore        4
+      14: aload_3
+      15: aload_0
+      16: getfield      #199                // Field minecraft:Lnet/minecraft/client/Minecraft;
+      19: getfield      #418                // Field net/minecraft/client/Minecraft.player:Lnet/minecraft/client/player/LocalPlayer;
+      22: invokevirtual #715                // Method net/minecraft/client/player/LocalPlayer.getScoreboardName:()Ljava/lang/String;
+      25: invokevirtual #721                // Method net/minecraft/world/scores/Scoreboard.getPlayersTeam:(Ljava/lang/String;)Lnet/minecraft/world/scores/PlayerTeam;
+      28: astore        5
+      30: aload         5
+      32: ifnull        58
+      35: aload         5
+      37: invokevirtual #727                // Method net/minecraft/world/scores/PlayerTeam.getColor:()Lnet/minecraft/ChatFormatting;
+      40: invokestatic  #733                // Method net/minecraft/world/scores/DisplaySlot.teamColorToSlot:(Lnet/minecraft/ChatFormatting;)Lnet/minecraft/world/scores/DisplaySlot;
+      43: astore        6
+      45: aload         6
+      47: ifnull        58
+      50: aload_3
+      51: aload         6
+      53: invokevirtual #737                // Method net/minecraft/world/scores/Scoreboard.getDisplayObjective:(Lnet/minecraft/world/scores/DisplaySlot;)Lnet/minecraft/world/scores/Objective;
+      56: astore        4
+      58: aload         4
+      60: ifnull        68
+      63: aload         4
+      65: goto          75
+      68: aload_3
+      69: getstatic     #743                // Field net/minecraft/world/scores/DisplaySlot.SIDEBAR:Lnet/minecraft/world/scores/DisplaySlot;
+      72: invokevirtual #737                // Method net/minecraft/world/scores/Scoreboard.getDisplayObjective:(Lnet/minecraft/world/scores/DisplaySlot;)Lnet/minecraft/world/scores/Objective;
+      75: astore        6
+      77: aload         6
+      79: ifnull        93
+      82: aload_1
+      83: invokevirtual #328                // Method net/minecraft/client/gui/GuiGraphics.nextStratum:()V
+      86: aload_0
+      87: aload_1
+      88: aload         6
+      90: invokevirtual #747                // Method displayScoreboardSidebar:(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/scores/Objective;)V
+      93: return
+
+
+==================== ?Graphics
+     5493  2026-09-26 01:32   com/mojang/blaze3d/GraphicsWorkarounds.class
+     1047  2026-09-26 01:32   com/mojang/blaze3d/resource/GraphicsResourceAllocator.class
+     7427  2026-09-26 01:32   net/minecraft/client/GraphicsPreset.class
+    54857  2026-09-26 01:32   net/minecraft/client/gui/GuiGraphics.class
+     5903  2026-09-26 01:32   net/minecraft/client/gui/screens/options/UnsupportedGraphicsWarningScreen.class
+     1618  2026-09-26 01:32   com/mojang/blaze3d/resource/GraphicsResourceAllocator$1.class
+     1157  2026-09-26 01:32   net/minecraft/client/gui/screens/options/UnsupportedGraphicsWarningScreen$ButtonOption.class
+     1146  2026-09-26 01:32   net/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess.class
+     4039  2026-09-26 01:32   net/minecraft/client/gui/components/ChatComponent$DrawingBackgroundGraphicsAccess.class
+     6772  2026-09-26 01:32   net/minecraft/client/gui/components/ChatComponent$DrawingFocusedGraphicsAccess.class
+     3399  2026-09-26 01:32   net/minecraft/client/gui/components/ChatComponent$ClickableTextOnlyGraphicsAccess.class
+     1967  2026-09-26 01:32   net/minecraft/client/gui/GuiGraphics$HoveredTextEffects.class
+     2232  2026-09-26 01:32   net/minecraft/client/gui/GuiGraphics$ScissorStack.class
+     5811  2026-09-26 01:32   net/minecraft/client/gui/GuiGraphics$RenderingTextCollector.class
+     3431  2026-09-26 01:32   net/minecraft/util/datafix/fixes/OptionsFancyGraphicsToGraphicsModeFix.class
+     5157  2026-09-26 01:32   net/minecraft/util/datafix/fixes/OptionsGraphicsModeSplitFix.class
+     2808  2026-09-26 01:32   net/minecraft/util/datafix/fixes/OptionsSetGraphicsPresetToCustomFix.class
+
+==================== ?Preset
+        0  2026-09-26 01:32   data/minecraft/worldgen/world_preset/
+      856  2026-09-26 01:32   data/minecraft/worldgen/world_preset/single_biome_surface.json
+      866  2026-09-26 01:32   data/minecraft/worldgen/world_preset/normal.json
+      869  2026-09-26 01:32   data/minecraft/worldgen/world_preset/large_biomes.json
+     1276  2026-09-26 01:32   data/minecraft/worldgen/world_preset/flat.json
+      701  2026-09-26 01:32   data/minecraft/worldgen/world_preset/debug_all_block_states.json
+      866  2026-09-26 01:32   data/minecraft/worldgen/world_preset/amplified.json
+        0  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/
+      740  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/water_world.json
+      557  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/tunnelers_dream.json
+      257  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/the_void.json
+      618  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/snowy_kingdom.json
+      413  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/redstone_ready.json
+      651  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/overworld.json
+      607  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/desert.json
+      433  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/classic_flat.json
+      433  2026-09-26 01:32   data/minecraft/worldgen/flat_level_generator_preset/bottomless_pit.json
+        0  2026-09-26 01:32   data/minecraft/tags/worldgen/world_preset/
+      161  2026-09-26 01:32   data/minecraft/tags/worldgen/world_preset/normal.json
+       85  2026-09-26 01:32   data/minecraft/tags/worldgen/world_preset/extended.json
+grep: write error: Broken pipe
+
+==================== net.minecraft.client.GraphicsPreset
+Compiled from "GraphicsPreset.java"
+public final class net.minecraft.client.GraphicsPreset extends java.lang.Enum<net.minecraft.client.GraphicsPreset> implements net.minecraft.util.StringRepresentable {
+  public static final net.minecraft.client.GraphicsPreset FAST;
+  public static final net.minecraft.client.GraphicsPreset FANCY;
+  public static final net.minecraft.client.GraphicsPreset FABULOUS;
+  public static final net.minecraft.client.GraphicsPreset CUSTOM;
+  private final java.lang.String serializedName;
+  private final java.lang.String key;
+  public static final com.mojang.serialization.Codec<net.minecraft.client.GraphicsPreset> CODEC;
+  private static final net.minecraft.client.GraphicsPreset[] $VALUES;
+  public static net.minecraft.client.GraphicsPreset[] values();
+  public static net.minecraft.client.GraphicsPreset valueOf(java.lang.String);
+  private net.minecraft.client.GraphicsPreset(java.lang.String, java.lang.String);
+  public java.lang.String getSerializedName();
+  public java.lang.String getKey();
+  public void apply(net.minecraft.client.Minecraft);
+  <T> void set(net.minecraft.client.gui.screens.options.OptionsSubScreen, net.minecraft.client.OptionInstance<T>, T);
+  private static net.minecraft.client.GraphicsPreset[] $values();
+  static {};
+}
+
+==================== net.minecraft.client.Options#applyGraphicsPreset
+  public void applyGraphicsPreset(net.minecraft.client.GraphicsPreset);
+    Code:
+       0: aload_0
+       1: iconst_1
+       2: putfield      #417                // Field isApplyingGraphicsPreset:Z
+       5: aload_1
+       6: aload_0
+       7: getfield      #419                // Field minecraft:Lnet/minecraft/client/Minecraft;
+      10: invokevirtual #425                // Method net/minecraft/client/GraphicsPreset.apply:(Lnet/minecraft/client/Minecraft;)V
+      13: aload_0
+      14: iconst_0
+      15: putfield      #417                // Field isApplyingGraphicsPreset:Z
+      18: return
+
+
+==================== net.minecraft.client.gui.screens.ConnectScreen
+Compiled from "ConnectScreen.java"
+public class net.minecraft.client.gui.screens.ConnectScreen extends net.minecraft.client.gui.screens.Screen {
+  private static final java.util.concurrent.atomic.AtomicInteger UNIQUE_THREAD_ID;
+  static final org.slf4j.Logger LOGGER;
+  private static final long NARRATION_DELAY_MS;
+  public static final net.minecraft.network.chat.Component ABORT_CONNECTION;
+  public static final net.minecraft.network.chat.Component UNKNOWN_HOST_MESSAGE;
+  volatile net.minecraft.network.Connection connection;
+  io.netty.channel.ChannelFuture channelFuture;
+  volatile boolean aborted;
+  final net.minecraft.client.gui.screens.Screen parent;
+  private net.minecraft.network.chat.Component status;
+  private long lastNarration;
+  final net.minecraft.network.chat.Component connectFailedTitle;
+  private net.minecraft.client.gui.screens.ConnectScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.network.chat.Component);
+  public static void startConnecting(net.minecraft.client.gui.screens.Screen, net.minecraft.client.Minecraft, net.minecraft.client.multiplayer.resolver.ServerAddress, net.minecraft.client.multiplayer.ServerData, boolean, net.minecraft.client.multiplayer.TransferState);
+  private void connect(net.minecraft.client.Minecraft, net.minecraft.client.multiplayer.resolver.ServerAddress, net.minecraft.client.multiplayer.ServerData, net.minecraft.client.multiplayer.TransferState);
+  private void updateStatus(net.minecraft.network.chat.Component);
+  public void tick();
+  public boolean shouldCloseOnEsc();
+  protected void init();
+  public void render(net.minecraft.client.gui.GuiGraphics, int, int, float);
+  private void method_19800(net.minecraft.client.gui.components.Button);
+  static {};
+}
+
+==================== net.minecraft.client.multiplayer.resolver.ServerAddress
+Compiled from "ServerAddress.java"
+public final class net.minecraft.client.multiplayer.resolver.ServerAddress {
+  private static final org.slf4j.Logger LOGGER;
+  private final com.google.common.net.HostAndPort hostAndPort;
+  private static final net.minecraft.client.multiplayer.resolver.ServerAddress INVALID;
+  public net.minecraft.client.multiplayer.resolver.ServerAddress(java.lang.String, int);
+  private net.minecraft.client.multiplayer.resolver.ServerAddress(com.google.common.net.HostAndPort);
+  public java.lang.String getHost();
+  public int getPort();
+  public static net.minecraft.client.multiplayer.resolver.ServerAddress parseString(java.lang.String);
+  public static boolean isValidAddress(java.lang.String);
+  static int parsePort(java.lang.String);
+  public java.lang.String toString();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  static {};
+}
