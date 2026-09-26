@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DiscordPresenceModule extends Module {
 	/** Aplicación de Discord "FreedomClient" (su nombre y su logo son los que se ven en el perfil). */
-	private static final String DEFAULT_APPLICATION_ID = "";
+	private static final String DEFAULT_APPLICATION_ID = "1553214754758074368";
 
 	private final StringSetting applicationId = add(new StringSetting("Application ID",
 			"ID of the Discord application (from discord.com/developers).", DEFAULT_APPLICATION_ID, 32));
@@ -87,8 +87,9 @@ public class DiscordPresenceModule extends Module {
 	/** En el hilo de Discord: conecta si hace falta y manda la actividad si ha cambiado. */
 	private void update() {
 		String id = applicationId.get().trim();
-		// Si aquí no hay ID se usa el que le pasa el launcher.
+		// Si aquí no hay ID se usa el que le pasa el launcher y, si no, el de FreedomClient.
 		if (id.isEmpty()) id = System.getProperty("freedomclient.discordAppId", "").trim();
+		if (id.isEmpty()) id = DEFAULT_APPLICATION_ID;
 		if (id.isEmpty() || !id.chars().allMatch(Character::isDigit)) return;
 		try {
 			if (ipc == null || !id.equals(connectedId)) {

@@ -6,8 +6,8 @@ use std::io::{Read, Write};
 use std::sync::mpsc::{Receiver, RecvTimeoutError, Sender, channel};
 use std::time::Duration;
 
-/// ID de la aplicación de Discord de FreedomClient (vacío hasta tenerla; se puede poner en Settings).
-pub const DEFAULT_APP_ID: &str = "";
+/// ID de la aplicación de Discord de FreedomClient (se puede cambiar en Settings).
+pub const DEFAULT_APP_ID: &str = "1553214754758074368";
 
 trait Transport: Read + Write + Send {}
 impl<T: Read + Write + Send> Transport for T {}
@@ -31,9 +31,8 @@ pub struct Presence {
 
 impl Presence {
     pub fn start(app_id: String) -> Option<Self> {
-        if app_id.trim().is_empty() {
-            return None;
-        }
+        // Vacío = el de FreedomClient (quien instaló el launcher antes de tener ID lo tiene guardado vacío).
+        let app_id = if app_id.trim().is_empty() { DEFAULT_APP_ID.to_string() } else { app_id.trim().to_string() };
         let (tx, rx) = channel();
         std::thread::Builder::new().name("discord-rpc".into()).spawn(move || run(app_id, rx)).ok()?;
         Some(Self { tx })

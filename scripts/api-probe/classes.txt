@@ -16,3 +16,5 @@ net.minecraft.client.gui.Gui#renderScoreboardSidebar
 ?Preset
 net.minecraft.client.GraphicsPreset
 net.minecraft.client.Options#applyGraphicsPreset
+net.minecraft.client.gui.screens.ConnectScreen
+net.minecraft.client.multiplayer.resolver.ServerAddress
