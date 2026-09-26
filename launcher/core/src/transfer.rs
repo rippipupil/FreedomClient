@@ -23,6 +23,41 @@ pub struct ExportOptions {
     pub resource_packs: bool,
     #[serde(default)]
     pub shaders: bool,
+    /// Canciones del reproductor de música de FreedomClient.
+    #[serde(default)]
+    pub music: bool,
+}
+
+/// Tamaño de cada parte opcional, para enseñarlo antes de exportar.
+#[derive(Debug, Default, Serialize)]
+pub struct Sizes {
+    pub settings: u64,
+    pub mods: u64,
+    pub resource_packs: u64,
+    pub shaders: u64,
+    pub music: u64,
+}
+
+pub fn sizes(paths: &Paths, profile: &Profile) -> Sizes {
+    let game = paths.instance(&profile.id);
+    let total = |files: Vec<PathBuf>| files.iter().filter_map(|f| std::fs::metadata(f).ok()).map(|m| m.len()).sum();
+    let settings = FILES.iter().map(|f| game.join(f)).filter(|f| f.is_file()).chain(walk(&game.join("config"))).collect();
+    Sizes {
+        settings: total(settings),
+        mods: total(mod_files(&game)),
+        resource_packs: total(walk(&game.join("resourcepacks"))),
+        shaders: total(walk(&game.join("shaderpacks"))),
+        music: total(walk(&game.join(MUSIC))),
+    }
+}
+
+/// Mods externos (sin FreedomClient, que el launcher pone siempre actualizado).
+fn mod_files(game: &Path) -> Vec<PathBuf> {
+    let dir = game.join("mods");
+    walk(&dir)
+        .into_iter()
+        .filter(|f| f.parent() == Some(dir.as_path()) && f.file_name().map(|n| n != JAR_NAME).unwrap_or(false))
+        .collect()
 }
 
 #[derive(Serialize, Deserialize)]
@@ -42,6 +77,7 @@ pub struct Summary {
 const FILES: &[&str] = &["options.txt", "servers.dat", "optionsshaders.txt"];
 /// Archivos de config que no tienen sentido en otro PC.
 const SKIP_CONFIG: &[&str] = &["freedomclient-state.json"];
+const MUSIC: &str = "freedomclient/music";
 
 pub fn export(paths: &Paths, profile: &Profile, target: &Path, options: ExportOptions) -> Result<Summary> {
     let game = paths.instance(&profile.id);
@@ -90,18 +126,17 @@ pub fn export(paths: &Paths, profile: &Profile, target: &Path, options: ExportOp
     if options.shaders {
         folders.push("shaderpacks");
     }
+    if options.music {
+        folders.push(MUSIC);
+    }
     for folder in folders {
         for file in walk(&game.join(folder)) {
             add(&mut zip, &file, format!("game/{}", relative(&game, &file)))?;
         }
     }
     if options.mods {
-        for file in walk(&game.join("mods")) {
+        for file in mod_files(&game) {
             let name = file.file_name().unwrap_or_default().to_string_lossy().into_owned();
-            // FreedomClient no hace falta: el launcher pone siempre la última versión.
-            if name == JAR_NAME || file.parent() != Some(game.join("mods").as_path()) {
-                continue;
-            }
             add(&mut zip, &file, format!("game/mods/{name}"))?;
         }
     }
@@ -200,9 +235,12 @@ mod tests {
         std::fs::write(game.join("mods/extra.jar"), [0u8; 10]).unwrap();
         std::fs::write(game.join("mods").join(JAR_NAME), [0u8; 10]).unwrap();
         std::fs::write(game.join("saves/World/level.dat"), [0u8; 10]).unwrap();
+        std::fs::create_dir_all(game.join("freedomclient/music")).unwrap();
+        std::fs::write(game.join("freedomclient/music/song.mp3"), [0u8; 10]).unwrap();
+        assert_eq!(sizes(&paths, &profile).music, 10);
 
         let file = root.join("pvp.fcprofile");
-        export(&paths, &profile, &file, ExportOptions { mods: true, ..Default::default() }).unwrap();
+        export(&paths, &profile, &file, ExportOptions { mods: true, music: true, ..Default::default() }).unwrap();
         let imported = import(&paths, &file, &["PvP".to_string()]).unwrap();
         assert_eq!(imported.name, "PvP (2)");
         assert_eq!(imported.server, "play.example.net");
@@ -212,6 +250,7 @@ mod tests {
         assert!(target.join("config/freedomclient.json").is_file());
         assert!(target.join("config/sodium/options.json").is_file());
         assert!(target.join("mods/extra.jar").is_file());
+        assert!(target.join("freedomclient/music/song.mp3").is_file());
         assert!(!target.join("config/freedomclient-state.json").exists());
         assert!(!target.join("mods").join(JAR_NAME).exists());
         assert!(!target.join("saves").exists());

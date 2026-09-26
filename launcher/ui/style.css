@@ -1011,3 +1011,7 @@ input[type="range"]:disabled {
     opacity: 0;
   }
 }
+
+.toggle.disabled {
+  opacity: 0.5;
+}

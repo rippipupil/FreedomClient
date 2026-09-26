@@ -215,10 +215,11 @@
     <div class="dialog">
       <div class="panel-title">Export profile <button class="btn small" data-close>✕</button></div>
       <p>Saves this profile to a <b>.fcprofile</b> file. On the other PC, use <b>Import</b> in Profiles.</p>
-      <p class="hint">Always included: Minecraft settings and keybinds, the settings of every mod (FreedomClient HUD, cosmetics, theme, Sodium…) and your server list. Worlds are not included.</p>
-      <label class="toggle"><input type="checkbox" id="export-mods" checked><span></span>External mods</label>
-      <label class="toggle"><input type="checkbox" id="export-packs"><span></span>Resource packs</label>
-      <label class="toggle"><input type="checkbox" id="export-shaders"><span></span>Shaders</label>
+      <p class="hint">Always included <span id="size-settings"></span>: Minecraft settings and keybinds, every FreedomClient setting (mods, HUD, cosmetics, theme, favorites, keybinds, waypoints), the settings of every other mod and your server list. Worlds are not included.</p>
+      <label class="toggle"><input type="checkbox" id="export-mods" checked><span></span>External mods <small id="size-mods"></small></label>
+      <label class="toggle"><input type="checkbox" id="export-packs" checked><span></span>Resource packs <small id="size-packs"></small></label>
+      <label class="toggle"><input type="checkbox" id="export-shaders" checked><span></span>Shaders <small id="size-shaders"></small></label>
+      <label class="toggle"><input type="checkbox" id="export-music" checked><span></span>Music player songs <small id="size-music"></small></label>
       <div class="row end"><button class="btn primary" id="export-save">Export…</button></div>
     </div>
   </div>

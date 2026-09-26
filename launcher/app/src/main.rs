@@ -256,6 +256,11 @@ async fn export_profile(state: State<'_, AppState>, id: String, path: String, op
 }
 
 #[tauri::command]
+fn export_sizes(state: State<'_, AppState>, id: String) -> CmdResult<transfer::Sizes> {
+    Ok(transfer::sizes(&state.paths, &state.profile(&id)?))
+}
+
+#[tauri::command]
 async fn import_profile(state: State<'_, AppState>, path: String) -> CmdResult<Profile> {
     let names: Vec<String> = state.profiles.lock().unwrap().iter().map(|p| p.name.clone()).collect();
     let paths = state.paths.clone();
@@ -529,6 +534,7 @@ fn main() {
             open_path,
             open_url,
             export_profile,
+            export_sizes,
             import_profile,
             login_start,
             login_poll,

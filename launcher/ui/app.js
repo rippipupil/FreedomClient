@@ -285,7 +285,17 @@
   });
 
   // Exportar e importar perfiles (.fcprofile) para llevar la configuración a otro PC.
-  $("export-profile").addEventListener("click", () => $("export").classList.remove("hidden"));
+  const size = (bytes) => (bytes < 1048576 ? Math.max(1, Math.round(bytes / 1024)) + " KB" : (bytes / 1048576).toFixed(1) + " MB");
+  $("export-profile").addEventListener("click", async () => {
+    if (!editing) return;
+    $("export").classList.remove("hidden");
+    const sizes = await call("export_sizes", { id: editing.id });
+    $("size-settings").textContent = "(" + size(sizes.settings) + ")";
+    [["mods", "size-mods", "export-mods"], ["resource_packs", "size-packs", "export-packs"], ["shaders", "size-shaders", "export-shaders"], ["music", "size-music", "export-music"]].forEach(([key, label, box]) => {
+      $(label).textContent = sizes[key] ? size(sizes[key]) : "(none)";
+      $(box).closest("label").classList.toggle("disabled", !sizes[key]);
+    });
+  });
   $("export-save").addEventListener("click", async () => {
     if (!editing) return;
     const safe = editing.name.replace(/[\\/:*?"<>|]/g, "").trim() || "profile";
@@ -299,6 +309,7 @@
       mods: $("export-mods").checked,
       resource_packs: $("export-packs").checked,
       shaders: $("export-shaders").checked,
+      music: $("export-music").checked,
     };
     const summary = await call("export_profile", { id: editing.id, path, options });
     $("export").classList.add("hidden");

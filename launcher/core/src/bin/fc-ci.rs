@@ -98,6 +98,8 @@ async fn main() -> Result<()> {
                 tokio::time::sleep(Duration::from_secs(8)).await;
             }
             let _ = child.kill();
+            let _ = child.wait();
+            check_transfer(&paths, &profile)?;
             return Ok(());
         }
         if Instant::now() > deadline {
@@ -107,6 +109,27 @@ async fn main() -> Result<()> {
         }
         tokio::time::sleep(Duration::from_secs(2)).await;
     }
+}
+
+/// Exporta el perfil que acaba de usar el juego, lo importa y comprueba que llega toda la configuración.
+fn check_transfer(paths: &Paths, profile: &Profile) -> Result<()> {
+    use fc_core::transfer;
+    let file = paths.root.join("ci.fcprofile");
+    let options = transfer::ExportOptions { mods: true, resource_packs: true, shaders: true, music: true };
+    let summary = transfer::export(paths, profile, &file, options)?;
+    let imported = transfer::import(paths, &file, &[profile.name.clone()])?;
+    let source = paths.instance(&profile.id);
+    let target = paths.instance(&imported.id);
+    for name in ["options.txt", "config/freedomclient.json"] {
+        let a = std::fs::read(source.join(name))?;
+        let b = std::fs::read(target.join(name)).map_err(|_| anyhow::anyhow!("{name} was not transferred"))?;
+        if a != b {
+            bail!("{name} changed when transferring the profile");
+        }
+    }
+    let config_files = std::fs::read_dir(target.join("config"))?.count();
+    println!("Profile transfer OK: {} files, {} KB, {config_files} entries in config/", summary.files, summary.bytes / 1024);
+    Ok(())
 }
 
 fn print_output(game_dir: &std::path::Path) {

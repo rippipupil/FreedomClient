@@ -62,6 +62,7 @@ public class FreedomClient implements ClientModInitializer {
 	public static final String MOD_ID = "freedomclient";
 	public static final String NAME = "FreedomClient";
 	public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
+	private static int autosaveTicks;
 
 	private static KeyMapping.Category keyCategory;
 	private static ModuleManager moduleManager;
@@ -98,7 +99,18 @@ public class FreedomClient implements ClientModInitializer {
 			moduleManager.onTick(client);
 		});
 
-		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> moduleManager.onShutdown(client));
+		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+			moduleManager.onShutdown(client);
+			// Guarda todo al cerrar, también lo que se cambió sin pasar por el menú (teclas, HUD, música...).
+			Config.save();
+		});
+		// Y cada 10 segundos por si el juego se cierra de golpe (solo escribe si algo ha cambiado).
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (++autosaveTicks >= 200) {
+				autosaveTicks = 0;
+				Config.save();
+			}
+		});
 		BetterGrassModule.registerPack();
 		VisualsModule.registerPacks();
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {

@@ -22,6 +22,8 @@ import java.nio.file.Path;
 public final class Config {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve(FreedomClient.MOD_ID + ".json");
+	/** Lo último que se escribió en disco, para no reescribir el archivo si no ha cambiado nada. */
+	private static String lastSaved;
 
 	private Config() {
 	}
@@ -98,11 +100,15 @@ public final class Config {
 		root.add("modules", modules);
 		root.add("theme", ThemeManager.save());
 
+		String text = GSON.toJson(root);
+		// Solo se escribe si algo ha cambiado: así se puede guardar a menudo sin gastar disco.
+		if (text.equals(lastSaved)) return;
 		try {
 			Files.createDirectories(PATH.getParent());
 			try (Writer writer = Files.newBufferedWriter(PATH)) {
-				GSON.toJson(root, writer);
+				writer.write(text);
 			}
+			lastSaved = text;
 		} catch (IOException e) {
 			FreedomClient.LOGGER.error("Could not save {}", PATH, e);
 		}
