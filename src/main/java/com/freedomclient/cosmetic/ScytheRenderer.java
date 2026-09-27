@@ -112,12 +112,12 @@ public final class ScytheRenderer {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, ScytheCosmetic module) {
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
-		// Detrás de la espalda (y de las alas), a media altura del cuerpo.
-		poseStack.translate(0.0F, 6.0F / 16.0F, 3.4F / 16.0F);
+		// Detrás de la espalda, por fuera de la capa, con la hoja asomando por encima del hombro.
+		poseStack.translate(0.0F, 4.5F / 16.0F, 4.2F / 16.0F);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
-		boolean right = module.side.is("Right");
-		if (right) {
+		// Sin reflejar, la hoja queda sobre el hombro derecho del jugador: para el izquierdo se refleja.
+		if (module.side.is("Left")) {
 			poseStack.scale(-1.0F, 1.0F, 1.0F);
 		}
 		// En diagonal: la hoja arriba, junto a la cabeza, y el mango bajando hacia la cadera contraria.
