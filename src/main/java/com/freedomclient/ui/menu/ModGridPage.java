@@ -328,10 +328,10 @@ public class ModGridPage implements MenuPage {
 		// Los nombres largos pasan a dos líneas (y se omite el ON/OFF, que ya indica el interruptor).
 		boolean twoLines = ui.font.width(module.getName()) > textWidth;
 		if (twoLines) {
-			List<net.minecraft.util.FormattedCharSequence> lines = ui.font.split(net.minecraft.network.chat.Component.literal(module.getName()), textWidth);
-			for (int i = 0; i < Math.min(2, lines.size()); i++) {
-				ui.g.drawString(ui.font, lines.get(i), textX, y + 5 + i * 10, ThemeManager.text(), false);
-			}
+			// La segunda línea comparte altura con el interruptor, así que es más corta.
+			String[] lines = splitName(ui, module.getName(), textWidth, w - 34 - 30);
+			ui.g.drawString(ui.font, lines[0], textX, y + 5, ThemeManager.text(), false);
+			ui.g.drawString(ui.font, lines[1], textX, y + 15, ThemeManager.text(), false);
 		} else {
 			ui.g.drawString(ui.font, module.getName(), textX, y + 6, ThemeManager.text(), false);
 		}
@@ -389,5 +389,26 @@ public class ModGridPage implements MenuPage {
 				return true;
 			});
 		}
+	}
+
+	private static String[] splitName(Ui ui, String name, int firstWidth, int secondWidth) {
+		String[] words = name.split(" ");
+		StringBuilder first = new StringBuilder();
+		int i = 0;
+		while (i < words.length) {
+			String next = first.isEmpty() ? words[i] : first + " " + words[i];
+			if (ui.font.width(next) > firstWidth && !first.isEmpty()) {
+				break;
+			}
+			first.setLength(0);
+			first.append(next);
+			i++;
+		}
+		String rest = String.join(" ", java.util.Arrays.copyOfRange(words, i, words.length));
+		if (ui.font.width(rest) > secondWidth) {
+			rest = ui.font.plainSubstrByWidth(rest, secondWidth - ui.font.width("..")) + "..";
+		}
+		String head = ui.font.width(first.toString()) > firstWidth ? ui.font.plainSubstrByWidth(first.toString(), firstWidth) : first.toString();
+		return new String[] {head, rest};
 	}
 }
