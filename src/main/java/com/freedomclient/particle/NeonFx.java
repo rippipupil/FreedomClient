@@ -34,9 +34,16 @@ public final class NeonFx {
 
 	/** Una descarga: un rayito que parpadea y se apaga en unos ticks. */
 	public static void discharge(double x, double y, double z, float size, int lifetime) {
+		discharge(x, y, z, size, lifetime, false);
+	}
+
+	/** Igual, pero si {@code thirdPersonOnly} desaparece al pasar a primera persona (aura y mochila). */
+	public static void discharge(double x, double y, double z, float size, int lifetime, boolean thirdPersonOnly) {
 		ClientLevel level = Minecraft.getInstance().level;
 		if (level == null) return;
-		Minecraft.getInstance().particleEngine.add(new ElectricParticle(level, x, y, z, 0, 0, 0, bolts(), size, lifetime, true));
+		ElectricParticle particle = new ElectricParticle(level, x, y, z, 0, 0, 0, bolts(), size, lifetime, true);
+		if (thirdPersonOnly) particle.thirdPersonOnly();
+		Minecraft.getInstance().particleEngine.add(particle);
 	}
 
 	/** Chispa en cruz que sale despedida un poco. */

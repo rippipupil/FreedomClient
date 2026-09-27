@@ -4,6 +4,7 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.setting.Setting;
+import com.freedomclient.ui.menu.ModFolders;
 import com.freedomclient.ui.theme.ThemeManager;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,7 +19,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Guarda los módulos, sus ajustes y el tema en {@code config/freedomclient.json}. */
+/** Guarda los módulos, sus ajustes, el tema y las carpetas y el orden del menú en {@code config/freedomclient.json}. */
 public final class Config {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve(FreedomClient.MOD_ID + ".json");
@@ -50,6 +51,11 @@ public final class Config {
 			JsonObject theme = root.getAsJsonObject("theme");
 			if (theme != null) {
 				ThemeManager.load(theme);
+			}
+
+			JsonObject menu = root.getAsJsonObject("menu");
+			if (menu != null) {
+				ModFolders.load(menu);
 			}
 		} catch (IOException | RuntimeException e) {
 			FreedomClient.LOGGER.error("Could not read {}", PATH, e);
@@ -99,6 +105,7 @@ public final class Config {
 		JsonObject root = new JsonObject();
 		root.add("modules", modules);
 		root.add("theme", ThemeManager.save());
+		root.add("menu", ModFolders.save());
 
 		String text = GSON.toJson(root);
 		// Solo se escribe si algo ha cambiado: así se puede guardar a menudo sin gastar disco.

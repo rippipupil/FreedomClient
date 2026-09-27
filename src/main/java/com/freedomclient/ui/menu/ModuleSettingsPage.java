@@ -1,8 +1,17 @@
 package com.freedomclient.ui.menu;
 
+import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
 import com.freedomclient.module.performance.BundledModModule;
+import com.freedomclient.setting.BooleanSetting;
+import com.freedomclient.setting.ColorSetting;
+import com.freedomclient.setting.HudPositionSetting;
+import com.freedomclient.setting.KeybindSetting;
+import com.freedomclient.setting.ModeSetting;
+import com.freedomclient.setting.NumberSetting;
+import com.freedomclient.setting.PixelGridSetting;
 import com.freedomclient.setting.Setting;
+import com.freedomclient.setting.StringSetting;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.ScrollArea;
 import com.freedomclient.ui.Ui;
@@ -13,8 +22,35 @@ import net.minecraft.util.FormattedCharSequence;
 
 import java.util.List;
 
-/** Página que se abre al hacer clic en la tarjeta de un mod: descripción y todos sus ajustes. */
+/** Página que se abre al hacer clic en la tarjeta de un mod: descripción, carpetas y sus ajustes por secciones. */
 public class ModuleSettingsPage implements MenuPage {
+	/** Secciones de ajustes, en este orden: el modo arriba, luego interruptores, valores, colores, texto, teclas y acciones. */
+	private enum Section {
+		MODE("Mode"),
+		OPTIONS("Options"),
+		VALUES("Values"),
+		COLORS("Colors"),
+		TEXT("Text"),
+		KEYBINDS("Keybinds"),
+		ACTIONS("Actions");
+
+		final String title;
+
+		Section(String title) {
+			this.title = title;
+		}
+
+		static Section of(Setting<?> setting) {
+			if (setting instanceof ModeSetting) return MODE;
+			if (setting instanceof BooleanSetting) return OPTIONS;
+			if (setting instanceof NumberSetting || setting instanceof HudPositionSetting) return VALUES;
+			if (setting instanceof ColorSetting || setting instanceof PixelGridSetting) return COLORS;
+			if (setting instanceof StringSetting) return TEXT;
+			if (setting instanceof KeybindSetting) return KEYBINDS;
+			return ACTIONS;
+		}
+	}
+
 	private final FreedomMenuScreen screen;
 	private final Module module;
 	private final ScrollArea scroll = new ScrollArea();
@@ -30,6 +66,39 @@ public class ModuleSettingsPage implements MenuPage {
 		this.screen = screen;
 		this.module = module;
 		this.highlight = highlight;
+	}
+
+	/** Carpetas del jugador: clic en una para meter o sacar este mod (las carpetas se crean en la pestaña Mods). */
+	private int renderFolders(Ui ui, int x, int y, int w) {
+		if (module.getCategory() == Category.COSMETICS || module.getCategory() == Category.HUD) return y;
+		List<String> folders = ModFolders.names();
+		ui.g.drawString(ui.font, "Folders", x + 1, y + 2, ThemeManager.textMuted(), false);
+		int cx = x + ui.font.width("Folders") + 6;
+		if (folders.isEmpty()) {
+			ui.g.drawString(ui.font, "Create one with \"+ Folder\" in the Mods tab.", cx, y + 2, ThemeManager.textMuted(), false);
+			return y + 18;
+		}
+		int rowY = y;
+		for (String folder : folders) {
+			boolean inside = ModFolders.contains(folder, module.getId());
+			String label = (inside ? "- " : "+ ") + folder;
+			int width = ui.font.width(label) + 10;
+			if (cx + width > x + w) {
+				cx = x + ui.font.width("Folders") + 6;
+				rowY += 15;
+			}
+			boolean hovered = ui.hovered(cx, rowY, width, 12);
+			int fill = inside ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
+			Draw.panel(ui.g, cx, rowY, width, 12, fill, inside ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
+			ui.g.drawString(ui.font, label, cx + 5, rowY + 2, inside ? ThemeManager.shade() : ThemeManager.text(), false);
+			ui.click(cx, rowY, width, 12, (mx, my, button) -> {
+				ModFolders.toggle(folder, module.getId());
+				ui.playClick();
+				return true;
+			});
+			cx += width + 3;
+		}
+		return rowY + 20;
 	}
 
 	@Override
@@ -77,20 +146,33 @@ public class ModuleSettingsPage implements MenuPage {
 		}
 		cursor += 4;
 
+		cursor = renderFolders(ui, x, cursor, innerW);
+
+		// Ajustes agrupados por tipo en secciones con título, para que cada cosa quede en su sitio.
 		boolean anyVisible = false;
-		for (Setting<?> setting : module.getSettings()) {
-			if (!setting.isVisible()) continue;
+		for (Section section : Section.values()) {
+			List<Setting<?>> settings = module.getSettings().stream()
+					.filter(setting -> setting.isVisible() && Section.of(setting) == section)
+					.toList();
+			if (settings.isEmpty()) continue;
 			anyVisible = true;
-			int rowHeight = rows.render(ui, setting, x, cursor, innerW);
-			if (ModGridPage.settingMatches(setting, highlight)) {
-				// Opción encontrada con el buscador: marco con el color de acento.
-				int accent = ThemeManager.accent();
-				ui.g.fill(x, cursor, x + innerW, cursor + 1, accent);
-				ui.g.fill(x, cursor + rowHeight - 1, x + innerW, cursor + rowHeight, accent);
-				ui.g.fill(x, cursor, x + 1, cursor + rowHeight, accent);
-				ui.g.fill(x + innerW - 1, cursor, x + innerW, cursor + rowHeight, accent);
+			ui.g.drawString(ui.font, section.title, x + 1, cursor + 2, ThemeManager.accent(), false);
+			int lineX = x + ui.font.width(section.title) + 6;
+			ui.g.fill(lineX, cursor + 6, x + innerW, cursor + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+			cursor += 14;
+			for (Setting<?> setting : settings) {
+				int rowHeight = rows.render(ui, setting, x, cursor, innerW);
+				if (ModGridPage.settingMatches(setting, highlight)) {
+					// Opción encontrada con el buscador: marco con el color de acento.
+					int accent = ThemeManager.accent();
+					ui.g.fill(x, cursor, x + innerW, cursor + 1, accent);
+					ui.g.fill(x, cursor + rowHeight - 1, x + innerW, cursor + rowHeight, accent);
+					ui.g.fill(x, cursor, x + 1, cursor + rowHeight, accent);
+					ui.g.fill(x + innerW - 1, cursor, x + innerW, cursor + rowHeight, accent);
+				}
+				cursor += rowHeight + SettingRows.ROW_GAP;
 			}
-			cursor += rowHeight + SettingRows.ROW_GAP;
+			cursor += 6;
 		}
 		if (!anyVisible) {
 			ui.g.drawString(ui.font, "This mod has no settings.", x, cursor, ThemeManager.textMuted(), false);

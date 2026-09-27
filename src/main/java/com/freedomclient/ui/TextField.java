@@ -3,13 +3,23 @@ package com.freedomclient.ui;
 import com.freedomclient.ui.theme.ThemeManager;
 import org.lwjgl.glfw.GLFW;
 
-/** Campo de texto de una línea para el menú (búsqueda). */
+/** Campo de texto de una línea para el menú (búsqueda, nombre de carpeta...). */
 public class TextField {
 	private final int maxLength;
 	private String text = "";
+	private Runnable onSubmit;
 
 	public TextField(int maxLength) {
 		this.maxLength = maxLength;
+	}
+
+	/** Lo que pasa al pulsar Enter (por ejemplo, crear una carpeta con el nombre escrito). */
+	public void onSubmit(Runnable action) {
+		this.onSubmit = action;
+	}
+
+	void submit() {
+		if (onSubmit != null) onSubmit.run();
 	}
 
 	public String getText() {

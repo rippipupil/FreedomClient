@@ -36,7 +36,7 @@ public class NeonPackCosmetic extends CosmeticModule {
 			double back = 0.28 + random.nextDouble() * 0.12;
 			double x = player.getX() + rightX * lateral + backX * back;
 			double z = player.getZ() + rightZ * lateral + backZ * back;
-			NeonFx.discharge(x, height, z, 0.09F + random.nextFloat() * 0.05F, 4 + random.nextInt(3));
+			NeonFx.discharge(x, height, z, 0.09F + random.nextFloat() * 0.05F, 4 + random.nextInt(3), true);
 		}
 	}
 }

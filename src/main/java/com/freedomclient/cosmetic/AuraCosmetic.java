@@ -39,8 +39,8 @@ public class AuraCosmetic extends CosmeticModule {
 			double x = player.getX() + Math.cos(angle) * radius;
 			double y = player.getY() + height;
 			double z = player.getZ() + Math.sin(angle) * radius;
-			NeonFx.discharge(x, y, z, 0.1F + random.nextFloat() * 0.06F, 4 + random.nextInt(4));
-			if (random.nextFloat() < 0.5F) NeonFx.spark(x, y, z, 0.05, 0.05F, 6);
+			NeonFx.discharge(x, y, z, 0.1F + random.nextFloat() * 0.06F, 4 + random.nextInt(4), !firstPerson.get());
+			if (random.nextFloat() < 0.5F && !client.options.getCameraType().isFirstPerson()) NeonFx.spark(x, y, z, 0.05, 0.05F, 6);
 			return;
 		}
 		AuraParticle particle = switch (style.get()) {

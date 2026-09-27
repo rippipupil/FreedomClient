@@ -341,6 +341,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 
 			// Un mod favorito para ver la estrella (sale el primero de la lista).
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(ZoomModule.class).loadFavorite(true));
+			// Carpetas de mods: una con tres mods para ver los chips de carpetas y el orden.
+			context.runOnClient(client -> {
+				com.freedomclient.ui.menu.ModFolders.create("PvP set");
+				com.freedomclient.ui.menu.ModFolders.create("Visuals");
+				for (String id : new String[] {"toggle_sprint", "zoom", "hitsounds"}) {
+					com.freedomclient.ui.menu.ModFolders.toggle("PvP set", id);
+				}
+			});
 			for (FreedomMenuScreen.Tab tab : FreedomMenuScreen.Tab.values()) {
 				context.setScreen(() -> {
 					FreedomMenuScreen screen = new FreedomMenuScreen();

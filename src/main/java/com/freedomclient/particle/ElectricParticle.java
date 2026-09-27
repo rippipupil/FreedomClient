@@ -1,5 +1,6 @@
 package com.freedomclient.particle;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.LightTexture;
@@ -13,6 +14,8 @@ import net.minecraft.util.Mth;
 public class ElectricParticle extends SingleQuadParticle {
 	private final TextureAtlasSprite[] frames;
 	private final boolean flicker;
+	/** Las del aura y la mochila desaparecen en cuanto pasas a primera persona, para no tapar la vista. */
+	private boolean thirdPersonOnly;
 
 	public ElectricParticle(ClientLevel level, double x, double y, double z, double xd, double yd, double zd,
 			TextureAtlasSprite[] frames, float size, int lifetime, boolean flicker) {
@@ -32,8 +35,17 @@ public class ElectricParticle extends SingleQuadParticle {
 		if (frames.length > 1) setSprite(frames[random.nextInt(frames.length)]);
 	}
 
+	public ElectricParticle thirdPersonOnly() {
+		this.thirdPersonOnly = true;
+		return this;
+	}
+
 	@Override
 	public void tick() {
+		if (thirdPersonOnly && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+			remove();
+			return;
+		}
 		super.tick();
 		oRoll = roll;
 		float life = age / (float) Math.max(1, lifetime);

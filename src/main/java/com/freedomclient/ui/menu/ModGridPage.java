@@ -33,6 +33,10 @@ public class ModGridPage implements MenuPage {
 	private Category filter;
 	/** En la pestaña Cosmetics: sección elegida en los filtros ({@code null} = todas). */
 	private CosmeticSlot slotFilter;
+	/** Carpeta elegida en la pestaña Mods ({@code null} = sin filtrar por carpeta). */
+	private String folderFilter;
+	private boolean creatingFolder;
+	private final TextField folderName = new TextField(18);
 
 	/** @param fixedCategory categoría fija (pestaña HUD) o {@code null} para mostrar filtros de todas. */
 	public ModGridPage(FreedomMenuScreen screen, Category fixedCategory) {
@@ -45,7 +49,8 @@ public class ModGridPage implements MenuPage {
 		int gridY = y;
 		if (fixedCategory == null) {
 			renderFilterBar(ui, x, y, w);
-			gridY += BAR_HEIGHT + 6;
+			renderSortAndFolders(ui, x, y + BAR_HEIGHT + 5, w);
+			gridY += (BAR_HEIGHT + 5) * 2 + 1;
 		} else if (isCosmetics()) {
 			renderSlotBar(ui, x, y, w);
 			gridY += BAR_HEIGHT + 6;
@@ -55,6 +60,77 @@ public class ModGridPage implements MenuPage {
 		} else {
 			renderGrid(ui, x, gridY, w, y + h - gridY);
 		}
+	}
+
+	/** Chip de filtro: el elegido va relleno del color de acento. Clic derecho opcional (borrar una carpeta). */
+	private int chip(Ui ui, String label, boolean selected, int x, int y, Runnable onClick, Runnable onRightClick) {
+		int width = ui.font.width(label) + 10;
+		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
+		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
+		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
+		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
+		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
+			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
+				if (onRightClick == null) return false;
+				onRightClick.run();
+			} else {
+				onClick.run();
+			}
+			scroll.reset();
+			ui.playClick();
+			return true;
+		});
+		return x + width + 3;
+	}
+
+	/**
+	 * Segunda fila de la pestaña Mods: el orden de la lista a la izquierda y las carpetas del jugador a la derecha
+	 * (clic para ver solo esa carpeta, clic derecho para borrarla, "+" para crear una).
+	 */
+	private void renderSortAndFolders(Ui ui, int x, int y, int w) {
+		int cx = x;
+		ui.g.drawString(ui.font, "Sort", cx, y + 2, ThemeManager.textMuted(), false);
+		cx += ui.font.width("Sort") + 5;
+		for (String sort : ModFolders.SORTS) {
+			cx = chip(ui, sort, ModFolders.sort().equals(sort), cx, y, () -> ModFolders.setSort(sort), null);
+		}
+
+		// Las carpetas van de derecha a izquierda para que queden alineadas con el buscador de arriba.
+		int right = x + w;
+		if (creatingFolder) {
+			int fieldW = 80;
+			right -= fieldW;
+			folderName.render(ui, right, y, fieldW, BAR_HEIGHT, "Folder name");
+			right -= 3;
+		} else if (ModFolders.names().size() < ModFolders.MAX_FOLDERS) {
+			int plusW = ui.font.width("+ Folder") + 10;
+			right -= plusW;
+			chip(ui, "+ Folder", false, right, y, () -> {
+				creatingFolder = true;
+				folderName.setText("");
+				folderName.onSubmit(() -> {
+					if (ModFolders.create(folderName.getText())) folderFilter = folderName.getText().trim();
+					creatingFolder = false;
+				});
+				ui.focus(folderName);
+			}, null);
+			right -= 3;
+		}
+		List<String> folders = ModFolders.names();
+		for (int i = folders.size() - 1; i >= 0; i--) {
+			String folder = folders.get(i);
+			int width = ui.font.width(folder) + 10;
+			if (right - width < cx + 12) break;
+			right -= width;
+			chip(ui, folder, folder.equals(folderFilter), right, y,
+					() -> folderFilter = folder.equals(folderFilter) ? null : folder,
+					() -> {
+						ModFolders.delete(folder);
+						if (folder.equals(folderFilter)) folderFilter = null;
+					});
+			right -= 3;
+		}
+		if (creatingFolder && !ui.isFocused(folderName)) creatingFolder = false;
 	}
 
 	private boolean isCosmetics() {
@@ -166,9 +242,21 @@ public class ModGridPage implements MenuPage {
 				.filter(module -> fixedCategory != null ? module.getCategory() == fixedCategory
 						: filter == null ? module.getCategory() != Category.HUD && module.getCategory() != Category.COSMETICS : module.getCategory() == filter)
 				.filter(module -> !isCosmetics() || slotFilter == null || slotOf(module) == slotFilter)
+				.filter(module -> fixedCategory != null || folderFilter == null || ModFolders.contains(folderFilter, module.getId()))
 				.filter(module -> query.isEmpty() || nameMatches(module, query) || matchingSetting(module, query) != null)
-				.sorted(Comparator.comparing((Module module) -> !module.isFavorite()))
+				.sorted(Comparator.comparing((Module module) -> !module.isFavorite()).thenComparing(order()))
 				.toList();
+	}
+
+	/** Orden elegido en la barra de la pestaña Mods (por defecto, alfabético). Los favoritos van siempre primero. */
+	private static Comparator<Module> order() {
+		Comparator<Module> byName = Comparator.comparing(module -> module.getName().toLowerCase(Locale.ROOT));
+		return switch (ModFolders.sort()) {
+			case "Z-A" -> byName.reversed();
+			case "On first" -> Comparator.comparing((Module module) -> !module.isEnabled()).thenComparing(byName);
+			case "Category" -> Comparator.comparing((Module module) -> module.getCategory().ordinal()).thenComparing(byName);
+			default -> byName;
+		};
 	}
 
 	private static boolean nameMatches(Module module, String query) {
@@ -205,7 +293,10 @@ public class ModGridPage implements MenuPage {
 			renderCard(ui, modules.get(i), cardX, cardY, cardWidth);
 		}
 		if (modules.isEmpty()) {
-			ui.g.drawCenteredString(ui.font, "No mods found", x + innerW / 2, y + 20, ThemeManager.textMuted());
+			String message = folderFilter != null && query().isEmpty()
+					? "This folder is empty: open a mod and add it to \"" + folderFilter + "\"."
+					: "No mods found";
+			ui.g.drawCenteredString(ui.font, message, x + innerW / 2, y + 20, ThemeManager.textMuted());
 		}
 		scroll.end(ui, x, y, innerW, h, contentHeight);
 	}

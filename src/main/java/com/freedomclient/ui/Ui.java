@@ -219,8 +219,9 @@ public final class Ui {
 		}
 
 		if (focused instanceof TextField field) {
-			if (key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER) {
+			if (key == GLFW.GLFW_KEY_ESCAPE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
 				focused = null;
+				if (key != GLFW.GLFW_KEY_ESCAPE) field.submit();
 				return true;
 			}
 			return field.keyPressed(key, control);
