@@ -73,6 +73,7 @@ PARTICLE_COLORS = {
     "g": GOLD, "G": GOLD_DARK, "y": GOLD_LIGHT, "w": (255, 255, 255, 255), "W": (220, 230, 255, 255),
     "r": RED, "R": RED_DARK, "o": (255, 140, 66, 255), "O": (255, 196, 110, 255), "p": (255, 120, 170, 255),
     "P": (200, 60, 110, 255), "b": (93, 173, 226, 255), "B": (46, 110, 168, 255), "k": (58, 5, 8, 255),
+    "s": (225, 228, 232, 210), "S": (170, 175, 182, 150), "f": (130, 135, 142, 90),
 }
 PARTICLES = {
     # Chispa dorada de ángel.
@@ -85,6 +86,8 @@ PARTICLES = {
     "heart": [".PP.PP.", "PppPppP", "PpppppP", "PpppppP", ".PpppP.", "..PpP..", "...P..."],
     # Chispa azul cielo.
     "sky_spark": ["..b..", ".bWb.", "bWWWb", ".bWb.", "..b.."],
+    # Espíritu gris de la Soul Scythe: una llamita fantasmal translúcida.
+    "soul_wisp": ["..f..", ".fSf.", ".SsS.", "fSssS", ".SsS.", "..S..", "..f.."],
     # Nota musical.
     "note": ["...kkk", "...kgk", "...kgk", "...k.k", "kkkk..", "kggk..", "kkkk.."],
 }
@@ -315,14 +318,18 @@ def make_cape():
 
 
 def make_scythe():
-    """Franjas de color de la Soul Scythe (ScytheRenderer): filo blanco, plata, plata oscura, negro y gris oscuro."""
-    colors = ((242, 244, 246, 255), (185, 190, 196, 255), (110, 116, 123, 255), (28, 29, 33, 255), (58, 60, 66, 255))
+    """Franjas de color de la Soul Scythe (ScytheRenderer): filo blanco, plata, plata oscura, negro, gris oscuro y
+    gris de las vendas. Y tres texturas grises translúcidas para el brillo del aura fantasmal (late entre ellas)."""
+    colors = ((242, 244, 246, 255), (185, 190, 196, 255), (110, 116, 123, 255), (28, 29, 33, 255), (58, 60, 66, 255),
+              (93, 96, 104, 255))
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
     for index, color in enumerate(colors):
         for y in range(index * 4, index * 4 + 4):
             for x in range(64):
                 image.putpixel((x, y), color)
     image.save(OUT / "scythe.png")
+    for number, alpha in ((1, 34), (2, 58), (3, 84)):
+        Image.new("RGBA", (64, 32), (200, 204, 210, alpha)).save(OUT / f"scythe_ghost_{number}.png")
 
 
 def main():

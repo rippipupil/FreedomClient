@@ -196,6 +196,25 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("scythe_with_wings");
+			// Estilo Classic sin aura, para comparar con el 3D.
+			context.runOnClient(client -> {
+				var manager = FreedomClient.getModuleManager();
+				var scythe = manager.get(com.freedomclient.cosmetic.ScytheCosmetic.class);
+				setMode(scythe, "Style", "Classic");
+				scythe.ghostAura.set(false);
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(false);
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("scythe_classic");
+			context.runOnClient(client -> {
+				var manager = FreedomClient.getModuleManager();
+				var scythe = manager.get(com.freedomclient.cosmetic.ScytheCosmetic.class);
+				setMode(scythe, "Style", "3D");
+				scythe.ghostAura.set(true);
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(true);
+			});
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.cosmetic.ScytheCosmetic.class).setEnabled(false));
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
