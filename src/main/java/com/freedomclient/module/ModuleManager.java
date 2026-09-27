@@ -5,6 +5,7 @@ import com.freedomclient.cosmetic.CapeCosmetic;
 import com.freedomclient.cosmetic.CloudPetCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
 import com.freedomclient.cosmetic.PetCosmetic;
+import com.freedomclient.cosmetic.ScytheCosmetic;
 import com.freedomclient.cosmetic.WingsCosmetic;
 import com.freedomclient.module.hud.AppleSkinModule;
 import com.freedomclient.module.hud.ArmorHud;
@@ -163,6 +164,7 @@ public class ModuleManager {
 		add(new PetCosmetic());
 		add(new CloudPetCosmetic());
 		add(new AuraCosmetic());
+		add(new ScytheCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

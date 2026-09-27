@@ -314,6 +314,17 @@ def make_cape():
     image.save(OUT / "cape.png")
 
 
+def make_scythe():
+    """Franjas de color de la Soul Scythe (ScytheRenderer): filo blanco, plata, plata oscura, negro y gris oscuro."""
+    colors = ((242, 244, 246, 255), (185, 190, 196, 255), (110, 116, 123, 255), (28, 29, 33, 255), (58, 60, 66, 255))
+    image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
+    for index, color in enumerate(colors):
+        for y in range(index * 4, index * 4 + 4):
+            for x in range(64):
+                image.putpixel((x, y), color)
+    image.save(OUT / "scythe.png")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     make_wings()
@@ -325,6 +336,7 @@ def main():
     make_halo()
     make_halo_styles()
     make_cape()
+    make_scythe()
     print("cosmetic textures written to", OUT)
 
 

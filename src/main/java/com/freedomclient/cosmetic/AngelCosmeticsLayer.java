@@ -34,6 +34,7 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 	private final WavyCapeRenderer wavyCape = new WavyCapeRenderer();
 	private final AngelDevilPetRenderer pet = new AngelDevilPetRenderer();
 	private final CloudPetRenderer cloudPet = new CloudPetRenderer();
+	private final ScytheRenderer scythe = new ScytheRenderer();
 
 	public AngelCosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
 		super(parent);
@@ -185,6 +186,11 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, float yRot, float xRot) {
 		if (WavyCapeRenderer.shouldRender(state)) {
 			wavyCape.render(getParentModel(), poseStack, collector, light, state);
+		}
+
+		ScytheCosmetic scytheModule = CosmeticModule.get(ScytheCosmetic.class);
+		if (scytheModule != null && scytheModule.shouldRender(state)) {
+			scythe.render(getParentModel(), poseStack, collector, light, state, scytheModule);
 		}
 
 		WingsCosmetic wingsModule = CosmeticModule.get(WingsCosmetic.class);

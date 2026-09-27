@@ -5,6 +5,7 @@ public enum CosmeticSlot {
 	HAT("Hats"),
 	CAPE("Capes"),
 	WINGS("Wings"),
+	BACK("Back"),
 	PET("Pets"),
 	EFFECT("Effects");
 

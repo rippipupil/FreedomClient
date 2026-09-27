@@ -12,7 +12,11 @@ public abstract class CosmeticModule extends Module {
 	private final CosmeticSlot slot;
 
 	protected CosmeticModule(String name, String description, CosmeticSlot slot) {
-		super(name, description, Category.COSMETICS, true);
+		this(name, description, slot, true);
+	}
+
+	protected CosmeticModule(String name, String description, CosmeticSlot slot, boolean enabledByDefault) {
+		super(name, description, Category.COSMETICS, enabledByDefault);
 		this.slot = slot;
 	}
 

@@ -174,6 +174,29 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("pets_sleep");
 			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(HaloCosmetic.class), "Style", "Ring"));
+
+			// Soul Scythe a la espalda: sola (sin alas ni capa) y con las alas, de espaldas y de lado.
+			context.runOnClient(client -> {
+				var manager = FreedomClient.getModuleManager();
+				manager.get(com.freedomclient.cosmetic.ScytheCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(false);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("scythe_back");
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 90.0F));
+			context.waitTicks(10);
+			context.takeScreenshot("scythe_side");
+			context.runOnClient(client -> {
+				client.player.setYRot(client.player.getYRot() - 90.0F);
+				var manager = FreedomClient.getModuleManager();
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(true);
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("scythe_with_wings");
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.cosmetic.ScytheCosmetic.class).setEnabled(false));
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
 			// Visuals: cielo de atardecer FC.

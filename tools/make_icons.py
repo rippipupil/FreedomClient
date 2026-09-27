@@ -26,6 +26,9 @@ PALETTE = {
     "p": (0xFA, 0xD6, 0xBA),  # piel
     "b": (0x58, 0x65, 0xF2),  # azul Discord
     "n": (0x1E, 0xD7, 0x60),  # verde Spotify
+    "m": (0xB9, 0xBE, 0xC4),  # plata (guadaña)
+    "M": (0x6E, 0x74, 0x7B),  # plata oscura
+    "h": (0x3A, 0x3C, 0x42),  # gris oscuro (mango)
 }
 
 ICONS = {
@@ -1126,6 +1129,24 @@ ICONS = {
         "................",
         "................",
         "................",
+    ],
+    "soul_scythe": [
+        "..........k..k..",
+        "......kkkkhkkhk.",
+        "....kwwmmkhhhk..",
+        "...kwmmmmmkkk...",
+        "..kwmmmMMk.hk...",
+        "..kwmmMk...hk...",
+        ".kwmMk.....hk...",
+        ".kwMk......hk...",
+        ".kwk.......hk...",
+        ".kk........hk...",
+        "...........hk...",
+        "...........hk...",
+        "...........hk...",
+        "...........hkk..",
+        "............hk..",
+        "............k...",
     ],
     "aura": [
         "................",
