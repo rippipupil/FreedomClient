@@ -1,6 +1,7 @@
 package com.freedomclient.ui.scene;
 
 import com.freedomclient.module.visual.CustomScreensModule;
+import com.freedomclient.ui.theme.ThemeManager;
 import net.minecraft.client.gui.GuiGraphics;
 
 /**
@@ -12,7 +13,9 @@ public final class PixelSky {
 	public enum Style {
 		SUNSET(SUNSET_BANDS, 40, 0xF5F1E8, 0xE89A7A, 0xB8606A, 0xFFC9A0, 0xD9776A, 0x3A0F1A, 0x5C1A2A),
 		NIGHT(NIGHT_BANDS, 110, 0xF5F1E8, 0x3A3F6B, 0x2A2E55, 0x4A5080, 0x323766, 0x0B0C1E, 0x1C1E3E),
-		DAY(DAY_BANDS, 0, 0xFFFFFF, 0xF4F8FC, 0xD2E2EE, 0xFFFFFF, 0xD6E6F2, 0x3E7A34, 0x5FA048);
+		DAY(DAY_BANDS, 0, 0xFFFFFF, 0xF4F8FC, 0xD2E2EE, 0xFFFFFF, 0xD6E6F2, 0x3E7A34, 0x5FA048),
+		/** Tema Neon: noche azul con nubes de tormenta y rayos suaves que mezclan amarillo, verde lima, cian y azul. */
+		STORM(STORM_BANDS, 60, 0xBFEFFF, 0x1C2458, 0x121840, 0x26307A, 0x1A2160, 0x060920, 0x2F6BFF);
 
 		final int[] bands;
 		final int stars;
@@ -45,6 +48,14 @@ public final class PixelSky {
 			0x3F8FD8, 0x4799DD, 0x50A2E1, 0x5AABE5, 0x64B4E9, 0x6FBDEC, 0x7AC5EF, 0x86CDF2,
 			0x93D5F5, 0xA0DCF7, 0xAEE2F9, 0xBDE8FA,
 	};
+	private static final int[] STORM_BANDS = {
+			0x04061A, 0x060A24, 0x080E2E, 0x0B1338, 0x0E1842, 0x121D4D, 0x162358, 0x1A2963,
+			0x1F306F, 0x25387B, 0x2B4086, 0x31488F, 0x2F5AA0, 0x2D6FB0, 0x2C86BF,
+	};
+	/** Solo para las pruebas: fija el momento del primer rayo (ms desde que cae) para que salga en las capturas. */
+	public static long forcedLightning = -1;
+	/** Colores de los rayos de arriba abajo: se mezclan como la energía de Neon. */
+	private static final int[] BOLT = {0xFFE14A, 0xE6F055, 0xC6F25A, 0x8EF07A, 0x5EF0C8, 0x3FD7FF, 0x3FA8FF, 0x3A7BFF, 0x6B5BFF};
 	/** Franjas del atardecer de arriba (noche) a abajo (horizonte dorado). */
 	private static final int[] SUNSET_BANDS = {
 			0x1A0B2E, 0x241035, 0x2E1339, 0x3B1639, 0x4A1838, 0x5C1A35, 0x701C31, 0x86202E,
@@ -68,21 +79,30 @@ public final class PixelSky {
 			".########.",
 	};
 
-	/** Logo "FC": F y C de trazo doble con la C redondeada (16x10). */
+	/**
+	 * Logo de FreedomClient: las iniciales FC hechas con trazos de circuito y nodos redondos (ver tools/fc_logo.py).
+	 * '#' = trazo, 'o' = borde de un nodo, 'O' = centro de un nodo.
+	 */
 	private static final String[] FC = {
-			"#######...######",
-			"#######..#######",
-			"##.......##.....",
-			"##.......##.....",
-			"######...##.....",
-			"######...##.....",
-			"##.......##.....",
-			"##.......##.....",
-			"##.......#######",
-			"##........######",
+			"#########....#########",
+			"########....##########",
+			"##.........##.........",
+			"##.........##.........",
+			"##....oo...##.........",
+			"#####oOOo..##.........",
+			"#####oOOo..##.........",
+			"##....oo...##.........",
+			"##.........##.........",
+			"##.........##......oo.",
+			"##.........#######oOOo",
+			"##..........######oOOo",
+			"...................oo.",
 	};
-	/** Color de cada fila del logo: blanco arriba, crema y dorado abajo, con la última fila roja como sombra. */
-	private static final int[] FC_ROWS = {0xFFFFFF, 0xF5F1E8, 0xF5F1E8, 0xF5F1E8, 0xF7E6C8, 0xF7E6C8, 0xF5D98A, 0xF2C94C, 0xE8A93A, 0xD7263D};
+	/** Degradado de los trazos por fila, nodos (borde, centro), halo (claro, oscuro) y contorno, en Angel Devil y en Neon. */
+	private static final int[] FC_ROWS = {0xFFFFFF, 0xFAF6EC, 0xF5F1E8, 0xF7EAD0, 0xF7E2BE, 0xF6D696, 0xF5CD78, 0xF2C45A, 0xECB646, 0xE8A93A, 0xDE783C, 0xD7263D, 0xD7263D};
+	private static final int[] FC_ROWS_NEON = {0xEAFAFF, 0xC8F4FF, 0xA0EAFF, 0x6EDCFF, 0x3FD7FF, 0x3CBEFF, 0x3AA0FF, 0x3482FF, 0x2E64FF, 0x2A50FF, 0x4646F0, 0x6B5BFF, 0x6B5BFF};
+	private static final int[] FC_EXTRA = {0xD7263D, 0xFF7878, 0xF2C94C, 0xC98F1E, 0x1A0508};
+	private static final int[] FC_EXTRA_NEON = {0xFFD84A, 0xFFF5AA, 0xA8F05A, 0x3FD7FF, 0x06081E};
 
 	private PixelSky() {
 	}
@@ -132,7 +152,9 @@ public final class PixelSky {
 		// Sol (atardecer y día) o luna (noche).
 		int sunX = width * 2 / 3 + layerShift(parallaxX, 4, p);
 		int shiftY = layerShift(parallaxY, 2, p);
-		if (style == Style.NIGHT) {
+		if (style == Style.STORM) {
+			// Sin sol ni luna: la luz la ponen los rayos.
+		} else if (style == Style.NIGHT) {
 			int moonR = p * 7;
 			int moonY = horizon / 4 + shiftY;
 			disc(g, sunX, moonY, moonR + p * 4, p, color(0xB8C4F0, alpha * 0.18F));
@@ -149,6 +171,9 @@ public final class PixelSky {
 
 		// Nubes en dos capas que se mueven a distinta velocidad y con distinto paralaje.
 		clouds(g, width, horizon, p, time, alpha, style, parallaxX, parallaxY);
+		if (style == Style.STORM) {
+			lightning(g, width, horizon, p, time, alpha, parallaxX);
+		}
 
 		// Colinas en el horizonte: la capa más cercana, la que más se mueve.
 		int hillsX = layerShift(parallaxX, 10, p);
@@ -159,6 +184,51 @@ public final class PixelSky {
 			int top = horizon - (int) Math.round(wave + 3) * p + hillsY;
 			g.fill(x, top, x + p, height, color(style.hills, alpha));
 			g.fill(x, top, x + p, top + p, color(style.hillsTop, alpha));
+		}
+	}
+
+	/**
+	 * Rayos de la tormenta del tema Neon: cada pocos segundos cae uno (a veces con una rama), aparece de golpe y se
+	 * desvanece suave, con un destello muy leve en el cielo. Todo sale del tiempo, así que no guarda estado.
+	 */
+	private static void lightning(GuiGraphics g, int width, int horizon, int p, long time, float alpha, float parallaxX) {
+		for (int lane = 0; lane < 2; lane++) {
+			long period = 3400 + lane * 1500L;
+			long t = time + lane * 1900L;
+			long index = t / period;
+			long phase = lane == 0 && forcedLightning >= 0 ? forcedLightning : t % period;
+			long duration = 700;
+			if (phase > duration) continue;
+			float life = phase / (float) duration;
+			float strength = life < 0.08F ? life / 0.08F : (1.0F - life) * (1.0F - life);
+			java.util.Random random = new java.util.Random(index * 7919L + lane * 31L);
+			g.fill(0, 0, width, horizon, color(0x3FD7FF, alpha * strength * 0.06F));
+			int x = (int) (width * (0.12F + random.nextFloat() * 0.76F)) / p * p + layerShift(parallaxX, 5, p);
+			int top = horizon / 5 + random.nextInt(Math.max(1, horizon / 8)) / p * p;
+			int bottom = horizon - p * 2 - random.nextInt(Math.max(1, horizon / 3)) / p * p;
+			bolt(g, x, top, bottom, p, random, alpha * strength, true);
+		}
+	}
+
+	/** Un rayo en zigzag de (x, top) a la altura {@code bottom}, con el color degradado y un brillo a los lados. */
+	private static void bolt(GuiGraphics g, int x, int top, int bottom, int p, java.util.Random random, float alpha, boolean branches) {
+		int y = top;
+		while (y < bottom) {
+			int direction = random.nextBoolean() ? 1 : -1;
+			int segment = 2 + random.nextInt(4);
+			for (int k = 0; k < segment && y < bottom; k++) {
+				float t = (y - top) / (float) Math.max(1, bottom - top);
+				int rgb = BOLT[Math.min(BOLT.length - 1, (int) (t * BOLT.length))];
+				g.fill(x - p, y, x, y + p, color(rgb, alpha * 0.25F));
+				g.fill(x + p, y, x + p * 2, y + p, color(rgb, alpha * 0.25F));
+				g.fill(x, y, x + p, y + p, color(rgb, alpha));
+				y += p;
+				if (k % 2 == 0) x += direction * p;
+			}
+			if (branches && random.nextFloat() < 0.18F) {
+				int branchEnd = Math.min(bottom, y + (bottom - top) / 4);
+				bolt(g, x + direction * p, y, branchEnd, p, random, alpha * 0.6F, false);
+			}
 		}
 	}
 
@@ -203,25 +273,39 @@ public final class PixelSky {
 		}
 	}
 
-	/** Las iniciales "FC" en pixel art con contorno, sombra y degradado, centradas en (cx, cy). */
+	/** Cubre cada píxel del logo (trazos y nodos) con un color: para la sombra y el contorno. */
+	private static void logoMask(GuiGraphics g, int x, int y, int p, int color) {
+		for (int row = 0; row < FC.length; row++) {
+			for (int column = 0; column < FC[row].length(); column++) {
+				if (FC[row].charAt(column) != '.') {
+					g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, color);
+				}
+			}
+		}
+	}
+
+	/** El logo FC de circuito con contorno, sombra y degradado, centrado en (cx, cy). Con el tema Neon cambia de colores. */
 	public static void logo(GuiGraphics g, int cx, int cy, int p, float alpha) {
+		boolean neon = ThemeManager.isNeon();
+		int[] rows = neon ? FC_ROWS_NEON : FC_ROWS;
+		int[] extra = neon ? FC_EXTRA_NEON : FC_EXTRA;
 		int w = FC[0].length() * p;
 		int h = FC.length * p;
 		int x = cx - w / 2;
 		int y = cy - h / 2;
-		int outline = color(0x1A0508, alpha);
+		int outline = color(extra[4], alpha);
 		// Sombra abajo a la derecha y contorno oscuro alrededor.
-		shape(g, FC, x + p * 2, y + p * 2, p, color(0x1A0508, alpha * 0.45F), color(0x1A0508, alpha * 0.45F));
-		shape(g, FC, x - p, y, p, outline, outline);
-		shape(g, FC, x + p, y, p, outline, outline);
-		shape(g, FC, x, y - p, p, outline, outline);
-		shape(g, FC, x, y + p, p, outline, outline);
+		logoMask(g, x + p * 2, y + p * 2, p, color(extra[4], alpha * 0.45F));
+		logoMask(g, x - p, y, p, outline);
+		logoMask(g, x + p, y, p, outline);
+		logoMask(g, x, y - p, p, outline);
+		logoMask(g, x, y + p, p, outline);
 		for (int row = 0; row < FC.length; row++) {
-			int c = color(FC_ROWS[row], alpha);
 			for (int column = 0; column < FC[row].length(); column++) {
-				if (FC[row].charAt(column) == '#') {
-					g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, c);
-				}
+				char c = FC[row].charAt(column);
+				if (c == '.') continue;
+				int rgb = c == 'o' ? extra[0] : c == 'O' ? extra[1] : rows[Math.min(row, rows.length - 1)];
+				g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, color(rgb, alpha));
 			}
 		}
 	}
@@ -235,7 +319,7 @@ public final class PixelSky {
 		return FC.length;
 	}
 
-	/** Halo dorado (anillo pixelado) que flota arriba y abajo. */
+	/** Halo (anillo pixelado) que flota arriba y abajo: dorado, o cian y verde con el tema Neon. */
 	public static void halo(GuiGraphics g, int cx, int cy, int p, float alpha) {
 		halo(g, cx, cy, p, 9, alpha);
 	}
@@ -245,8 +329,9 @@ public final class PixelSky {
 		int bob = (int) Math.round(Math.sin(System.currentTimeMillis() / 400.0) * 1.5) * p;
 		int rx = p * radius;
 		int ry = p * 2;
-		int gold = color(0xF2C94C, alpha);
-		int dark = color(0xC98F1E, alpha);
+		int[] extra = ThemeManager.isNeon() ? FC_EXTRA_NEON : FC_EXTRA;
+		int gold = color(extra[2], alpha);
+		int dark = color(extra[3], alpha);
 		for (int x = -rx; x <= rx; x += p) {
 			double t = x / (double) rx;
 			int dy = (int) Math.round(Math.sqrt(Math.max(0, 1 - t * t)) * ry / p) * p;

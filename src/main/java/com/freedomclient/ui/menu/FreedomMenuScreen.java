@@ -33,7 +33,7 @@ public class FreedomMenuScreen extends Screen {
 
 	private static final int MAX_WIDTH = 380;
 	private static final int MAX_HEIGHT = 250;
-	private static final int HEADER_HEIGHT = 24;
+	private static final int HEADER_HEIGHT = 28;
 	private static final int PADDING = 6;
 	private static final long OPEN_ANIMATION_MS = 160;
 
@@ -148,13 +148,13 @@ public class FreedomMenuScreen extends Screen {
 		g.fill(x + 1, y + 1, x + w - 1, y + HEADER_HEIGHT, headerFill);
 		g.fill(x + 1, y + HEADER_HEIGHT, x + w - 1, y + HEADER_HEIGHT + 1, ThemeManager.border());
 
-		// Logo del cliente: las iniciales FC en pixel art con el halo encima, y el nombre en dos colores.
+		// Logo del cliente: las iniciales FC de circuito con el halo encima, y el nombre en dos colores.
 		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
-		int logoCenterY = y + 16;
-		PixelSky.halo(g, logoCenterX, y + 6, 1, 6, 1.0F);
+		int logoCenterY = y + 17;
+		PixelSky.halo(g, logoCenterX, y + 5, 1, 9, 1.0F);
 		PixelSky.logo(g, logoCenterX, logoCenterY, 1, 1.0F);
 		int nameX = x + 6 + PixelSky.logoWidth() + 8;
-		int nameY = y + 10;
+		int nameY = y + 11;
 		g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
 		int clientX = nameX + font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
 		g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
@@ -176,7 +176,7 @@ public class FreedomMenuScreen extends Screen {
 		float progress = ui.animate("tab:" + current, selected ? 1.0F : 0.0F);
 
 		int textColor = selected ? ThemeManager.accent() : hovered ? ThemeManager.highlight() : ThemeManager.text();
-		ui.g.drawString(font, current.label, x + 6, y + 8, textColor, false);
+		ui.g.drawString(font, current.label, x + 6, y + (HEADER_HEIGHT - 8) / 2, textColor, false);
 
 		int underline = Math.round((w - 4) * progress);
 		if (underline > 0) {

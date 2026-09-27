@@ -8,7 +8,9 @@ public enum ThemePreset {
 	RED_SUNSET("Red Sunset", 0x3A0F1A, 0x7A1F2B, 0xFF8C42, 0xF2C94C, 0x5DADE2, 0xF5F1E8),
 	DAY_SKY("Day Sky", 0x1B2A4A, 0x2E4A7A, 0xF2C94C, 0xF2C94C, 0xD7263D, 0xF5F1E8),
 	STARRY_NIGHT("Starry Night", 0x0B1026, 0x1C2448, 0x8E9BFF, 0xF2C94C, 0xD7263D, 0xE8ECFF),
-	RED_DEVIL("Red Devil", 0x1A0508, 0x4A0D14, 0xD7263D, 0xFF4B4B, 0xF2C94C, 0xFFE9E9);
+	RED_DEVIL("Red Devil", 0x1A0508, 0x4A0D14, 0xD7263D, 0xFF4B4B, 0xF2C94C, 0xFFE9E9),
+	/** Neon: energía eléctrica azul, cian, verde lima y amarillo. Cambia también el cielo por una noche con tormenta. */
+	NEON("Neon", 0x0A0F2C, 0x16215A, 0x2F6BFF, 0xFFD84A, 0x3FD7FF, 0xEAF6FF);
 
 	private final String displayName;
 	private final Map<ThemeColor, Integer> colors = new EnumMap<>(ThemeColor.class);

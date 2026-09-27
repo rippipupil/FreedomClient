@@ -38,6 +38,8 @@ public class CustomScreensModule extends Module {
 	}
 
 	public static PixelSky.Style skyStyle() {
+		// El tema Neon cambia el cielo de Angel Devil por la noche de tormenta eléctrica.
+		if (com.freedomclient.ui.theme.ThemeManager.isNeon()) return PixelSky.Style.STORM;
 		CustomScreensModule module = instance();
 		String mode = module == null ? "Sunset" : module.sky.get();
 		if (mode.equals("Real time")) {

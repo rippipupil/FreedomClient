@@ -94,6 +94,23 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.takeScreenshot("title_day");
 		context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(CustomScreensModule.class), "Menu sky", "Sunset"));
 
+		// Tema Neon: noche de tormenta, logo en azul y amarillo, y el menú con la paleta de Neon.
+		context.runOnClient(client -> {
+			com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.NEON);
+			com.freedomclient.ui.scene.PixelSky.forcedLightning = 90;
+		});
+		context.waitTicks(3);
+		context.takeScreenshot("title_neon");
+		context.runOnClient(client -> client.setScreen(new FreedomMenuScreen()));
+		context.waitTicks(10);
+		context.takeScreenshot("menu_neon");
+		context.runOnClient(client -> {
+			client.screen.onClose();
+			com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET);
+			com.freedomclient.ui.scene.PixelSky.forcedLightning = -1;
+		});
+		context.waitTicks(5);
+
 		// Abrir y cerrar Singleplayer y Multiplayer desde el menú principal (antes crasheaba al volver).
 		context.runOnClient(client -> client.setScreen(new SelectWorldScreen(client.screen)));
 		context.waitTicks(20);

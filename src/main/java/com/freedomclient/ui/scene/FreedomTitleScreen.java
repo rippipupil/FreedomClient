@@ -65,7 +65,7 @@ public class FreedomTitleScreen extends TitleScreen {
 		int p = Math.max(2, height / 90);
 		int centerX = width / 2;
 		int logoY = height / 5 + p * 4;
-		PixelSky.halo(graphics, centerX, logoY - p * 10, p, appear);
+		PixelSky.halo(graphics, centerX, logoY - p * 10, p, 10, appear);
 		PixelSky.logo(graphics, centerX, logoY, p, appear);
 		Component name = UiText.logo(FreedomClient.NAME);
 		int nameY = logoY + p * 9;

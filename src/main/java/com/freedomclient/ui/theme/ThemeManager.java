@@ -26,6 +26,11 @@ public final class ThemeManager {
 		return preset;
 	}
 
+	/** Si está puesto el tema Neon (cielo de tormenta, logo y efectos eléctricos). */
+	public static boolean isNeon() {
+		return preset == ThemePreset.NEON;
+	}
+
 	/** Cambia de preset y descarta los colores personalizados. */
 	public static void setPreset(ThemePreset newPreset) {
 		preset = newPreset;
