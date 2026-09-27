@@ -74,6 +74,7 @@ PARTICLE_COLORS = {
     "r": RED, "R": RED_DARK, "o": (255, 140, 66, 255), "O": (255, 196, 110, 255), "p": (255, 120, 170, 255),
     "P": (200, 60, 110, 255), "b": (93, 173, 226, 255), "B": (46, 110, 168, 255), "k": (58, 5, 8, 255),
     "s": (225, 228, 232, 210), "S": (170, 175, 182, 150), "f": (130, 135, 142, 90),
+    "m": (200, 205, 212, 70), "M": (160, 166, 174, 40),
 }
 PARTICLES = {
     # Chispa dorada de ángel.
@@ -88,6 +89,8 @@ PARTICLES = {
     "sky_spark": ["..b..", ".bWb.", "bWWWb", ".bWb.", "..b.."],
     # Espíritu gris de la Soul Scythe: una llamita fantasmal translúcida.
     "soul_wisp": ["..f..", ".fSf.", ".SsS.", "fSssS", ".SsS.", "..S..", "..f.."],
+    # Niebla gris muy suave del aura fantasmal.
+    "soul_mist": ["..MMMM..", ".MmmmmM.", "MmmmmmmM", "MmmmmmmM", "MmmmmmmM", "MmmmmmmM", ".MmmmmM.", "..MMMM.."],
     # Nota musical.
     "note": ["...kkk", "...kgk", "...kgk", "...k.k", "kkkk..", "kggk..", "kkkk.."],
 }
@@ -319,7 +322,7 @@ def make_cape():
 
 def make_scythe():
     """Franjas de color de la Soul Scythe (ScytheRenderer): filo blanco, plata, plata oscura, negro, gris oscuro y
-    gris de las vendas. Y tres texturas grises translúcidas para el brillo del aura fantasmal (late entre ellas)."""
+    gris de las vendas."""
     colors = ((242, 244, 246, 255), (185, 190, 196, 255), (110, 116, 123, 255), (28, 29, 33, 255), (58, 60, 66, 255),
               (93, 96, 104, 255))
     image = Image.new("RGBA", (64, 32), (0, 0, 0, 0))
@@ -328,8 +331,6 @@ def make_scythe():
             for x in range(64):
                 image.putpixel((x, y), color)
     image.save(OUT / "scythe.png")
-    for number, alpha in ((1, 12), (2, 20), (3, 30)):
-        Image.new("RGBA", (64, 32), (215, 220, 228, alpha)).save(OUT / f"scythe_ghost_{number}.png")
 
 
 def main():

@@ -18,7 +18,7 @@ import net.minecraft.resources.Identifier;
 
 /**
  * Soul Scythe: guadaña voxel (como las alas) colgada en diagonal a la espalda, con la hoja asomando por un hombro.
- * Dos estilos: Classic (silueta plana) y 3D (con volumen), y un aura fantasmal gris opcional.
+ * Dos estilos: Classic (silueta plana) y 3D (con volumen). El aura fantasmal son partículas (ScytheCosmetic).
  */
 public final class ScytheRenderer {
 	/** Franjas de color (64x32): blanco en v = 0, plata en 4, plata oscura en 8, negro en 12, gris oscuro en 16 y gris en 20. */
@@ -79,15 +79,6 @@ public final class ScytheRenderer {
 	private final ModelPart classic = build(false, 0.0F);
 	/** Estilo 3D: hoja más gruesa en el centro, mango cuadrado con vendas, guarda ancha con púas y pomo. */
 	private final ModelPart threeD = build(true, 0.0F);
-	/** Aura fantasmal: los mismos cubos un poco inflados, dibujados translúcidos alrededor de la guadaña. */
-	private final ModelPart classicGhost = build(false, 0.8F);
-	private final ModelPart threeDGhost = build(true, 0.8F);
-
-	private static final Identifier[] GHOST_TEXTURES = {
-			FreedomClient.id("textures/cosmetic/scythe_ghost_1.png"),
-			FreedomClient.id("textures/cosmetic/scythe_ghost_2.png"),
-			FreedomClient.id("textures/cosmetic/scythe_ghost_3.png"),
-	};
 
 	private static boolean isBlade(char c) {
 		return c == 'W' || c == 'S' || c == 'D';
@@ -118,7 +109,7 @@ public final class ScytheRenderer {
 
 	/**
 	 * Convierte la silueta en cubos: cada tramo de píxeles con el mismo color y grosor de una fila es un cubo de
-	 * 1 píxel de alto. {@code grow} infla todos los cubos (para el brillo del aura fantasmal).
+	 * 1 píxel de alto. {@code grow} infla todos los cubos.
 	 */
 	private static ModelPart build(boolean volume, float grow) {
 		MeshDefinition mesh = new MeshDefinition();
@@ -194,13 +185,6 @@ public final class ScytheRenderer {
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-32.0F));
 		boolean volume = module.style.is("3D");
 		collector.submitModelPart(volume ? threeD : classic, poseStack, RenderTypes.entityCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
-		if (module.ghostAura.get()) {
-			// Brillo gris translúcido que late despacio (tres texturas con más o menos transparencia).
-			int phase = (int) ((Math.sin(state.ageInTicks * 0.12F) + 1.0F) * 1.5F);
-			Identifier ghost = GHOST_TEXTURES[Math.min(GHOST_TEXTURES.length - 1, phase)];
-			collector.submitModelPart(volume ? threeDGhost : classicGhost, poseStack, RenderTypes.entityTranslucent(ghost), light,
-					OverlayTexture.NO_OVERLAY, null);
-		}
 		poseStack.popPose();
 	}
 }

@@ -218,6 +218,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(true);
 				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(true);
 			});
+			// En primera persona el aura fantasmal no debe verse (ni partículas delante de la cámara).
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+			context.waitTicks(40);
+			context.takeScreenshot("scythe_first_person");
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.cosmetic.ScytheCosmetic.class).setEnabled(false));
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
