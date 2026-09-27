@@ -39,9 +39,21 @@ pub enum LaunchWith {
     Freedom,
 }
 
+/// Aspecto del launcher (el mismo que los temas del cliente).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Theme {
+    /// Cielo de atardecer de Angel Devil (por defecto).
+    #[default]
+    Angel,
+    /// Noche con tormenta eléctrica azul, cian y amarilla.
+    Neon,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Settings {
+    pub theme: Theme,
     pub launch_with: LaunchWith,
     /// Memoria para el juego en MB; 0 = automática según la RAM del PC.
     pub memory_mb: u32,
@@ -66,6 +78,7 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
+            theme: Theme::Angel,
             launch_with: LaunchWith::Official,
             memory_mb: 0,
             gc: GcPreset::Optimized,

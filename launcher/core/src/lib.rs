@@ -13,6 +13,7 @@ pub mod official;
 pub mod options;
 pub mod paths;
 pub mod rules;
+pub mod selfupdate;
 pub mod settings;
 pub mod system;
 pub mod transfer;

@@ -30,6 +30,22 @@ async fn main() -> Result<()> {
         })
     };
 
+    // Autoactualización: la release "launcher" tiene que anunciar esta compilación y su .exe tiene que
+    // descargarse con el hash que dice el archivo de versión.
+    if let Ok(commit) = std::env::var("FC_CI_SELF_UPDATE") {
+        let release = fc_core::selfupdate::latest(&http).await?;
+        println!("Published launcher: {release:?}");
+        if !release.commit.eq_ignore_ascii_case(&commit) {
+            bail!("the launcher release announces {} instead of {commit}", release.commit);
+        }
+        let exe = paths.root.join("self-update-test").join("FreedomClient.exe");
+        std::fs::create_dir_all(exe.parent().unwrap())?;
+        std::fs::write(&exe, "old")?;
+        let new = fc_core::selfupdate::download(&http, &release, &exe, &progress).await?;
+        fc_core::selfupdate::apply(&new, &exe)?;
+        println!("Self-update OK: downloaded {} KB and swapped the executable", std::fs::metadata(&exe)?.len() / 1024);
+    }
+
     let started = Instant::now();
     let prepared = fc_core::prepare(&http, &paths, &settings, &profile, &progress).await?;
     println!("Prepared in {:.1}s (java: {})", started.elapsed().as_secs_f32(), prepared.java.display());

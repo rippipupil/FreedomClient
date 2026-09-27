@@ -5,7 +5,7 @@ use fc_core::discord::{Activity, Presence};
 use fc_core::launch::{LaunchOptions, build_command, log_file, spawn};
 use fc_core::paths::Paths;
 use fc_core::settings::{self, Account, Accounts, AfterLaunch, LaunchWith, Profile, Settings, now};
-use fc_core::{auth, client, mods, official, transfer};
+use fc_core::{auth, client, mods, official, selfupdate, transfer};
 use serde::Serialize;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -60,6 +60,10 @@ struct StateView {
     auto_memory_mb: u32,
     client_commit: Option<String>,
     launcher_version: &'static str,
+    /// Commit con el que se compiló esta versión del launcher (vacío en compilaciones locales).
+    launcher_commit: &'static str,
+    /// Solo para las capturas de CI: deja la pantalla de carga a la vista.
+    splash_hold: bool,
     minecraft_version: &'static str,
     running: Option<String>,
     data_dir: String,
@@ -118,6 +122,8 @@ fn load_state(state: State<'_, AppState>) -> StateView {
         auto_memory_mb: settings::auto_memory_mb(total),
         client_commit: client::installed_commit(&state.paths),
         launcher_version: env!("CARGO_PKG_VERSION"),
+        launcher_commit: BUILD_COMMIT,
+        splash_hold: std::env::var_os("FC_SPLASH_HOLD").is_some(),
         minecraft_version: fc_core::MINECRAFT_VERSION,
         running: state.running.lock().unwrap().clone(),
         data_dir: state.paths.root.to_string_lossy().into_owned(),
@@ -359,6 +365,61 @@ async fn launch(app: AppHandle, state: State<'_, AppState>, id: String) -> CmdRe
     result
 }
 
+/// Commit de GitHub con el que se compiló (lo pone build.rs); sirve para saber si hay una versión nueva.
+const BUILD_COMMIT: &str = env!("FC_BUILD_COMMIT");
+
+#[derive(Serialize)]
+struct UpdateView {
+    /// "disabled", "latest", "offline", "failed" o "restarting".
+    status: &'static str,
+    message: String,
+}
+
+impl UpdateView {
+    fn new(status: &'static str, message: impl std::fmt::Display) -> Self {
+        Self { status, message: message.to_string() }
+    }
+}
+
+/// Se llama desde la pantalla de carga al abrir el launcher: si hay una versión nueva la descarga,
+/// la pone en el sitio de esta y abre la nueva. Nunca impide usar el launcher si algo sale mal.
+#[tauri::command]
+async fn launcher_update(app: AppHandle, state: State<'_, AppState>) -> CmdResult<UpdateView> {
+    let exe = std::env::current_exe().map_err(err)?;
+    selfupdate::cleanup(&exe);
+    if !cfg!(windows) || BUILD_COMMIT.is_empty() || std::env::var_os("FC_NO_SELF_UPDATE").is_some() {
+        return Ok(UpdateView::new("disabled", "Self-update only works in the published Windows builds"));
+    }
+    let release = match selfupdate::latest(&state.http).await {
+        Ok(release) => release,
+        Err(e) => return Ok(UpdateView::new("offline", e)),
+    };
+    if !selfupdate::is_newer(BUILD_COMMIT, &release) {
+        return Ok(UpdateView::new("latest", &BUILD_COMMIT[..7.min(BUILD_COMMIT.len())]));
+    }
+    let progress = progress_emitter(&app);
+    let new = match selfupdate::download(&state.http, &release, &exe, &progress).await {
+        Ok(new) => new,
+        Err(e) => return Ok(UpdateView::new("failed", format!("{e:#}"))),
+    };
+    if let Err(e) = selfupdate::apply(&new, &exe) {
+        let _ = std::fs::remove_file(&new);
+        return Ok(UpdateView::new("failed", format!("{e:#}")));
+    }
+    // La versión nueva espera un momento a que esta se cierre (y suelte WebView2) antes de abrir su ventana.
+    if let Err(e) = std::process::Command::new(&exe).arg(AFTER_UPDATE_ARG).spawn() {
+        return Ok(UpdateView::new("failed", format!("updated, but could not reopen the launcher: {e}")));
+    }
+    let handle = app.clone();
+    tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_millis(400)).await;
+        handle.exit(0);
+    });
+    Ok(UpdateView::new("restarting", &release.commit[..7.min(release.commit.len())]))
+}
+
+const AFTER_UPDATE_ARG: &str = "--after-update";
+
 fn progress_emitter(app: &AppHandle) -> fc_core::Progress {
     let emitter = app.clone();
     Arc::new(move |stage: &str, done: u64, total: u64| {
@@ -493,6 +554,9 @@ async fn launch_inner(app: &AppHandle, state: &AppState, id: &str) -> CmdResult<
 }
 
 fn main() {
+    if std::env::args().any(|a| a == AFTER_UPDATE_ARG) {
+        std::thread::sleep(std::time::Duration::from_millis(1500));
+    }
     let paths = Paths::new(Paths::default_root());
     let _ = std::fs::create_dir_all(&paths.root);
     let mut settings: Settings = settings::load(&settings::settings_path(&paths));
@@ -541,7 +605,8 @@ fn main() {
             add_offline,
             remove_account,
             select_account,
-            launch
+            launch,
+            launcher_update
         ])
         .run(tauri::generate_context!())
         .expect("error while running the launcher");

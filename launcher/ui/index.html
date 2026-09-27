@@ -5,12 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FreedomClient</title>
   <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
 </head>
-<body>
+<body class="loading">
   <canvas id="sky"></canvas>
 
+  <!-- Pantalla de carga: busca la última versión del launcher y se actualiza sola. -->
+  <div class="splash" id="splash" data-tauri-drag-region>
+    <img class="splash-logo" src="img/logo.png" data-logo alt="" data-tauri-drag-region>
+    <div class="splash-name" data-tauri-drag-region>Freedom<b>Client</b></div>
+    <div class="splash-bar" data-tauri-drag-region><span id="splash-progress"></span></div>
+    <div class="splash-status" id="splash-status" data-tauri-drag-region>Checking for updates…</div>
+  </div>
+
   <header class="titlebar" data-tauri-drag-region>
-    <img class="titlebar-logo" src="img/logo.png" alt="" data-tauri-drag-region>
+    <img class="titlebar-logo" src="img/logo.png" data-logo alt="" data-tauri-drag-region>
     <span class="titlebar-name" data-tauri-drag-region>Freedom<b>Client</b></span>
     <span class="titlebar-version" id="launcher-version" data-tauri-drag-region></span>
     <div class="titlebar-spacer" data-tauri-drag-region></div>
@@ -32,7 +41,7 @@
     <!-- Jugar -->
     <section class="page active" id="page-play">
       <div class="hero">
-        <img class="hero-logo" src="img/logo.png" alt="FreedomClient">
+        <img class="hero-logo" src="img/logo.png" data-logo alt="FreedomClient">
         <h1>Freedom<b>Client</b></h1>
         <p class="subtitle">Minecraft <span id="mc-version">1.21.11</span> · Fabric · PvP</p>
 
@@ -137,6 +146,10 @@
 
         <div class="panel">
           <div class="panel-title">Launcher</div>
+          <div class="setting">
+            <div><b>Theme</b><small>Changes the whole launcher. The in-game theme is picked in the client's Theme tab.</small></div>
+            <div class="chips" id="s-theme" data-options="angel:Angel Devil|neon:Neon"></div>
+          </div>
           <div class="setting">
             <div><b>Launch with</b><small id="launch-with-hint"></small></div>
             <div class="chips" id="s-launch-with" data-options="official:Minecraft Launcher|freedom:FreedomClient"></div>

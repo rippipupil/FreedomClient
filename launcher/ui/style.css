@@ -12,16 +12,54 @@
   --card: #3a0f1a;
   --card-2: #4a1424;
   --border: #7a1f2b;
+  --border-rgb: 122, 31, 43;
   --border-light: #a8323c;
   --accent: #f2c94c;
+  --accent-rgb: 242, 201, 76;
   --accent-dark: #c98f1e;
+  --accent-light: #ffd965;
+  --accent-lighter: #ffe487;
+  --accent-hover: #ffd24f;
+  --on-accent: #3a0f1a;
+  --toggle-on: #5a3c12;
   --orange: #ff8c42;
+  --orange-light: #ff9d5c;
   --red: #d7263d;
   --sky: #5dade2;
   --text: #f5f1e8;
   --muted: #c9a9a0;
   --shadow: #12040a;
+  --shadow-rgb: 18, 4, 10;
   --px: 3px;
+}
+
+/* Tema Neon: noche azul marino con energía azul, cian, amarillo y lima. */
+:root[data-theme="neon"] {
+  --bg: #0a0f2c;
+  --bg-2: #111a44;
+  --panel: rgba(10, 15, 44, 0.84);
+  --panel-solid: #111a44;
+  --card: #16215a;
+  --card-2: #1d2c72;
+  --border: #2f6bff;
+  --border-rgb: 47, 107, 255;
+  --border-light: #3fd7ff;
+  --accent: #ffd84a;
+  --accent-rgb: 255, 216, 74;
+  --accent-dark: #c9a21e;
+  --accent-light: #ffe478;
+  --accent-lighter: #fff0a8;
+  --accent-hover: #ffdf5c;
+  --on-accent: #0a0f2c;
+  --toggle-on: #3a4a1a;
+  --orange: #3fd7ff;
+  --orange-light: #c6f25a;
+  --red: #ff4f7a;
+  --sky: #3fd7ff;
+  --text: #eaf6ff;
+  --muted: #9fb4e0;
+  --shadow: #04071a;
+  --shadow-rgb: 4, 7, 26;
 }
 
 * {
@@ -116,7 +154,7 @@ input:not([type="checkbox"]):not([type="range"]),
   align-items: center;
   gap: 10px;
   padding: 0 6px 0 12px;
-  background: linear-gradient(#12040a, rgba(18, 4, 10, 0.75));
+  background: linear-gradient(var(--shadow), rgba(var(--shadow-rgb), 0.75));
   border-bottom: var(--px) solid var(--border);
   z-index: 10;
 }
@@ -200,7 +238,7 @@ input:not([type="checkbox"]):not([type="range"]),
   flex-direction: column;
   gap: 6px;
   padding: 12px 8px;
-  background: rgba(18, 4, 10, 0.72);
+  background: rgba(var(--shadow-rgb), 0.72);
   border-right: var(--px) solid var(--border);
   z-index: 5;
 }
@@ -216,7 +254,7 @@ input:not([type="checkbox"]):not([type="range"]),
 
 .nav:hover {
   color: var(--text);
-  background: rgba(122, 31, 43, 0.45);
+  background: rgba(var(--border-rgb), 0.45);
 }
 
 .nav.active {
@@ -347,7 +385,7 @@ main {
 
 .btn.primary {
   background: var(--accent);
-  color: #3a0f1a;
+  color: var(--on-accent);
   text-shadow: none;
   box-shadow:
     0 calc(var(--px) * -1) 0 0 var(--accent-dark),
@@ -357,7 +395,7 @@ main {
 }
 
 .btn.primary:hover {
-  background: #ffd965;
+  background: var(--accent-light);
 }
 
 .btn.danger:hover {
@@ -390,7 +428,7 @@ main {
 .hero-logo {
   width: 120px;
   animation: bob 2.4s steps(6) infinite;
-  filter: drop-shadow(4px 4px 0 rgba(18, 4, 10, 0.55));
+  filter: drop-shadow(4px 4px 0 rgba(var(--shadow-rgb), 0.55));
 }
 
 @keyframes bob {
@@ -435,8 +473,8 @@ h1 {
   width: 300px;
   height: 66px;
   overflow: hidden;
-  background: linear-gradient(#ffd965 0 50%, var(--accent) 50%);
-  color: #3a0f1a;
+  background: linear-gradient(var(--accent-light) 0 50%, var(--accent) 50%);
+  color: var(--on-accent);
   font-size: 40px;
   letter-spacing: 4px;
   box-shadow:
@@ -444,11 +482,11 @@ h1 {
     0 4px 0 0 var(--accent-dark),
     -4px 0 0 0 var(--accent-dark),
     4px 0 0 0 var(--accent-dark),
-    0 10px 0 0 rgba(18, 4, 10, 0.6);
+    0 10px 0 0 rgba(var(--shadow-rgb), 0.6);
 }
 
 .launch:hover:not(:disabled) {
-  background: linear-gradient(#ffe487 0 50%, #ffd24f 50%);
+  background: linear-gradient(var(--accent-lighter) 0 50%, var(--accent-hover) 50%);
 }
 
 .launch:active:not(:disabled) {
@@ -465,7 +503,7 @@ h1 {
 }
 
 .launch.busy {
-  background: #4a1424;
+  background: var(--card-2);
   color: var(--text);
   font-size: 24px;
   letter-spacing: 1px;
@@ -477,7 +515,7 @@ h1 {
   top: 0;
   bottom: 0;
   width: 0;
-  background: repeating-linear-gradient(90deg, var(--orange) 0 12px, #ff9d5c 12px 24px);
+  background: repeating-linear-gradient(90deg, var(--orange) 0 12px, var(--orange-light) 12px 24px);
   transition: width 0.15s steps(4);
   z-index: 1;
 }
@@ -654,7 +692,7 @@ h1 {
 
 input:not([type="checkbox"]):not([type="range"]) {
   padding: 5px 9px 4px;
-  background: #12040a;
+  background: var(--shadow);
   outline: none;
   user-select: text;
 }
@@ -703,7 +741,7 @@ input[type="range"] {
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 9px;
-  background: #12040a;
+  background: var(--shadow);
   box-shadow: 0 0 0 3px var(--border);
 }
 
@@ -744,11 +782,11 @@ input[type="range"]:disabled {
   gap: 8px;
   min-height: 90px;
   padding: 10px;
-  background: rgba(18, 4, 10, 0.55);
+  background: rgba(var(--shadow-rgb), 0.55);
 }
 
 .mods.drop {
-  background: rgba(242, 201, 76, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   outline: 3px dashed var(--accent);
 }
 
@@ -805,7 +843,7 @@ input[type="range"]:disabled {
   position: relative;
   width: 42px;
   height: 21px;
-  background: #12040a;
+  background: var(--shadow);
   box-shadow: 0 0 0 3px var(--border);
 }
 
@@ -821,7 +859,7 @@ input[type="range"]:disabled {
 }
 
 .toggle input:checked + span {
-  background: #5a3c12;
+  background: var(--toggle-on);
   box-shadow: 0 0 0 3px var(--accent-dark);
 }
 
@@ -844,7 +882,7 @@ input[type="range"]:disabled {
   justify-content: space-between;
   gap: 20px;
   padding: 10px 0;
-  border-top: 3px solid rgba(122, 31, 43, 0.5);
+  border-top: 3px solid rgba(var(--border-rgb), 0.5);
 }
 
 .panel-title + .setting {
@@ -897,7 +935,7 @@ input[type="range"]:disabled {
 
 .chips button.selected {
   background: var(--accent);
-  color: #3a0f1a;
+  color: var(--on-accent);
   box-shadow: 0 0 0 3px var(--accent-dark);
 }
 
@@ -907,7 +945,7 @@ input[type="range"]:disabled {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(10, 2, 8, 0.66);
+  background: rgba(var(--shadow-rgb), 0.66);
   z-index: 50;
 }
 
@@ -936,7 +974,7 @@ input[type="range"]:disabled {
 .code {
   margin: 4px auto;
   padding: 8px 18px 6px;
-  background: #12040a;
+  background: var(--shadow);
   color: var(--accent);
   font-size: 48px;
   letter-spacing: 6px;
@@ -1014,4 +1052,96 @@ input[type="range"]:disabled {
 
 .toggle.disabled {
   opacity: 0.5;
+}
+
+/* ---------- Pantalla de carga ---------- */
+body.loading > header,
+body.loading > nav,
+body.loading > main {
+  visibility: hidden;
+}
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  transition: opacity 0.25s steps(5);
+}
+
+.splash.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: 150px;
+  animation: bob 2.4s steps(6) infinite;
+  filter: drop-shadow(4px 4px 0 rgba(var(--shadow-rgb), 0.55));
+}
+
+.splash-name {
+  font-size: 44px;
+  text-shadow: 3px 3px 0 var(--shadow);
+}
+
+.splash-bar {
+  position: relative;
+  width: 300px;
+  height: 18px;
+  background: var(--shadow);
+  box-shadow:
+    0 -3px 0 0 var(--border),
+    0 3px 0 0 var(--border),
+    -3px 0 0 0 var(--border),
+    3px 0 0 0 var(--border);
+  overflow: hidden;
+}
+
+.splash-bar span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: repeating-linear-gradient(90deg, var(--accent) 0 12px, var(--orange) 12px 24px);
+  transition: width 0.15s steps(4);
+}
+
+/* Mientras busca: un bloque que va y viene. */
+.splash-bar.waiting span {
+  width: 25%;
+  animation: splash-scan 1.2s steps(12) infinite alternate;
+}
+
+@keyframes splash-scan {
+  from {
+    left: 0;
+  }
+  to {
+    left: 75%;
+  }
+}
+
+.splash-status {
+  min-height: 22px;
+  color: var(--text);
+  text-shadow: 2px 2px 0 var(--shadow);
+}
+
+/* En el tema Neon el logo y el nombre brillan un poco, como la energía del personaje. */
+:root[data-theme="neon"] .splash-logo,
+:root[data-theme="neon"] .hero-logo {
+  filter: drop-shadow(4px 4px 0 rgba(var(--shadow-rgb), 0.55)) drop-shadow(0 0 10px rgba(63, 215, 255, 0.35));
+}
+
+:root[data-theme="neon"] .splash-name,
+:root[data-theme="neon"] .hero h1 {
+  text-shadow:
+    3px 3px 0 var(--shadow),
+    0 0 12px rgba(63, 215, 255, 0.45);
 }

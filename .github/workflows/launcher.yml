@@ -115,25 +115,58 @@ jobs:
             gh release create launcher --title "FreedomClient Launcher" --notes "$notes" --prerelease --verify-tag
           fi
           gh release upload launcher dist/FreedomClient-Launcher-Setup.exe dist/FreedomClient-Launcher-Portable.exe --clobber
+          # El archivo de versión se sube el último: los launchers solo se actualizan cuando el .exe ya está.
+          exe=dist/FreedomClient-Launcher-Portable.exe
+          printf 'commit=%s\nsha1=%s\nsize=%s\n' "$GITHUB_SHA" "$(sha1sum "$exe" | cut -d' ' -f1)" "$(stat -c %s "$exe")" > launcher-version.txt
+          cat launcher-version.txt
+          gh release upload launcher launcher-version.txt --clobber
 
-      - name: Open the launcher and take a screenshot
+      - name: Open the launcher and take screenshots
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force shots | Out-Null
           $env:FC_LAUNCHER_HOME = "$env:RUNNER_TEMP\fc-app"
+          # Sin publicar (lanzado a mano) la release tiene otra versión: no se deja que se actualice a ella.
+          if ("${{ github.event_name }}" -ne "push") { $env:FC_NO_SELF_UPDATE = "1" }
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          function Shot($name) {
+            $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+            $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+            $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+            $bitmap.Save("shots\$name.png")
+          }
+          function SetTheme($theme) {
+            $file = "$env:FC_LAUNCHER_HOME\launcher.json"
+            $json = Get-Content $file -Raw | ConvertFrom-Json
+            $json.theme = $theme
+            $json | ConvertTo-Json -Depth 10 | Set-Content $file
+          }
+          # 1) Tema Angel Devil: arranca, pasa por la pantalla de carga (busca actualizaciones) y enseña Play.
           $app = Start-Process -PassThru dist\FreedomClient-Launcher-Portable.exe
           Start-Sleep -Seconds 15
-          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          $bitmap = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
-          $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
-          $graphics.CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
-          $bitmap.Save("shots\launcher-windows.png")
+          Shot "launcher-windows"
           # Memoria que usa el launcher (su proceso y los de WebView2).
           $procs = Get-Process FreedomClient-Launcher-Portable, msedgewebview2 -ErrorAction SilentlyContinue
           $total = [math]::Round(($procs | Measure-Object WorkingSet64 -Sum).Sum / 1MB)
           ($procs | Select-Object Name, Id, @{n="MB";e={[math]::Round($_.WorkingSet64 / 1MB)}} | Format-Table | Out-String) + "Total: $total MB" | Set-Content shots\launcher-process.txt
           Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+          Start-Sleep -Seconds 3
+          # 2) Tema Neon con la pantalla de carga fija.
+          SetTheme "neon"
+          $env:FC_SPLASH_HOLD = "1"
+          $app = Start-Process -PassThru dist\FreedomClient-Launcher-Portable.exe
+          Start-Sleep -Seconds 12
+          Shot "launcher-splash-neon"
+          Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+          Remove-Item Env:FC_SPLASH_HOLD
+          Start-Sleep -Seconds 3
+          # 3) Tema Neon: Play, con varias capturas para pillar algún rayo.
+          $app = Start-Process -PassThru dist\FreedomClient-Launcher-Portable.exe
+          Start-Sleep -Seconds 13
+          foreach ($i in 1..6) { Shot "launcher-neon-$i"; Start-Sleep -Milliseconds 700 }
+          Stop-Process -Id $app.Id -Force -ErrorAction SilentlyContinue
+          Get-Content "$env:FC_LAUNCHER_HOME\launcher.json" | Set-Content shots\launcher-settings.json
       - name: Install and start the game on Windows
         # Los runners de Windows no tienen OpenGL: se comprueba la instalación y que Fabric carga los mods.
         shell: bash
@@ -141,7 +174,10 @@ jobs:
         env:
           FC_LAUNCHER_HOME: ${{ runner.temp }}/fc
           FC_CI_UNTIL: "Loading"
+          # Tras publicar, comprueba que la autoactualización encuentra esta versión y la descarga bien.
+          FC_CI_SELF_UPDATE: ${{ github.event_name == 'push' && github.sha || '' }}
         run: |
+          if [ -z "$FC_CI_SELF_UPDATE" ]; then unset FC_CI_SELF_UPDATE; fi
           set -o pipefail
           cargo build -p fc-core --bin fc-ci
           ./target/debug/fc-ci 600 2>&1 | tee ../shots/fc-ci-windows.txt

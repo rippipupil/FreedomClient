@@ -71,7 +71,8 @@
 
   // ---------- render general ----------
   function render() {
-    $("launcher-version").textContent = "v" + state.launcher_version;
+    window.fcTheme.apply(state.settings.theme);
+    $("launcher-version").textContent = "v" + state.launcher_version + (state.launcher_commit ? " · " + state.launcher_commit.slice(0, 7) : "");
     $("mc-version").textContent = state.minecraft_version;
     const account = selectedAccount();
     $("account-name").textContent = account ? account.name : "Add account";
@@ -413,6 +414,7 @@
     $("memory-hint").textContent = state.total_memory_mb
       ? `Your PC has ${mb(Math.round(state.total_memory_mb / 1024) * 1024)}. Auto uses ${mb(state.auto_memory_mb)}; more is not faster.`
       : "Auto picks the best amount for your PC.";
+    renderChips("s-theme", s.theme, (v) => update({ theme: v }));
     renderChips("s-launch-with", s.launch_with, (v) => update({ launch_with: v }));
     $("launch-with-hint").textContent =
       s.launch_with === "official"
@@ -534,8 +536,61 @@
     }
   });
 
+  // ---------- pantalla de carga y autoactualización ----------
+  const UPDATE_STAGE = "Updating the launcher";
+
+  async function checkLauncherUpdate() {
+    const bar = document.querySelector(".splash-bar");
+    const status = $("splash-status");
+    const started = Date.now();
+    bar.classList.add("waiting");
+    const unlisten = await listen("progress", (e) => {
+      if (e.payload.stage !== UPDATE_STAGE || !e.payload.total) return;
+      const percent = Math.floor((e.payload.done * 100) / e.payload.total);
+      bar.classList.remove("waiting");
+      $("splash-progress").style.width = percent + "%";
+      status.textContent = `Updating to the latest version… ${percent}%`;
+    });
+    let result;
+    try {
+      result = await invoke("launcher_update");
+    } catch (e) {
+      result = { status: "failed", message: String(e) };
+    }
+    unlisten();
+    bar.classList.remove("waiting");
+    $("splash-progress").style.width = "100%";
+    if (result.status === "restarting") {
+      // La versión nueva se abre sola y esta se cierra.
+      status.textContent = "Updated! Restarting…";
+      return false;
+    }
+    status.textContent =
+      { latest: "You have the latest version", offline: "Could not check for updates", failed: "Update failed, starting anyway" }[result.status] ||
+      "Starting…";
+    const wait = 900 - (Date.now() - started);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    if (result.status === "failed") toast("Launcher update failed: " + result.message, true);
+    return true;
+  }
+
+  function hideSplash() {
+    const splash = $("splash");
+    document.body.classList.remove("loading");
+    splash.classList.add("gone");
+    setTimeout(() => splash.remove(), 400);
+  }
+
   // ---------- inicio ----------
-  reload().then(() => {
-    if (!officialMode() && !state.accounts.length) openAccounts();
-  });
+  (async () => {
+    try {
+      await reload();
+    } catch (e) {
+      toast(String(e), true);
+    }
+    if (!(await checkLauncherUpdate())) return;
+    if (state && state.splash_hold) return;
+    hideSplash();
+    if (state && !officialMode() && !state.accounts.length) openAccounts();
+  })();
 })();

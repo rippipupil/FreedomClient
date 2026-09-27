@@ -65,6 +65,9 @@ resource packs y shaders; nunca los mundos) y en el otro PC **Import** (o arrast
 crea como un perfil nuevo.
 Viene configurado para gastar lo mínimo: memoria automática según tu PC, G1 afinado para que no haya tirones,
 opciones del juego pensadas para FPS y el launcher se cierra al empezar la partida.
+Al abrirse enseña una pantalla de carga que busca la última versión del launcher y, si la hay, la descarga,
+la pone en su sitio y se vuelve a abrir sola. En Configuración → Theme se elige el tema: **Angel Devil**
+(atardecer) o **Neon** (noche con tormenta eléctrica), que cambia colores, logo y fondo de toda la app.
 
 Código en [`launcher/`](launcher): `core` (Rust: descargas, instalación y lanzamiento) y `app` (Tauri + la interfaz en `ui`).
 
