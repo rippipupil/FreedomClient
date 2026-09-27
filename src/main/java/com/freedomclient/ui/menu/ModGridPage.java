@@ -170,7 +170,8 @@ public class ModGridPage implements MenuPage {
 	/** Cosméticos agrupados por sección, cada una con su título y su cuadrícula. */
 	private void renderSections(Ui ui, int x, int y, int w, int h) {
 		List<Module> modules = visibleModules();
-		int innerW = w - 6;
+		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
+		int innerW = w;
 		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
 
@@ -279,7 +280,8 @@ public class ModGridPage implements MenuPage {
 
 	private void renderGrid(Ui ui, int x, int y, int w, int h) {
 		List<Module> modules = visibleModules();
-		int innerW = w - 6;
+		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
+		int innerW = w;
 		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
 		int rows = (modules.size() + columns - 1) / columns;
@@ -318,7 +320,7 @@ public class ModGridPage implements MenuPage {
 		int border = ThemeManager.mix(ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.45F), ThemeManager.highlight(), hover);
 		Draw.bevelPanel(ui.g, x, y, w, CARD_HEIGHT, fill, border);
 
-		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24);
+		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24, module.getCategory().getColor());
 
 		int textX = x + 34;
 		// Se deja sitio a la derecha para la estrella de favorito.

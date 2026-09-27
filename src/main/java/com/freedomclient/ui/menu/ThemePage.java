@@ -17,7 +17,8 @@ public class ThemePage implements MenuPage {
 
 	@Override
 	public void render(Ui ui, int x, int y, int w, int h) {
-		int innerW = w - 6;
+		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
+		int innerW = w;
 		int offset = scroll.begin(ui, x, y, innerW, h);
 		int cursor = y - offset;
 

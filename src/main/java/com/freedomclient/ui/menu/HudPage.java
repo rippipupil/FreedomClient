@@ -21,7 +21,7 @@ public class HudPage implements MenuPage {
 	@Override
 	public void render(Ui ui, int x, int y, int w, int h) {
 		String label = "Edit HUD layout";
-		int buttonW = w - 6;
+		int buttonW = w;
 		boolean hovered = ui.hovered(x, y, buttonW, BUTTON_HEIGHT);
 		int fill = hovered ? ThemeManager.highlight() : ThemeManager.accent();
 		Draw.bevelPanel(ui.g, x, y, buttonW, BUTTON_HEIGHT, fill, ThemeManager.mix(fill, 0xFF000000, 0.4F));

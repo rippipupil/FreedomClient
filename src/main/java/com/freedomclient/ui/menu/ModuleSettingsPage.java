@@ -114,7 +114,7 @@ public class ModuleSettingsPage implements MenuPage {
 			return true;
 		});
 
-		Draw.iconBox(ui.g, module.getIcon(), x + 22, y, 24);
+		Draw.iconBox(ui.g, module.getIcon(), x + 22, y, 24, module.getCategory().getColor());
 		ui.g.drawString(ui.font, UiText.title(module.getName()), x + 52, y + 2, ThemeManager.text(), false);
 		ui.g.drawString(ui.font, module.getCategory().getDisplayName(), x + 52, y + 15, ThemeManager.textMuted(), false);
 
@@ -135,7 +135,8 @@ public class ModuleSettingsPage implements MenuPage {
 		// Descripción y ajustes, con scroll.
 		int listY = y + 30;
 		int listH = h - 30;
-		int innerW = w - 6;
+		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
+		int innerW = w;
 		int offset = scroll.begin(ui, x, listY, innerW, listH);
 		int cursor = listY - offset;
 

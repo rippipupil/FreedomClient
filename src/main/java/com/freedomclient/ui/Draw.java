@@ -60,4 +60,12 @@ public final class Draw {
 		int offset = (boxSize - 16) / 2;
 		icon(g, icon, x + offset, y + offset, 16);
 	}
+
+	/** Caja del icono teñida con el color de la categoría del mod, con una franja de ese color abajo. */
+	public static void iconBox(GuiGraphics g, Identifier icon, int x, int y, int boxSize, int accent) {
+		panel(g, x, y, boxSize, boxSize, ThemeManager.mix(ThemeManager.shade(), accent, 0.16F), ThemeManager.mix(accent, ThemeManager.border(), 0.35F));
+		g.fill(x + 2, y + boxSize - 3, x + boxSize - 2, y + boxSize - 2, ThemeManager.mix(accent, ThemeManager.shade(), 0.2F));
+		int offset = (boxSize - 16) / 2;
+		icon(g, icon, x + offset, y + offset - 1, 16);
+	}
 }
