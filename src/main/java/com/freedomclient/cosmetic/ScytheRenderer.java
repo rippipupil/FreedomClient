@@ -168,6 +168,17 @@ public final class ScytheRenderer {
 		}
 	}
 
+	private static int colorRow(char color) {
+		return switch (color) {
+			case 'W' -> 0;
+			case 'S' -> 4;
+			case 'D' -> 8;
+			case 'K' -> 12;
+			case 'G' -> 20;
+			default -> 16;
+		};
+	}
+
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, ScytheCosmetic module) {
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
