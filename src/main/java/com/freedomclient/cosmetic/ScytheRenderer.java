@@ -80,8 +80,8 @@ public final class ScytheRenderer {
 	/** Estilo 3D: hoja más gruesa en el centro, mango cuadrado con vendas, guarda ancha con púas y pomo. */
 	private final ModelPart threeD = build(true, 0.0F);
 	/** Aura fantasmal: los mismos cubos un poco inflados, dibujados translúcidos alrededor de la guadaña. */
-	private final ModelPart classicGhost = build(false, 0.45F);
-	private final ModelPart threeDGhost = build(true, 0.45F);
+	private final ModelPart classicGhost = build(false, 0.8F);
+	private final ModelPart threeDGhost = build(true, 0.8F);
 
 	private static final Identifier[] GHOST_TEXTURES = {
 			FreedomClient.id("textures/cosmetic/scythe_ghost_1.png"),

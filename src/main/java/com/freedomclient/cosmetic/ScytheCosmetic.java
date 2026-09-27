@@ -28,7 +28,7 @@ public class ScytheCosmetic extends CosmeticModule {
 	public void onTick(Minecraft client) {
 		LocalPlayer player = client.player;
 		if (!ghostAura.get() || client.level == null || player == null || player.isInvisible() || client.isPaused()) return;
-		if (client.options.getCameraType().isFirstPerson() || random.nextFloat() > 0.35F) return;
+		if (client.options.getCameraType().isFirstPerson() || random.nextFloat() > 0.5F) return;
 
 		// Ejes del jugador: hacia atrás y hacia su derecha según hacia dónde mira el cuerpo.
 		float yaw = player.yBodyRot * Mth.DEG_TO_RAD;
@@ -54,6 +54,6 @@ public class ScytheCosmetic extends CosmeticModule {
 		double z = player.getZ() + rightZ * lateral + backZ * back;
 		client.particleEngine.add(new GlowParticle(client.level, x, y, z,
 				(random.nextDouble() - 0.5) * 0.01, 0.012 + random.nextDouble() * 0.01, (random.nextDouble() - 0.5) * 0.01,
-				PixelParticles.sprite("soul_wisp"), 0.05F, 0.1F, 28 + random.nextInt(14)));
+				PixelParticles.sprite("soul_wisp"), 0.09F, 0.16F, 30 + random.nextInt(16)));
 	}
 }

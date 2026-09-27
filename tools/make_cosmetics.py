@@ -328,8 +328,8 @@ def make_scythe():
             for x in range(64):
                 image.putpixel((x, y), color)
     image.save(OUT / "scythe.png")
-    for number, alpha in ((1, 34), (2, 58), (3, 84)):
-        Image.new("RGBA", (64, 32), (200, 204, 210, alpha)).save(OUT / f"scythe_ghost_{number}.png")
+    for number, alpha in ((1, 12), (2, 20), (3, 30)):
+        Image.new("RGBA", (64, 32), (215, 220, 228, alpha)).save(OUT / f"scythe_ghost_{number}.png")
 
 
 def main():

@@ -207,6 +207,9 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("scythe_classic");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(com.freedomclient.cosmetic.ScytheCosmetic.class), "Style", "3D"));
+			context.waitTicks(5);
+			context.takeScreenshot("scythe_3d_no_aura");
 			context.runOnClient(client -> {
 				var manager = FreedomClient.getModuleManager();
 				var scythe = manager.get(com.freedomclient.cosmetic.ScytheCosmetic.class);
