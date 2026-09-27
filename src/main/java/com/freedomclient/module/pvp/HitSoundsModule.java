@@ -84,7 +84,7 @@ public class HitSoundsModule extends Module {
 	}
 
 	/** Las mismas condiciones que usa el juego para un golpe crítico (cayendo, con el ataque cargado, sin correr...). */
-	private static boolean isCritical(LocalPlayer player, Entity target) {
+	public static boolean isCritical(LocalPlayer player, Entity target) {
 		return player != null && target instanceof LivingEntity
 				&& player.getAttackStrengthScale(0.5F) > 0.9F
 				&& player.fallDistance > 0.0F && !player.onGround() && !player.onClimbable() && !player.isInWater()

@@ -75,6 +75,10 @@ PARTICLE_COLORS = {
     "P": (200, 60, 110, 255), "b": (93, 173, 226, 255), "B": (46, 110, 168, 255), "k": (58, 5, 8, 255),
     "s": (225, 228, 232, 210), "S": (170, 175, 182, 150), "f": (130, 135, 142, 90),
     "m": (200, 205, 212, 70), "M": (160, 166, 174, 40),
+    # Neon: amarillo, verde lima, cian, azul, violeta y un blanco azulado para el centro de las chispas.
+    "Y": (255, 225, 74, 255), "L": (198, 242, 90, 255), "C": (63, 215, 255, 255), "U": (58, 123, 255, 255),
+    "V": (107, 91, 255, 255), "Z": (240, 252, 255, 255), "z": (190, 240, 255, 110), "x": (255, 255, 255, 255),
+    "X": (255, 255, 255, 90),
 }
 PARTICLES = {
     # Chispa dorada de ángel.
@@ -91,6 +95,14 @@ PARTICLES = {
     "soul_wisp": ["..f..", ".fSf.", ".SsS.", "fSssS", ".SsS.", "..S..", "..f.."],
     # Niebla gris muy suave del aura fantasmal.
     "soul_mist": ["..MMMM..", ".MmmmmM.", "MmmmmmmM", "MmmmmmmM", "MmmmmmmM", "MmmmmmmM", ".MmmmmM.", "..MMMM.."],
+    # Rayos de Neon: zigzags cortos cuyos colores se mezclan (amarillo, lima, cian, azul y violeta).
+    "neon_bolt_a": ["....Y...", "...YL...", "..LL....", "..CC....", "...CZ...", "....UU..", "...UU...", "..V....."],
+    "neon_bolt_b": ["...U....", "...UC...", "....CC..", "....ZC..", "...LL...", "..LL....", "...YY...", "....Y..."],
+    "neon_bolt_c": ["........", "........", "Y......V", "LL....UU", "..CZ.C..", "...CC...", "........", "........"],
+    # Chispa: cruz con el centro blanco.
+    "neon_spark": ["...z...", "...C...", "..zCz..", "zCCZCCz", "..zCz..", "...C...", "...z..."],
+    # Punto blanco con halo (se tiñe con el color de cada partícula: estelas y pasos).
+    "neon_dot": ["XXX", "XxX", "XXX"],
     # Nota musical.
     "note": ["...kkk", "...kgk", "...kgk", "...k.k", "kkkk..", "kggk..", "kkkk.."],
 }
@@ -333,6 +345,117 @@ def make_scythe():
     image.save(OUT / "scythe.png")
 
 
+# Mascota Neon (NeonPetRenderer): un Funko Pop pixel, cabeza grande y cuerpo pequeño, con UV de caja en 128x64.
+NEON_PET = {
+    "H": (38, 58, 210, 255),     # pelo azul oscuro
+    "h": (58, 91, 255, 255),     # pelo azul
+    "L": (110, 170, 255, 255),   # brillo del pelo
+    "Y": (245, 197, 66, 255),    # puntas amarillas
+    "s": (201, 139, 98, 255),    # piel
+    "S": (168, 111, 76, 255),    # piel en sombra
+    "E": (20, 16, 24, 255),      # ojos negros de Funko
+    "W": (255, 255, 255, 255),   # brillo del ojo
+    "P": (216, 224, 234, 255),   # pinza de la nariz
+    "n": (27, 35, 80, 255),      # traje azul marino
+    "N": (18, 23, 58, 255),      # traje oscuro
+    "b": (58, 123, 255, 255),    # raya azul
+    "c": (63, 215, 255, 255),    # raya cian
+    "l": (183, 154, 224, 255),   # malla lavanda
+    "k": (58, 48, 64, 255),      # cinturón
+    "g": (42, 47, 85, 255),      # guantes
+    "o": (30, 34, 56, 255),      # zapatillas
+    "w": (232, 236, 244, 255),   # suela blanca
+    "q": (196, 128, 66, 255),    # cobre de la mochila
+    "G": (58, 62, 74, 255),      # gris de la mochila
+}
+
+
+def paint_rows(image, u, v, rows, palette):
+    for y, row in enumerate(rows):
+        for x, char in enumerate(row):
+            if char in palette:
+                image.putpixel((u + x, v + y), palette[char])
+
+
+def paint_cube(image, u, v, w, h, d, faces, palette):
+    """UV de caja: arriba/abajo en la fila v, y derecha, frente, izquierda y espalda en la fila v + d.
+    Cada cara es una lista de filas o un solo carácter para rellenarla entera."""
+    def face(value, fw, fh):
+        return [value * fw] * fh if isinstance(value, str) and len(value) == 1 else value
+    paint_rows(image, u + d, v, face(faces["top"], w, d), palette)
+    paint_rows(image, u + d + w, v, face(faces["bottom"], w, d), palette)
+    paint_rows(image, u, v + d, face(faces["right"], d, h), palette)
+    paint_rows(image, u + d, v + d, face(faces["front"], w, h), palette)
+    paint_rows(image, u + d + w, v + d, face(faces["left"], d, h), palette)
+    paint_rows(image, u + d + w + d, v + d, face(faces["back"], w, h), palette)
+
+
+def make_neon_pet(sleeping=False):
+    image = Image.new("RGBA", (128, 64), (0, 0, 0, 0))
+    eyes = ["sssssssss s".replace(" ", ""), "sEEssssEEs", "sEWssssEWs"] if not sleeping else ["ssssssssss", "sEEssssEEs", "ssssssssss"]
+    # Cabeza 10x9x9 en (0, 0): cara de Funko con ojos grandes, sin boca, y la pinza de la nariz.
+    paint_cube(image, 0, 0, 10, 9, 9, {
+        "top": "h", "bottom": "S",
+        "right": ["hhhhhhhhh", "hhhhhhhhh", "hhhhhhhsS", "hhhhhhsss", "Yhhhhhsss", "YYhhhssss", "YYhhsssss", "Yhhssssss", "YYYsssssS"],
+        "front": ["ssssssssss", "ssssssssss"] + eyes + ["ssssPPssss", "ssssssssss", "SssssssssS"],
+        "left": ["hhhhhhhhh", "hhhhhhhhh", "Sshhhhhhh", "ssshhhhhh", "ssshhhhhY", "sssshhhYY", "ssssshhYY", "sssssshhY", "SsssssYYY"],
+        "back": ["hhhhhhhhhh", "hLhhhhhLhh", "hhhhhhhhhh", "hhhLhhhhhh", "hhhhhhhLhh", "hhhhhhhhhh", "YhhhhhhhhY", "YYhhhhhhYY", "YYYYYYYYYY"],
+    }, NEON_PET)
+    # Casquete de pelo 11x3x10 en (40, 0).
+    paint_cube(image, 40, 0, 11, 3, 10, {
+        "top": ["hhhhhhhhhhh", "hhLhhhhhLhh", "hhhhhHhhhhh", "hhhhhHhhhhh", "hhLhhHhhLhh", "hhhhhHhhhhh", "hhhhhhhhhhh", "hhhhhhhhhhh", "hhLhhhhLhhh", "hhhhhhhhhhh"],
+        "bottom": "H",
+        "right": ["hhhhhhhhhh", "hhhhhhhhhh", "HhhhhhhhhH"], "front": ["hhhhhhhhhhh", "hhLhhhhhLhh", "HhhhHhhhhhH"],
+        "left": ["hhhhhhhhhh", "hhhhhhhhhh", "HhhhhhhhhH"], "back": ["hhhhhhhhhhh", "hhhhLhhhhhh", "HhhhhhhhhhH"],
+    }, NEON_PET)
+    # Melena de atrás 10x7x2 en (84, 0), con las puntas amarillas.
+    paint_cube(image, 84, 0, 10, 7, 2, {
+        "top": "h", "bottom": "Y", "right": ["hh", "hh", "hh", "hh", "hY", "YY", "YY"],
+        "front": ["hhhhhhhhhh", "hhhhhhhhhh", "hhhhhhhhhh", "hhhhhhhhhh", "YhhhhhhhhY", "YYhhhhhhYY", "YYYYYYYYYY"],
+        "left": ["hh", "hh", "hh", "hh", "Yh", "YY", "YY"],
+        "back": ["hLhhhhhhLh", "hhhhLhhhhh", "hhhhhhhhhh", "hLhhhhhLhh", "YhhhhhhhhY", "YYhhhYhhYY", "YYYYYYYYYY"],
+    }, NEON_PET)
+    # Moños 3x3x3 en (84, 12) y puntas 1x3x1 en (100, 12): azules con la punta amarilla.
+    paint_cube(image, 84, 12, 3, 3, 3, {"top": "L", "bottom": "H", "right": "h", "front": ["hLh", "hhh", "HhH"], "left": "h", "back": "h"}, NEON_PET)
+    paint_cube(image, 100, 12, 1, 3, 1, {"top": "Y", "bottom": "h", "right": ["Y", "h", "h"], "front": ["Y", "L", "h"], "left": ["Y", "h", "h"], "back": ["Y", "h", "h"]}, NEON_PET)
+    # Flequillo 10x2x1 en (0, 20) y mechones laterales 1x5x1 en (24, 20) con la punta amarilla.
+    paint_cube(image, 0, 20, 10, 2, 1, {"top": "h", "bottom": "H", "right": "h", "front": ["hhLhhhhLhh", "HhhHhhHhhH"], "left": "h", "back": "h"}, NEON_PET)
+    paint_cube(image, 24, 20, 1, 5, 1, {"top": "h", "bottom": "Y", "right": ["h", "h", "h", "Y", "Y"], "front": ["h", "L", "h", "Y", "Y"], "left": ["h", "h", "h", "Y", "Y"], "back": ["h", "h", "h", "Y", "Y"]}, NEON_PET)
+    # Cuerpo 6x5x4 en (0, 28): top azul marino con rayas, malla lavanda y cinturón.
+    paint_cube(image, 0, 28, 6, 5, 4, {
+        "top": "n", "bottom": "n",
+        "right": ["nnnn", "nbnn", "llll", "kkkk", "nnnn"],
+        "front": ["nNnnNn", "ncbbcn", "llllll", "kkqkkk", "nnbnnn"],
+        "left": ["nnnn", "nnbn", "llll", "kkkk", "nnnn"],
+        "back": ["nnnnnn", "nbnnbn", "llllll", "kkkkkk", "nnnnnn"],
+    }, NEON_PET)
+    # Brazos 2x5x2 en (24, 28) y (32, 28): piel arriba, manga y guante.
+    for u in (24, 32):
+        arm = ["ss", "nb", "nn", "gg", "gg"]
+        paint_cube(image, u, 28, 2, 5, 2, {"top": "s", "bottom": "g", "right": arm, "front": arm, "left": arm, "back": arm}, NEON_PET)
+    # Piernas 3x4x3 en (0, 40) y (12, 40): mallas con rayas azules, zapatillas con suela blanca.
+    for u in (0, 12):
+        leg = ["nbn", "ncn", "ooo", "www"]
+        paint_cube(image, u, 40, 3, 4, 3, {"top": "n", "bottom": "w", "right": leg, "front": leg, "left": leg, "back": leg}, NEON_PET)
+    # Mini mochila 4x3x1 en (40, 20): gris con placas de cobre y el punto cian.
+    paint_cube(image, 40, 20, 4, 3, 1, {"top": "G", "bottom": "G", "right": "q", "front": "G", "left": "q",
+                                         "back": ["qGGq", "qccq", "qGGq"]}, {**NEON_PET, "c": (120, 235, 255, 255)})
+    image.save(OUT / ("neon_pet_sleep.png" if sleeping else "neon_pet.png"))
+
+
+def make_neon_pack():
+    """Franjas de color de la Neon Pack (NeonPackRenderer): gris oscuro, gris claro, cobre, cobre claro, cobre oscuro,
+    cian, cian brillante y negro."""
+    colors = ((52, 56, 66, 255), (110, 116, 128, 255), (196, 128, 66, 255), (232, 170, 104, 255), (138, 82, 40, 255),
+              (63, 215, 255, 255), (190, 245, 255, 255), (16, 18, 24, 255))
+    image = Image.new("RGBA", (64, 128), (0, 0, 0, 0))
+    for index, color in enumerate(colors):
+        for y in range(index * 16, index * 16 + 16):
+            for x in range(64):
+                image.putpixel((x, y), color)
+    image.save(OUT / "neon_pack.png")
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     make_wings()
@@ -345,6 +468,9 @@ def main():
     make_halo_styles()
     make_cape()
     make_scythe()
+    make_neon_pack()
+    make_neon_pet()
+    make_neon_pet(sleeping=True)
     print("cosmetic textures written to", OUT)
 
 

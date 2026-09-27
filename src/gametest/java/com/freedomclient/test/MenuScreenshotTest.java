@@ -240,6 +240,67 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(40);
 			context.takeScreenshot("scythe_first_person");
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.cosmetic.ScytheCosmetic.class).setEnabled(false));
+
+			// Cosméticos Neon: mochila, mascota Funko, estela de rayo, pasos eléctricos y aura de descargas.
+			context.runOnClient(client -> {
+				var manager = FreedomClient.getModuleManager();
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.NeonPackCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.NeonPetCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.LightningTrailCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.NeonStepsCosmetic.class).setEnabled(true);
+				setMode(manager.get(com.freedomclient.cosmetic.AuraCosmetic.class), "Style", "Neon discharges");
+				PetBehavior.forceMood(PetBehavior.Mood.IDLE);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+			});
+			// Unos pasos hacia delante para que salgan la estela y las líneas de los pies.
+			for (int i = 0; i < 14; i++) {
+				context.runOnClient(client -> {
+					var player = client.player;
+					float yaw = player.getYRot() * net.minecraft.util.Mth.DEG_TO_RAD;
+					player.setPos(player.getX() - net.minecraft.util.Mth.sin(yaw) * 0.22, player.getY(), player.getZ() + net.minecraft.util.Mth.cos(yaw) * 0.22);
+				});
+				context.waitTicks(1);
+			}
+			context.takeScreenshot("neon_back");
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 90.0F));
+			context.waitTicks(6);
+			context.takeScreenshot("neon_side");
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 90.0F));
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(10);
+			context.takeScreenshot("neon_front");
+			// Golpe Neon: normal (una descarga) y crítico (varias), en el soporte de armadura.
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+			context.runOnClient(client -> {
+				for (var entity : client.level.entitiesForRendering()) {
+					if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
+						FreedomClient.getModuleManager().get(HitParticlesModule.class).neonHit(entity, false);
+					}
+				}
+			});
+			context.waitTicks(2);
+			context.takeScreenshot("neon_hit");
+			context.runOnClient(client -> {
+				for (var entity : client.level.entitiesForRendering()) {
+					if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
+						FreedomClient.getModuleManager().get(HitParticlesModule.class).neonHit(entity, true);
+					}
+				}
+			});
+			context.waitTicks(2);
+			context.takeScreenshot("neon_crit");
+			context.runOnClient(client -> {
+				var manager = FreedomClient.getModuleManager();
+				manager.get(com.freedomclient.cosmetic.NeonPackCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.NeonPetCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.LightningTrailCosmetic.class).setEnabled(false);
+				manager.get(com.freedomclient.cosmetic.NeonStepsCosmetic.class).setEnabled(false);
+				setMode(manager.get(com.freedomclient.cosmetic.AuraCosmetic.class), "Style", "Angel light");
+				manager.get(com.freedomclient.cosmetic.WingsCosmetic.class).setEnabled(true);
+				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(true);
+			});
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
 			// Visuals: cielo de atardecer FC.

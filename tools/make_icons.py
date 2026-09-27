@@ -29,6 +29,13 @@ PALETTE = {
     "m": (0xB9, 0xBE, 0xC4),  # plata (guadaña)
     "M": (0x6E, 0x74, 0x7B),  # plata oscura
     "h": (0x3A, 0x3C, 0x42),  # gris oscuro (mango)
+    "c": (0x3F, 0xD7, 0xFF),  # cian Neon
+    "u": (0x3A, 0x7B, 0xFF),  # azul Neon
+    "l": (0xC6, 0xF2, 0x5A),  # verde lima Neon
+    "v": (0x6B, 0x5B, 0xFF),  # violeta Neon
+    "y": (0xFF, 0xE1, 0x4A),  # amarillo Neon
+    "q": (0xC4, 0x80, 0x42),  # cobre
+    "z": (0x1B, 0x23, 0x50),  # azul marino
 }
 
 ICONS = {
@@ -1147,6 +1154,78 @@ ICONS = {
         "...........hkk..",
         "............hk..",
         "............k...",
+    ],
+    "neon_pack": [
+        "................",
+        "...kkkk..kkkk...",
+        "..kqqqqkkqqqqk..",
+        "..kqqqkhhkqqqk..",
+        "..kqqkhcchkqqk..",
+        "..kqqkcwwckqqk..",
+        "..kqqkchhckqqk..",
+        "..kqqkhcchkqqk..",
+        "..kqqkhhhhkqqk..",
+        "..kqqkhqqhkqqk..",
+        "..kqqkhqqhkqqk..",
+        "..kqqqkhhkqqqk..",
+        "...kqqqkkqqqk...",
+        "....kkkk.kkkk...",
+        "................",
+        "................",
+    ],
+    "lightning_trail": [
+        "..........kyk...",
+        ".........kyyk...",
+        "........kylk....",
+        ".......kllk.....",
+        "......klllkkk...",
+        ".....kcccccck...",
+        "....kkkkkcck....",
+        "......kccck.....",
+        ".....kuuuk......",
+        "....kuuuk.......",
+        "...kvvvk........",
+        "..kvvk..u.u.....",
+        ".kvk..c.....c...",
+        ".kk.l....y......",
+        "................",
+        "................",
+    ],
+    "neon_steps": [
+        "................",
+        "...kk......kk...",
+        "..kyyk....kcck..",
+        "..kyyk....kcck..",
+        "...kk......kk...",
+        "..y..........c..",
+        "..l..kk......u..",
+        "..l.kyyk..kk.u..",
+        "..c.kyyk.kcck.v.",
+        "..c..kk..kcck.v.",
+        "..u.......kk..u.",
+        "..u...........c.",
+        "..v...........l.",
+        "..v...........y.",
+        "................",
+        "................",
+    ],
+    "neon_pet": [
+        ".kk..........kk.",
+        "kuukkkkkkkkkkuuk",
+        "kuuuuuuuuuuuuuuk",
+        ".kuuuuuuuuuuuuk.",
+        "kuuuuuuuuuuuuuuk",
+        "kuupppppppppppuk",
+        "kyupppppppppppuk",
+        "kyupkkppppkkpyuk",
+        "kyypkkppppkkpyyk",
+        ".kypppppppppyyk.",
+        "..kppppwwpppkk..",
+        "...kkkkkkkkkk...",
+        ".....kzzzzk.....",
+        "....kzcuuczk....",
+        "....kzzzzzzk....",
+        ".....kk..kk.....",
     ],
     "aura": [
         "................",

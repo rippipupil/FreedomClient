@@ -103,7 +103,9 @@ public class FreedomMenuScreen extends Screen {
 	@Override
 	public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
 		// Sin desenfoque: el juego se sigue viendo alrededor de la ventana.
-		graphics.fillGradient(0, 0, width, height, 0x20000000, 0x60200008);
+		// Oscurece el fondo hacia abajo con un tono del tema (rojizo en Angel Devil, azul noche en Neon).
+		int tint = ThemeManager.get(com.freedomclient.ui.theme.ThemeColor.BACKGROUND) & 0xFFFFFF;
+		graphics.fillGradient(0, 0, width, height, 0x20000000, 0x60000000 | tint);
 	}
 
 	@Override

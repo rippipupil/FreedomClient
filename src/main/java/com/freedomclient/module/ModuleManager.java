@@ -5,6 +5,10 @@ import com.freedomclient.cosmetic.CapeCosmetic;
 import com.freedomclient.cosmetic.CloudPetCosmetic;
 import com.freedomclient.cosmetic.HaloCosmetic;
 import com.freedomclient.cosmetic.PetCosmetic;
+import com.freedomclient.cosmetic.LightningTrailCosmetic;
+import com.freedomclient.cosmetic.NeonPackCosmetic;
+import com.freedomclient.cosmetic.NeonPetCosmetic;
+import com.freedomclient.cosmetic.NeonStepsCosmetic;
 import com.freedomclient.cosmetic.ScytheCosmetic;
 import com.freedomclient.cosmetic.WingsCosmetic;
 import com.freedomclient.module.hud.AppleSkinModule;
@@ -165,6 +169,10 @@ public class ModuleManager {
 		add(new CloudPetCosmetic());
 		add(new AuraCosmetic());
 		add(new ScytheCosmetic());
+		add(new NeonPackCosmetic());
+		add(new NeonPetCosmetic());
+		add(new LightningTrailCosmetic());
+		add(new NeonStepsCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

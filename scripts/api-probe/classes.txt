@@ -21,3 +21,4 @@ net.minecraft.client.multiplayer.resolver.ServerAddress
 net.minecraft.client.particle.SingleQuadParticle
 net.minecraft.client.particle.Particle
 net.minecraft.client.renderer.LightTexture
+net.minecraft.client.renderer.entity.state.HumanoidRenderState

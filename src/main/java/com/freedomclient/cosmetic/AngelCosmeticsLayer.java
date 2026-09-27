@@ -35,6 +35,8 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 	private final AngelDevilPetRenderer pet = new AngelDevilPetRenderer();
 	private final CloudPetRenderer cloudPet = new CloudPetRenderer();
 	private final ScytheRenderer scythe = new ScytheRenderer();
+	private final NeonPackRenderer neonPack = new NeonPackRenderer();
+	private final NeonPetRenderer neonPet = new NeonPetRenderer();
 
 	public AngelCosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent) {
 		super(parent);
@@ -191,6 +193,16 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		ScytheCosmetic scytheModule = CosmeticModule.get(ScytheCosmetic.class);
 		if (scytheModule != null && scytheModule.shouldRender(state)) {
 			scythe.render(getParentModel(), poseStack, collector, light, state, scytheModule);
+		}
+
+		NeonPackCosmetic packModule = CosmeticModule.get(NeonPackCosmetic.class);
+		if (packModule != null && packModule.shouldRender(state)) {
+			neonPack.render(getParentModel(), poseStack, collector, light, state);
+		}
+
+		NeonPetCosmetic neonPetModule = CosmeticModule.get(NeonPetCosmetic.class);
+		if (neonPetModule != null && neonPetModule.shouldRender(state)) {
+			neonPet.render(poseStack, collector, light, state, neonPetModule);
 		}
 
 		WingsCosmetic wingsModule = CosmeticModule.get(WingsCosmetic.class);

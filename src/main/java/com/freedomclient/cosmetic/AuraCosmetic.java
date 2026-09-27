@@ -1,6 +1,7 @@
 package com.freedomclient.cosmetic;
 
 import com.freedomclient.particle.AuraParticle;
+import com.freedomclient.particle.NeonFx;
 import com.freedomclient.particle.PixelParticles;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ModeSetting;
@@ -12,14 +13,14 @@ import net.minecraft.util.RandomSource;
 /** Aura: lucecitas pixel alrededor de ti, en varios estilos. */
 public class AuraCosmetic extends CosmeticModule {
 	public final ModeSetting style = add(new ModeSetting("Style", "Look of the aura.", "Angel light",
-			"Angel light", "Devil embers", "Sky sparkles", "Starry", "Hearts", "Feathers", "Music"));
+			"Angel light", "Devil embers", "Sky sparkles", "Starry", "Hearts", "Feathers", "Music", "Neon discharges"));
 	public final NumberSetting amount = add(new NumberSetting("Amount", "How many lights float around you.", 3, 1, 8, 1));
 	public final BooleanSetting firstPerson = add(new BooleanSetting("Show in first person", "Also show the aura in first person.", false));
 
 	private final RandomSource random = RandomSource.create();
 
 	public AuraCosmetic() {
-		super("Aura", "Little pixel lights floating around you: angel light, devil embers, sky sparkles, stars, hearts, feathers or notes.", CosmeticSlot.EFFECT);
+		super("Aura", "Little pixel lights floating around you: angel light, devil embers, sky sparkles, stars, hearts, feathers, notes or Neon discharges.", CosmeticSlot.EFFECT);
 	}
 
 	@Override
@@ -31,6 +32,17 @@ public class AuraCosmetic extends CosmeticModule {
 		if (random.nextFloat() > amount.getFloat() / 8.0F) return;
 
 		double height = 0.1 + random.nextDouble() * 1.7;
+		if (style.is("Neon discharges")) {
+			// Descargas eléctricas de Neon que aparecen alrededor tuyo y se apagan en un instante.
+			double angle = random.nextDouble() * Math.PI * 2;
+			double radius = 0.45 + random.nextDouble() * 0.35;
+			double x = player.getX() + Math.cos(angle) * radius;
+			double y = player.getY() + height;
+			double z = player.getZ() + Math.sin(angle) * radius;
+			NeonFx.discharge(x, y, z, 0.1F + random.nextFloat() * 0.06F, 4 + random.nextInt(4));
+			if (random.nextFloat() < 0.5F) NeonFx.spark(x, y, z, 0.05, 0.05F, 6);
+			return;
+		}
 		AuraParticle particle = switch (style.get()) {
 			// Brasas: salen de los pies y suben girando despacio.
 			case "Devil embers" -> new AuraParticle(client.level, player, PixelParticles.sprite("ember"), 0.5 + random.nextDouble() * 0.3,

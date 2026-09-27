@@ -7,6 +7,7 @@ public enum CosmeticSlot {
 	WINGS("Wings"),
 	BACK("Back"),
 	PET("Pets"),
+	TRAIL("Trails"),
 	EFFECT("Effects");
 
 	private final String displayName;
