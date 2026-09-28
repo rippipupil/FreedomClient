@@ -44,7 +44,7 @@ public final class ThemedMenus {
 			PixelSky.render(g, width, height, 1.0F);
 			g.fillGradient(0, 0, width, height, ThemeManager.withAlpha(tint, 0.15F), ThemeManager.withAlpha(tint, 0.45F));
 		} else {
-			g.fillGradient(0, 0, width, height, ThemeManager.withAlpha(tint, 0.45F), ThemeManager.withAlpha(tint, 0.85F));
+			g.fillGradient(0, 0, width, height, ThemeManager.withAlpha(tint, 0.7F), ThemeManager.withAlpha(tint, 0.92F));
 		}
 	}
 

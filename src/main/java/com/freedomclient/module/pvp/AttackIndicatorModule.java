@@ -230,8 +230,11 @@ public class AttackIndicatorModule extends Module {
 	/** Anillo pixel que se rellena en el sentido de las agujas del reloj desde arriba. */
 	private void circle(GuiGraphics graphics, float strength, int fill, boolean crosshair) {
 		// Bajo la mira es un anillo pequeño justo debajo de la cruz (el origen ya está 12 px por debajo del centro).
-		int centerY = 0;
-		int outer = crosshair ? CIRCLE_RADIUS : 6;
+		// Se dibuja a media escala para que el círculo salga redondo aunque sea pequeño.
+		float half = crosshair ? 0.5F : 1.0F;
+		int outer = crosshair ? CIRCLE_RADIUS * 2 : 6;
+		graphics.pose().pushMatrix();
+		graphics.pose().scale(half, half);
 		for (int y = -outer - 1; y <= outer; y++) {
 			for (int x = -outer - 1; x <= outer; x++) {
 				double dx = x + 0.5;
@@ -242,10 +245,12 @@ public class AttackIndicatorModule extends Module {
 				double angle = Math.atan2(dx, -dy);
 				if (angle < 0) angle += Math.PI * 2;
 				int color = angle / (Math.PI * 2) <= strength ? fill : backgroundColor.get();
-				graphics.fill(x, centerY + y, x + 1, centerY + y + 1, edge ? color : darker(color));
+				graphics.fill(x, y, x + 1, y + 1, edge ? color : darker(color));
 			}
 		}
+		graphics.pose().popMatrix();
 	}
+
 
 	private static int darker(int argb) {
 		int a = argb >>> 24;

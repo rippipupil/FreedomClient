@@ -343,6 +343,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(4);
 			context.takeScreenshot("hit_particles");
+			// Partículas pixel 3D de cerca: un crítico con plumas, copos y calabazas alrededor del jugador (F5).
+			context.runOnClient(client -> {
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+				FreedomClient.getModuleManager().get(HitParticlesModule.class).spawn(client.player, true);
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("hit_particles_3d");
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
 
 			// Aviso de poca vida a 2 corazones.
 			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> player.setHealth(4.0F)));
