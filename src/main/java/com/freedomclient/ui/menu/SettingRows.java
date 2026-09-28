@@ -11,6 +11,7 @@ import com.freedomclient.setting.Setting;
 import com.freedomclient.setting.StringSetting;
 import com.freedomclient.ui.ColorPicker;
 import com.freedomclient.ui.Draw;
+import com.freedomclient.ui.NeonStyle;
 import com.freedomclient.ui.TextField;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.theme.ThemeManager;
@@ -56,6 +57,10 @@ public class SettingRows {
 		boolean hovered = ui.hovered(x, y, w, h);
 		Draw.panel(ui.g, x, y, w, h, hovered ? ThemeManager.cardHover() : ThemeManager.card(),
 				ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.55F));
+		if (NeonStyle.on()) {
+			// Cada fila con su tramo del degradado según su altura, así la lista pasa de amarillo a lima y a cian.
+			NeonStyle.frame(ui.g, x, y, w, h, y / 400.0 + NeonStyle.flow() * 0.5, 0.25, hovered ? 1.0F : 0.7F);
+		}
 		ui.g.drawString(ui.font, name, x + 6, y + 5, ThemeManager.text(), false);
 		if (hovered && description != null && !description.isEmpty() && ui.mouseX < x + 6 + ui.font.width(name) + 4) {
 			ui.tooltip(description);

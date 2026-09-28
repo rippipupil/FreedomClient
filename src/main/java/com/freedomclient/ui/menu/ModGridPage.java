@@ -325,7 +325,12 @@ public class ModGridPage implements MenuPage {
 		Draw.bevelPanel(ui.g, x, y, w, CARD_HEIGHT, fill, border);
 		if (NeonStyle.on()) {
 			// Cada tarjeta con su tramo de la paleta según dónde está; al pasar el ratón brilla del todo.
-			NeonStyle.frame(ui.g, x, y, w, CARD_HEIGHT, (x + y) / 700.0 + NeonStyle.flow() * 0.5, 0.35, 0.5F + 0.5F * hover);
+			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
+			NeonStyle.frame(ui.g, x, y, w, CARD_HEIGHT, phase, 0.5, 0.75F + 0.25F * hover);
+			// Los mods activados llevan una línea de energía arriba por dentro de la tarjeta.
+			if (module.isEnabled()) {
+				NeonStyle.hLine(ui.g, x + 2, x + w - 2, y + 1, 1, phase + 0.25, phase + 0.75, 0.55F + 0.45F * hover);
+			}
 		}
 
 		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24, module.getCategory().getColor());

@@ -430,6 +430,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.takeScreenshot("menu_mods_guiscale2");
 
 			context.setScreen(() -> null);
+			// Botón "Optimize video settings" del FPS Optimizer (vanilla + Sodium): no debe fallar.
+			context.runOnClient(client -> com.freedomclient.performance.PerformanceSettings.apply(client));
+			context.waitTicks(5);
+			context.takeScreenshot("after_optimize");
 		}
 	}
 }
