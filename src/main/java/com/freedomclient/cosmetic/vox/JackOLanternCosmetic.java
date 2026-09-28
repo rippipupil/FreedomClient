@@ -19,7 +19,7 @@ import net.minecraft.util.RandomSource;
 public class JackOLanternCosmetic extends FollowPetCosmetic {
 	private static final Vox.Palette PALETTE = new Vox.Palette("jack_o_lantern",
 			'o', 0xFFF08A24, 'O', 0xFFD06E14, 'g', 0xFF5A7A2A, 'l', 0xFF6FB83A,
-			'k', 0xFF3A1A08, 'w', 0xFFFFFFFF, 'p', 0xFFF48AA6, 'y', 0xFFFFC53A, 'Y', 0xFFFF8A1E);
+			'k', 0xFF3A1A08, 'w', 0xFFFFFFFF, 'p', 0xFFF48AA6, 'y', 0xFFFFE27A, 'Y', 0xFFFFC040);
 	/** Cara tallada (columnas de x = -4 a 4, filas de y = -7 a -2): '#' es un hueco en la calabaza. */
 	private static final String[] CARVED = {
 			"..#...#..",
