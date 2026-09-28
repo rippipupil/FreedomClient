@@ -35,6 +35,9 @@ grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 			echo "-- $dep"
 			unzip -l "$dep" | grep -i -- "$pattern" | awk '{print $4}' | head -40 || true
 		done
+	elif [[ "$line" == \!* ]]; then
+		# "!texto": como "?texto" pero sin límite de líneas.
+		unzip -l "$jar" | grep -i -- "${line#!}" | awk '{print $4}' || true
 	elif [[ "$line" == \?* ]]; then
 		unzip -l "$jar" | grep -i -- "${line#?}" | head -20 || true
 	elif [[ "$line" == @* ]]; then

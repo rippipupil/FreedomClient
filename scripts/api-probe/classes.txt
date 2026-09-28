@@ -1,9 +1,13 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-yalter.mousetweaks.Main
-yalter.mousetweaks.Config
-?properties/numeric/Count
-net.minecraft.client.renderer.item.properties.numeric.Count
-net.minecraft.client.renderer.item.properties.numeric.RangeSelectItemModelProperties
-net.minecraft.client.multiplayer.ClientLevel
-net.minecraft.client.gui.components.AbstractButton#renderDefaultSprite
-net.minecraft.client.gui.components.AbstractSliderButton#renderWidget
+!textures/entity/
+net.minecraft.client.gui.GuiGraphics
+net.minecraft.client.gui.screens.inventory.InventoryScreen
+net.minecraft.client.gui.Gui
+?HumanoidModel.class
+?model/monster
+?model/animal
+?IronGolemModel
+?SlimeModel
+?CowModel
+?SpiderModel
+?CreeperModel
