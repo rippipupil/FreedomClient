@@ -4,13 +4,15 @@
 set -uo pipefail
 
 MC_VERSION=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)
-MODS="${MODS:-sodium lithium ferrite-core immediatelyfast continuity debugify yacl mouse-tweaks fast-ip-ping}"
+MODS="${MODS:-sodium lithium ferrite-core immediatelyfast continuity debugify yacl mouse-tweaks fast-ip-ping moreculling c2me-fabric krypton sodium-extra}"
 
 for mod in $MODS; do
 	echo "== $mod (Minecraft $MC_VERSION)"
+	curl -fsS "https://api.modrinth.com/v2/project/$mod" -H 'User-Agent: FreedomClient/mod-versions' 2>/dev/null |
+		jq -r '"  project=\(.id)  license=\(.license.id)"' || true
 	curl -fsS -G "https://api.modrinth.com/v2/project/$mod/version" \
 		--data-urlencode "game_versions=[\"$MC_VERSION\"]" \
 		--data-urlencode 'loaders=["fabric"]' \
 		-H 'User-Agent: FreedomClient/mod-versions' 2>/dev/null |
-		jq -r '.[:3][] | "  \(.version_number)  id=\(.id)  [\(.version_type), \(.date_published[:10])]  deps: \([.dependencies[] | select(.dependency_type == "required") | .project_id] | join(","))"' || echo "  (not found)"
+		jq -r '.[:3][] | "  \(.version_number)  id=\(.id)  [\(.version_type), \(.date_published[:10])]  deps: \([.dependencies[] | select(.dependency_type == "required") | .project_id] | join(","))  incompatible: \([.dependencies[] | select(.dependency_type == "incompatible") | .project_id] | join(","))"' || echo "  (not found)"
 done
