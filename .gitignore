@@ -43,3 +43,6 @@ replay_*.log
 launcher/target/
 launcher/app/gen/
 !launcher/core/src/bin/
+
+# Builds del launcher descargados para pasarlos (no van al repositorio).
+launcher-builds/
