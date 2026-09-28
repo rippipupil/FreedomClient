@@ -544,6 +544,45 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setXRot(0.0F));
 			context.waitTicks(5);
 
+			// INV: inventario con los colores del tema y después con una imagen de fondo (un degradado generado).
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.InvModule.class).setEnabled(true));
+			context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.client.Minecraft.getInstance().player));
+			context.waitTicks(5);
+			context.takeScreenshot("inv_theme");
+			context.setScreen(() -> null);
+			context.runOnClient(client -> {
+				try {
+					java.nio.file.Path folder = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("freedomclient").resolve("inventory");
+					java.nio.file.Files.createDirectories(folder);
+					com.mojang.blaze3d.platform.NativeImage image = new com.mojang.blaze3d.platform.NativeImage(64, 64, false);
+					for (int y = 0; y < 64; y++) {
+						for (int x = 0; x < 64; x++) {
+							image.setPixel(x, y, 0xFF000000 | (40 + y * 3) << 16 | (20 + x * 2) << 8 | (120 + (x + y)));
+						}
+					}
+					image.writeToFile(folder.resolve("background.png"));
+					image.close();
+				} catch (java.io.IOException e) {
+					throw new RuntimeException(e);
+				}
+			});
+			// Vuelve a leer la imagen recién escrita (ya se intentó cargar al abrir el inventario la primera vez).
+			context.runOnClient(client -> {
+				com.freedomclient.module.visual.InvModule inv = FreedomClient.getModuleManager().get(com.freedomclient.module.visual.InvModule.class);
+				inv.reloadImage();
+			});
+			context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.client.Minecraft.getInstance().player));
+			context.waitTicks(5);
+			context.takeScreenshot("inv_image");
+			context.setScreen(() -> null);
+			// Menú de paquetes de recursos: solo una entrada "FreedomClient".
+			context.setScreen(() -> new net.minecraft.client.gui.screens.packs.PackSelectionScreen(
+					net.minecraft.client.Minecraft.getInstance().getResourcePackRepository(), repository -> {
+					}, net.minecraft.client.Minecraft.getInstance().getResourcePackDirectory(), net.minecraft.network.chat.Component.literal("Select Resource Packs")));
+			context.waitTicks(10);
+			context.takeScreenshot("resource_packs");
+			context.setScreen(() -> null);
+
 			// Ventanita para nombrar un waypoint nuevo.
 			context.setScreen(() -> new com.freedomclient.waypoint.WaypointNameScreen(com.freedomclient.waypoint.WaypointStore.current().get(0)));
 			context.waitTicks(5);

@@ -13,6 +13,8 @@
 		"ChatComponentMixin",
 		"DebugScreenOverlayMixin",
 		"ClientLevelDataMixin",
+		"ContainerBackgroundMixin",
+		"ContainerLabelsMixin",
 		"EntityHitboxDebugRendererMixin",
 		"EntityMixin",
 		"EntityRenderDispatcherMixin",
@@ -37,6 +39,8 @@
 		"ScreenMixin",
 		"ScreenEffectRendererMixin",
 		"SoundManagerMixin",
+		"TransferableSelectionListMixin",
+		"accessor.AbstractContainerScreenAccessor",
 		"accessor.OverlayTextureAccessor",
 		"accessor.ParticleEngineAccessor"
 	],

@@ -149,6 +149,7 @@ public class ModuleManager {
 		add(new HitParticlesModule());
 		add(new TotemPopModule());
 		add(new VisualsModule());
+		add(new com.freedomclient.module.visual.InvModule());
 
 		// Utility
 		add(new WaypointsModule());

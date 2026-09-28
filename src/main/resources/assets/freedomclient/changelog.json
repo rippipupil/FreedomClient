@@ -1,5 +1,13 @@
 [
 	{
+		"title": "INV and a tidier pack list",
+		"items": [
+			"New mod INV: put your own picture behind the inventory and chests, and change the border, slot and text colors.",
+			"The resource pack list shows a single FreedomClient entry instead of one per option.",
+			"Fixed the FPS, coordinates and other HUD texts not showing."
+		]
+	},
+	{
 		"title": "More FPS",
 		"items": [
 			"New built-in mods: More Culling, C2ME, Krypton and Sodium Extra.",

@@ -111,6 +111,12 @@ public class FreedomClient implements ClientModInitializer {
 				Config.save();
 			}
 		});
+		// Entrada única "FreedomClient" en el menú de paquetes (los paquetes internos se ocultan, ver
+		// TransferableSelectionListMixin).
+		net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(container ->
+				net.fabricmc.fabric.api.resource.v1.ResourceLoader.registerBuiltinPack(id("fc_resources"), container,
+						net.minecraft.network.chat.Component.literal("FreedomClient"),
+						net.fabricmc.fabric.api.resource.v1.pack.PackActivationType.ALWAYS_ENABLED));
 		BetterGrassModule.registerPack();
 		VisualsModule.registerPacks();
 		com.freedomclient.module.pvp.GapCounterModule.registerPacks();
