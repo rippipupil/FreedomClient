@@ -61,14 +61,14 @@ public class FreedomTitleScreen extends TitleScreen {
 		ui.begin(graphics, mouseX, mouseY);
 		float appear = Math.min(1.0F, (System.currentTimeMillis() - openedAt) / 400.0F);
 
-		// Logo: halo, "FC" y el nombre en la fuente VT323.
+		// Logo: halo, emblema y el nombre en la fuente VT323.
 		int p = Math.max(2, height / 90);
 		int centerX = width / 2;
 		int logoY = height / 5 + p * 4;
 		PixelSky.halo(graphics, centerX, logoY - p * 10, p, 10, appear);
 		PixelSky.logo(graphics, centerX, logoY, p, appear);
 		Component name = UiText.logo(FreedomClient.NAME);
-		int nameY = logoY + p * 9;
+		int nameY = logoY + p * 10;
 		graphics.drawString(font, name, centerX - font.width(name) / 2 + 1, nameY + 1, 0xFF1A0508, false);
 		graphics.drawString(font, name, centerX - font.width(name) / 2, nameY, 0xFFF5F1E8, false);
 
