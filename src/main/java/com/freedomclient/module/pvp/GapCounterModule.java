@@ -31,6 +31,8 @@ public class GapCounterModule extends Module {
 	private static final String OVERLAY_PACK = "gapcounter_pack";
 	private static final String PUMPKIN_PACK = "gapcounter_pumpkin";
 	private static GapCounterModule instance;
+	/** Solo en el hilo de render: true mientras el juego dibuja una casilla de la hotbar (lo ponen los mixins de Gui). */
+	public static boolean drawingHotbarSlot;
 	private static final int[] PREVIEW_COUNTS = {64, 48, 32, 16, 8, 3, 1};
 
 	private final ModeSetting style = add(new ModeSetting("Style",

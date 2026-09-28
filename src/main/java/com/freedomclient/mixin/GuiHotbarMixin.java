@@ -16,12 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GuiHotbarMixin {
 	@Inject(method = "renderSlot", at = @At("HEAD"))
 	private void freedomclient$beginSlot(GuiGraphics graphics, int x, int y, DeltaTracker delta, Player player, ItemStack stack, int seed, CallbackInfo ci) {
-		GuiGraphicsItemCountMixin.hotbarSlot = true;
+		GapCounterModule.drawingHotbarSlot = true;
 	}
 
 	@Inject(method = "renderSlot", at = @At("RETURN"))
 	private void freedomclient$endSlot(GuiGraphics graphics, int x, int y, DeltaTracker delta, Player player, ItemStack stack, int seed, CallbackInfo ci) {
-		GuiGraphicsItemCountMixin.hotbarSlot = false;
+		GapCounterModule.drawingHotbarSlot = false;
 		if (GapCounterModule.showsInHotbar(stack)) GapCounterModule.renderHotbarCount(graphics, stack, x, y);
 	}
 }

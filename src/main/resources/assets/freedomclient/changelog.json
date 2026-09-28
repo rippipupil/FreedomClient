@@ -1,5 +1,19 @@
 [
 	{
+		"title": "Pumpkins, mob faces and a faster menu",
+		"items": [
+			"Masks and hats sit outside your skin's 3D layer, and back cosmetics and wings move out when you wear a chestplate or elytra.",
+			"Jack-o'-Lantern turns into a glowing carved pumpkin at random, while you fight or hold a sword, or both.",
+			"Waypoints: name them when you add them, rename them and change their size.",
+			"Gap Counter: new pumpkin style and a coloured counter in your hotbar.",
+			"Sound Tweaks: pick any mob by its face to mute it (iron golems, slimes...).",
+			"Music Player: hotkeys for play, next, back, volume, stop and shuffle, and songs from direct MP3/WAV links.",
+			"Target HUD shows the face of the mob you fight.",
+			"The Neon menu is much lighter, every theme has its own details, and mods are split by letter.",
+			"Reworked Neon, Niko and Windy Bee pets."
+		]
+	},
+	{
 		"title": "Totems, auras and a smarter menu",
 		"items": [
 			"TotemPop: smaller totem animation on screen and new totem particles (feathers with a glowing halo, or golden sparks).",
