@@ -19,7 +19,7 @@ public abstract class ShoulderPetCosmetic extends VoxCosmetic {
 	private static final int EMOTE = 44;
 
 	public final ModeSetting side = add(new ModeSetting("Shoulder", "Which shoulder the pet sits on.", "Left", "Left", "Right"));
-	public final NumberSetting size = add(new NumberSetting("Size", "Size of the pet.", 0.32, 0.2, 0.5, 0.02, "x"));
+	public final NumberSetting size = add(new NumberSetting("Size", "Size of the pet.", 0.38, 0.2, 0.5, 0.02, "x"));
 
 	protected ShoulderPetCosmetic(String name, String description) {
 		super(name, description, CosmeticSlot.PET);
@@ -47,7 +47,7 @@ public abstract class ShoulderPetCosmetic extends VoxCosmetic {
 		parent.body.translateAndRotate(poseStack);
 		// Encima del hombro (el brazo empieza a 4 px del centro del cuerpo y mide 4 de ancho).
 		float x = side.is("Left") ? 6.0F : -6.0F;
-		poseStack.translate(x / 16.0F, -0.1F / 16.0F, 0.3F / 16.0F);
+		poseStack.translate(x / 16.0F, (state.chestEquipment.isEmpty() ? -0.1F : -1.2F) / 16.0F, 0.3F / 16.0F);
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
 		renderPet(poseStack, collector, light, time, emote, progress, sleeping);

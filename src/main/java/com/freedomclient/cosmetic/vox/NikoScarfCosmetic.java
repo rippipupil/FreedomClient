@@ -52,6 +52,8 @@ public class NikoScarfCosmetic extends VoxCosmetic {
 		float lift = walk * 0.9F + Mth.sin(time * 0.1F) * 0.06F;
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
+		// Con peto se agranda para quedar por fuera (el peto sobresale 1 px del cuerpo).
+		if (!state.chestEquipment.isEmpty()) poseStack.scale(1.2F, 1.0F, 1.45F);
 		wrap.draw(poseStack, collector, light);
 		for (int i = 0; i < 2; i++) {
 			poseStack.pushPose();

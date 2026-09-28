@@ -40,7 +40,8 @@ public class NikoHatCosmetic extends VoxCosmetic {
 		if (hat == null) hat = build();
 		poseStack.pushPose();
 		parent.head.translateAndRotate(poseStack);
-		poseStack.translate(0.0F, -7.6F / 16.0F, 0.0F);
+		poseStack.translate(0.0F, (state.headEquipment.isEmpty() ? -7.6F : -8.8F) / 16.0F, 0.0F);
+		if (!state.headEquipment.isEmpty()) poseStack.scale(1.1F, 1.1F, 1.1F);
 		poseStack.mulPose(Axis.XP.rotationDegrees(-4.0F));
 		hat.draw(poseStack, collector, light);
 		poseStack.popPose();

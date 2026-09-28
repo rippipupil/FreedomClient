@@ -50,6 +50,12 @@ public abstract class MaskCosmetic extends VoxCosmetic {
 		if (solid == null) build();
 		poseStack.pushPose();
 		parent.head.translateAndRotate(poseStack);
+		// Con casco se agranda un poco para quedar por fuera de él (el casco sobresale 1 px de la cabeza).
+		if (!state.headEquipment.isEmpty()) {
+			poseStack.translate(0.0F, -4.0F / 16.0F, 0.0F);
+			poseStack.scale(1.2F, 1.2F, 1.2F);
+			poseStack.translate(0.0F, 4.0F / 16.0F, 0.0F);
+		}
 		solid.draw(poseStack, collector, light);
 		face.drawTranslucent(poseStack, collector, light);
 		poseStack.popPose();

@@ -19,7 +19,8 @@ public class TabbyBeeCosmetic extends FollowPetCosmetic {
 	private Vox.Shape wing;
 
 	public TabbyBeeCosmetic() {
-		super("Tabby Bee", "Bee Swarm: the tabby cat bee. Flies and does pirouettes like a bee, and wags its tail, twitches its ears and stretches like a cat.");
+		super("Tabby Bee", "Bee Swarm: the tabby cat bee. Flies and does pirouettes like a bee, and wags its tail, twitches its ears and stretches like a cat.",
+				"Right");
 	}
 
 	private void build() {

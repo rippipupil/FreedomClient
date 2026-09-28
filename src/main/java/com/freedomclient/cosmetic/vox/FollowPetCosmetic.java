@@ -18,12 +18,18 @@ import net.minecraft.world.phys.Vec3;
  * saluda, celebra, duerme y se esconde. Cada una dibuja su modelo en {@link #renderPet}.
  */
 public abstract class FollowPetCosmetic extends VoxCosmetic {
-	public final ModeSetting side = add(new ModeSetting("Side", "Which shoulder the pet flies next to.", "Left", "Right", "Left"));
-	public final NumberSetting size = add(new NumberSetting("Size", "Size of the pet.", 0.45, 0.3, 0.8, 0.02, "x"));
+	public final ModeSetting side;
+	public final NumberSetting size;
 	private final PetFollower follower = new PetFollower();
 
 	protected FollowPetCosmetic(String name, String description) {
+		this(name, description, "Left");
+	}
+
+	protected FollowPetCosmetic(String name, String description, String defaultSide) {
 		super(name, description, CosmeticSlot.PET);
+		side = add(new ModeSetting("Side", "Which shoulder the pet flies next to.", defaultSide, "Right", "Left"));
+		size = add(new NumberSetting("Size", "Size of the pet.", 0.45, 0.3, 0.8, 0.02, "x"));
 	}
 
 	@Override
