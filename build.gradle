@@ -34,6 +34,12 @@ dependencies {
 	include(modImplementation("maven.modrinth:lithium:${project.lithium_version}"))
 	include(modImplementation("maven.modrinth:ferrite-core:${project.ferritecore_version}"))
 	include(modImplementation("maven.modrinth:immediatelyfast:${project.immediatelyfast_version}"))
+	// More Culling (necesita Cloth Config), C2ME, Krypton y Sodium Extra.
+	include(modImplementation("maven.modrinth:moreculling:${project.moreculling_version}"))
+	include(modImplementation("maven.modrinth:cloth-config:${project.clothconfig_version}"))
+	include(modImplementation("maven.modrinth:c2me-fabric:${project.c2me_version}"))
+	include(modImplementation("maven.modrinth:krypton:${project.krypton_version}"))
+	include(modImplementation("maven.modrinth:sodium-extra:${project.sodiumextra_version}"))
 
 	// Mods de utilidad y visuales incluidos (sus licencias permiten redistribuirlos, ver THIRD_PARTY_NOTICES.md).
 	include(modImplementation("maven.modrinth:continuity:${project.continuity_version}"))

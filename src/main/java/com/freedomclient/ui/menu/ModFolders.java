@@ -23,7 +23,14 @@ public final class ModFolders {
 	private static final Map<String, Set<String>> FOLDERS = new LinkedHashMap<>();
 	private static String sort = SORTS.get(0);
 
+	/** Sube con cada cambio (carpetas, mods dentro u orden), para saber cuándo rehacer la lista del menú. */
+	private static int version;
+
 	private ModFolders() {
+	}
+
+	public static int version() {
+		return version;
 	}
 
 	public static List<String> names() {
@@ -34,11 +41,13 @@ public final class ModFolders {
 		String clean = name.trim();
 		if (clean.isEmpty() || FOLDERS.containsKey(clean) || FOLDERS.size() >= MAX_FOLDERS) return false;
 		FOLDERS.put(clean, new LinkedHashSet<>());
+		version++;
 		return true;
 	}
 
 	public static void delete(String name) {
 		FOLDERS.remove(name);
+		version++;
 	}
 
 	public static boolean contains(String folder, String moduleId) {
@@ -50,6 +59,7 @@ public final class ModFolders {
 		Set<String> ids = FOLDERS.get(folder);
 		if (ids == null) return;
 		if (!ids.remove(moduleId)) ids.add(moduleId);
+		version++;
 	}
 
 	public static String sort() {
@@ -58,6 +68,7 @@ public final class ModFolders {
 
 	public static void setSort(String value) {
 		if (SORTS.contains(value)) sort = value;
+		version++;
 	}
 
 	public static JsonObject save() {
@@ -77,6 +88,7 @@ public final class ModFolders {
 		JsonElement sortValue = json.get("sort");
 		if (sortValue != null && sortValue.isJsonPrimitive()) setSort(sortValue.getAsString());
 		FOLDERS.clear();
+		version++;
 		JsonObject folders = json.getAsJsonObject("folders");
 		if (folders == null) return;
 		for (Map.Entry<String, JsonElement> entry : folders.entrySet()) {

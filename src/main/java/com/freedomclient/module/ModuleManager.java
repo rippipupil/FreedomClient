@@ -88,6 +88,8 @@ import java.util.Set;
 
 public class ModuleManager {
 	private final List<Module> modules = new ArrayList<>();
+	private final java.util.Map<Class<?>, Module> byType = new java.util.concurrent.ConcurrentHashMap<>();
+	private final java.util.Map<Class<?>, List<?>> listsByType = new java.util.concurrent.ConcurrentHashMap<>();
 	/** Teclas de módulos pulsadas en el tick anterior, para activar solo al pulsar (no al mantener). */
 	private final Set<Integer> heldKeys = new HashSet<>();
 
@@ -212,6 +214,10 @@ public class ModuleManager {
 		add(new BundledModModule("Lithium", "lithium", "Optimizes physics, mob AI and game logic."));
 		add(new BundledModModule("FerriteCore", "ferritecore", "Greatly reduces memory usage."));
 		add(new BundledModModule("ImmediatelyFast", "immediatelyfast", "Speeds up HUD, text and entity rendering."));
+		add(new BundledModModule("More Culling", "moreculling", "Skips drawing block faces you cannot see, like the inside of leaves."));
+		add(new BundledModModule("C2ME", "c2me", "Generates and loads chunks on all your CPU cores in singleplayer."));
+		add(new BundledModModule("Krypton", "krypton", "Lighter, faster networking."));
+		add(new BundledModModule("Sodium Extra", "sodium-extra", "More video options on top of Sodium (animations, particles, fog...)."));
 	}
 
 	private void add(Module module) {
@@ -262,12 +268,28 @@ public class ModuleManager {
 		return modules.stream().filter(module -> module.getCategory() == category).toList();
 	}
 
+	/**
+	 * El mod de ese tipo. Se busca una vez y se guarda: se llama muchas veces por fotograma (cosméticos, sonidos,
+	 * HUD...) y la lista no cambia después de arrancar.
+	 */
 	public <T extends Module> T get(Class<T> type) {
-		for (Module module : modules) {
-			if (type.isInstance(module)) {
-				return type.cast(module);
+		Module cached = byType.get(type);
+		if (cached == null) {
+			for (Module module : modules) {
+				if (type.isInstance(module)) {
+					cached = module;
+					break;
+				}
 			}
+			if (cached == null) throw new IllegalArgumentException("Module not registered: " + type.getSimpleName());
+			byType.put(type, cached);
 		}
-		throw new IllegalArgumentException("Module not registered: " + type.getSimpleName());
+		return type.cast(cached);
+	}
+
+	/** Todos los mods de ese tipo (p. ej. los elementos del HUD), calculado una vez. */
+	@SuppressWarnings("unchecked")
+	public <T> List<T> ofType(Class<T> type) {
+		return (List<T>) listsByType.computeIfAbsent(type, key -> modules.stream().filter(key::isInstance).map(key::cast).toList());
 	}
 }

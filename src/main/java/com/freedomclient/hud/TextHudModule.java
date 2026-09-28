@@ -32,14 +32,30 @@ public abstract class TextHudModule extends HudModule {
 		return textColor.get();
 	}
 
+	/**
+	 * Texto de la última vez: se pide varias veces por fotograma (si se dibuja, ancho, fondo y texto), así que se
+	 * calcula como mucho una vez por tick (50 ms), que es lo que tardan en cambiar los datos del juego.
+	 */
+	private String cachedText;
+	private long cachedAt = Long.MIN_VALUE;
+
+	private String currentText(Minecraft client) {
+		long now = System.currentTimeMillis();
+		if (now - cachedAt >= 50) {
+			cachedText = client.player != null ? getText(client) : null;
+			cachedAt = now;
+		}
+		return cachedText;
+	}
+
 	private String text(Minecraft client, boolean preview) {
-		String text = client.player != null ? getText(client) : null;
+		String text = currentText(client);
 		return text == null && preview ? getPreviewText() : text;
 	}
 
 	@Override
 	public boolean shouldRender(Minecraft client) {
-		return getText(client) != null;
+		return currentText(client) != null;
 	}
 
 	@Override

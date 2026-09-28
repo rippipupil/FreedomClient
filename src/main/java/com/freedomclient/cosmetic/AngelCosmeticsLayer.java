@@ -221,10 +221,8 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		}
 
 		// Cosméticos pixel 3D (máscaras, sombreros, bufanda, herramientas de espalda y mascotas nuevas).
-		for (com.freedomclient.module.Module module : FreedomClient.getModuleManager().getModules()) {
-			if (module instanceof com.freedomclient.cosmetic.vox.VoxCosmetic vox && vox.shouldRender(state)) {
-				vox.render(getParentModel(), poseStack, collector, light, state);
-			}
+		for (com.freedomclient.cosmetic.vox.VoxCosmetic vox : FreedomClient.getModuleManager().ofType(com.freedomclient.cosmetic.vox.VoxCosmetic.class)) {
+			if (vox.shouldRender(state)) vox.render(getParentModel(), poseStack, collector, light, state);
 		}
 
 		HaloCosmetic haloModule = CosmeticModule.get(HaloCosmetic.class);

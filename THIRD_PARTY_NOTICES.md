@@ -15,9 +15,15 @@ el código fuente está disponible en los enlaces.
 | YetAnotherConfigLib | isXander | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/isXander/YetAnotherConfigLib |
 | Mouse Tweaks | YaLTeR | [BSD-3-Clause](https://github.com/YaLTeR/MouseTweaks/blob/HEAD/LICENSE) | https://github.com/YaLTeR/MouseTweaks |
 | Fast IP Ping | Fallen_Breath | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/Fallen-Breath/fast-ip-ping |
+| More Culling | FX (fxmorin) | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) | https://github.com/fxmorin/moreculling |
+| Cloth Config | shedaniel | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/shedaniel/cloth-config |
+| C2ME | ishland | [MIT](https://github.com/RelativityMC/C2ME-fabric/blob/HEAD/LICENSE) | https://github.com/RelativityMC/C2ME-fabric |
+| Krypton | astei (Andrew Steinborn) | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/astei/krypton |
+| Sodium Extra | FlashyReese | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | https://github.com/FlashyReese/sodium-extra-fabric |
 
-Los mods bajo LGPL-3.0 se distribuyen como archivos .jar independientes dentro del de FreedomClient,
-por lo que pueden sustituirse por cualquier otra versión compatible.
+Los mods bajo LGPL-3.0 y GPL-3.0 se distribuyen sin modificar como archivos .jar independientes dentro del de
+FreedomClient (agregados, no combinados con su código), por lo que pueden sustituirse por cualquier otra versión
+compatible; su código fuente está en los enlaces de la tabla.
 
 ## Recursos
 

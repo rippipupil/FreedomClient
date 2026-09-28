@@ -244,8 +244,21 @@ public class ModGridPage implements MenuPage {
 		return search.getText().toLowerCase(Locale.ROOT).trim();
 	}
 
+	/** Lista de la última vez y lo que la definía: si nada cambia, se reutiliza en vez de filtrar y ordenar cada fotograma. */
+	private List<Module> cachedModules;
+	private String cachedKey;
+
 	/** Mods visibles: los favoritos primero. La búsqueda mira el nombre, la descripción y todas las opciones del mod. */
 	private List<Module> visibleModules() {
+		String key = query() + '|' + filter + '|' + slotFilter + '|' + folderFilter + '|' + ModFolders.version() + '|' + Module.stateVersion();
+		if (cachedModules == null || !key.equals(cachedKey)) {
+			cachedModules = computeVisibleModules();
+			cachedKey = key;
+		}
+		return cachedModules;
+	}
+
+	private List<Module> computeVisibleModules() {
 		String query = query();
 		return FreedomClient.getModuleManager().getModules().stream()
 				.filter(module -> fixedCategory != null ? module.getCategory() == fixedCategory

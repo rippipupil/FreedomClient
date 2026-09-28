@@ -39,18 +39,27 @@ public abstract class Module {
 	}
 
 	/** Favorito: sale arriba del todo en la lista de mods. */
+	/** Sube cada vez que un mod se activa, se apaga o cambia de favorito (el menú rehace su lista solo entonces). */
+	private static int stateVersion;
+
+	public static int stateVersion() {
+		return stateVersion;
+	}
+
 	public boolean isFavorite() {
 		return favorite;
 	}
 
 	public void setFavorite(boolean favorite) {
 		this.favorite = favorite;
+		stateVersion++;
 		Config.save(FreedomClient.getModuleManager());
 	}
 
 	/** Al cargar la config, sin volver a guardarla. */
 	public void loadFavorite(boolean favorite) {
 		this.favorite = favorite;
+		stateVersion++;
 	}
 
 	public void toggle() {
@@ -61,6 +70,7 @@ public abstract class Module {
 		if (this.enabled == enabled || !canToggle()) return;
 
 		this.enabled = enabled;
+		stateVersion++;
 		Minecraft client = Minecraft.getInstance();
 		if (enabled) {
 			onEnable(client);
@@ -75,6 +85,7 @@ public abstract class Module {
 	public void loadEnabled(boolean enabled) {
 		if (canToggle()) {
 			this.enabled = enabled;
+			stateVersion++;
 		}
 	}
 

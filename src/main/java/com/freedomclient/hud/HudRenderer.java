@@ -1,7 +1,6 @@
 package com.freedomclient.hud;
 
 import com.freedomclient.FreedomClient;
-import com.freedomclient.module.Module;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.ui.menu.FreedomMenuScreen;
 import net.minecraft.client.Minecraft;
@@ -21,10 +20,8 @@ public final class HudRenderer {
 		// Custom F3 puede ocultar el HUD del cliente mientras la pantalla de depuración está abierta.
 		if (com.freedomclient.module.utility.CustomF3Module.hidesHud()) return;
 
-		for (Module module : manager.getModules()) {
-			if (module instanceof HudModule hud && hud.isEnabled() && hud.shouldRender(client)) {
-				renderElement(graphics, client, hud, false);
-			}
+		for (HudModule hud : manager.ofType(HudModule.class)) {
+			if (hud.isEnabled() && hud.shouldRender(client)) renderElement(graphics, client, hud, false);
 		}
 	}
 
