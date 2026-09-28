@@ -16,7 +16,8 @@ public class CustomScreensModule extends Module {
 	private final BooleanSetting mainMenu = add(new BooleanSetting("Main menu", "FreedomClient main menu instead of Minecraft's.", true));
 	private final ModeSetting sky = add(new ModeSetting("Menu sky", "Background of the main menu and loading screen. Real time follows your clock.",
 			"Sunset", "Sunset", "Starry night", "Day", "Real time"));
-	private final BooleanSetting parallax = add(new BooleanSetting("Parallax", "The sky layers move with your mouse in the main menu.", true));
+	private final BooleanSetting otherMenus = add(new BooleanSetting("Other menus",
+			"Pause, options, singleplayer and multiplayer menus get the theme's background and buttons.", true));
 
 	public CustomScreensModule() {
 		super("Client Screens", "FreedomClient loading screen and main menu with a pixel sky: sunset, starry night, day or real time.", Category.VISUAL, true);
@@ -56,9 +57,10 @@ public class CustomScreensModule extends Module {
 		};
 	}
 
-	public static boolean parallaxEnabled() {
+	/** Si los menús de vanilla (pausa, opciones, un jugador, multijugador…) usan el fondo y los botones del tema. */
+	public static boolean otherMenusEnabled() {
 		CustomScreensModule module = instance();
-		return module == null || module.parallax.get();
+		return module != null && module.isEnabled() && module.otherMenus.get();
 	}
 
 	public static boolean mainMenuEnabled() {

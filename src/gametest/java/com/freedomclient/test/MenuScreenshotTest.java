@@ -120,12 +120,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.waitTicks(5);
 
 		// Abrir y cerrar Singleplayer y Multiplayer desde el menú principal (antes crasheaba al volver).
+		// Con Client Screens → Other menus llevan el cielo del tema y los botones del cliente.
 		context.runOnClient(client -> client.setScreen(new SelectWorldScreen(client.screen)));
 		context.waitTicks(20);
+		context.takeScreenshot("singleplayer_themed");
 		context.runOnClient(client -> client.screen.onClose());
 		context.waitTicks(20);
 		context.runOnClient(client -> client.setScreen(new JoinMultiplayerScreen(client.screen)));
 		context.waitTicks(20);
+		context.takeScreenshot("multiplayer_themed");
 		context.runOnClient(client -> client.screen.onClose());
 		context.waitTicks(20);
 		context.takeScreenshot("title_after_menus");
@@ -148,6 +151,12 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 
 		try (TestSingleplayerContext singleplayer = context.worldBuilder().create()) {
 			singleplayer.getClientWorld().waitForChunksRender();
+			// Chunk Preloader en marcha durante toda la prueba (despacio), para comprobar que no rompe nada.
+			context.runOnClient(client -> {
+				var preloader = FreedomClient.getModuleManager().get(com.freedomclient.module.performance.ChunkPreloaderModule.class);
+				setMode(preloader, "Speed", "Gentle");
+				preloader.setEnabled(true);
+			});
 			for (String command : SETUP_COMMANDS) {
 				singleplayer.getServer().runCommand(command);
 			}
@@ -321,7 +330,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> {
 				for (var entity : client.level.entitiesForRendering()) {
 					if (entity instanceof net.minecraft.world.entity.decoration.ArmorStand) {
-						FreedomClient.getModuleManager().get(HitParticlesModule.class).onHit(entity);
+						// Crítico con plumas, copos y calabazas a la vez para ver los tres tipos.
+						HitParticlesModule hitParticles = FreedomClient.getModuleManager().get(HitParticlesModule.class);
+						for (Setting<?> setting : hitParticles.getSettings()) {
+							if (setting.getName().startsWith("Crit: ") && !setting.getName().endsWith("Neon")) {
+								((com.freedomclient.setting.BooleanSetting) setting).set(true);
+							}
+						}
+						hitParticles.spawn(entity, true);
 					}
 				}
 			});
@@ -334,6 +350,60 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.takeScreenshot("low_health");
 			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> player.setHealth(20.0F)));
 			context.waitTicks(10);
+
+			// Vida por encima de 10 corazones: los corazones del nombre se apilan (x2, x3…).
+			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> {
+				player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(60.0);
+				player.setHealth(47.0F);
+			}));
+			context.runOnClient(client -> {
+				setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.HealthIndicatorsModule.class), "Style", "Both");
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("health_stacked");
+			singleplayer.getServer().runOnServer(server -> server.getPlayerList().getPlayers().forEach(player -> {
+				player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20.0);
+				player.setHealth(20.0F);
+			}));
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+			context.waitTicks(5);
+
+			// Custom F3.
+			context.getInput().pressKey(org.lwjgl.glfw.GLFW.GLFW_KEY_F3);
+			context.waitTicks(10);
+			context.takeScreenshot("custom_f3");
+			context.getInput().pressKey(org.lwjgl.glfw.GLFW.GLFW_KEY_F3);
+			context.waitTicks(5);
+
+			// Menús de vanilla con el tema: pausa y opciones.
+			context.setScreen(() -> new net.minecraft.client.gui.screens.PauseScreen(true));
+			context.waitTicks(10);
+			context.takeScreenshot("pause_themed");
+			context.runOnClient(client -> client.setScreen(new net.minecraft.client.gui.screens.options.OptionsScreen(client.screen, client.options)));
+			context.waitTicks(10);
+			context.takeScreenshot("options_themed");
+			context.setScreen(() -> null);
+			context.waitTicks(5);
+
+			// Gap Counter: 12 manzanas de oro en la mano (primera persona y en la mano de otro jugador visto de frente).
+			singleplayer.getServer().runCommand("item replace entity @a weapon.mainhand with golden_apple 12");
+			context.waitTicks(10);
+			context.takeScreenshot("gap_counter_hand");
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+			context.waitTicks(5);
+			context.takeScreenshot("gap_counter_third_person");
+			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.openModule(FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.GapCounterModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_gapcounter");
+			context.setScreen(() -> null);
+			singleplayer.getServer().runCommand("item replace entity @a weapon.mainhand with diamond_sword[damage=1500]");
+			context.waitTicks(5);
 
 			// TotemPop: un tótem en la mano izquierda y un golpe mortal.
 			singleplayer.getServer().runCommand("item replace entity @a weapon.offhand with totem_of_undying");
@@ -409,6 +479,12 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(4);
 			context.takeScreenshot("attack_indicator");
+			context.runOnClient(client -> {
+				setMode(FreedomClient.getModuleManager().get(AttackIndicatorModule.class), "Style", "Circle");
+				client.player.resetAttackStrengthTicker();
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("attack_indicator_circle");
 
 			// Block Outline: mirando al suelo, el bloque apuntado se tiñe del color elegido.
 			context.runOnClient(client -> client.player.setXRot(55.0F));

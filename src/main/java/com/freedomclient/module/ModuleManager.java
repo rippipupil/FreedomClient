@@ -68,6 +68,7 @@ import com.freedomclient.module.utility.SoundTweaksModule;
 import com.freedomclient.module.visual.BlockOutlineModule;
 import com.freedomclient.module.visual.CustomHitboxesModule;
 import com.freedomclient.module.visual.FcNametagModule;
+import com.freedomclient.module.visual.TagModule;
 import com.freedomclient.module.visual.ShulkerPreviewModule;
 import com.freedomclient.waypoint.WaypointsModule;
 import com.freedomclient.module.visual.CustomScreensModule;
@@ -137,6 +138,9 @@ public class ModuleManager {
 		add(new BlockOutlineModule());
 		add(new ShulkerPreviewModule());
 		add(new FcNametagModule());
+		add(new TagModule());
+		add(new com.freedomclient.module.pvp.GapCounterModule());
+		add(new com.freedomclient.module.utility.CustomF3Module());
 		add(new BetterGrassModule());
 		add(new WavyCapesModule());
 		add(new CapesModule());
@@ -159,7 +163,7 @@ public class ModuleManager {
 
 		// Mods originales incluidos (siempre activos).
 		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));
-		add(new BundledModModule("Mouse Tweaks", "mousetweaks", "Better inventory controls: drag to move items, scroll to move stacks.", Category.UTILITY));
+		add(new com.freedomclient.module.utility.MouseTweaksModule());
 		add(new BundledModModule("Debugify", "debugify", "Fixes many vanilla Minecraft bugs.", Category.UTILITY));
 		add(new BundledModModule("Fast IP Ping", "fastipping", "Makes the server list ping servers much faster.", Category.UTILITY));
 
@@ -181,6 +185,7 @@ public class ModuleManager {
 		add(new EntityCullingModule());
 		add(new CullLeavesModule());
 		add(new ParticleLimiterModule());
+		add(new com.freedomclient.module.performance.ChunkPreloaderModule());
 		add(new ProcessPriorityModule());
 		add(new BundledModModule("Sodium", "sodium", "Modern rendering engine. The biggest FPS boost."));
 		add(new BundledModModule("Lithium", "lithium", "Optimizes physics, mob AI and game logic."));

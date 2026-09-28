@@ -39,6 +39,14 @@ public class AuraParticle extends SingleQuadParticle {
 		this.zo = z;
 	}
 
+	private boolean thirdPersonOnly;
+
+	/** Desaparece en cuanto pasas a primera persona (para que el aura no se quede un rato delante de la cámara). */
+	public AuraParticle thirdPersonOnly() {
+		this.thirdPersonOnly = true;
+		return this;
+	}
+
 	private void place() {
 		setPos(center.getX() + Mth.cos(angle) * radius, center.getY() + height, center.getZ() + Mth.sin(angle) * radius);
 	}
@@ -48,7 +56,8 @@ public class AuraParticle extends SingleQuadParticle {
 		xo = x;
 		yo = y;
 		zo = z;
-		if (age++ >= lifetime || !center.isAlive()) {
+		if (age++ >= lifetime || !center.isAlive()
+				|| thirdPersonOnly && net.minecraft.client.Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
 			remove();
 			return;
 		}

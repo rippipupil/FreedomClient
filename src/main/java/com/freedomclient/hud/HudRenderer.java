@@ -18,6 +18,8 @@ public final class HudRenderer {
 		if (manager == null || client.player == null || client.options.hideGui) return;
 		// El editor dibuja los elementos por su cuenta.
 		if (client.screen instanceof HudEditorScreen || client.screen instanceof FreedomMenuScreen) return;
+		// Custom F3 puede ocultar el HUD del cliente mientras la pantalla de depuración está abierta.
+		if (com.freedomclient.module.utility.CustomF3Module.hidesHud()) return;
 
 		for (Module module : manager.getModules()) {
 			if (module instanceof HudModule hud && hud.isEnabled() && hud.shouldRender(client)) {

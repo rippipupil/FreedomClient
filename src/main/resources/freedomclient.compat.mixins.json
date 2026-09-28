@@ -1,0 +1,11 @@
+{
+	"required": false,
+	"package": "com.freedomclient.mixin.compat",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"MouseTweaksMainMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	}
+}

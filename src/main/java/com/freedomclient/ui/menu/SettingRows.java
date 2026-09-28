@@ -35,6 +35,13 @@ public class SettingRows {
 
 	/** Dibuja la fila de un ajuste y devuelve la altura que ocupa. */
 	public int render(Ui ui, Setting<?> setting, int x, int y, int w) {
+		if (setting instanceof com.freedomclient.setting.PreviewSetting preview) {
+			// Vista previa: fondo de fila con el nombre arriba y el dibujo del mod debajo.
+			int h = preview.getHeight() + 16;
+			row(ui, setting.getName(), setting.getDescription(), x, y, w, h);
+			preview.get().render(ui.g, x + 6, y + 15, w - 12, preview.getHeight());
+			return h;
+		}
 		if (setting instanceof NumberSetting number) return renderNumber(ui, number, x, y, w);
 		if (setting instanceof StringSetting text) return renderText(ui, text, x, y, w);
 		if (setting instanceof PixelGridSetting grid) return renderGrid(ui, grid, x, y, w);

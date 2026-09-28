@@ -113,6 +113,7 @@ public class FreedomClient implements ClientModInitializer {
 		});
 		BetterGrassModule.registerPack();
 		VisualsModule.registerPacks();
+		com.freedomclient.module.pvp.GapCounterModule.registerPacks();
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			moduleManager.get(BetterGrassModule.class).syncWithPacks(client);
 			moduleManager.get(VisualsModule.class).syncWithPacks(client);

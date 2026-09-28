@@ -24,8 +24,20 @@ public class GlowParticle extends SingleQuadParticle {
 		this.hasPhysics = false;
 	}
 
+	private boolean thirdPersonOnly;
+
+	/** Desaparece en cuanto pasas a primera persona. */
+	public GlowParticle thirdPersonOnly() {
+		this.thirdPersonOnly = true;
+		return this;
+	}
+
 	@Override
 	public void tick() {
+		if (thirdPersonOnly && net.minecraft.client.Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+			remove();
+			return;
+		}
 		super.tick();
 		float life = Math.min(1.0F, age / (float) lifetime);
 		quadSize = startSize + (endSize - startSize) * (float) Math.sqrt(life);

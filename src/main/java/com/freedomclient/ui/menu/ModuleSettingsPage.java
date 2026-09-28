@@ -28,6 +28,7 @@ public class ModuleSettingsPage implements MenuPage {
 	/** Secciones de ajustes, en este orden: el modo arriba, luego interruptores, valores, colores, texto, teclas y acciones. */
 	private enum Section {
 		MODE("Mode"),
+		PREVIEW("Preview"),
 		OPTIONS("Options"),
 		VALUES("Values"),
 		COLORS("Colors"),
@@ -43,6 +44,7 @@ public class ModuleSettingsPage implements MenuPage {
 
 		static Section of(Setting<?> setting) {
 			if (setting instanceof ModeSetting) return MODE;
+			if (setting instanceof com.freedomclient.setting.PreviewSetting) return PREVIEW;
 			if (setting instanceof BooleanSetting) return OPTIONS;
 			if (setting instanceof NumberSetting || setting instanceof HudPositionSetting) return VALUES;
 			if (setting instanceof ColorSetting || setting instanceof PixelGridSetting) return COLORS;

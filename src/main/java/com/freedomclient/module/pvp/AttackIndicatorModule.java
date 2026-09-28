@@ -27,6 +27,8 @@ import java.util.Locale;
  */
 public class AttackIndicatorModule extends Module {
 	private static final long FLASH_MS = 400;
+	/** Radio del anillo bajo la mira, en píxeles de interfaz. */
+	private static final int CIRCLE_RADIUS = 4;
 	private static final Identifier CROSSHAIR_FULL = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_full");
 	private static final Identifier CROSSHAIR_BACKGROUND = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_background");
 	private static final Identifier CROSSHAIR_PROGRESS = Identifier.withDefaultNamespace("hud/crosshair_attack_indicator_progress");
@@ -129,7 +131,7 @@ public class AttackIndicatorModule extends Module {
 			}
 			case "Circle" -> {
 				circle(graphics, strength, fill, crosshair);
-				textY = crosshair ? 0 : -4;
+				textY = crosshair ? CIRCLE_RADIUS + 3 : -4;
 			}
 			case "Sword" -> {
 				sword(graphics, strength, fill);
@@ -140,7 +142,14 @@ public class AttackIndicatorModule extends Module {
 		}
 		String text = cooldownText(player, strength);
 		if (text != null) {
-			if (crosshair || style.is("Text only")) {
+			if (crosshair && style.is("Circle")) {
+				// Contador pequeño justo debajo del anillo, para que quede limpio bajo la mira.
+				graphics.pose().pushMatrix();
+				graphics.pose().translate(0, textY);
+				graphics.pose().scale(0.75F, 0.75F);
+				graphics.drawString(client.font, text, -client.font.width(text) / 2, 0, fill, true);
+				graphics.pose().popMatrix();
+			} else if (crosshair || style.is("Text only")) {
 				graphics.drawString(client.font, text, -client.font.width(text) / 2, textY, fill, true);
 			} else {
 				// Junto a la barra de objetos el texto va al lado del indicador, hacia fuera.
@@ -220,10 +229,9 @@ public class AttackIndicatorModule extends Module {
 
 	/** Anillo pixel que se rellena en el sentido de las agujas del reloj desde arriba. */
 	private void circle(GuiGraphics graphics, float strength, int fill, boolean crosshair) {
-		int radius = 6;
-		// Bajo la mira el anillo rodea el centro de la pantalla en vez de quedar debajo.
-		int centerY = crosshair ? -12 : 0;
-		int outer = crosshair ? radius + 4 : radius;
+		// Bajo la mira es un anillo pequeño justo debajo de la cruz (el origen ya está 12 px por debajo del centro).
+		int centerY = 0;
+		int outer = crosshair ? CIRCLE_RADIUS : 6;
 		for (int y = -outer - 1; y <= outer; y++) {
 			for (int x = -outer - 1; x <= outer; x++) {
 				double dx = x + 0.5;

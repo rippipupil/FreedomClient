@@ -1,6 +1,7 @@
 package com.freedomclient.mixin;
 
 import com.freedomclient.module.visual.FcNametagModule;
+import com.freedomclient.module.visual.TagModule;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
@@ -15,7 +16,7 @@ public class PlayerTabOverlayMixin {
 	@Inject(method = "getNameForDisplay", at = @At("RETURN"), cancellable = true)
 	private void freedomclient$fcBadge(PlayerInfo info, CallbackInfoReturnable<Component> cir) {
 		Component name = cir.getReturnValue();
-		Component decorated = FcNametagModule.decorateTabName(info.getProfile().id(), name);
+		Component decorated = FcNametagModule.decorateTabName(info.getProfile().id(), TagModule.tab(info.getProfile().id(), name));
 		if (decorated != name) cir.setReturnValue(decorated);
 	}
 }

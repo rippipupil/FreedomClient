@@ -55,6 +55,7 @@ public class AuraCosmetic extends CosmeticModule {
 			// Luz de ángel: chispas doradas que giran y suben un poco.
 			default -> new AuraParticle(client.level, player, PixelParticles.sprite("spark"), 0.7, height, 0.07F, 0.012, true, 0.06F, 40);
 		};
+		if (!firstPerson.get()) particle.thirdPersonOnly();
 		client.particleEngine.add(particle);
 	}
 }

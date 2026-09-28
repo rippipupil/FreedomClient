@@ -1,0 +1,474 @@
+{
+ "model": {
+  "type": "minecraft:select",
+  "property": "minecraft:display_context",
+  "cases": [
+   {
+    "when": "gui",
+    "model": {
+     "type": "minecraft:model",
+     "model": "freedomclient:item/gapcounter/apple"
+    }
+   }
+  ],
+  "fallback": {
+   "type": "minecraft:range_dispatch",
+   "property": "minecraft:count",
+   "normalize": false,
+   "entries": [
+    {
+     "threshold": 1,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_1"
+     }
+    },
+    {
+     "threshold": 2,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_2"
+     }
+    },
+    {
+     "threshold": 3,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_3"
+     }
+    },
+    {
+     "threshold": 4,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_4"
+     }
+    },
+    {
+     "threshold": 5,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_5"
+     }
+    },
+    {
+     "threshold": 6,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_6"
+     }
+    },
+    {
+     "threshold": 7,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_7"
+     }
+    },
+    {
+     "threshold": 8,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_8"
+     }
+    },
+    {
+     "threshold": 9,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_9"
+     }
+    },
+    {
+     "threshold": 10,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_10"
+     }
+    },
+    {
+     "threshold": 11,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_11"
+     }
+    },
+    {
+     "threshold": 12,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_12"
+     }
+    },
+    {
+     "threshold": 13,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_13"
+     }
+    },
+    {
+     "threshold": 14,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_14"
+     }
+    },
+    {
+     "threshold": 15,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_15"
+     }
+    },
+    {
+     "threshold": 16,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_16"
+     }
+    },
+    {
+     "threshold": 17,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_17"
+     }
+    },
+    {
+     "threshold": 18,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_18"
+     }
+    },
+    {
+     "threshold": 19,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_19"
+     }
+    },
+    {
+     "threshold": 20,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_20"
+     }
+    },
+    {
+     "threshold": 21,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_21"
+     }
+    },
+    {
+     "threshold": 22,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_22"
+     }
+    },
+    {
+     "threshold": 23,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_23"
+     }
+    },
+    {
+     "threshold": 24,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_24"
+     }
+    },
+    {
+     "threshold": 25,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_25"
+     }
+    },
+    {
+     "threshold": 26,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_26"
+     }
+    },
+    {
+     "threshold": 27,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_27"
+     }
+    },
+    {
+     "threshold": 28,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_28"
+     }
+    },
+    {
+     "threshold": 29,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_29"
+     }
+    },
+    {
+     "threshold": 30,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_30"
+     }
+    },
+    {
+     "threshold": 31,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_31"
+     }
+    },
+    {
+     "threshold": 32,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_32"
+     }
+    },
+    {
+     "threshold": 33,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_33"
+     }
+    },
+    {
+     "threshold": 34,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_34"
+     }
+    },
+    {
+     "threshold": 35,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_35"
+     }
+    },
+    {
+     "threshold": 36,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_36"
+     }
+    },
+    {
+     "threshold": 37,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_37"
+     }
+    },
+    {
+     "threshold": 38,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_38"
+     }
+    },
+    {
+     "threshold": 39,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_39"
+     }
+    },
+    {
+     "threshold": 40,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_40"
+     }
+    },
+    {
+     "threshold": 41,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_41"
+     }
+    },
+    {
+     "threshold": 42,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_42"
+     }
+    },
+    {
+     "threshold": 43,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_43"
+     }
+    },
+    {
+     "threshold": 44,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_44"
+     }
+    },
+    {
+     "threshold": 45,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_45"
+     }
+    },
+    {
+     "threshold": 46,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_46"
+     }
+    },
+    {
+     "threshold": 47,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_47"
+     }
+    },
+    {
+     "threshold": 48,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_48"
+     }
+    },
+    {
+     "threshold": 49,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_49"
+     }
+    },
+    {
+     "threshold": 50,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_50"
+     }
+    },
+    {
+     "threshold": 51,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_51"
+     }
+    },
+    {
+     "threshold": 52,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_52"
+     }
+    },
+    {
+     "threshold": 53,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_53"
+     }
+    },
+    {
+     "threshold": 54,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_54"
+     }
+    },
+    {
+     "threshold": 55,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_55"
+     }
+    },
+    {
+     "threshold": 56,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_56"
+     }
+    },
+    {
+     "threshold": 57,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_57"
+     }
+    },
+    {
+     "threshold": 58,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_58"
+     }
+    },
+    {
+     "threshold": 59,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_59"
+     }
+    },
+    {
+     "threshold": 60,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_60"
+     }
+    },
+    {
+     "threshold": 61,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_61"
+     }
+    },
+    {
+     "threshold": 62,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_62"
+     }
+    },
+    {
+     "threshold": 63,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_63"
+     }
+    },
+    {
+     "threshold": 64,
+     "model": {
+      "type": "minecraft:model",
+      "model": "freedomclient:item/gapcounter/gap_64"
+     }
+    }
+   ],
+   "fallback": {
+    "type": "minecraft:model",
+    "model": "freedomclient:item/gapcounter/gap_1"
+   }
+  }
+ }
+}

@@ -32,6 +32,39 @@ public class HealthIndicatorsModule extends Module {
 		return false;
 	}
 
+	/** Color de cada capa de corazones: la primera roja y las siguientes como en los servidores con vida extra. */
+	private static final int[] LAYERS = {0xFF3B3B, 0xFF8C42, 0xF2C94C, 0x6BE35A, 0x3FD7FF, 0x5B7BFF, 0xB26BFF, 0xFF6FA8};
+
+	/**
+	 * Corazones apilados como la barra de vida de vanilla con vida extra: 10 huecos por fila; los corazones que
+	 * pasan de 10 se ponen encima con el color de la siguiente capa y se indica cuántas filas hay (x2, x3…).
+	 * La absorción va aparte en dorado, también apilada.
+	 */
+	public static Component hearts(float health, float maxHealth, float absorption) {
+		int total = Math.max(0, (int) Math.ceil(health / 2.0F));
+		int max = Math.max(total, (int) Math.ceil(maxHealth / 2.0F));
+		MutableComponent result = Component.empty();
+		int layers = Math.max(1, (total + 9) / 10);
+		int top = total == 0 ? 0 : total - (layers - 1) * 10;
+		int topColor = LAYERS[(layers - 1) % LAYERS.length];
+		int belowColor = layers > 1 ? LAYERS[(layers - 2) % LAYERS.length] : 0x555555;
+		// Si la vida máxima es menor de 10 corazones solo se dibujan los huecos que hay.
+		int slots = Math.min(10, Math.max(max, 1));
+		StringBuilder upper = new StringBuilder();
+		StringBuilder lower = new StringBuilder();
+		for (int i = 0; i < slots; i++) (i < top ? upper : lower).append('❤');
+		result.append(Component.literal(upper.toString()).withColor(topColor));
+		if (lower.length() > 0) result.append(Component.literal(lower.toString()).withColor(belowColor));
+		if (layers > 1) result.append(Component.literal(" x" + layers).withColor(topColor));
+		int golden = (int) Math.ceil(absorption / 2.0F);
+		if (golden > 0) {
+			int goldenLayers = (golden + 9) / 10;
+			result.append(Component.literal(" " + "❤".repeat(Math.min(golden, 10))).withColor(0xF2C94C));
+			if (goldenLayers > 1) result.append(Component.literal(" x" + goldenLayers).withColor(0xF2C94C));
+		}
+		return result;
+	}
+
 	/** Llamado desde EntityRendererMixin con el nombre que va a mostrar vanilla. */
 	public static Component decorateName(Entity entity, Component name) {
 		ModuleManager manager = FreedomClient.getModuleManager();
@@ -50,14 +83,8 @@ public class HealthIndicatorsModule extends Module {
 			result.append(Component.literal(" " + number).withColor(color));
 		}
 		if (!module.style.is("Number")) {
-			int hearts = Math.max(0, Math.round(health / 2.0F));
-			int maxHearts = Math.max(hearts, Math.round(living.getMaxHealth() / 2.0F));
-			StringBuilder full = new StringBuilder();
-			StringBuilder empty = new StringBuilder();
-			for (int i = 0; i < Math.min(hearts, 10); i++) full.append('❤');
-			for (int i = hearts; i < Math.min(maxHearts, 10); i++) empty.append('❤');
-			result.append(Component.literal(" " + full).withColor(0xFF3B3B));
-			if (empty.length() > 0) result.append(Component.literal(empty.toString()).withColor(0x555555));
+			result.append(" ").append(hearts(living.getHealth(), living.getMaxHealth(),
+					module.absorption.get() ? living.getAbsorptionAmount() : 0.0F));
 		} else {
 			result.append(Component.literal(" ❤").withColor(0xFF3B3B));
 		}

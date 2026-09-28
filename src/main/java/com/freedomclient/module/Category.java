@@ -5,7 +5,7 @@ public enum Category {
 	HUD("HUD", 0x3FD7FF),
 	VISUAL("Visual", 0x9B6BFF),
 	UTILITY("Utility", 0x4CC38A),
-	PERFORMANCE("Performance", 0xF2C94C),
+	PERFORMANCE("Optimization", 0xF2C94C),
 	/** Se muestran en la pestaña Cosmetics, no en Mods. */
 	COSMETICS("Cosmetics", 0xFF7EB6);
 

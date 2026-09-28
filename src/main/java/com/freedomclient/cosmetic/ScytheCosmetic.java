@@ -60,11 +60,11 @@ public class ScytheCosmetic extends CosmeticModule {
 		if (mist) {
 			client.particleEngine.add(new GlowParticle(client.level, x, y, z,
 					(random.nextDouble() - 0.5) * 0.006, 0.003, (random.nextDouble() - 0.5) * 0.006,
-					PixelParticles.sprite("soul_mist"), 0.16F, 0.28F, 40 + random.nextInt(20)));
+					PixelParticles.sprite("soul_mist"), 0.16F, 0.28F, 40 + random.nextInt(20)).thirdPersonOnly());
 		} else {
 			client.particleEngine.add(new GlowParticle(client.level, x, y, z,
 					(random.nextDouble() - 0.5) * 0.01, 0.012 + random.nextDouble() * 0.01, (random.nextDouble() - 0.5) * 0.01,
-					PixelParticles.sprite("soul_wisp"), 0.09F, 0.16F, 30 + random.nextInt(16)));
+					PixelParticles.sprite("soul_wisp"), 0.09F, 0.16F, 30 + random.nextInt(16)).thirdPersonOnly());
 		}
 	}
 }

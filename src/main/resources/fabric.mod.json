@@ -18,7 +18,8 @@
 		]
 	},
 	"mixins": [
-		"freedomclient.mixins.json"
+		"freedomclient.mixins.json",
+		"freedomclient.compat.mixins.json"
 	],
 	"custom": {
 		"freedomclient:commit": "${commit}"

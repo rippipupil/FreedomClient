@@ -282,29 +282,61 @@ public class ModGridPage implements MenuPage {
 		return setting.getName().toLowerCase(Locale.ROOT).contains(lower) || setting.getDescription().toLowerCase(Locale.ROOT).contains(lower);
 	}
 
+	/**
+	 * Cuadrícula de mods. En "All" los de optimización no se mezclan con el resto: van al final, en su propia
+	 * sección "Optimization" y en orden alfabético.
+	 */
 	private void renderGrid(Ui ui, int x, int y, int w, int h) {
-		List<Module> modules = visibleModules();
+		List<Module> all = visibleModules();
+		boolean split = fixedCategory == null && filter == null && folderFilter == null;
+		Comparator<Module> alphabetical = Comparator.comparing(module -> module.getName().toLowerCase(Locale.ROOT));
+		List<Module> modules = split ? all.stream().filter(module -> module.getCategory() != Category.PERFORMANCE).toList() : all;
+		List<Module> optimization = split
+				? all.stream().filter(module -> module.getCategory() == Category.PERFORMANCE).sorted(alphabetical).toList()
+				: List.of();
+		if (filter == Category.PERFORMANCE) modules = all.stream().sorted(alphabetical).toList();
 		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
 		int innerW = w;
 		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
-		int rows = (modules.size() + columns - 1) / columns;
-		int contentHeight = rows * (CARD_HEIGHT + GAP) - GAP;
 
 		int offset = scroll.begin(ui, x, y, innerW, h);
-		for (int i = 0; i < modules.size(); i++) {
-			int cardX = x + (i % columns) * (cardWidth + GAP);
-			int cardY = y + (i / columns) * (CARD_HEIGHT + GAP) - offset;
-			if (cardY + CARD_HEIGHT < y || cardY > y + h) continue;
-			renderCard(ui, modules.get(i), cardX, cardY, cardWidth);
+		int cursor = gridRows(ui, modules, x, y, y - offset, h, columns, cardWidth);
+		if (!optimization.isEmpty()) {
+			if (!modules.isEmpty()) cursor += GAP;
+			int headerY = y + cursor - offset;
+			if (headerY + SECTION_HEADER > y && headerY < y + h) {
+				String title = "Optimization";
+				ui.g.drawString(ui.font, title, x + 1, headerY + 2, ThemeManager.accent(), false);
+				int lineX = x + ui.font.width(title) + 6;
+				if (NeonStyle.on()) {
+					NeonStyle.hLine(ui.g, lineX, x + innerW, headerY + 6, 1, 0.0, 0.5, 0.8F);
+				} else {
+					ui.g.fill(lineX, headerY + 6, x + innerW, headerY + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+				}
+			}
+			cursor += SECTION_HEADER;
+			cursor += gridRows(ui, optimization, x, y, y + cursor - offset, h, columns, cardWidth);
 		}
-		if (modules.isEmpty()) {
+		if (all.isEmpty()) {
 			String message = folderFilter != null && query().isEmpty()
 					? "This folder is empty: open a mod and add it to \"" + folderFilter + "\"."
 					: "No mods found";
 			ui.g.drawCenteredString(ui.font, message, x + innerW / 2, y + 20, ThemeManager.textMuted());
 		}
-		scroll.end(ui, x, y, innerW, h, contentHeight);
+		scroll.end(ui, x, y, innerW, h, cursor);
+	}
+
+	/** Dibuja las tarjetas en filas desde {@code top} y devuelve la altura ocupada. */
+	private int gridRows(Ui ui, List<Module> modules, int x, int clipY, int top, int h, int columns, int cardWidth) {
+		for (int i = 0; i < modules.size(); i++) {
+			int cardX = x + (i % columns) * (cardWidth + GAP);
+			int cardY = top + (i / columns) * (CARD_HEIGHT + GAP);
+			if (cardY + CARD_HEIGHT < clipY || cardY > clipY + h) continue;
+			renderCard(ui, modules.get(i), cardX, cardY, cardWidth);
+		}
+		int rows = (modules.size() + columns - 1) / columns;
+		return Math.max(0, rows * (CARD_HEIGHT + GAP) - GAP);
 	}
 
 	/** Estrella pixel de 8x8. */
