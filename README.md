@@ -24,7 +24,22 @@ estando AFK), pone las partículas al mínimo y aplica las opciones más rápida
 
 Otros mods de rendimiento propios: **Particle Limiter** (tope de partículas a la vez y quitar las más pesadas:
 romper bloques, explosiones, lluvia, pociones, ambiente) y **Process Priority** (en Windows sube la prioridad del
-proceso del juego a Alta para que los programas en segundo plano le quiten menos CPU).
+proceso del juego a Alta para que los programas en segundo plano le quiten menos CPU) y **Chunk Preloader** (en
+mundos de un jugador genera por adelantado los chunks de alrededor para que después no haya que generarlos).
+En el menú, todos los mods de optimización están al final, en la sección **Optimization**.
+
+Otras funciones destacadas:
+
+- **Custom F3**: pantalla F3 limpia con el estilo del cliente (FPS, coordenadas, dirección, bioma, luz, hora,
+  velocidad, mobs cerca, bloque apuntado y memoria) y opción de ocultar el HUD del cliente con F3 abierto.
+- **Gap Counter**: las manzanas de oro y de Notch llevan dibujado el número de la pila (contorno claro = muchas,
+  oscuro = pocas) para ver cuántas le quedan al rival; con vista previa en sus ajustes.
+- **Tag**: tu nombre con degradado (Angel Devil, Neon, Ice, Toxic, Galaxy, Gold, Blood, Rainbow) sobre tu cabeza y
+  en el Tab.
+- **Hit Particles**: plumas, copos de nieve y calabazas pixel 3D que giran (o descargas Neon), distintas para golpe
+  normal y crítico, y se pueden mezclar.
+- **Client Screens → Other menus**: pausa, opciones, un jugador y multijugador con el fondo y los botones del tema.
+- **Mouse Tweaks** se puede desactivar para los servidores que no lo permiten.
 
 Licencias de los mods integrados: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
