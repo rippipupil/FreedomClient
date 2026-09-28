@@ -1,9 +1,14 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-com.mojang.blaze3d.platform.FramerateLimitTracker
-com.mojang.blaze3d.platform.FramerateLimitTracker#getFramerateLimit
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$AnimationSettings
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$ParticleSettings
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$DetailSettings
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$RenderSettings
-me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$ExtraSettings
+net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+net.minecraft.client.gui.screens.inventory.AbstractContainerScreen#renderLabels
+net.minecraft.client.gui.screens.inventory.InventoryScreen#renderBg
+net.minecraft.client.gui.screens.inventory.InventoryScreen#renderLabels
+net.minecraft.client.gui.screens.inventory.ContainerScreen#renderBg
+net.minecraft.client.gui.screens.inventory.ShulkerBoxScreen#renderBg
+net.minecraft.client.gui.screens.packs.PackSelectionScreen
+net.minecraft.client.gui.screens.packs.PackSelectionScreen#updateList
+net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry
+net.minecraft.client.gui.screens.packs.TransferableSelectionList
+org.lwjgl.util.tinyfd.TinyFileDialogs
+com.mojang.blaze3d.platform.NativeImage
+net.minecraft.world.inventory.Slot
