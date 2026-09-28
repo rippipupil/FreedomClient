@@ -1,0 +1,2 @@
+FreedomClient keeps its own resources (Gap Counter, Better Grass, glint colours) in internal packs that are hidden from
+this list. Turn them on and off from the FreedomClient menu (Right Shift).
