@@ -539,7 +539,8 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setXRot(22.0F));
 			context.waitTicks(10);
 			context.takeScreenshot("target_hud_slime");
-			singleplayer.getServer().runCommand("kill @e[tag=target]");
+			// Al vacío en vez de matarlo: un slime muerto se divide en slimes pequeños que saldrían en las otras capturas.
+			singleplayer.getServer().runCommand("tp @e[tag=target] ~ -300 ~");
 			context.runOnClient(client -> client.player.setXRot(0.0F));
 			context.waitTicks(5);
 
