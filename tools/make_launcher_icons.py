@@ -79,7 +79,7 @@ def icon():
             if (x - 16) ** 2 + (y - 33) ** 2 <= 49 and image.getpixel((x, y))[3]:
                 image.putpixel((x, y), rgb(0xFFE08A))
     halo(image, 16, 6, 8)
-    logo(image, 5, 11)
+    logo(image, 6, 11)
     return image
 
 
@@ -87,7 +87,7 @@ def ui_logo(palette="angel"):
     """Logo sin fondo para la cabecera del launcher: halo encima de las iniciales."""
     image = Image.new("RGBA", (25, 21), (0, 0, 0, 0))
     halo(image, 12, 3, 9, palette=palette)
-    logo(image, 1, 7, palette)
+    logo(image, 2, 7, palette)
     return image
 
 

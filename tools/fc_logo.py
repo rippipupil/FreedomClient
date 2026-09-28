@@ -1,23 +1,41 @@
-"""Logo de FreedomClient: las iniciales FC hechas con trazos de circuito y nodos redondos, con un halo encima.
+"""Logo de FreedomClient: las iniciales FC hechas con trazos de circuito y nodos redondos, con un halo encima,
+y el emblema sin letras que se usa dentro del cliente.
 
-Lo usan make_badge.py (insignia del nombre), make_launcher_icons.py (iconos del launcher) y, copiado a mano,
-PixelSky.java (menús del cliente). Cada fila es un string: '#' trazo, 'o' borde de un nodo, 'O' centro de un nodo.
+El FC lo usa make_launcher_icons.py (iconos y logo de la app); el emblema, make_badge.py (insignia del nombre) y,
+copiado a mano, PixelSky.java (menús del cliente). Cada fila es un string: '#' trazo, 'o' borde de un nodo, 'O' centro de un nodo.
 """
 
 LOGO = [
-    "#########....#########",
-    "########....##########",
-    "##.........##.........",
-    "##.........##.........",
-    "##....oo...##.........",
-    "#####oOOo..##.........",
-    "#####oOOo..##.........",
-    "##....oo...##.........",
-    "##.........##.........",
-    "##.........##......oo.",
-    "##.........#######oOOo",
-    "##..........######oOOo",
-    "...................oo.",
+    "########...#########",
+    "#######...##########",
+    "##.......##.........",
+    "##.......##.........",
+    "##...oo..##.........",
+    "####oOOo.##.........",
+    "####oOOo.##.........",
+    "##...oo..##.........",
+    "##.......##.........",
+    "##.......##......oo.",
+    "##.......#######oOOo",
+    "##........######oOOo",
+    ".................oo.",
+]
+
+# Emblema sin letras para dentro del cliente: tres barras, una diagonal y dos nodos, como el icono de Neon.
+EMBLEM = [
+    "..oo..................",
+    ".oOOo#################",
+    ".oOOo################.",
+    "..oo...........####...",
+    "..............####....",
+    "....#########.####....",
+    "...#########.####.....",
+    "............####......",
+    "...........####.......",
+    "..........####....oo..",
+    "..#############..oOOo.",
+    "..############...oOOo.",
+    "..................oo..",
 ]
 
 # Paletas por tema: degradado de los trazos por fila (de arriba abajo), nodos (borde, centro) y halo (claro, oscuro).
@@ -41,9 +59,10 @@ PALETTES = {
 }
 
 
-def cells():
-    """Diccionario (x, y) -> tipo ('#', 'o' u 'O') de los píxeles del logo."""
-    return {(x, y): c for y, row in enumerate(LOGO) for x, c in enumerate(row) if c != "."}
+def cells(rows=None):
+    """Diccionario (x, y) -> tipo ('#', 'o' u 'O') de los píxeles del logo (o de las filas que se pasen)."""
+    rows = rows or LOGO
+    return {(x, y): c for y, row in enumerate(rows) for x, c in enumerate(row) if c != "."}
 
 
 def color(kind, y, palette):

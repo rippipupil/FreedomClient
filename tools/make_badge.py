@@ -1,7 +1,7 @@
 """Genera la insignia de FreedomClient que va junto a tu nombre (glifo de la fuente freedomclient:icons).
 
 Uso: python3 tools/make_badge.py   (requiere Pillow)
-El logo FC de circuito (tools/fc_logo.py) sin fondo, con contorno fino y el halo encima.
+El emblema sin letras (tools/fc_logo.py) sin fondo, con contorno fino y el halo encima.
 La textura mide 22 px de alto para un glifo de 11 de alto: medio píxel de interfaz por píxel, más fino.
 """
 import math
@@ -18,7 +18,7 @@ LOGO_X, LOGO_Y = 1, 7
 def main():
     image = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
     palette = fc_logo.PALETTES["angel"]
-    cells = fc_logo.cells()
+    cells = fc_logo.cells(fc_logo.EMBLEM)
     for (x, y) in cells:
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)):
             p = (LOGO_X + x + dx, LOGO_Y + y + dy)
@@ -26,7 +26,7 @@ def main():
                 image.putpixel(p, palette["outline"] + (255,))
     for (x, y), kind in cells.items():
         image.putpixel((LOGO_X + x, LOGO_Y + y), fc_logo.color(kind, y, "angel") + (255,))
-    # Halo: anillo aplanado encima de las iniciales, claro arriba y más oscuro abajo.
+    # Halo: anillo aplanado encima del emblema, claro arriba y más oscuro abajo.
     light, dark = palette["halo"]
     cx, cy, rx, ry = 12, 3, 9, 2
     for x in range(-rx, rx + 1):

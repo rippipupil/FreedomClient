@@ -80,23 +80,23 @@ public final class PixelSky {
 	};
 
 	/**
-	 * Logo de FreedomClient: las iniciales FC hechas con trazos de circuito y nodos redondos (ver tools/fc_logo.py).
+	 * Emblema de FreedomClient sin letras (tools/fc_logo.py EMBLEM): tres barras, una diagonal y dos nodos.
 	 * '#' = trazo, 'o' = borde de un nodo, 'O' = centro de un nodo.
 	 */
 	private static final String[] FC = {
-			"#########....#########",
-			"########....##########",
-			"##.........##.........",
-			"##.........##.........",
-			"##....oo...##.........",
-			"#####oOOo..##.........",
-			"#####oOOo..##.........",
-			"##....oo...##.........",
-			"##.........##.........",
-			"##.........##......oo.",
-			"##.........#######oOOo",
-			"##..........######oOOo",
-			"...................oo.",
+			"..oo..................",
+			".oOOo#################",
+			".oOOo################.",
+			"..oo...........####...",
+			"..............####....",
+			"....#########.####....",
+			"...#########.####.....",
+			"............####......",
+			"...........####.......",
+			"..........####....oo..",
+			"..#############..oOOo.",
+			"..############...oOOo.",
+			"..................oo..",
 	};
 	/** Degradado de los trazos por fila, nodos (borde, centro), halo (claro, oscuro) y contorno, en Angel Devil y en Neon. */
 	private static final int[] FC_ROWS = {0xFFFFFF, 0xFAF6EC, 0xF5F1E8, 0xF7EAD0, 0xF7E2BE, 0xF6D696, 0xF5CD78, 0xF2C45A, 0xECB646, 0xE8A93A, 0xDE783C, 0xD7263D, 0xD7263D};
@@ -284,7 +284,7 @@ public final class PixelSky {
 		}
 	}
 
-	/** El logo FC de circuito con contorno, sombra y degradado, centrado en (cx, cy). Con el tema Neon cambia de colores. */
+	/** El emblema de FreedomClient con contorno, sombra y degradado, centrado en (cx, cy). Con el tema Neon cambia de colores. */
 	public static void logo(GuiGraphics g, int cx, int cy, int p, float alpha) {
 		boolean neon = ThemeManager.isNeon();
 		int[] rows = neon ? FC_ROWS_NEON : FC_ROWS;
