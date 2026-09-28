@@ -4,6 +4,7 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.config.Config;
 import com.freedomclient.module.Module;
 import com.freedomclient.ui.Draw;
+import com.freedomclient.ui.NeonStyle;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.scene.PixelSky;
 import com.freedomclient.ui.theme.ThemeManager;
@@ -124,6 +125,12 @@ public class FreedomMenuScreen extends Screen {
 		Draw.panel(graphics, x, y, w, h, ThemeManager.background(), ThemeManager.border());
 
 		renderHeader(x, y, w);
+		if (NeonStyle.on()) {
+			// Marco con la energía de Neon dando la vuelta y chispas que lo recorren de vez en cuando.
+			NeonStyle.frame(graphics, x, y, w, h, NeonStyle.flow(), 2.0, 1.0F);
+			NeonStyle.spark(graphics, x, y, w, 4200, 0);
+			NeonStyle.spark(graphics, x, y + HEADER_HEIGHT, w, 6100, 2300);
+		}
 
 		int contentX = x + PADDING;
 		int contentY = y + HEADER_HEIGHT + PADDING;
@@ -148,7 +155,11 @@ public class FreedomMenuScreen extends Screen {
 		GuiGraphics g = ui.g;
 		int headerFill = ThemeManager.mix(ThemeManager.background(), ThemeManager.card(), 0.5F) | 0xFF000000;
 		g.fill(x + 1, y + 1, x + w - 1, y + HEADER_HEIGHT, headerFill);
-		g.fill(x + 1, y + HEADER_HEIGHT, x + w - 1, y + HEADER_HEIGHT + 1, ThemeManager.border());
+		if (NeonStyle.on()) {
+			NeonStyle.hLine(g, x + 1, x + w - 1, y + HEADER_HEIGHT, 1, NeonStyle.flow() + 0.5, NeonStyle.flow() + 1.5, 1.0F);
+		} else {
+			g.fill(x + 1, y + HEADER_HEIGHT, x + w - 1, y + HEADER_HEIGHT + 1, ThemeManager.border());
+		}
 
 		// Logo del cliente: las iniciales FC de circuito con el halo encima, y el nombre en dos colores.
 		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
@@ -159,7 +170,11 @@ public class FreedomMenuScreen extends Screen {
 		int nameY = y + 11;
 		g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
 		int clientX = nameX + font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
-		g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
+		if (NeonStyle.on()) {
+			NeonStyle.gradientText(g, font, "Client", clientX, nameY, NeonStyle.flow(), 0.5, true);
+		} else {
+			g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
+		}
 
 		// Pestañas alineadas a la derecha.
 		int tabX = x + w - 4;
@@ -183,7 +198,11 @@ public class FreedomMenuScreen extends Screen {
 		int underline = Math.round((w - 4) * progress);
 		if (underline > 0) {
 			int center = x + w / 2;
-			ui.g.fill(center - underline / 2, y + HEADER_HEIGHT - 4, center + (underline + 1) / 2, y + HEADER_HEIGHT - 2, ThemeManager.accent());
+			if (NeonStyle.on()) {
+				NeonStyle.hLine(ui.g, center - underline / 2, center + (underline + 1) / 2, y + HEADER_HEIGHT - 4, 2, 0.0, 0.35, 1.0F);
+			} else {
+				ui.g.fill(center - underline / 2, y + HEADER_HEIGHT - 4, center + (underline + 1) / 2, y + HEADER_HEIGHT - 2, ThemeManager.accent());
+			}
 		}
 
 		ui.click(x, y, w, HEADER_HEIGHT - 1, (mx, my, button) -> {

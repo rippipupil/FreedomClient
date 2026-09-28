@@ -33,6 +33,8 @@ import com.freedomclient.module.hud.WatermarkHud;
 import com.freedomclient.module.performance.BundledModModule;
 import com.freedomclient.module.performance.GameOptimizerModule;
 import com.freedomclient.module.performance.CullLeavesModule;
+import com.freedomclient.module.performance.ParticleLimiterModule;
+import com.freedomclient.module.performance.ProcessPriorityModule;
 import com.freedomclient.module.performance.EntityCullingModule;
 import com.freedomclient.module.visual.BetterGrassModule;
 import com.freedomclient.module.visual.CapesModule;
@@ -178,6 +180,8 @@ public class ModuleManager {
 		add(new GameOptimizerModule());
 		add(new EntityCullingModule());
 		add(new CullLeavesModule());
+		add(new ParticleLimiterModule());
+		add(new ProcessPriorityModule());
 		add(new BundledModModule("Sodium", "sodium", "Modern rendering engine. The biggest FPS boost."));
 		add(new BundledModModule("Lithium", "lithium", "Optimizes physics, mob AI and game logic."));
 		add(new BundledModModule("FerriteCore", "ferritecore", "Greatly reduces memory usage."));

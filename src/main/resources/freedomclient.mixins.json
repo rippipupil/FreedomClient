@@ -28,7 +28,8 @@
 		"PlayerTabOverlayMixin",
 		"ScreenEffectRendererMixin",
 		"SoundManagerMixin",
-		"accessor.OverlayTextureAccessor"
+		"accessor.OverlayTextureAccessor",
+		"accessor.ParticleEngineAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 1

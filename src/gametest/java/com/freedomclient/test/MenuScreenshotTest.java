@@ -104,6 +104,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.runOnClient(client -> client.setScreen(new FreedomMenuScreen()));
 		context.waitTicks(10);
 		context.takeScreenshot("menu_neon");
+		// Ajustes de un mod con el tema Neon (deslizador, interruptores y líneas de sección con el degradado).
+		context.setScreen(() -> {
+			FreedomMenuScreen screen = new FreedomMenuScreen();
+			screen.openModule(FreedomClient.getModuleManager().get(com.freedomclient.module.performance.ParticleLimiterModule.class));
+			return screen;
+		});
+		context.waitTicks(10);
+		context.takeScreenshot("menu_neon_particles");
 		context.runOnClient(client -> {
 			client.screen.onClose();
 			com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET);

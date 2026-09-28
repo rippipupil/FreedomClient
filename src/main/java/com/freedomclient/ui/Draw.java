@@ -32,6 +32,10 @@ public final class Draw {
 		int track = ThemeManager.mix(ThemeManager.shade(), ThemeManager.accent(), progress);
 		int border = hovered ? ThemeManager.highlight() : ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F);
 		panel(g, x, y, 20, 10, track, border);
+		if (NeonStyle.on() && progress > 0.0F) {
+			// Encendido: la pista pasa de lima a amarillo, como la energía cargada.
+			NeonStyle.hLine(g, x + 1, x + 19, y + 1, 8, 0.12, 0.0, progress);
+		}
 
 		int knobX = x + 2 + Math.round(progress * 10);
 		g.fill(knobX, y + 2, knobX + 6, y + 8, ThemeManager.text());
@@ -42,7 +46,11 @@ public final class Draw {
 	public static void slider(GuiGraphics g, int x, int y, int w, double progress, boolean hovered) {
 		int filled = (int) Math.round(progress * (w - 2));
 		panel(g, x, y, w, 6, ThemeManager.shade(), ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F));
-		g.fill(x + 1, y + 1, x + 1 + filled, y + 5, ThemeManager.accent());
+		if (NeonStyle.on()) {
+			NeonStyle.hLine(g, x + 1, x + 1 + filled, y + 1, 4, 0.35, 0.35 - 0.35 * progress, 1.0F);
+		} else {
+			g.fill(x + 1, y + 1, x + 1 + filled, y + 5, ThemeManager.accent());
+		}
 
 		int knobX = x + filled - 1;
 		panel(g, knobX, y - 2, 4, 10, hovered ? ThemeManager.highlight() : ThemeManager.text(), 0xFF000000);

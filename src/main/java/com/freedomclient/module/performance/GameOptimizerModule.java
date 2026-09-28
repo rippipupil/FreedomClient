@@ -11,7 +11,8 @@ public class GameOptimizerModule extends Module {
 	public GameOptimizerModule() {
 		super("FPS Optimizer", "Applies the fastest video settings without lowering your render distance.", Category.PERFORMANCE, true);
 		add(new ActionSetting("Optimize video settings",
-				"Turns off VSync, clouds, entity shadows and biome blend, uncaps the frame rate and sets particles to minimal.",
+				"Turns off VSync, clouds, entity shadows, biome blend, vignette, chunk fade-in, menu blur and texture filtering, "
+						+ "uses fast leaves and threaded chunk updates, uncaps the frame rate, lowers it while AFK and applies the fastest Sodium options.",
 				"Apply", () -> PerformanceSettings.apply(Minecraft.getInstance())));
 	}
 

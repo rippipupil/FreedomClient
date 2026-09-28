@@ -8,6 +8,7 @@ import com.freedomclient.module.Module;
 import com.freedomclient.module.performance.BundledModModule;
 import com.freedomclient.setting.Setting;
 import com.freedomclient.ui.Draw;
+import com.freedomclient.ui.NeonStyle;
 import com.freedomclient.ui.ScrollArea;
 import com.freedomclient.ui.TextField;
 import com.freedomclient.ui.Ui;
@@ -68,6 +69,9 @@ public class ModGridPage implements MenuPage {
 		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
 		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
 		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
+		if (NeonStyle.on() && !selected) {
+			NeonStyle.frame(ui.g, x, y, width, BAR_HEIGHT, x / 500.0, 0.2, hovered ? 1.0F : 0.6F);
+		}
 		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
 		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
 			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
@@ -319,6 +323,10 @@ public class ModGridPage implements MenuPage {
 		int fill = ThemeManager.mix(ThemeManager.card(), ThemeManager.cardHover(), hover);
 		int border = ThemeManager.mix(ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.45F), ThemeManager.highlight(), hover);
 		Draw.bevelPanel(ui.g, x, y, w, CARD_HEIGHT, fill, border);
+		if (NeonStyle.on()) {
+			// Cada tarjeta con su tramo de la paleta según dónde está; al pasar el ratón brilla del todo.
+			NeonStyle.frame(ui.g, x, y, w, CARD_HEIGHT, (x + y) / 700.0 + NeonStyle.flow() * 0.5, 0.35, 0.5F + 0.5F * hover);
+		}
 
 		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24, module.getCategory().getColor());
 

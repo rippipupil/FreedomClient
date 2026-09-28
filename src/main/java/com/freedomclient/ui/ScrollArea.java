@@ -34,7 +34,11 @@ public class ScrollArea {
 		int barHeight = Math.max(12, h * h / contentHeight);
 		int barY = y + Math.round((h - barHeight) * (offset / (contentHeight - h)));
 		ui.g.fill(x + w + 2, y, x + w + 4, y + h, ThemeManager.shade());
-		ui.g.fill(x + w + 2, barY, x + w + 4, barY + barHeight, ThemeManager.accent());
+		if (NeonStyle.on()) {
+			NeonStyle.vLine(ui.g, x + w + 2, barY, barY + barHeight, 2, 0.0, 0.4, 1.0F);
+		} else {
+			ui.g.fill(x + w + 2, barY, x + w + 4, barY + barHeight, ThemeManager.accent());
+		}
 	}
 
 	public void reset() {

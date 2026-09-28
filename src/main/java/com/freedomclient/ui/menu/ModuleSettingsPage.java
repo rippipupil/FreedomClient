@@ -13,6 +13,7 @@ import com.freedomclient.setting.PixelGridSetting;
 import com.freedomclient.setting.Setting;
 import com.freedomclient.setting.StringSetting;
 import com.freedomclient.ui.Draw;
+import com.freedomclient.ui.NeonStyle;
 import com.freedomclient.ui.ScrollArea;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.UiText;
@@ -159,7 +160,11 @@ public class ModuleSettingsPage implements MenuPage {
 			anyVisible = true;
 			ui.g.drawString(ui.font, section.title, x + 1, cursor + 2, ThemeManager.accent(), false);
 			int lineX = x + ui.font.width(section.title) + 6;
-			ui.g.fill(lineX, cursor + 6, x + innerW, cursor + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+			if (NeonStyle.on()) {
+				NeonStyle.hLine(ui.g, lineX, x + innerW, cursor + 6, 1, section.ordinal() * 0.15, section.ordinal() * 0.15 + 0.5, 0.8F);
+			} else {
+				ui.g.fill(lineX, cursor + 6, x + innerW, cursor + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+			}
 			cursor += 14;
 			for (Setting<?> setting : settings) {
 				int rowHeight = rows.render(ui, setting, x, cursor, innerW);
