@@ -220,6 +220,13 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 			cloudPet.render(poseStack, collector, light, state, cloudModule);
 		}
 
+		// Cosméticos pixel 3D (máscaras, sombreros, bufanda, herramientas de espalda y mascotas nuevas).
+		for (com.freedomclient.module.Module module : FreedomClient.getModuleManager().getModules()) {
+			if (module instanceof com.freedomclient.cosmetic.vox.VoxCosmetic vox && vox.shouldRender(state)) {
+				vox.render(getParentModel(), poseStack, collector, light, state);
+			}
+		}
+
 		HaloCosmetic haloModule = CosmeticModule.get(HaloCosmetic.class);
 		if (haloModule != null && haloModule.shouldRender(state)) {
 			renderHalo(poseStack, collector, light, state, haloModule);
@@ -229,7 +236,11 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 	private void renderWings(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, WingsCosmetic module) {
 		float time = state.ageInTicks;
 		boolean fast = state.fallFlyingTimeInTicks > 0 || state.walkAnimationSpeed > 0.8F;
-		float flap = module.flap.get() ? Mth.sin(time * (fast ? 0.45F : 0.12F)) * (fast ? 0.35F : 0.12F) : 0.0F;
+		// Aleteo lento y limpio: una onda suave, y la punta sigue a la base con un poco de retraso.
+		float speed = fast ? 0.2F : 0.07F;
+		float amount = fast ? 0.28F : 0.1F;
+		float flap = module.flap.get() ? Mth.sin(time * speed) * amount : 0.0F;
+		float tipFlap = module.flap.get() ? Mth.sin(time * speed - 0.7F) * amount : 0.0F;
 
 		ModelPart left = wings.getChild("left");
 		ModelPart right = wings.getChild("right");
@@ -240,8 +251,8 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		right.yRot = 0.5F + flap;
 		right.zRot = 0.12F;
 		// La punta se dobla hacia atrás y se mueve algo más que la base, como un ala de verdad.
-		leftTip.yRot = -0.3F - flap * 0.8F;
-		rightTip.yRot = 0.3F + flap * 0.8F;
+		leftTip.yRot = -0.3F - tipFlap * 0.9F;
+		rightTip.yRot = 0.3F + tipFlap * 0.9F;
 
 		poseStack.pushPose();
 		getParentModel().body.translateAndRotate(poseStack);

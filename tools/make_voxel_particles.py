@@ -78,7 +78,13 @@ PUMPKIN = {
     "layers": pumpkin_layers(),
 }
 
-MODELS = {"feather": (FEATHER, 1.35), "snow": (SNOWFLAKE, 1.35), "pumpkin": (PUMPKIN, 1.45)}
+# Brasa: cubo claro (se tiñe al crear la partícula) con la cara de arriba más brillante.
+EMBER = {
+    "colors": {"w": (255, 255, 255), "g": (214, 214, 220)},
+    "layers": [["www", "ggg", "ggg"]] * 3,
+}
+
+MODELS = {"ember": (EMBER, 1.6), "feather": (FEATHER, 1.35), "snow": (SNOWFLAKE, 1.35), "pumpkin": (PUMPKIN, 1.45)}
 
 
 def voxels(model):
@@ -153,8 +159,47 @@ def render(model, scale, yaw):
     return Image.alpha_composite(outline, image)
 
 
+FLOWER_ROWS = [
+    "..p.p..",
+    ".ppPpp.",
+    "pPcccPp",
+    ".pcCcp.",
+    "pPcccPp",
+    ".ppPpp.",
+    "..p.p..",
+    "...s...",
+    ".l.s...",
+    "..ls.l.",
+    "...sl..",
+]
+# Flores de Flower Steps (pétalos, pétalos claros, centro) y de Abyss Flowers (azules oscuros con el centro cian).
+FLOWERS = {
+    "pink": ((244, 138, 184), (255, 196, 222), (255, 222, 90)),
+    "yellow": ((255, 214, 64), (255, 240, 150), (255, 150, 40)),
+    "blue": ((110, 184, 255), (190, 225, 255), (255, 232, 110)),
+    "purple": ((176, 124, 255), (214, 184, 255), (255, 222, 90)),
+    "white": ((244, 244, 248), (255, 255, 255), (255, 206, 70)),
+    "red": ((255, 90, 90), (255, 160, 150), (255, 226, 100)),
+    "orange": ((255, 160, 64), (255, 206, 140), (255, 240, 150)),
+    "abyss_blue": ((58, 90, 216), (98, 130, 240), (111, 224, 255)),
+    "abyss_dark": ((30, 46, 122), (48, 70, 170), (90, 200, 255)),
+}
+FLOWER_ANGLES = (-35, -12, 12, 35)
+
+
+def flower_model(petal, light, center, abyss):
+    stem, leaf = ((26, 58, 74), (36, 80, 96)) if abyss else ((76, 175, 80), (111, 207, 90))
+    colors = {"p": petal, "P": light, "c": center, "C": tuple(min(255, int(v * 1.1)) for v in center), "s": stem, "l": leaf}
+    back = ["".join(ch if ch in "cCs" else "." for ch in row) for row in FLOWER_ROWS]
+    return {"colors": colors, "layers": [FLOWER_ROWS, back]}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    for name, (petal, light, center) in FLOWERS.items():
+        model = flower_model(petal, light, center, name.startswith("abyss"))
+        for i, angle in enumerate(FLOWER_ANGLES):
+            render(model, 1.25, math.radians(angle)).save(OUT / f"flower_{name}_{i}.png")
     for name, (model, scale) in MODELS.items():
         for frame in range(FRAMES):
             render(model, scale, math.tau * frame / FRAMES).save(OUT / f"hit_{name}_{frame}.png")

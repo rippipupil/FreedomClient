@@ -65,6 +65,27 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"execute at @p run summon armor_stand ~2 ~ ~4 {NoGravity:1b}",
 	};
 
+	/** El módulo registrado de esa clase exacta. */
+	private static Module cosmetic(Class<?> type) {
+		for (Module module : FreedomClient.getModuleManager().getModules()) {
+			if (module.getClass() == type) return module;
+		}
+		throw new IllegalArgumentException(type.getName());
+	}
+
+	/** Activa esos cosméticos, pone la cámara, espera un poco, hace la captura y los vuelve a apagar. */
+	private static void shoot(ClientGameTestContext context, String name, net.minecraft.client.CameraType camera, Class<?>... types) {
+		context.runOnClient(client -> {
+			for (Class<?> type : types) cosmetic(type).setEnabled(true);
+			client.options.setCameraType(camera);
+		});
+		context.waitTicks(12);
+		context.takeScreenshot(name);
+		context.runOnClient(client -> {
+			for (Class<?> type : types) cosmetic(type).setEnabled(false);
+		});
+	}
+
 	private static void setMode(Module module, String name, String value) {
 		for (Setting<?> setting : module.getSettings()) {
 			if (setting instanceof ModeSetting mode && mode.getName().equals(name)) mode.set(value);
@@ -319,6 +340,72 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				manager.get(com.freedomclient.cosmetic.CapeCosmetic.class).setEnabled(true);
 			});
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+
+			// Cosméticos nuevos (Bee Swarm, FNAF, OneShot, Halloween, flores y capas), cada grupo por separado.
+			Class<?>[] defaults = {com.freedomclient.cosmetic.WingsCosmetic.class, HaloCosmetic.class, com.freedomclient.cosmetic.CapeCosmetic.class,
+					com.freedomclient.cosmetic.PetCosmetic.class, com.freedomclient.cosmetic.CloudPetCosmetic.class, com.freedomclient.cosmetic.AuraCosmetic.class};
+			context.runOnClient(client -> {
+				for (Class<?> type : defaults) cosmetic(type).setEnabled(false);
+				PetBehavior.forceMood(PetBehavior.Mood.IDLE);
+			});
+			shoot(context, "mask_diamond", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.DiamondMaskCosmetic.class);
+			shoot(context, "mask_demon", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.DemonMaskCosmetic.class);
+			shoot(context, "mask_gummy", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GummyMaskCosmetic.class);
+			shoot(context, "back_tide_popper", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.TidePopperCosmetic.class);
+			shoot(context, "back_dark_scythe", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.DarkScytheCosmetic.class);
+			shoot(context, "back_gummyballer", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GummyballerCosmetic.class);
+			shoot(context, "bee_pets", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.WindyBeeCosmetic.class,
+					com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class);
+			shoot(context, "fnaf_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.FreddyHatCosmetic.class,
+					com.freedomclient.cosmetic.vox.FreddyPetCosmetic.class);
+			shoot(context, "oneshot_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
+					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class);
+			shoot(context, "oneshot_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
+					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.SunBackpackCosmetic.class);
+			shoot(context, "pumpkin_happy", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.JackOLanternCosmetic.class);
+			context.runOnClient(client -> {
+				((com.freedomclient.cosmetic.vox.JackOLanternCosmetic) cosmetic(com.freedomclient.cosmetic.vox.JackOLanternCosmetic.class)).forceEvil(true);
+				cosmetic(com.freedomclient.cosmetic.vox.JackOLanternCosmetic.class).setEnabled(true);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+			});
+			context.waitTicks(3);
+			context.takeScreenshot("pumpkin_evil");
+			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.vox.JackOLanternCosmetic.class).setEnabled(false));
+			// Angel Devil rehecha y la capa en sus dos estilos.
+			shoot(context, "angel_devil_pet", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.PetCosmetic.class,
+					com.freedomclient.cosmetic.WingsCosmetic.class, HaloCosmetic.class);
+			shoot(context, "cape_angel", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.CapeCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.CapeCosmetic.class), "Style", "Neon"));
+			shoot(context, "cape_neon", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.CapeCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.CapeCosmetic.class), "Style", "Angel Devil"));
+			// Flores al andar.
+			for (Class<?> trail : new Class<?>[] {com.freedomclient.cosmetic.FlowerStepsCosmetic.class, com.freedomclient.cosmetic.AbyssFlowersCosmetic.class}) {
+				context.runOnClient(client -> {
+					for (var module : FreedomClient.getModuleManager().getModules()) {
+						if (module.getClass() == trail) module.setEnabled(true);
+					}
+					client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+				});
+				for (int i = 0; i < 16; i++) {
+					context.runOnClient(client -> {
+						var player = client.player;
+						float yaw = player.getYRot() * net.minecraft.util.Mth.DEG_TO_RAD;
+						player.setPos(player.getX() - net.minecraft.util.Mth.sin(yaw) * 0.2, player.getY(), player.getZ() + net.minecraft.util.Mth.cos(yaw) * 0.2);
+					});
+					context.waitTicks(1);
+				}
+				context.waitTicks(4);
+				context.takeScreenshot(trail == com.freedomclient.cosmetic.FlowerStepsCosmetic.class ? "flower_steps" : "abyss_flowers");
+				context.runOnClient(client -> {
+					for (var module : FreedomClient.getModuleManager().getModules()) {
+						if (module.getClass() == trail) module.setEnabled(false);
+					}
+				});
+			}
+			context.runOnClient(client -> {
+				for (Class<?> type : defaults) cosmetic(type).setEnabled(true);
+				client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+			});
 
 			// Visuals: cielo de atardecer FC.
 			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "FC Sunset"));

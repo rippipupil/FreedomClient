@@ -1,191 +1,198 @@
 package com.freedomclient.cosmetic;
 
-import com.freedomclient.FreedomClient;
+import com.freedomclient.cosmetic.vox.Vox;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import com.mojang.math.Axis;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Mascota: un Angel Devil en miniatura hecho como un mini jugador (cabeza de 8x8x8 con flequillo y pelo largo,
- * camisa con corbata, brazos y piernas), con un halo en anillo y alas de plumas voxel que aletean.
- * Flota junto a tu hombro. La textura está en pet.png (ver tools/make_cosmetics.py).
+ * Mascota Angel Devil, fiel al personaje: pelo naranja rojizo largo y despeinado con el flequillo cayendo sobre los
+ * ojos, mirada cansada de ojos granate, traje negro con camisa blanca y corbata negra, grandes alas blancas de
+ * plumas, halo dorado flotando ladeado y su cucurucho de helado. Flota junto a tu hombro.
  */
 public final class AngelDevilPetRenderer {
-	private static final Identifier TEXTURE = FreedomClient.id("textures/cosmetic/pet.png");
-	private static final Identifier SLEEP_TEXTURE = FreedomClient.id("textures/cosmetic/pet_sleep.png");
-	private static final int HALO_SEGMENTS = 12;
-	/** Franjas de color de pet.png para el halo y las alas. */
-	private static final int STRIP_GOLD = 40;
-	private static final int STRIP_WING = 48;
-	private static final int STRIP_WING_LIGHT = 52;
-	private static final int STRIP_WING_SHADE = 56;
-	private static final int STRIP_WING_OUTLINE = 60;
-	/** Ala derecha de 9x8; la columna 0 queda junto a la espalda. b/w = blanco, l = claro, s = sombra, o = contorno. */
+	private static final Vox.Palette PALETTE = new Vox.Palette("angel_devil_pet",
+			's', 0xFFF4DCCB, 'S', 0xFFE2C2AE, 'h', 0xFFD2653A, 'H', 0xFFA8452A, 'y', 0xFFEB8A4E,
+			'e', 0xFF8A2230, 'L', 0xFF3A1A1A, 'm', 0xFFC47A78, 'k', 0xFF1E1E24, 'K', 0xFF0F0F13,
+			'w', 0xFFF4F2EE, 't', 0xFF101014, 'W', 0xFFD8D4CC, 'b', 0xFFFFFFFF, 'o', 0xFFA8A29A,
+			'l', 0xFFE8E4DC, 'g', 0xFFF2D04A, 'c', 0xFFD8A060, 'i', 0xFFFFF8F0);
+	/** Ala derecha (la columna 0 junto a la espalda): b = borde, w = blanco, l = claro, W = sombra, o = contorno. */
 	private static final String[] WING = {
-			"......bbb",
-			"....bbwwo",
-			"..bbwwwlo",
-			".bwwwslo.",
-			"bwwwslo..",
-			"wwwslo...",
-			"wwslo....",
-			"wlo......",
+			"........bbbb",
+			"......bbwwwo",
+			".....bwwwwlo",
+			"....bwwwwWlo",
+			"...bwwwwWlo.",
+			"..bwwwwWlo..",
+			".bwwwwWlwo..",
+			"bwwwwWlwo...",
+			"wwwwWlwo....",
+			"wwwWlwo.....",
+			"wwWlwo......",
+			"wWlo........",
+			"Wlo.........",
 	};
 
-	private final ModelPart root;
-	private final ModelPart head;
-	private final ModelPart rightArm;
-	private final ModelPart leftArm;
-	private final ModelPart rightWing;
-	private final ModelPart leftWing;
-	private final ModelPart halo;
+	private Vox.Shape body;
+	private Vox.Shape head;
+	private Vox.Shape sleepingFace;
+	private Vox.Shape awakeFace;
+	private Vox.Shape arm;
+	private Vox.Shape wing;
+	private Vox.Shape halo;
+	private Vox.Shape cone;
 
-	public AngelDevilPetRenderer() {
-		MeshDefinition mesh = new MeshDefinition();
-		PartDefinition parts = mesh.getRoot();
-		// Coordenadas en píxeles con los pies en y = 0 (y negativo es hacia arriba) y la cara hacia -z, como un jugador.
-		PartDefinition headPart = parts.addOrReplaceChild("head", CubeListBuilder.create()
-						.texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8)
-						// Pelo largo que cae por la espalda hasta los hombros.
-						.texOffs(32, 0).addBox(-4.0F, 0.0F, 1.5F, 8, 4, 2),
-				PartPose.offset(0.0F, -11.0F, 0.0F));
-		parts.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 16).addBox(-3.0F, 0.0F, -1.5F, 6, 6, 3),
-				PartPose.offset(0.0F, -11.0F, 0.0F));
-		parts.addOrReplaceChild("right_arm", CubeListBuilder.create().texOffs(18, 16).addBox(-2.0F, 0.0F, -1.0F, 2, 6, 2),
-				PartPose.offset(-3.0F, -11.0F, 0.0F));
-		parts.addOrReplaceChild("left_arm", CubeListBuilder.create().texOffs(26, 16).addBox(0.0F, 0.0F, -1.0F, 2, 6, 2),
-				PartPose.offset(3.0F, -11.0F, 0.0F));
-		parts.addOrReplaceChild("right_leg", CubeListBuilder.create().texOffs(0, 26).addBox(-3.0F, 0.0F, -1.5F, 3, 5, 3),
-				PartPose.offset(0.0F, -5.0F, 0.0F));
-		parts.addOrReplaceChild("left_leg", CubeListBuilder.create().texOffs(12, 26).addBox(0.0F, 0.0F, -1.5F, 3, 5, 3),
-				PartPose.offset(0.0F, -5.0F, 0.0F));
-		parts.addOrReplaceChild("right_wing", wing(true), PartPose.offset(-1.0F, -13.0F, 3.5F));
-		parts.addOrReplaceChild("left_wing", wing(false), PartPose.offset(1.0F, -13.0F, 3.5F));
-
-		// Halo: un anillo de cubitos dorados sobre la cabeza (va dentro de la cabeza para moverse con ella).
-		PartDefinition haloPart = headPart.addOrReplaceChild("halo", CubeListBuilder.create(), PartPose.offset(0.0F, -10.5F, 0.0F));
-		float radius = 3.5F;
-		for (int i = 0; i < HALO_SEGMENTS; i++) {
-			float angle = (float) (i * Math.PI * 2 / HALO_SEGMENTS);
-			haloPart.addOrReplaceChild("segment" + i,
-					CubeListBuilder.create().texOffs(0, STRIP_GOLD).addBox(-1.0F, -0.5F, -0.5F, 2, 1, 1),
-					PartPose.offsetAndRotation(Mth.cos(angle) * radius, 0.0F, Mth.sin(angle) * radius, 0.0F, -angle + (float) Math.PI / 2, 0.0F));
-		}
-
-		root = LayerDefinition.create(mesh, 64, 64).bakeRoot();
-		head = root.getChild("head");
-		halo = head.getChild("halo");
-		rightArm = root.getChild("right_arm");
-		leftArm = root.getChild("left_arm");
-		rightWing = root.getChild("right_wing");
-		leftWing = root.getChild("left_wing");
-	}
-
-	/** Ala voxel: cada tramo de píxeles del mismo color de una fila es un cubo de 1 píxel de alto. */
-	private static CubeListBuilder wing(boolean right) {
-		CubeListBuilder builder = CubeListBuilder.create();
-		for (int row = 0; row < WING.length; row++) {
-			String line = WING[row];
-			for (int x = 0; x < line.length(); ) {
-				char c = line.charAt(x);
-				int end = x + 1;
-				while (end < line.length() && line.charAt(end) == c) end++;
-				if (c != '.') {
-					int length = end - x;
-					float boxX = right ? -x - length : x;
-					builder.texOffs(0, strip(c)).addBox(boxX, row, 0.0F, length, 1, 1);
-				}
-				x = end;
-			}
-		}
-		return builder;
-	}
-
-	private static int strip(char c) {
-		return switch (c) {
-			case 'l' -> STRIP_WING_LIGHT;
-			case 's' -> STRIP_WING_SHADE;
-			case 'o' -> STRIP_WING_OUTLINE;
-			default -> STRIP_WING;
-		};
+	private void build() {
+		body = new Vox.Shape(PALETTE)
+				// Pantalón y zapatos negros.
+				.box('k', -3.0F, -5.0F, -1.5F, 2.8F, 5.0F, 3.0F)
+				.box('k', 0.2F, -5.0F, -1.5F, 2.8F, 5.0F, 3.0F)
+				.box('K', -3.1F, -1.0F, -1.9F, 3.0F, 1.0F, 3.4F)
+				.box('K', 0.1F, -1.0F, -1.9F, 3.0F, 1.0F, 3.4F)
+				// Americana negra con la camisa blanca en V, la corbata y las solapas.
+				.box('k', -3.0F, -11.0F, -1.6F, 6.0F, 6.2F, 3.2F)
+				.box('w', -1.2F, -11.0F, -1.75F, 2.4F, 3.0F, 0.3F)
+				.box('w', -0.6F, -8.0F, -1.75F, 1.2F, 1.0F, 0.3F)
+				.box('t', -0.4F, -10.6F, -1.9F, 0.8F, 4.0F, 0.3F)
+				.box('K', -1.8F, -11.0F, -1.85F, 0.6F, 3.4F, 0.3F)
+				.box('K', 1.2F, -11.0F, -1.85F, 0.6F, 3.4F, 0.3F);
+		head = new Vox.Shape(PALETTE)
+				.box('s', -4.0F, -8.0F, -4.0F, 8, 8, 8)
+				.box('S', -4.0F, -1.0F, -4.05F, 8.0F, 1.0F, 0.1F)
+				// Pelo: casquete, melena larga por detrás y mechones a los lados hasta la mandíbula.
+				.box('h', -4.4F, -8.5F, -4.4F, 8.8F, 2.6F, 8.8F)
+				.box('h', -4.4F, -6.0F, 3.4F, 8.8F, 8.5F, 1.2F)
+				.box('H', -4.1F, 2.5F, 3.6F, 8.2F, 1.5F, 1.0F)
+				.box('h', -4.6F, -6.0F, -4.2F, 0.8F, 6.2F, 7.6F)
+				.box('h', 3.8F, -6.0F, -4.2F, 0.8F, 6.2F, 7.6F)
+				.box('H', -4.7F, 0.0F, -3.6F, 0.8F, 2.0F, 1.2F)
+				.box('H', 3.9F, 0.0F, -3.4F, 0.8F, 2.6F, 1.2F)
+				.box('y', -3.2F, -8.7F, -3.0F, 2.0F, 0.3F, 4.0F);
+		// Flequillo despeinado delante de la cara, con mechones que caen sobre los ojos.
+		head.art(new String[] {
+				"hhhhhhhh",
+				"hyhhhyhh",
+				"hhhHhhhH",
+				"h.hHh.hh",
+				".h.h.hh.",
+				"....h...",
+		}, -4.0F, -8.0F, -4.5F, 0.4F);
+		awakeFace = new Vox.Shape(PALETTE).art(new String[] {
+				".LL..LL.",
+				".ee..ee.",
+				"........",
+				"...mm...",
+		}, -4.0F, -5.0F, -4.2F, 0.2F);
+		sleepingFace = new Vox.Shape(PALETTE).art(new String[] {
+				"........",
+				".LL..LL.",
+				"........",
+				"...mm...",
+		}, -4.0F, -5.0F, -4.2F, 0.2F);
+		arm = new Vox.Shape(PALETTE)
+				.box('k', -1.0F, 0.0F, -1.0F, 2.0F, 5.0F, 2.0F)
+				.box('w', -1.05F, 4.4F, -1.05F, 2.1F, 0.6F, 2.1F)
+				.box('s', -0.9F, 5.0F, -0.9F, 1.8F, 1.0F, 1.8F);
+		wing = new Vox.Shape(PALETTE).art(WING, 0.0F, 0.0F, 0.0F, 1.0F);
+		halo = new Vox.Shape(PALETTE).ring('g', 0.0F, 0.0F, 0.0F, 3.9F, 2.9F, 0.8F);
+		cone = new Vox.Shape(PALETTE).box('c', -0.5F, 0.0F, -0.5F, 1.0F, 1.8F, 1.0F).sphere('i', 0.0F, -0.4F, 0.0F, 0.9F);
 	}
 
 	public void render(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, PetCosmetic module) {
 		Vec3 position = module.follower.modelPosition(state.x, state.y, state.z, state.bodyRot, state.scale, state.ageInTicks % 1.0F);
 		if (position == null) return;
+		if (body == null) build();
 		float time = state.ageInTicks;
 		PetBehavior.Mood mood = PetBehavior.mood();
 		float moodTime = PetBehavior.moodSeconds();
 
-		// Pose normal: flota, aletea, balancea los brazos y mira un poco a los lados.
+		// Pose normal: flota, aletea despacio, mira un poco a los lados y sujeta el helado.
 		float bob = Mth.sin(time * 0.1F) * 1.2F;
-		float flap = 0.45F + Mth.sin(time * 0.3F) * 0.3F;
-		rightArm.xRot = Mth.sin(time * 0.1F) * 0.15F;
-		leftArm.xRot = -Mth.sin(time * 0.1F) * 0.15F;
-		rightArm.zRot = 0.1F;
-		leftArm.zRot = -0.1F;
-		head.yRot = Mth.sin(time * 0.03F) * 0.25F;
-		head.xRot = Mth.sin(time * 0.05F) * 0.05F;
-		halo.yRot = time * 0.04F;
+		float flap = 28.0F + Mth.sin(time * 0.09F) * 10.0F;
+		float rightArm = Mth.sin(time * 0.1F) * 8.0F;
+		float leftArm = -55.0F;
+		float headTurn = Mth.sin(time * 0.03F) * 14.0F;
+		float headTilt = 6.0F + Mth.sin(time * 0.05F) * 3.0F;
 		float shake = 0.0F;
-		Identifier texture = TEXTURE;
+		boolean sleeping = false;
+		boolean holdsCone = true;
 
 		switch (mood) {
 			case WAVE -> {
-				// Saluda con la mano derecha levantada.
-				rightArm.xRot = -2.7F;
-				rightArm.zRot = 0.2F + Mth.sin(moodTime * 12.0F) * 0.35F;
-				head.yRot = 0.3F;
+				rightArm = -155.0F + Mth.sin(moodTime * 12.0F) * 18.0F;
+				headTurn = -15.0F;
 			}
 			case CELEBRATE -> {
-				// Brazos arriba, da saltitos y aletea deprisa.
-				rightArm.xRot = -2.9F;
-				leftArm.xRot = -2.9F;
-				rightArm.zRot = 0.35F;
-				leftArm.zRot = -0.35F;
+				rightArm = -160.0F;
+				leftArm = -160.0F;
+				holdsCone = false;
 				bob -= Math.abs(Mth.sin(moodTime * 9.0F)) * 3.0F;
-				flap = 0.45F + Mth.sin(time * 1.2F) * 0.5F;
+				flap = 28.0F + Mth.sin(time * 0.6F) * 22.0F;
 			}
 			case SLEEP -> {
-				// Cabeza caída, ojos cerrados, alas plegadas y respiración lenta.
-				head.xRot = 0.45F;
-				head.yRot = 0.0F;
-				flap = 0.05F;
+				headTilt = 24.0F;
+				headTurn = 0.0F;
+				flap = 8.0F;
 				bob = Mth.sin(time * 0.05F) * 0.6F;
-				rightArm.xRot = 0.0F;
-				leftArm.xRot = 0.0F;
-				texture = SLEEP_TEXTURE;
+				rightArm = 0.0F;
+				leftArm = 0.0F;
+				holdsCone = false;
+				sleeping = true;
 			}
 			case HIDE -> {
-				// Escondida detrás de ti, temblando.
-				head.xRot = 0.3F;
-				flap = 0.1F;
+				headTilt = 16.0F;
+				flap = 10.0F;
 				shake = Mth.sin(time * 3.0F) * 0.3F;
-				rightArm.xRot = -1.2F;
-				leftArm.xRot = -1.2F;
+				rightArm = -70.0F;
+				leftArm = -70.0F;
+				holdsCone = false;
 			}
 			default -> {
 			}
 		}
-		rightWing.yRot = flap;
-		leftWing.yRot = -flap;
 
 		poseStack.pushPose();
 		poseStack.translate(position.x + shake / 16.0F, position.y + bob / 16.0F, position.z);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
-		collector.submitModelPart(root, poseStack, RenderTypes.entityCutoutNoCull(texture), light, OverlayTexture.NO_OVERLAY, null);
+		body.draw(poseStack, collector, light);
+		// Alas grandes a la espalda, abiertas y moviéndose despacio.
+		for (int side = -1; side <= 1; side += 2) {
+			poseStack.pushPose();
+			poseStack.translate(side * 1.0F / 16.0F, -17.0F / 16.0F, 1.8F / 16.0F);
+			if (side < 0) poseStack.scale(-1.0F, 1.0F, 1.0F);
+			poseStack.mulPose(Axis.YP.rotationDegrees(-flap));
+			wing.draw(poseStack, collector, light);
+			poseStack.popPose();
+		}
+		for (int side = -1; side <= 1; side += 2) {
+			poseStack.pushPose();
+			poseStack.translate(side * 4.0F / 16.0F, -10.8F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(side < 0 ? rightArm : leftArm));
+			poseStack.mulPose(Axis.ZP.rotationDegrees(side * 6.0F));
+			arm.draw(poseStack, collector, light);
+			if (side > 0 && holdsCone) {
+				poseStack.translate(0.0F, 5.4F / 16.0F, -0.6F / 16.0F);
+				poseStack.mulPose(Axis.XP.rotationDegrees(-leftArm - 20.0F));
+				poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+				cone.draw(poseStack, collector, light);
+			}
+			poseStack.popPose();
+		}
+		poseStack.translate(0.0F, -11.0F / 16.0F, 0.0F);
+		poseStack.mulPose(Axis.YP.rotationDegrees(headTurn));
+		poseStack.mulPose(Axis.XP.rotationDegrees(headTilt));
+		head.draw(poseStack, collector, light);
+		(sleeping ? sleepingFace : awakeFace).draw(poseStack, collector, light);
+		// Halo dorado flotando por encima, ladeado como en las imágenes, girando despacio.
+		poseStack.translate(0.5F / 16.0F, (-10.5F + Mth.sin(time * 0.08F) * 0.4F) / 16.0F, 0.0F);
+		poseStack.mulPose(Axis.ZP.rotationDegrees(-12.0F));
+		poseStack.mulPose(Axis.XP.rotationDegrees(-8.0F));
+		poseStack.mulPose(Axis.YP.rotationDegrees(time * 1.5F));
+		halo.drawGlow(poseStack, collector);
 		poseStack.popPose();
 	}
 }

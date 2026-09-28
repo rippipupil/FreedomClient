@@ -179,6 +179,27 @@ public class ModuleManager {
 		add(new NeonPetCosmetic());
 		add(new LightningTrailCosmetic());
 		add(new NeonStepsCosmetic());
+		// Bee Swarm
+		add(new com.freedomclient.cosmetic.vox.DiamondMaskCosmetic());
+		add(new com.freedomclient.cosmetic.vox.DemonMaskCosmetic());
+		add(new com.freedomclient.cosmetic.vox.GummyMaskCosmetic());
+		add(new com.freedomclient.cosmetic.vox.TidePopperCosmetic());
+		add(new com.freedomclient.cosmetic.vox.DarkScytheCosmetic());
+		add(new com.freedomclient.cosmetic.vox.GummyballerCosmetic());
+		add(new com.freedomclient.cosmetic.vox.WindyBeeCosmetic());
+		add(new com.freedomclient.cosmetic.vox.TabbyBeeCosmetic());
+		// FNAF
+		add(new com.freedomclient.cosmetic.vox.FreddyHatCosmetic());
+		add(new com.freedomclient.cosmetic.vox.FreddyPetCosmetic());
+		// OneShot
+		add(new com.freedomclient.cosmetic.vox.NikoHatCosmetic());
+		add(new com.freedomclient.cosmetic.vox.NikoScarfCosmetic());
+		add(new com.freedomclient.cosmetic.vox.SunBackpackCosmetic());
+		add(new com.freedomclient.cosmetic.vox.NikoPetCosmetic());
+		// Halloween y rastros de flores
+		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
+		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());
+		add(new com.freedomclient.cosmetic.AbyssFlowersCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

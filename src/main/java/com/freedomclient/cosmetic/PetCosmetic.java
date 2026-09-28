@@ -24,7 +24,7 @@ public class PetCosmetic extends CosmeticModule {
 	}
 
 	/** Sitio de la mascota en el espacio del modelo del jugador (x negativo = derecha, y negativo = arriba). */
-	static Vec3 slot(float side) {
+	public static Vec3 slot(float side) {
 		return switch (PetBehavior.mood()) {
 			// Con poca vida se esconde detrás de ti, más abajo.
 			case HIDE -> new Vec3(side * 5.0 / 16.0, 6.0 / 16.0, 9.0 / 16.0);

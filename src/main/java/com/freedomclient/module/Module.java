@@ -109,7 +109,8 @@ public abstract class Module {
 
 	/** Nombre en minúsculas y sin espacios, usado para iconos y claves de la config. */
 	public String getId() {
-		return name.toLowerCase(Locale.ROOT).replace(' ', '_');
+		// Solo caracteres válidos en un Identifier (por ejemplo, "Jack-o'-Lantern" → "jack-o-lantern").
+		return name.toLowerCase(Locale.ROOT).replace(' ', '_').replaceAll("[^a-z0-9_.-]", "");
 	}
 
 	public String getName() {

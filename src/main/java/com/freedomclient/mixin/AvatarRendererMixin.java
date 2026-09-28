@@ -20,8 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AvatarRenderer.class)
 public class AvatarRendererMixin {
 	@Unique
-	private static final ClientAsset.Texture FREEDOM_CAPE = new ClientAsset.ResourceTexture(
-			FreedomClient.id("cosmetic/cape"), FreedomClient.id("textures/cosmetic/cape.png"));
+	private static final ClientAsset.Texture ANGEL_CAPE = new ClientAsset.ResourceTexture(
+			FreedomClient.id("cosmetic/cape_angel"), FreedomClient.id("textures/cosmetic/cape_angel.png"));
+	@Unique
+	private static final ClientAsset.Texture NEON_CAPE = new ClientAsset.ResourceTexture(
+			FreedomClient.id("cosmetic/cape_neon"), FreedomClient.id("textures/cosmetic/cape_neon.png"));
 
 	/** Pone la capa de FreedomClient en tu jugador y las capas de OptiFine (Capes) en quien no tenga capa. */
 	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
@@ -30,7 +33,7 @@ public class AvatarRendererMixin {
 		CapeCosmetic cape = CosmeticModule.get(CapeCosmetic.class);
 		PlayerSkin skin = state.skin;
 		if (cape != null && cape.isEnabled() && entity == Minecraft.getInstance().player) {
-			state.skin = new PlayerSkin(skin.body(), FREEDOM_CAPE, skin.elytra(), skin.model(), skin.secure());
+			state.skin = new PlayerSkin(skin.body(), cape.style.is("Neon") ? NEON_CAPE : ANGEL_CAPE, skin.elytra(), skin.model(), skin.secure());
 			state.showCape = true;
 			return;
 		}
