@@ -1,18 +1,9 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-net.minecraft.client.gui.screens.Screen
-net.minecraft.client.gui.components.AbstractButton
-net.minecraft.client.gui.components.AbstractWidget
-net.minecraft.client.gui.components.Button
-net.minecraft.client.gui.components.AbstractSliderButton
-net.minecraft.client.gui.components.AbstractSelectionList
-net.minecraft.client.gui.components.DebugScreenOverlay
-?debug/DebugScreenEntr
-net.minecraft.client.gui.components.debug.DebugScreenEntries
-net.minecraft.client.gui.components.debug.DebugScreenEntryList
-net.minecraft.client.renderer.ItemInHandRenderer
-net.minecraft.world.entity.LivingEntity#getCurrentSwingDuration
-net.minecraft.server.level.ServerChunkCache
-net.minecraft.server.level.TicketType
-net.minecraft.client.gui.Gui
-%mouse:tweaks/Main
-%mouse:Config
+yalter.mousetweaks.Main
+yalter.mousetweaks.Config
+?properties/numeric/Count
+net.minecraft.client.renderer.item.properties.numeric.Count
+net.minecraft.client.renderer.item.properties.numeric.RangeSelectItemModelProperties
+net.minecraft.client.multiplayer.ClientLevel
+net.minecraft.client.gui.components.AbstractButton#renderDefaultSprite
+net.minecraft.client.gui.components.AbstractSliderButton#renderWidget
