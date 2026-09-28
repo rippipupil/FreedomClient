@@ -1,10 +1,11 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-%sodium:options
-%sodium:SodiumClientMod
-%sodium:config
-%jna:Native.class
-%jna:Kernel32
-net.minecraft.client.particle.ParticleEngine
-net.minecraft.client.Options
-net.minecraft.client.GraphicsPreset
-net.minecraft.client.InactivityFpsLimit
+net.caffeinemc.mods.sodium.client.SodiumClientMod
+net.caffeinemc.mods.sodium.client.gui.SodiumOptions
+net.caffeinemc.mods.sodium.client.gui.SodiumOptions$PerformanceSettings
+net.caffeinemc.mods.sodium.client.gui.SodiumOptions$AdvancedSettings
+net.caffeinemc.mods.sodium.client.gui.SodiumOptions$QualitySettings
+net.minecraft.client.particle.ParticleGroup
+?particle/Terrain
+net.minecraft.client.TextureFilteringMethod
+net.minecraft.client.PrioritizeChunkUpdates
+com.sun.jna.platform.win32.Kernel32
