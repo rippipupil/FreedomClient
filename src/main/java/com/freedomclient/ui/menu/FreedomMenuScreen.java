@@ -139,6 +139,7 @@ public class FreedomMenuScreen extends Screen {
 		int contentW = w - PADDING * 2;
 		int contentH = h - HEADER_HEIGHT - PADDING * 2;
 		currentPage().render(ui, contentX, contentY, contentW, contentH);
+		ThemeDecor.foreground(graphics, x, y, w, h, HEADER_HEIGHT);
 
 		ui.end();
 	}

@@ -688,6 +688,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_settings_waypoints");
+			context.runOnClient(client -> client.screen.mouseScrolled(client.getWindow().getGuiScaledWidth() / 2.0,
+					client.getWindow().getGuiScaledHeight() / 2.0, 0.0, -30.0));
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_waypoints_list");
 
 			context.setScreen(() -> null);
 			// Botón "Optimize video settings" del FPS Optimizer (vanilla + Sodium): no debe fallar.

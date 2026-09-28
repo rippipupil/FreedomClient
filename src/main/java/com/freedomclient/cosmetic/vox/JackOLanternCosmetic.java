@@ -124,10 +124,17 @@ public class JackOLanternCosmetic extends FollowPetCosmetic {
 	private void build() {
 		pumpkin = pumpkin(false).box('g', -0.8F, -10.0F, -0.8F, 1.6F, 2.2F, 1.6F).box('l', 0.8F, -9.0F, -0.6F, 2.6F, 0.4F, 1.6F);
 		carved = pumpkin(true).box('g', -0.8F, -10.0F, -0.8F, 1.6F, 2.2F, 1.6F).box('l', 0.8F, -9.0F, -0.6F, 2.6F, 0.4F, 1.6F);
-		// La luz de la vela: una lámina brillante justo detrás de los huecos (amarilla arriba, naranja abajo).
-		candle = new Vox.Shape(PALETTE)
-				.box('y', -3.5F, -7.0F, -3.58F, 7.0F, 3.0F, 0.06F)
-				.box('Y', -3.5F, -4.0F, -3.58F, 7.0F, 3.0F, 0.06F);
+		// La luz de la vela: cada hueco lleva dentro un vóxel brillante algo hundido (amarillo arriba, naranja abajo),
+		// así los ojos, la nariz y la sonrisa se ven encendidos desde cualquier lado.
+		candle = new Vox.Shape(PALETTE);
+		for (int row = 0; row < CARVED.length; row++) {
+			for (int column = 0; column < 9; column++) {
+				if (CARVED[row].charAt(column) != '#') continue;
+				int x = column - 4;
+				float front = -4.5F + (Math.abs(x) == 3 ? 0.4F : 0.0F);
+				candle.box(row < 3 ? 'y' : 'Y', x - 0.5F, CARVED_TOP + row, front + 0.3F, 1.0F, 1.0F, 0.7F);
+			}
+		}
 		happy = new Vox.Shape(PALETTE).art(new String[] {
 				".kk...kk.",
 				".wk...wk.",

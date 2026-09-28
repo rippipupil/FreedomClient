@@ -37,13 +37,17 @@ public final class ThemeDecor {
 				clouds(g, x, y + h - 22, w, 0.5F, 1, 90_000L);
 			}
 			case STARRY_NIGHT -> stars(g, x + 2, y + header + 2, w - 4, h - header - 4, 26, 0.55F);
-			case RED_DEVIL -> {
-				g.fillGradient(x + 1, y + h - 44, x + w - 1, y + h - 1, 0x00D7263D, 0x40D7263D);
-				flames(g, x + 1, y + h - 1, w - 2);
-				embers(g, x + 1, y + header, w - 2, h - header - 2, 14);
-			}
+			case RED_DEVIL -> g.fillGradient(x + 1, y + h - 44, x + w - 1, y + h - 1, 0x00D7263D, 0x40D7263D);
 			default -> {
 			}
+		}
+	}
+
+	/** Por encima del contenido (medio transparente): las llamas y las brasas de Red Devil suben sobre las tarjetas. */
+	public static void foreground(GuiGraphics g, int x, int y, int w, int h, int header) {
+		if (ThemeManager.getPreset() == ThemePreset.RED_DEVIL) {
+			flames(g, x + 1, y + h - 1, w - 2);
+			embers(g, x + 1, y + header, w - 2, h - header - 2, 16);
 		}
 	}
 
@@ -94,8 +98,8 @@ public final class ThemeDecor {
 
 	/** Nubes pixel que cruzan despacio de izquierda a derecha ({@code periodMs} tarda una en dar la vuelta). */
 	private static void clouds(GuiGraphics g, int x, int y, int w, float alpha, int count, long periodMs) {
-		int white = ThemeManager.withAlpha(0xFFFFFFFF, 0.22F * alpha / 0.8F);
-		int shade = ThemeManager.withAlpha(0xFFDCE8F5, 0.16F * alpha / 0.8F);
+		int white = ThemeManager.withAlpha(0xFFFFFFFF, 0.55F * alpha);
+		int shade = ThemeManager.withAlpha(0xFFC8DCF0, 0.45F * alpha);
 		for (int i = 0; i < count + 1; i++) {
 			double phase = ((now() % periodMs) / (double) periodMs + i / (double) (count + 1)) % 1.0;
 			int cx = x - 30 + (int) Math.round((w + 60) * phase);
@@ -184,12 +188,14 @@ public final class ThemeDecor {
 		int step = 4;
 		for (int i = 0; i * step < w; i++) {
 			double wave = Math.sin(t * 3.1 + i * 0.9) + Math.sin(t * 5.3 + i * 1.7) * 0.6 + Math.sin(t * 1.3 + i * 0.35) * 0.8;
-			int height = 5 + (int) Math.round((wave + 2.4) * 2.4);
+			int height = 8 + (int) Math.round((wave + 2.4) * 3.2);
 			int left = x + i * step;
 			int right = Math.min(x + w, left + step);
-			g.fillGradient(left, bottom - height, right, bottom, 0x00D7263D, 0x90D7263D);
-			int core = height / 2;
-			g.fillGradient(left + 1, bottom - core, right - 1, bottom, 0x00FF9A3A, 0xA0FFB04A);
+			g.fillGradient(left, bottom - height, right, bottom, 0x00D7263D, 0xA0E0303D);
+			int core = height * 3 / 5;
+			g.fillGradient(left, bottom - core, right, bottom, 0x00FF7A2A, 0x90FF8C3A);
+			int tip = height / 3;
+			g.fillGradient(left + 1, bottom - tip, right - 1, bottom, 0x00FFD060, 0x90FFE08A);
 		}
 	}
 

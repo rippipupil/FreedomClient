@@ -103,9 +103,9 @@ public final class MobFaces {
 		face("spider/spider", 64, 32, 8, 8).part(40, 12, 8, 8, 0, 0).as("spider");
 		face("spider/cave_spider", 64, 32, 8, 8).part(40, 12, 8, 8, 0, 0).as("cave_spider");
 		face("iron_golem/iron_golem", 128, 128, 8, 10).part(8, 8, 8, 10, 0, 0).part(26, 2, 2, 4, 3, 7).as("iron_golem");
-		// Slime: el cubo de dentro con los ojos y la boca, y por encima el de fuera medio transparente.
-		face("slime/slime", 64, 32, 8, 8).part(6, 22, 6, 6, 1, 1).part(34, 2, 2, 2, 0.75F, 2).part(34, 6, 2, 2, 5.25F, 2)
-				.part(33, 9, 1, 1, 4, 5).part(8, 8, 8, 8, 0, 0).as("slime");
+		// Slime: el cubo de fuera (medio transparente) y encima los ojos y la boca de dentro, para que se lean bien.
+		face("slime/slime", 64, 32, 8, 8).part(8, 8, 8, 8, 0, 0).part(34, 2, 2, 2, 0.75F, 2).part(34, 6, 2, 2, 5.25F, 2)
+				.part(33, 9, 1, 1, 4, 5).as("slime");
 		// Cubo de magma: cada fila de la cara es un aro distinto de la textura.
 		face("slime/magmacube", 64, 32, 8, 8).part(8, 8, 8, 1, 0, 0).part(8, 9, 8, 1, 0, 1).part(32, 18, 8, 1, 0, 2)
 				.part(32, 27, 8, 1, 0, 3).part(8, 12, 8, 1, 0, 4).part(8, 13, 8, 1, 0, 5).part(8, 14, 8, 1, 0, 6)
