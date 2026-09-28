@@ -26,7 +26,16 @@ while IFS= read -r lib; do classpath="$classpath:$lib"; done < <(find "$HOME/.gr
 grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 	echo
 	echo "==================== $line"
-	if [[ "$line" == \?* ]]; then
+	if [[ "$line" == %* ]]; then
+		# "%nombre:texto": clases que contienen "texto" en los jars de dependencias cuyo nombre contiene "nombre".
+		spec="${line#%}"
+		name="${spec%%:*}"
+		pattern="${spec#*:}"
+		find "$HOME/.gradle/caches/modules-2" -name "*${name}*.jar" 2>/dev/null | grep -v -- '-sources' | head -3 | while IFS= read -r dep; do
+			echo "-- $dep"
+			unzip -l "$dep" | grep -i -- "$pattern" | awk '{print $4}' | head -40 || true
+		done
+	elif [[ "$line" == \?* ]]; then
 		unzip -l "$jar" | grep -i -- "${line#?}" | head -20 || true
 	elif [[ "$line" == @* ]]; then
 		unzip -p "$jar" "${line#@}" 2>&1 | head -40
