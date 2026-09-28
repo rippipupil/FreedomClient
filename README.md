@@ -12,6 +12,10 @@ FreedomClient está pensado para dar el máximo de FPS. Trae integrados estos mo
 | [Lithium](https://modrinth.com/mod/lithium) | Optimiza la física, la IA de mobs y la lógica del juego |
 | [FerriteCore](https://modrinth.com/mod/ferrite-core) | Reduce mucho el uso de memoria RAM |
 | [ImmediatelyFast](https://modrinth.com/mod/immediatelyfast) | Acelera el dibujado de HUD, texto, mapas y entidades |
+| [More Culling](https://modrinth.com/mod/moreculling) | No dibuja caras de bloques que no se ven (hojas, cristal...) |
+| [C2ME](https://modrinth.com/mod/c2me-fabric) | Genera y carga chunks con todos los núcleos en un jugador (versión alpha) |
+| [Krypton](https://modrinth.com/mod/krypton) | Red más ligera y rápida |
+| [Sodium Extra](https://modrinth.com/mod/sodium-extra) | Más opciones de vídeo sobre Sodium |
 
 También van incluidos [Continuity](https://modrinth.com/mod/continuity) (texturas conectadas),
 [Debugify](https://modrinth.com/mod/debugify) (arregla bugs de vanilla), [Mouse Tweaks](https://modrinth.com/mod/mouse-tweaks)
@@ -20,7 +24,8 @@ También van incluidos [Continuity](https://modrinth.com/mod/continuity) (textur
 Además, en la ClickGUI hay un botón **"Optimizar ajustes para FPS"** (FPS Optimizer). Desactiva VSync, las nubes,
 las sombras de entidades, la mezcla de biomas, la viñeta, el fundido de chunks, el desenfoque de los menús y el
 filtrado de texturas, pone hojas rápidas y actualización de chunks en hilos, quita el límite de FPS (y lo baja
-estando AFK), pone las partículas al mínimo y aplica las opciones más rápidas de Sodium.
+estando AFK y con un menú abierto), deja la distancia de simulación en 8 como mucho, pone las partículas al mínimo
+y aplica las opciones más rápidas de Sodium y Sodium Extra.
 
 Otros mods de rendimiento propios: **Particle Limiter** (tope de partículas a la vez y quitar las más pesadas:
 romper bloques, explosiones, lluvia, pociones, ambiente) y **Process Priority** (en Windows sube la prioridad del

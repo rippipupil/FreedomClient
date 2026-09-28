@@ -39,11 +39,16 @@ public final class PerformanceSettings {
 		options.prioritizeChunkUpdates().set(PrioritizeChunkUpdates.NONE);
 		options.menuBackgroundBlurriness().set(0);
 		options.textureFiltering().set(TextureFilteringMethod.NONE);
+		// Distancia de simulación como mucho 8: en un jugador el servidor interno procesa menos chunks y mobs a la vez.
+		options.simulationDistance().set(Math.min(options.simulationDistance().get(), 8));
 		options.graphicsPreset().set(GraphicsPreset.CUSTOM);
 		options.save();
 
 		if (FabricLoader.getInstance().isModLoaded("sodium")) {
 			SodiumTuning.apply();
+		}
+		if (FabricLoader.getInstance().isModLoaded("sodium-extra")) {
+			SodiumExtraTuning.apply();
 		}
 		FreedomClient.LOGGER.info("Ajustes de rendimiento aplicados");
 	}

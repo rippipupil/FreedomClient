@@ -17,6 +17,7 @@
 		"EntityMixin",
 		"EntityRenderDispatcherMixin",
 		"EntityRendererMixin",
+		"FramerateLimitTrackerMixin",
 		"GameRendererMixin",
 		"GuiGraphicsItemCountMixin",
 		"GuiHotbarMixin",

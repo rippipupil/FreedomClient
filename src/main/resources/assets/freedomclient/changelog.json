@@ -1,5 +1,14 @@
 [
 	{
+		"title": "More FPS",
+		"items": [
+			"New built-in mods: More Culling, C2ME, Krypton and Sodium Extra.",
+			"FPS Optimizer limits the frame rate while a menu is open in a world (60 FPS by default, you can change it).",
+			"The Optimize button also keeps the simulation distance at 8 or less and applies the fastest Sodium Extra options.",
+			"The client does less work every frame: faster cosmetics, HUD and mods menu."
+		]
+	},
+	{
 		"title": "Pumpkins, mob faces and a faster menu",
 		"items": [
 			"Masks and hats sit outside your skin's 3D layer, and back cosmetics and wings move out when you wear a chestplate or elytra.",
