@@ -53,7 +53,7 @@ public class GummyballerCosmetic extends VoxCosmetic {
 		if (wand == null) build();
 		float time = state.ageInTicks;
 		poseStack.pushPose();
-		onBackDiagonal(parent, poseStack, size.getFloat(), side.is("Left"));
+		onBackDiagonal(parent, poseStack, state, size.getFloat(), side.is("Left"));
 		poseStack.translate(0.0F, 2.0F / 16.0F, 0.0F);
 		wand.draw(poseStack, collector, light);
 		poseStack.pushPose();

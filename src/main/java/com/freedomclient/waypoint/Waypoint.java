@@ -12,6 +12,8 @@ public class Waypoint {
 	public final int color;
 	public final boolean death;
 	public boolean visible = true;
+	/** Tamaño del marcador de este waypoint (se multiplica por el tamaño general del mod). */
+	public float size = 1.0F;
 
 	public Waypoint(String name, int x, int y, int z, String dimension, int color, boolean death) {
 		this.name = name;
@@ -33,6 +35,7 @@ public class Waypoint {
 		json.addProperty("color", color);
 		json.addProperty("death", death);
 		json.addProperty("visible", visible);
+		json.addProperty("size", size);
 		return json;
 	}
 
@@ -41,6 +44,7 @@ public class Waypoint {
 				json.get("z").getAsInt(), json.get("dimension").getAsString(), json.get("color").getAsInt(),
 				json.has("death") && json.get("death").getAsBoolean());
 		if (json.has("visible")) waypoint.visible = json.get("visible").getAsBoolean();
+		if (json.has("size")) waypoint.size = Math.max(0.5F, Math.min(3.0F, json.get("size").getAsFloat()));
 		return waypoint;
 	}
 }

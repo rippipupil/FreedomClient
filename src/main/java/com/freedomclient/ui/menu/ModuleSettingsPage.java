@@ -33,6 +33,7 @@ public class ModuleSettingsPage implements MenuPage {
 		VALUES("Values"),
 		COLORS("Colors"),
 		TEXT("Text"),
+		MOBS("Mobs"),
 		KEYBINDS("Keybinds"),
 		ACTIONS("Actions");
 
@@ -49,6 +50,7 @@ public class ModuleSettingsPage implements MenuPage {
 			if (setting instanceof NumberSetting || setting instanceof HudPositionSetting) return VALUES;
 			if (setting instanceof ColorSetting || setting instanceof PixelGridSetting) return COLORS;
 			if (setting instanceof StringSetting) return TEXT;
+			if (setting instanceof com.freedomclient.setting.MobListSetting) return MOBS;
 			if (setting instanceof KeybindSetting) return KEYBINDS;
 			return ACTIONS;
 		}

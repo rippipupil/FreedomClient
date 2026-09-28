@@ -36,6 +36,15 @@ public abstract class CosmeticModule extends Module {
 		return isEnabled() && !state.isInvisible && client.player != null && state.id == client.player.getId();
 	}
 
+	/**
+	 * Píxeles que hay que separar de la espalda lo que va detrás: los élitros sobresalen mucho (y se abren hacia
+	 * atrás) y el peto 1 px, así nada queda tapado.
+	 */
+	public static float backClearance(AvatarRenderState state) {
+		if (state.chestEquipment.has(net.minecraft.core.component.DataComponents.GLIDER)) return 3.4F;
+		return state.chestEquipment.isEmpty() ? 0.0F : 1.2F;
+	}
+
 	public static <T extends CosmeticModule> T get(Class<T> type) {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		return manager == null ? null : manager.get(type);

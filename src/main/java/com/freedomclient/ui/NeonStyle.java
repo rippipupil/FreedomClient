@@ -12,9 +12,6 @@ import net.minecraft.network.chat.Component;
  * verde agua, cian, azul y violeta) que fluye poco a poco, y chispas que recorren el borde de la ventana.
  */
 public final class NeonStyle {
-	/** Tamaño de cada tramo de color: más grande = menos rectángulos por fotograma. */
-	private static final int STEP = 2;
-
 	private NeonStyle() {
 	}
 
@@ -39,20 +36,54 @@ public final class NeonStyle {
 
 	/** Línea horizontal con el degradado de {@code t0} a {@code t1}. */
 	public static void hLine(GuiGraphics g, int x1, int x2, int y, int thickness, double t0, double t1, float alpha) {
-		int span = Math.max(1, x2 - x1);
-		for (int x = x1; x < x2; x += STEP) {
-			double f = (x - x1) / (double) span;
-			g.fill(x, y, Math.min(x + STEP, x2), y + thickness, color(t0 + (t1 - t0) * f, alpha));
-		}
+		gradient(g, x1, x2, y, thickness, true, t0, t1, alpha, alpha);
 	}
 
 	/** Línea vertical con el degradado de {@code t0} a {@code t1}. */
 	public static void vLine(GuiGraphics g, int x, int y1, int y2, int thickness, double t0, double t1, float alpha) {
-		int span = Math.max(1, y2 - y1);
-		for (int y = y1; y < y2; y += STEP) {
-			double f = (y - y1) / (double) span;
-			g.fill(x, y, x + thickness, Math.min(y + STEP, y2), color(t0 + (t1 - t0) * f, alpha));
+		gradient(g, y1, y2, x, thickness, false, t0, t1, alpha, alpha);
+	}
+
+	/**
+	 * Tramo de degradado de {@code from} a {@code to} (en x si {@code horizontal}, si no en y), de {@code thickness}
+	 * de grueso desde {@code across}. El degradado es lineal entre cada color de la paleta, así que basta con un
+	 * rectángulo con degradado por cada tramo entre colores (unos pocos por línea en vez de uno cada 2 px). Los
+	 * horizontales se dibujan girando 90 grados, porque el degradado del juego solo va de arriba abajo.
+	 */
+	private static void gradient(GuiGraphics g, int from, int to, int across, int thickness, boolean horizontal,
+			double t0, double t1, float a0, float a1) {
+		int length = to - from;
+		if (length <= 0 || thickness <= 0) return;
+		if (horizontal) {
+			g.pose().pushMatrix();
+			g.pose().translate(from, across + thickness);
+			g.pose().rotate((float) (-Math.PI / 2.0));
 		}
+		// Cortes en cada múltiplo de 1/8 de t: ahí cambia de pareja de colores la paleta (y está el pico del ida y
+		// vuelta). Se recorren en el sentido de la línea, vaya el degradado hacia delante o hacia atrás.
+		double low = Math.min(t0, t1);
+		double high = Math.max(t0, t1);
+		int cuts = Math.max(0, (int) Math.ceil(high * 8.0) - (int) Math.floor(low * 8.0) - 1);
+		int start = 0;
+		for (int i = 0; i <= cuts && start < length; i++) {
+			int end = length;
+			if (i < cuts) {
+				double k = t1 >= t0 ? Math.floor(t0 * 8.0) + 1.0 + i : Math.ceil(t0 * 8.0) - 1.0 - i;
+				double f = (k / 8.0 - t0) / (t1 - t0);
+				end = Math.max(start + 1, Math.min(length, (int) Math.round(f * length)));
+			}
+			double fs = start / (double) length;
+			double fe = end / (double) length;
+			int c0 = color(t0 + (t1 - t0) * fs, a0 + (a1 - a0) * (float) fs);
+			int c1 = color(t0 + (t1 - t0) * fe, a0 + (a1 - a0) * (float) fe);
+			if (horizontal) {
+				g.fillGradient(0, start, thickness, end, c0, c1);
+			} else {
+				g.fillGradient(across, from + start, across + thickness, from + end, c0, c1);
+			}
+			start = end;
+		}
+		if (horizontal) g.pose().popMatrix();
 	}
 
 	/**
@@ -84,10 +115,8 @@ public final class NeonStyle {
 		float progress = time / (float) travel;
 		int head = x + 2 + Math.round((w - 4) * progress);
 		int trail = Math.min(42, head - x - 1);
-		for (int i = 0; i < trail; i += STEP) {
-			float fade = 1.0F - i / (float) trail;
-			g.fill(head - i - STEP, y, head - i, y + 1, color(i / 60.0, fade * 0.9F));
-		}
+		// Estela: de la cola apagada a la cabeza brillante, en unos pocos tramos de degradado.
+		gradient(g, head - trail, head, y, 1, true, trail / 60.0, 0.0, 0.0F, 0.9F);
 		// Zigzag de 3 px de alto: un rayito que salta en el borde.
 		int flicker = (int) (System.currentTimeMillis() / 60 % 2);
 		g.fill(head - 1, y - 1 - flicker, head, y + 2, 0xFFFFF7C8);

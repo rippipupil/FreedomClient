@@ -256,6 +256,8 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 		poseStack.pushPose();
 		getParentModel().body.translateAndRotate(poseStack);
+		// Por fuera del peto y de los élitros (que se abren hacia atrás).
+		poseStack.translate(0.0F, 0.0F, CosmeticModule.backClearance(state) / 16.0F);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
 		collector.submitModelPart(wings, poseStack, RenderTypes.entityCutoutNoCull(WINGS_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);

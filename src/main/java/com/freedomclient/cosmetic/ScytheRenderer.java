@@ -174,7 +174,7 @@ public final class ScytheRenderer {
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
 		// Detrás de la espalda, por fuera de la capa, con la hoja asomando por encima del hombro.
-		poseStack.translate(0.0F, 4.5F / 16.0F, 4.2F / 16.0F);
+		poseStack.translate(0.0F, 4.5F / 16.0F, (4.2F + CosmeticModule.backClearance(state)) / 16.0F);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
 		// Sin reflejar, la hoja queda sobre el hombro derecho del jugador: para el izquierdo se refleja.

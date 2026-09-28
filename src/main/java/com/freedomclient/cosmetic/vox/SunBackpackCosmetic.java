@@ -57,7 +57,7 @@ public class SunBackpackCosmetic extends VoxCosmetic {
 		}
 		harness.draw(poseStack, collector, light);
 		poseStack.popPose();
-		if (armor) poseStack.translate(0.0F, 0.0F, 1.2F / 16.0F);
+		poseStack.translate(0.0F, 0.0F, backClearance(state) / 16.0F);
 		// La bombilla, detrás del casquillo, con un latido suave de luz.
 		float pulse = 1.0F + Mth.sin(state.ageInTicks * 0.12F) * 0.025F;
 		poseStack.translate(0.0F, 6.2F / 16.0F, 9.6F / 16.0F);

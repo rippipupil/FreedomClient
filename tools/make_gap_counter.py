@@ -5,7 +5,9 @@ Uso: python3 tools/make_gap_counter.py   (requiere Pillow)
   contorno del color de la cantidad (claro = muchas, oscuro = pocas) y el número grande abajo a la derecha.
 - textures/item/gapcounter/badge_{gap,notch}_N.png: solo el número sobre una placa, para usar la manzana del
   paquete de texturas del jugador.
-- Modelos y los dos paquetes integrados (resourcepacks/gapcounter_vanilla y gapcounter_pack) que cambian
+- textures/item/gapcounter/pumpkin_{gap,notch}[_N].png: estilo calabaza (dorada para las gaps y tallada para las
+  de Notch), con el mismo contorno por cantidad y el número.
+- Modelos y los paquetes integrados (resourcepacks/gapcounter_vanilla, gapcounter_pumpkin y gapcounter_pack) que cambian
   items/golden_apple.json y items/enchanted_golden_apple.json con "range_dispatch" según la cantidad. En el
   inventario se ve la manzana normal (el número ya lo pone el juego).
 """
@@ -37,9 +39,47 @@ APPLE = [
     ".......kkkk.....",
     "................",
 ]
+# Calabaza dorada (gaps) y calabaza dorada tallada (Notch) para el estilo "Pumpkin".
+PUMPKIN = [
+    "................",
+    "........gl......",
+    ".......gGll.....",
+    "....kkkgkkkk....",
+    "...kYyYyyYyyk...",
+    "..kYWyYyyyYyOk..",
+    "..kYyyYyyyYyOk..",
+    ".kyYyyYyyyYyOOk.",
+    ".kyYyyYyyyYyOOk.",
+    ".kyYyyYyyyYyOOk.",
+    ".kyyyyYyyyYyOOk.",
+    "..kOyyOyyyOyOk..",
+    "..kOOyOyyyOOOk..",
+    "...kkOOOOOOkk...",
+    ".....kkkkkk.....",
+    "................",
+]
+CARVED_PUMPKIN = [
+    "................",
+    "........gl......",
+    ".......gGll.....",
+    "....kkkgkkkk....",
+    "...kYyYyyYyyk...",
+    "..kYWyYyyyYyOk..",
+    "..kYydyyyydyOk..",
+    ".kyYdFdyydFdOOk.",
+    ".kyYyyYddyYyOOk.",
+    ".kyYyyYyyyYyOOk.",
+    ".kydyyYyyyYydOk.",
+    "..kdFdFdFdFdOk..",
+    "..kOdFdFdFdOOk..",
+    "...kkOOOOOOkk...",
+    ".....kkkkkk.....",
+    "................",
+]
 APPLE_COLORS = {
     "k": (92, 58, 10), "b": (107, 74, 32), "g": (84, 184, 74), "G": (46, 122, 46),
     "Y": (255, 243, 160), "W": (255, 255, 255), "y": (242, 201, 76), "O": (201, 143, 30),
+    "l": (110, 190, 70), "d": (96, 34, 4), "F": (255, 150, 30),
 }
 # Colores del contorno según la cantidad: de oscuro (pocas) a claro (muchas).
 GAP_STOPS = [(0.0, (74, 14, 20)), (0.12, (168, 24, 46)), (0.3, (255, 106, 42)), (0.55, (242, 201, 76)),
@@ -68,9 +108,11 @@ def gradient(stops, t):
     return stops[-1][1]
 
 
-def apple(border=None):
+def apple(border=None, sprite=None):
+    sprite = sprite or APPLE
+    assert all(len(row) == 16 for row in sprite) and len(sprite) == 16
     image = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-    for y, row in enumerate(APPLE):
+    for y, row in enumerate(sprite):
         for x, c in enumerate(row):
             if c != ".":
                 color = border if (c == "k" and border) else APPLE_COLORS[c]
@@ -111,9 +153,9 @@ def draw_number(image, n, right=31, bottom=31):
     return ox, oy, width, height
 
 
-def numbered(n, stops):
+def numbered(n, stops, sprite=None):
     color = gradient(stops, (n - 1) / (MAX - 1))
-    base = apple(color).resize((32, 32), Image.NEAREST)
+    base = apple(color, sprite).resize((32, 32), Image.NEAREST)
     # Contorno de 1 px más por fuera, del mismo color un poco más oscuro, para que se vea de lejos.
     alpha = base.getchannel("A")
     ring = tuple(max(0, int(c * 0.7)) for c in color) + (255,)
@@ -183,10 +225,16 @@ def main():
     MODELS.mkdir(parents=True, exist_ok=True)
     apple().save(TEXTURES / "apple.png")
     model(MODELS / "apple.json", ["freedomclient:item/gapcounter/apple"])
+    sprites = {"gap": PUMPKIN, "notch": CARVED_PUMPKIN}
+    for kind, sprite in sprites.items():
+        apple(sprite=sprite).save(TEXTURES / f"pumpkin_{kind}.png")
+        model(MODELS / f"pumpkin_{kind}.json", [f"freedomclient:item/gapcounter/pumpkin_{kind}"])
     for kind, stops in (("gap", GAP_STOPS), ("notch", NOTCH_STOPS)):
         for n in range(1, MAX + 1):
             numbered(n, stops).save(TEXTURES / f"{kind}_{n}.png")
             badge(n, stops).save(TEXTURES / f"badge_{kind}_{n}.png")
+            numbered(n, stops, sprites[kind]).save(TEXTURES / f"pumpkin_{kind}_{n}.png")
+            model(MODELS / f"pumpkin_{kind}_{n}.json", [f"freedomclient:item/gapcounter/pumpkin_{kind}_{n}"])
             model(MODELS / f"{kind}_{n}.json", [f"freedomclient:item/gapcounter/{kind}_{n}"])
             vanilla = "minecraft:item/golden_apple" if kind == "gap" else "minecraft:item/enchanted_golden_apple"
             model(MODELS / f"pack_{kind}_{n}.json", [vanilla.replace("item/enchanted_golden_apple", "item/golden_apple"),
@@ -194,6 +242,10 @@ def main():
     write_pack("gapcounter_vanilla", "FreedomClient Gap Counter: numbered golden apples", {
         "golden_apple": item_definition("gap", "freedomclient:item/gapcounter/apple", "freedomclient:item/gapcounter/gap"),
         "enchanted_golden_apple": item_definition("notch", "freedomclient:item/gapcounter/apple", "freedomclient:item/gapcounter/notch"),
+    })
+    write_pack("gapcounter_pumpkin", "FreedomClient Gap Counter: numbered golden pumpkins", {
+        "golden_apple": item_definition("gap", "freedomclient:item/gapcounter/pumpkin_gap", "freedomclient:item/gapcounter/pumpkin_gap"),
+        "enchanted_golden_apple": item_definition("notch", "freedomclient:item/gapcounter/pumpkin_notch", "freedomclient:item/gapcounter/pumpkin_notch"),
     })
     write_pack("gapcounter_pack", "FreedomClient Gap Counter: numbers over your pack's golden apples", {
         "golden_apple": item_definition("gap", "minecraft:item/golden_apple", "freedomclient:item/gapcounter/pack_gap"),

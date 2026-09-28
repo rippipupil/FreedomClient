@@ -53,8 +53,7 @@ public class ModGridPage implements MenuPage {
 			renderSortAndFolders(ui, x, y + BAR_HEIGHT + 5, w);
 			gridY += (BAR_HEIGHT + 5) * 2 + 1;
 		} else if (isCosmetics()) {
-			renderSlotBar(ui, x, y, w);
-			gridY += BAR_HEIGHT + 6;
+			gridY += renderSlotBar(ui, x, y, w) + 6;
 		}
 		if (isCosmetics()) {
 			renderSections(ui, x, gridY, w, y + h - gridY);
@@ -141,30 +140,42 @@ public class ModGridPage implements MenuPage {
 		return fixedCategory == Category.COSMETICS;
 	}
 
-	/** Filtros de la pestaña Cosmetics: todas las secciones o solo sombreros, capas, alas, mascotas o efectos. */
-	private void renderSlotBar(Ui ui, int x, int y, int w) {
+	/**
+	 * Filtros de la pestaña Cosmetics: todas las secciones o solo sombreros, cuello, capas, alas, mascotas o efectos.
+	 * Fichas compactas que nunca se meten debajo del buscador: si no caben, siguen en otra línea. Devuelve el alto.
+	 */
+	private int renderSlotBar(Ui ui, int x, int y, int w) {
 		int searchWidth = Math.min(90, w / 4);
-		int chipX = renderSlotChip(ui, "All", null, x, y);
-		for (CosmeticSlot slot : CosmeticSlot.values()) {
-			chipX = renderSlotChip(ui, slot.getDisplayName(), slot, chipX, y);
-		}
 		search.render(ui, x + w - searchWidth, y, searchWidth, BAR_HEIGHT, "Search...");
+		int right = x + w - searchWidth - 4;
+		int chipX = x;
+		int chipY = y;
+		for (int i = -1; i < CosmeticSlot.values().length; i++) {
+			CosmeticSlot slot = i < 0 ? null : CosmeticSlot.values()[i];
+			String label = slot == null ? "All" : slot.getDisplayName();
+			if (chipX > x && chipX + ui.font.width(label) + 8 > right) {
+				chipX = x;
+				chipY += BAR_HEIGHT + 3;
+			}
+			chipX = renderSlotChip(ui, label, slot, chipX, chipY);
+		}
+		return chipY - y + BAR_HEIGHT;
 	}
 
 	private int renderSlotChip(Ui ui, String label, CosmeticSlot slot, int x, int y) {
-		int width = ui.font.width(label) + 10;
+		int width = ui.font.width(label) + 8;
 		boolean selected = slotFilter == slot;
 		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
 		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
 		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
-		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
+		ui.g.drawString(ui.font, label, x + 4, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
 		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
 			slotFilter = slot;
 			scroll.reset();
 			ui.playClick();
 			return true;
 		});
-		return x + width + 3;
+		return x + width + 2;
 	}
 
 	private static CosmeticSlot slotOf(Module module) {
@@ -184,14 +195,7 @@ public class ModGridPage implements MenuPage {
 		for (CosmeticSlot slot : CosmeticSlot.values()) {
 			List<Module> section = modules.stream().filter(module -> slotOf(module) == slot).toList();
 			if (section.isEmpty()) continue;
-			int headerY = y + cursor - offset;
-			if (headerY + SECTION_HEADER > y && headerY < y + h) {
-				String title = slot.getDisplayName();
-				ui.g.drawString(ui.font, title, x + 1, headerY + 2, ThemeManager.accent(), false);
-				int lineX = x + ui.font.width(title) + 6;
-				ui.g.fill(lineX, headerY + 6, x + innerW, headerY + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
-			}
-			cursor += SECTION_HEADER;
+			cursor = sectionHeader(ui, slot.getDisplayName(), x, y, cursor - offset, innerW, h) + offset;
 			for (int i = 0; i < section.size(); i++) {
 				int cardX = x + (i % columns) * (cardWidth + GAP);
 				int cardY = y + cursor + (i / columns) * (CARD_HEIGHT + GAP) - offset;
@@ -301,21 +305,28 @@ public class ModGridPage implements MenuPage {
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
 
 		int offset = scroll.begin(ui, x, y, innerW, h);
-		int cursor = gridRows(ui, modules, x, y, y - offset, h, columns, cardWidth);
+		int cursor = 0;
+		String sort = ModFolders.sort();
+		if (sort.equals("A-Z") || sort.equals("Z-A")) {
+			// En orden alfabético la lista se parte por letras (A, B, C…) con una línea en cada una; los favoritos
+			// van antes, en su propia sección.
+			java.util.Map<String, List<Module>> sections = new java.util.LinkedHashMap<>();
+			for (Module module : modules) {
+				sections.computeIfAbsent(module.isFavorite() ? "Favorites" : letter(module), key -> new java.util.ArrayList<>()).add(module);
+			}
+			boolean first = true;
+			for (java.util.Map.Entry<String, List<Module>> section : sections.entrySet()) {
+				if (!first) cursor += GAP;
+				first = false;
+				cursor = sectionHeader(ui, section.getKey(), x, y, cursor - offset, innerW, h) + offset;
+				cursor += gridRows(ui, section.getValue(), x, y, y + cursor - offset, h, columns, cardWidth);
+			}
+		} else {
+			cursor = gridRows(ui, modules, x, y, y - offset, h, columns, cardWidth);
+		}
 		if (!optimization.isEmpty()) {
 			if (!modules.isEmpty()) cursor += GAP;
-			int headerY = y + cursor - offset;
-			if (headerY + SECTION_HEADER > y && headerY < y + h) {
-				String title = "Optimization";
-				ui.g.drawString(ui.font, title, x + 1, headerY + 2, ThemeManager.accent(), false);
-				int lineX = x + ui.font.width(title) + 6;
-				if (NeonStyle.on()) {
-					NeonStyle.hLine(ui.g, lineX, x + innerW, headerY + 6, 1, 0.0, 0.5, 0.8F);
-				} else {
-					ui.g.fill(lineX, headerY + 6, x + innerW, headerY + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
-				}
-			}
-			cursor += SECTION_HEADER;
+			cursor = sectionHeader(ui, "Optimization", x, y, cursor - offset, innerW, h) + offset;
 			cursor += gridRows(ui, optimization, x, y, y + cursor - offset, h, columns, cardWidth);
 		}
 		if (all.isEmpty()) {
@@ -325,6 +336,31 @@ public class ModGridPage implements MenuPage {
 			ui.g.drawCenteredString(ui.font, message, x + innerW / 2, y + 20, ThemeManager.textMuted());
 		}
 		scroll.end(ui, x, y, innerW, h, cursor);
+	}
+
+	/** Letra de la sección alfabética de un mod ("#" si empieza por número o símbolo). */
+	private static String letter(Module module) {
+		String name = module.getName();
+		char c = name.isEmpty() ? '#' : Character.toUpperCase(name.charAt(0));
+		return Character.isLetter(c) ? String.valueOf(c) : "#";
+	}
+
+	/**
+	 * Título de sección con una línea horizontal hasta el borde, en {@code y + cursor}; devuelve el cursor de
+	 * debajo. Solo se dibuja si está a la vista.
+	 */
+	private static int sectionHeader(Ui ui, String title, int x, int y, int cursor, int innerW, int h) {
+		int headerY = y + cursor;
+		if (headerY + SECTION_HEADER > y && headerY < y + h) {
+			ui.g.drawString(ui.font, title, x + 1, headerY + 2, ThemeManager.accent(), false);
+			int lineX = x + ui.font.width(title) + 6;
+			if (NeonStyle.on()) {
+				NeonStyle.hLine(ui.g, lineX, x + innerW, headerY + 6, 1, 0.0, 0.5, 0.8F);
+			} else {
+				ui.g.fill(lineX, headerY + 6, x + innerW, headerY + 7, ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F));
+			}
+		}
+		return cursor + SECTION_HEADER;
 	}
 
 	/** Dibuja las tarjetas en filas desde {@code top} y devuelve la altura ocupada. */

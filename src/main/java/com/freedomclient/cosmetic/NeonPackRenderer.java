@@ -90,10 +90,8 @@ public final class NeonPackRenderer {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
-		// Con pechera se separa un píxel para no quedar dentro de la armadura.
-		if (!state.chestEquipment.isEmpty()) {
-			poseStack.translate(0.0F, 0.0F, 1.0F / 16.0F);
-		}
+		// Con peto o élitros se separa de la espalda para no quedar dentro ni tapada.
+		poseStack.translate(0.0F, 0.0F, CosmeticModule.backClearance(state) / 16.0F);
 		collector.submitModelPart(pack, poseStack, RenderTypes.entityCutoutNoCull(TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
 		// El anillo late despacio y brilla aunque sea de noche.
 		boolean bright = Mth.sin(state.ageInTicks * 0.15F) > 0.2F;

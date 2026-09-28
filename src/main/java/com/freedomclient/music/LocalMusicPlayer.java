@@ -138,6 +138,69 @@ public final class LocalMusicPlayer {
 		title = null;
 	}
 
+	/**
+	 * Descarga una canción desde un enlace directo a un archivo MP3 o WAV a la carpeta de música. Los enlaces de
+	 * YouTube (y otras webs de streaming) no se aceptan: sacar su audio va contra sus condiciones de uso.
+	 * Devuelve el mensaje para el jugador.
+	 */
+	public java.util.concurrent.CompletableFuture<String> download(String link) {
+		return java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+			java.net.URI uri;
+			try {
+				uri = java.net.URI.create(link);
+			} catch (IllegalArgumentException e) {
+				return "That is not a valid link.";
+			}
+			String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
+			String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(Locale.ROOT);
+			if (!scheme.equals("https") && !scheme.equals("http")) return "Paste an http(s) link to an MP3 or WAV file.";
+			if (host.contains("youtube.") || host.equals("youtu.be") || host.contains("spotify.") || host.contains("soundcloud.")) {
+				return "Streaming sites like YouTube are not supported. Use a direct MP3/WAV link or put the file in the music folder.";
+			}
+			try {
+				java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+						.followRedirects(java.net.http.HttpClient.Redirect.NORMAL).connectTimeout(java.time.Duration.ofSeconds(10)).build();
+				java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder(uri).timeout(java.time.Duration.ofSeconds(60))
+						.header("User-Agent", "FreedomClient").GET().build();
+				java.net.http.HttpResponse<InputStream> response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofInputStream());
+				try (InputStream body = response.body()) {
+					if (response.statusCode() != 200) return "The link answered with error " + response.statusCode() + ".";
+					String type = response.headers().firstValue("Content-Type").orElse("").toLowerCase(Locale.ROOT);
+					String path = uri.getPath() == null ? "" : uri.getPath().toLowerCase(Locale.ROOT);
+					String extension = path.endsWith(".wav") || type.contains("wav") ? ".wav"
+							: path.endsWith(".mp3") || type.contains("mpeg") || type.contains("mp3") ? ".mp3" : null;
+					if (extension == null) return "That link is not an MP3 or WAV file.";
+					String name = path.substring(path.lastIndexOf('/') + 1).replaceAll("[^a-z0-9 ._()-]", "_");
+					if (name.isBlank() || name.equals(extension) || !name.endsWith(extension)) name = "song_" + System.currentTimeMillis() + extension;
+					Files.createDirectories(folder);
+					Path target = folder.resolve(name);
+					Path temp = folder.resolve(name + ".part");
+					long limit = 60L * 1024 * 1024;
+					long written = 0;
+					try (java.io.OutputStream out = Files.newOutputStream(temp)) {
+						byte[] buffer = new byte[16384];
+						int read;
+						while ((read = body.read(buffer)) > 0) {
+							written += read;
+							if (written > limit) {
+								out.close();
+								Files.deleteIfExists(temp);
+								return "The song is too big (max 60 MB).";
+							}
+							out.write(buffer, 0, read);
+						}
+					}
+					Files.move(temp, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+					reload();
+					return "Added " + name.substring(0, name.length() - extension.length()) + ".";
+				}
+			} catch (Exception e) {
+				FreedomClient.LOGGER.warn("Could not download {}", link, e);
+				return "Could not download the song: " + e.getClass().getSimpleName() + ".";
+			}
+		});
+	}
+
 	/** Hilo de música: toca la canción actual y pasa a la siguiente al acabar. */
 	private void run() {
 		while (!stopped) {

@@ -1,11 +1,11 @@
 package com.freedomclient.module;
 
 public enum Category {
-	PVP("PvP", 0xE0404F),
+	PVP("PvP", 0xFF4A4A),
 	HUD("HUD", 0x3FD7FF),
-	VISUAL("Visual", 0x9B6BFF),
-	UTILITY("Utility", 0x4CC38A),
-	PERFORMANCE("Optimization", 0xF2C94C),
+	VISUAL("Visual", 0xFFD84A),
+	UTILITY("Utility", 0x3FF0E0),
+	PERFORMANCE("Optimization", 0x3F7BFF),
 	/** Se muestran en la pestaña Cosmetics, no en Mods. */
 	COSMETICS("Cosmetics", 0xFF7EB6);
 

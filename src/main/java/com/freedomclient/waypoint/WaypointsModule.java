@@ -25,6 +25,8 @@ public class WaypointsModule extends Module {
 	private final KeybindSetting addKey = add(new KeybindSetting("Add waypoint key", "Key that saves a waypoint where you stand.", GLFW.GLFW_KEY_B));
 	private final BooleanSetting deathWaypoint = add(new BooleanSetting("Death waypoint", "Save a waypoint where you die.", true));
 	private final BooleanSetting showDistance = add(new BooleanSetting("Show distance", "Show how far each waypoint is.", true));
+	private final BooleanSetting askName = add(new BooleanSetting("Name new waypoints", "Ask for a name when you add a waypoint with the key.", true));
+	private final NumberSetting markerSize = add(new NumberSetting("Marker size", "Size of every waypoint marker and its label.", 1.0, 0.5, 3.0, 0.1, "x"));
 	private final NumberSetting maxDistance = add(new NumberSetting("Max distance", "Hide waypoints further than this (0 = no limit).", 0, 0, 10000, 100, " m"));
 	private final WaypointListSetting list = add(new WaypointListSetting());
 
@@ -56,7 +58,10 @@ public class WaypointsModule extends Module {
 		}
 
 		boolean down = addKey.isBound() && client.screen == null && InputConstants.isKeyDown(client.getWindow(), addKey.get());
-		if (down && !keyWasDown) addHere(client, false);
+		if (down && !keyWasDown) {
+			Waypoint added = addHere(client, false);
+			if (added != null && askName.get()) client.setScreen(new WaypointNameScreen(added));
+		}
 		keyWasDown = down;
 
 		boolean dead = player.isDeadOrDying();
@@ -64,20 +69,22 @@ public class WaypointsModule extends Module {
 		wasDead = dead;
 	}
 
-	private static void addHere(Minecraft client, boolean death) {
+	private static Waypoint addHere(Minecraft client, boolean death) {
 		LocalPlayer player = client.player;
-		if (player == null) return;
+		if (player == null) return null;
 
 		List<Waypoint> waypoints = WaypointStore.current();
 		if (death) waypoints.removeIf(waypoint -> waypoint.death);
 		String name = death ? "Death" : "Waypoint " + (waypoints.stream().filter(w -> !w.death).count() + 1);
 		int color = death ? 0xFFFF3B3B : 0xFF000000 | ColorUtil.hsvToRgb((float) Math.random(), 0.6F, 1.0F);
 		String dimension = player.level().dimension().toString();
-		WaypointStore.add(new Waypoint(name, player.getBlockX(), player.getBlockY(), player.getBlockZ(), dimension, color, death));
+		Waypoint waypoint = new Waypoint(name, player.getBlockX(), player.getBlockY(), player.getBlockZ(), dimension, color, death);
+		WaypointStore.add(waypoint);
 
 		if (!death) {
 			player.displayClientMessage(Component.literal("Waypoint saved: " + name), true);
 		}
+		return waypoint;
 	}
 
 	/** Dibuja los marcadores de los waypoints proyectados sobre la pantalla. */
@@ -109,6 +116,18 @@ public class WaypointsModule extends Module {
 	}
 
 	private void drawMarker(GuiGraphics graphics, Minecraft client, Waypoint waypoint, int x, int y, double distance) {
+		// Todo el marcador se escala alrededor de su centro con el tamaño general y el de este waypoint.
+		float scale = markerSize.getFloat() * waypoint.size;
+		graphics.pose().pushMatrix();
+		graphics.pose().translate(x, y);
+		graphics.pose().scale(scale, scale);
+		drawMarker(graphics, client, waypoint, distance);
+		graphics.pose().popMatrix();
+	}
+
+	private void drawMarker(GuiGraphics graphics, Minecraft client, Waypoint waypoint, double distance) {
+		int x = 0;
+		int y = 0;
 		// Rombo pixel del color del waypoint con contorno oscuro.
 		for (int i = 0; i < 5; i++) {
 			graphics.fill(x - i - 1, y - 5 + i - 1, x + i + 2, y - 5 + i + 1, 0xC0000000);

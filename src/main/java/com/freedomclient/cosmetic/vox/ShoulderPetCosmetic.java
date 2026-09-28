@@ -45,9 +45,10 @@ public abstract class ShoulderPetCosmetic extends VoxCosmetic {
 		float progress = emote < 0 ? 0.0F : inCycle / EMOTE;
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
-		// Encima del hombro (el brazo empieza a 4 px del centro del cuerpo y mide 4 de ancho).
-		float x = side.is("Left") ? 6.0F : -6.0F;
-		poseStack.translate(x / 16.0F, (state.chestEquipment.isEmpty() ? -0.1F : -1.2F) / 16.0F, 0.3F / 16.0F);
+		// En la punta del hombro y algo hacia atrás, para que la cabeza no la tape al girar (sus esquinas llegan a
+		// 5.7 px del centro). El brazo va de 4 a 8 px del centro del cuerpo.
+		float x = side.is("Left") ? 7.6F : -7.6F;
+		poseStack.translate(x / 16.0F, (state.chestEquipment.isEmpty() ? -0.6F : -1.4F) / 16.0F, 1.0F / 16.0F);
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
 		renderPet(poseStack, collector, light, time, emote, progress, sleeping);

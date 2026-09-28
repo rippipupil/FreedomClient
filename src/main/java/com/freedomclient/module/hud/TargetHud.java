@@ -5,13 +5,17 @@ import com.freedomclient.hud.HudModule;
 import com.freedomclient.hud.HudPosition;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ColorSetting;
+import com.freedomclient.util.MobFaces;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector2f;
 
 import java.util.Locale;
 
@@ -28,7 +32,7 @@ public class TargetHud extends HudModule {
 	private float displayedHealth = -1;
 
 	public TargetHud() {
-		super("Target HUD", "Shows the health and armor of the player you are fighting.", true,
+		super("Target HUD", "Shows the face, health and armor of the player or mob you are fighting.", true,
 				new HudPosition(HudPosition.Anchor.CENTER, 0, HudPosition.Anchor.END, 70));
 	}
 
@@ -53,6 +57,25 @@ public class TargetHud extends HudModule {
 		return HEIGHT;
 	}
 
+	/**
+	 * El mob en 3D, encuadrado en la cabeza. El dibujo de entidades va en coordenadas de pantalla, así que la caja se
+	 * pasa por la transformación del HUD (posición y escala) a mano.
+	 */
+	private static void renderEntityHead(GuiGraphics graphics, LivingEntity entity, int x, int y, int size) {
+		Vector2f from = graphics.pose().transformPosition(new Vector2f(x, y));
+		Vector2f to = graphics.pose().transformPosition(new Vector2f(x + size, y + size));
+		float box = to.x - from.x;
+		if (box < 4.0F) return;
+		float head = Mth.clamp(Math.min(entity.getBbWidth(), entity.getBbHeight()) * 0.9F, 0.3F, 2.0F);
+		int scale = Math.max(1, Math.round(box / (head * 1.4F)));
+		float yOffset = entity.getEyeHeight() - entity.getBbHeight() / 2.0F;
+		int x1 = Math.round(from.x);
+		int y1 = Math.round(from.y);
+		int x2 = Math.round(to.x);
+		int y2 = Math.round(to.y);
+		InventoryScreen.renderEntityInInventoryFollowsMouse(graphics, x1, y1, x2, y2, scale, yOffset, (x1 + x2) / 2.0F - 12.0F, (y1 + y2) / 2.0F, entity);
+	}
+
 	@Override
 	public void render(GuiGraphics graphics, Minecraft client, boolean preview) {
 		LivingEntity target = target(client);
@@ -62,11 +85,17 @@ public class TargetHud extends HudModule {
 		graphics.fill(0, 0, WIDTH, HEIGHT, backgroundColor.get());
 		graphics.fill(0, 0, WIDTH, 1, barColor.get());
 
-		// Cabeza del jugador (o el icono del mob como objeto si no es un jugador).
+		// Cara del jugador o del mob (recortada de su textura; si no la conocemos, el mob en 3D mirándote).
 		if (target instanceof AbstractClientPlayer player) {
 			PlayerFaceRenderer.draw(graphics, player.getSkin(), 4, 4, 24);
 		} else {
 			graphics.fill(4, 4, 28, 28, 0x40000000);
+			String id = MobFaces.id(target.getType());
+			if (MobFaces.hasFace(id)) {
+				MobFaces.draw(graphics, id, 5, 5, 22);
+			} else {
+				renderEntityHead(graphics, target, 4, 4, 24);
+			}
 		}
 
 		graphics.drawString(client.font, client.font.plainSubstrByWidth(target.getName().getString(), WIDTH - 36), 32, 5, 0xFFF5F1E8, true);

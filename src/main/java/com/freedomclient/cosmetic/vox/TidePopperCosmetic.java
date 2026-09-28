@@ -50,7 +50,7 @@ public class TidePopperCosmetic extends VoxCosmetic {
 		if (tool == null) build();
 		float time = state.ageInTicks;
 		poseStack.pushPose();
-		onBackDiagonal(parent, poseStack, size.getFloat(), side.is("Left"));
+		onBackDiagonal(parent, poseStack, state, size.getFloat(), side.is("Left"));
 		tool.draw(poseStack, collector, light);
 		// Las bolas giran en horizontal alrededor de la aguja, cada una subiendo y bajando un poco.
 		for (int i = 0; i < ORBS; i++) {

@@ -5,6 +5,7 @@ import com.freedomclient.config.Config;
 import com.freedomclient.module.Module;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.NeonStyle;
+import com.freedomclient.ui.ThemeDecor;
 import com.freedomclient.ui.Ui;
 import com.freedomclient.ui.scene.PixelSky;
 import com.freedomclient.ui.theme.ThemeManager;
@@ -123,6 +124,7 @@ public class FreedomMenuScreen extends Screen {
 		// Sombra y ventana.
 		graphics.fill(x + 3, y + 3, x + w + 3, y + h + 3, 0x70000000);
 		Draw.panel(graphics, x, y, w, h, ThemeManager.background(), ThemeManager.border());
+		ThemeDecor.background(graphics, x, y, w, h, HEADER_HEIGHT);
 
 		renderHeader(x, y, w);
 		if (NeonStyle.on()) {
@@ -155,6 +157,7 @@ public class FreedomMenuScreen extends Screen {
 		GuiGraphics g = ui.g;
 		int headerFill = ThemeManager.mix(ThemeManager.background(), ThemeManager.card(), 0.5F) | 0xFF000000;
 		g.fill(x + 1, y + 1, x + w - 1, y + HEADER_HEIGHT, headerFill);
+		ThemeDecor.header(g, x, y, w, HEADER_HEIGHT);
 		if (NeonStyle.on()) {
 			NeonStyle.hLine(g, x + 1, x + w - 1, y + HEADER_HEIGHT, 1, NeonStyle.flow() + 0.5, NeonStyle.flow() + 1.5, 1.0F);
 		} else {

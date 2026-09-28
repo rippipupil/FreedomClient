@@ -18,6 +18,8 @@
 		"EntityRenderDispatcherMixin",
 		"EntityRendererMixin",
 		"GameRendererMixin",
+		"GuiGraphicsItemCountMixin",
+		"GuiHotbarMixin",
 		"ItemEntityRendererMixin",
 		"ItemInHandRendererMixin",
 		"ItemStackMixin",

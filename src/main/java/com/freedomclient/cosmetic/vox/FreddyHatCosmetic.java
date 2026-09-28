@@ -41,7 +41,7 @@ public class FreddyHatCosmetic extends VoxCosmetic {
 		if (hat == null) hat = build(4.2F, 2.9F, 5);
 		poseStack.pushPose();
 		parent.head.translateAndRotate(poseStack);
-		poseStack.translate(0.8F / 16.0F, (state.headEquipment.isEmpty() ? -8.0F : -9.2F) / 16.0F, 0.0F);
+		poseStack.translate(0.8F / 16.0F, (state.headEquipment.isEmpty() ? -8.6F : -9.3F) / 16.0F, 0.0F);
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-9.0F));
 		hat.draw(poseStack, collector, light);
 		poseStack.popPose();

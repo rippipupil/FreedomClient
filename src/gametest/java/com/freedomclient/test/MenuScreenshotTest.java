@@ -371,6 +371,18 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(3);
 			context.takeScreenshot("pumpkin_evil");
 			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.vox.JackOLanternCosmetic.class).setEnabled(false));
+			// Mascota Neon rehecha.
+			shoot(context, "neon_pet_new", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.NeonPetCosmetic.class);
+			// Con armadura: casco y máscara por fuera de él, pechera y mascota de hombro, élitros con alas y guadaña.
+			singleplayer.getServer().runCommand("item replace entity @a armor.head with iron_helmet");
+			singleplayer.getServer().runCommand("item replace entity @a armor.chest with diamond_chestplate");
+			shoot(context, "armor_mask_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.DemonMaskCosmetic.class,
+					com.freedomclient.cosmetic.vox.FreddyPetCosmetic.class);
+			singleplayer.getServer().runCommand("item replace entity @a armor.head with air");
+			singleplayer.getServer().runCommand("item replace entity @a armor.chest with elytra");
+			shoot(context, "elytra_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.WingsCosmetic.class,
+					com.freedomclient.cosmetic.vox.DarkScytheCosmetic.class);
+			singleplayer.getServer().runCommand("item replace entity @a armor.chest with air");
 			// Angel Devil rehecha y la capa en sus dos estilos.
 			shoot(context, "angel_devil_pet", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.PetCosmetic.class,
 					com.freedomclient.cosmetic.WingsCosmetic.class, HaloCosmetic.class);
@@ -485,6 +497,16 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			singleplayer.getServer().runCommand("item replace entity @a weapon.mainhand with golden_apple 12");
 			context.waitTicks(10);
 			context.takeScreenshot("gap_counter_hand");
+			// Estilo calabaza (recarga los recursos) y el contador en la hotbar.
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.GapCounterModule.class), "Style", "Pumpkin"));
+			context.waitTicks(3);
+			context.waitFor(client -> client.getOverlay() == null, 20 * 60);
+			context.waitTicks(10);
+			context.takeScreenshot("gap_counter_pumpkin");
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.GapCounterModule.class), "Style", "Vanilla numbers"));
+			context.waitTicks(3);
+			context.waitFor(client -> client.getOverlay() == null, 20 * 60);
+			context.waitTicks(5);
 			context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
 			context.waitTicks(5);
 			context.takeScreenshot("gap_counter_third_person");
@@ -507,6 +529,25 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(6);
 			context.takeScreenshot("totem_pop");
 			context.waitTicks(40);
+
+			// Target HUD con la cara de un mob: un gólem de hierro quieto delante y después un slime.
+			singleplayer.getServer().runCommand("execute at @p run summon iron_golem ~ ~ ~3 {NoAI:1b,Tags:[\"target\"]}");
+			context.waitTicks(10);
+			context.takeScreenshot("target_hud_golem");
+			singleplayer.getServer().runCommand("kill @e[tag=target]");
+			singleplayer.getServer().runCommand("execute at @p run summon slime ~ ~ ~3 {NoAI:1b,Size:2,Tags:[\"target\"]}");
+			context.runOnClient(client -> client.player.setXRot(22.0F));
+			context.waitTicks(10);
+			context.takeScreenshot("target_hud_slime");
+			singleplayer.getServer().runCommand("kill @e[tag=target]");
+			context.runOnClient(client -> client.player.setXRot(0.0F));
+			context.waitTicks(5);
+
+			// Ventanita para nombrar un waypoint nuevo.
+			context.setScreen(() -> new com.freedomclient.waypoint.WaypointNameScreen(com.freedomclient.waypoint.WaypointStore.current().get(0)));
+			context.waitTicks(5);
+			context.takeScreenshot("waypoint_name");
+			context.setScreen(() -> null);
 
 			context.setScreen(() -> new HudEditorScreen(null));
 			context.waitTicks(10);
@@ -531,6 +572,26 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				context.waitTicks(10);
 				context.takeScreenshot("menu_" + tab.name().toLowerCase(Locale.ROOT));
 			}
+			// Cada tema con sus detalles (sol, nubes, estrellas, fuego, energía).
+			for (com.freedomclient.ui.theme.ThemePreset preset : com.freedomclient.ui.theme.ThemePreset.values()) {
+				context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(preset));
+				context.setScreen(() -> {
+					FreedomMenuScreen screen = new FreedomMenuScreen();
+					screen.setTab(FreedomMenuScreen.Tab.MODS);
+					return screen;
+				});
+				context.waitTicks(10);
+				context.takeScreenshot("theme_" + preset.name().toLowerCase(Locale.ROOT));
+			}
+			context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET));
+			// Pestaña Cosmetics con las fichas de secciones compactas.
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.setTab(FreedomMenuScreen.Tab.COSMETICS);
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_cosmetics_chips");
 
 			context.setScreen(() -> {
 				FreedomMenuScreen screen = new FreedomMenuScreen();
@@ -599,6 +660,34 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_mods_guiscale2");
+
+			// Sound Tweaks con la cuadrícula de mobs (gólem de hierro y slime silenciados) y la lista de waypoints.
+			context.runOnClient(client -> {
+				for (Setting<?> setting : FreedomClient.getModuleManager().get(com.freedomclient.module.utility.SoundTweaksModule.class).getSettings()) {
+					if (setting instanceof com.freedomclient.setting.MobListSetting mobs) {
+						mobs.toggle("iron_golem");
+						mobs.toggle("slime");
+					}
+				}
+			});
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.openModule(FreedomClient.getModuleManager().get(com.freedomclient.module.utility.SoundTweaksModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_soundtweaks");
+			context.runOnClient(client -> client.screen.mouseScrolled(client.getWindow().getGuiScaledWidth() / 2.0,
+					client.getWindow().getGuiScaledHeight() / 2.0, 0.0, -30.0));
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_soundtweaks_mobs");
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.openModule(FreedomClient.getModuleManager().get(com.freedomclient.waypoint.WaypointsModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_waypoints");
 
 			context.setScreen(() -> null);
 			// Botón "Optimize video settings" del FPS Optimizer (vanilla + Sodium): no debe fallar.

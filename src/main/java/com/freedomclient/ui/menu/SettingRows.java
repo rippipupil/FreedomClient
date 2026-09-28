@@ -4,6 +4,8 @@ import com.freedomclient.setting.ActionSetting;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ColorSetting;
 import com.freedomclient.setting.KeybindSetting;
+import com.freedomclient.setting.MobListSetting;
+import com.freedomclient.util.MobFaces;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.NumberSetting;
 import com.freedomclient.setting.PixelGridSetting;
@@ -31,6 +33,8 @@ public class SettingRows {
 	private final Map<Object, ColorPicker> pickers = new HashMap<>();
 	private final Map<ActionSetting, Long> actionFeedback = new HashMap<>();
 	private final Map<StringSetting, TextField> textFields = new HashMap<>();
+	private final Map<MobListSetting, TextField> mobSearch = new HashMap<>();
+	private final Map<Waypoint, TextField> waypointFields = new java.util.IdentityHashMap<>();
 	private Object expandedColor;
 
 	/** Dibuja la fila de un ajuste y devuelve la altura que ocupa. */
@@ -46,6 +50,7 @@ public class SettingRows {
 		if (setting instanceof StringSetting text) return renderText(ui, text, x, y, w);
 		if (setting instanceof PixelGridSetting grid) return renderGrid(ui, grid, x, y, w);
 		if (setting instanceof WaypointListSetting) return renderWaypoints(ui, x, y, w);
+		if (setting instanceof MobListSetting mobs) return renderMobs(ui, mobs, x, y, w);
 		if (setting instanceof ModeSetting mode) return renderMode(ui, mode, x, y, w);
 		if (setting instanceof ColorSetting color) {
 			return renderColor(ui, color, setting.getName(), setting.getDescription(), x, y, w,
@@ -156,11 +161,11 @@ public class SettingRows {
 		return height;
 	}
 
-	/** Lista de waypoints del mundo actual: color, nombre, coordenadas, visible y borrar. */
+	/** Lista de waypoints del mundo actual: color, nombre (editable), coordenadas, tamaño, visible y borrar. */
 	private int renderWaypoints(Ui ui, int x, int y, int w) {
 		java.util.List<Waypoint> waypoints = ui.minecraft.level != null ? WaypointStore.current() : java.util.List.of();
-		int height = ROW_HEIGHT + Math.max(1, waypoints.size()) * 16 + 4;
-		row(ui, "Waypoints in this world", "Toggle or delete your waypoints.", x, y, w, height);
+		int height = ROW_HEIGHT + Math.max(1, waypoints.size()) * 18 + 4;
+		row(ui, "Waypoints in this world", "Rename, resize, toggle or delete your waypoints.", x, y, w, height);
 
 		int rowY = y + ROW_HEIGHT;
 		if (waypoints.isEmpty()) {
@@ -170,13 +175,42 @@ public class SettingRows {
 		}
 
 		for (Waypoint waypoint : java.util.List.copyOf(waypoints)) {
-			ui.g.fill(x + 8, rowY + 2, x + 16, rowY + 10, waypoint.color);
-			String text = waypoint.name + "  " + waypoint.x + ", " + waypoint.y + ", " + waypoint.z;
-			ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(text, w - 90), x + 20, rowY + 2, waypoint.visible ? ThemeManager.text() : ThemeManager.textMuted(), false);
+			ui.g.fill(x + 8, rowY + 4, x + 16, rowY + 12, waypoint.color);
+
+			// Nombre: se cambia escribiendo en su campo y se guarda al momento.
+			int fieldW = Math.min(110, (w - 160) / 2);
+			TextField field = waypointFields.computeIfAbsent(waypoint, wp -> {
+				TextField created = new TextField(32);
+				created.setText(wp.name);
+				return created;
+			});
+			field.render(ui, x + 20, rowY + 1, fieldW, 14, "Name...");
+			String typed = field.getText().trim();
+			if (!typed.isEmpty() && !typed.equals(waypoint.name)) {
+				waypoint.name = typed;
+				WaypointStore.save();
+			}
+			String coords = waypoint.x + ", " + waypoint.y + ", " + waypoint.z;
+			int coordsX = x + 24 + fieldW;
+			int sizeX = x + w - 124;
+			ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(coords, Math.max(0, sizeX - coordsX - 4)), coordsX, rowY + 4,
+					waypoint.visible ? ThemeManager.textMuted() : ThemeManager.mix(ThemeManager.textMuted(), ThemeManager.card(), 0.5F), false);
+
+			// Tamaño del marcador: - 1.0x +
+			smallButton(ui, "-", sizeX, rowY + 2, () -> {
+				waypoint.size = Math.max(0.5F, Math.round((waypoint.size - 0.25F) * 4.0F) / 4.0F);
+				WaypointStore.save();
+			});
+			String size = String.format(java.util.Locale.ROOT, "%.2gx", waypoint.size);
+			ui.g.drawCenteredString(ui.font, size, sizeX + 32, rowY + 4, ThemeManager.accent());
+			smallButton(ui, "+", sizeX + 46, rowY + 2, () -> {
+				waypoint.size = Math.min(3.0F, Math.round((waypoint.size + 0.25F) * 4.0F) / 4.0F);
+				WaypointStore.save();
+			});
 
 			int toggleX = x + w - 52;
-			Draw.toggle(ui.g, toggleX, rowY + 1, waypoint.visible ? 1.0F : 0.0F, ui.hovered(toggleX, rowY, 20, 12));
-			ui.click(toggleX, rowY, 20, 12, (mx, my, button) -> {
+			Draw.toggle(ui.g, toggleX, rowY + 3, waypoint.visible ? 1.0F : 0.0F, ui.hovered(toggleX, rowY + 2, 20, 12));
+			ui.click(toggleX, rowY + 2, 20, 12, (mx, my, button) -> {
 				waypoint.visible = !waypoint.visible;
 				WaypointStore.save();
 				ui.playClick();
@@ -184,16 +218,66 @@ public class SettingRows {
 			});
 
 			int deleteX = x + w - 24;
-			boolean hovered = ui.hovered(deleteX, rowY, 14, 12);
-			Draw.panel(ui.g, deleteX, rowY, 14, 12, hovered ? 0xFFD7263D : ThemeManager.shade(), ThemeManager.border());
-			ui.g.drawString(ui.font, "x", deleteX + 4, rowY + 1, ThemeManager.text(), false);
-			ui.click(deleteX, rowY, 14, 12, (mx, my, button) -> {
+			boolean hovered = ui.hovered(deleteX, rowY + 2, 14, 12);
+			Draw.panel(ui.g, deleteX, rowY + 2, 14, 12, hovered ? 0xFFD7263D : ThemeManager.shade(), ThemeManager.border());
+			ui.g.drawString(ui.font, "x", deleteX + 4, rowY + 3, ThemeManager.text(), false);
+			ui.click(deleteX, rowY + 2, 14, 12, (mx, my, button) -> {
 				WaypointStore.remove(waypoint);
+				waypointFields.remove(waypoint);
 				ui.playClick();
 				return true;
 			});
-			rowY += 16;
+			rowY += 18;
 		}
+		return height;
+	}
+
+	/**
+	 * Cuadrícula de mobs con sus caras: clic para elegir o quitar. Los elegidos llevan marco rojo y una raya; arriba
+	 * hay un buscador por nombre y el número de elegidos.
+	 */
+	private int renderMobs(Ui ui, MobListSetting setting, int x, int y, int w) {
+		int cell = 22;
+		int left = x + 6;
+		int columns = Math.max(1, (w - 12) / cell);
+		TextField search = mobSearch.computeIfAbsent(setting, s -> new TextField(24));
+		String query = search.getText().trim().toLowerCase(java.util.Locale.ROOT);
+		java.util.List<MobListSetting.Mob> shown = MobListSetting.mobs().stream()
+				.filter(mob -> query.isEmpty() || mob.name().toLowerCase(java.util.Locale.ROOT).contains(query))
+				.toList();
+		int rows = Math.max(1, (shown.size() + columns - 1) / columns);
+		int gridY = y + ROW_HEIGHT + 16;
+		int height = gridY - y + rows * cell + 4;
+		row(ui, setting.getName(), setting.getDescription(), x, y, w, height);
+
+		String count = setting.get().size() + " muted";
+		ui.g.drawString(ui.font, count, x + w - 6 - ui.font.width(count), y + 5, ThemeManager.accent(), false);
+		search.render(ui, left, y + ROW_HEIGHT - 2, Math.min(150, w - 12), 14, "Search mobs...");
+		int clearX = left + Math.min(150, w - 12) + 6;
+		if (!setting.get().isEmpty()) smallButton(ui, "Clear", clearX, y + ROW_HEIGHT - 1, setting::reset);
+
+		for (int i = 0; i < shown.size(); i++) {
+			MobListSetting.Mob mob = shown.get(i);
+			int cx = left + (i % columns) * cell;
+			int cy = gridY + (i / columns) * cell;
+			boolean chosen = setting.contains(mob.id());
+			boolean hovered = ui.hovered(cx, cy, cell - 2, cell - 2);
+			int border = chosen ? 0xFFE0404F : hovered ? ThemeManager.highlight() : ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F);
+			Draw.panel(ui.g, cx, cy, cell - 2, cell - 2, hovered ? ThemeManager.cardHover() : ThemeManager.shade(), border);
+			MobFaces.draw(ui.g, mob.id(), cx + 2, cy + 2, cell - 6);
+			if (chosen) {
+				// Tachado en diagonal y un velo rojo: este mob no suena.
+				ui.g.fill(cx + 1, cy + 1, cx + cell - 3, cy + cell - 3, 0x55E0404F);
+				for (int d = 0; d < cell - 6; d++) ui.g.fill(cx + 2 + d, cy + cell - 5 - d, cx + 4 + d, cy + cell - 4 - d, 0xFFFF5555);
+			}
+			if (hovered) ui.tooltip(mob.name() + (chosen ? " (muted)" : ""));
+			ui.click(cx, cy, cell - 2, cell - 2, (mx, my, button) -> {
+				setting.toggle(mob.id());
+				ui.playClick();
+				return true;
+			});
+		}
+		if (shown.isEmpty()) ui.g.drawString(ui.font, "No mob matches.", left, gridY + 4, ThemeManager.textMuted(), false);
 		return height;
 	}
 

@@ -3,6 +3,7 @@ package com.freedomclient.module.pvp;
 import com.freedomclient.FreedomClient;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
+import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.PreviewSetting;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
@@ -14,6 +15,8 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +29,17 @@ import java.util.List;
 public class GapCounterModule extends Module {
 	private static final String VANILLA_PACK = "gapcounter_vanilla";
 	private static final String OVERLAY_PACK = "gapcounter_pack";
+	private static final String PUMPKIN_PACK = "gapcounter_pumpkin";
+	private static GapCounterModule instance;
 	private static final int[] PREVIEW_COUNTS = {64, 48, 32, 16, 8, 3, 1};
 
 	private final ModeSetting style = add(new ModeSetting("Style",
 			"Vanilla numbers: FreedomClient's vanilla-style apple with the number, replacing your pack's apple. "
+					+ "Pumpkin: golden pumpkins (carved jack-o'-lanterns for Notch apples) with the number. "
 					+ "Numbers over my pack: keeps your resource pack's apple and adds the number on top.",
-			"Vanilla numbers", "Vanilla numbers", "Numbers over my pack"));
+			"Vanilla numbers", "Vanilla numbers", "Pumpkin", "Numbers over my pack"));
+	private final BooleanSetting hotbar = add(new BooleanSetting("Show in hotbar",
+			"Also show the coloured counter on golden apples in your hotbar (instead of the plain white number).", true));
 	private final PreviewSetting preview = add(new PreviewSetting("Preview",
 			"How golden apples (top) and Notch apples (bottom) look with each amount.", 58, this::renderPreview));
 	private String applied;
@@ -39,6 +47,7 @@ public class GapCounterModule extends Module {
 	public GapCounterModule() {
 		super("Gap Counter", "Numbers on golden and Notch apples so you can see how many your rival has left. Light border = many, dark = few.",
 				Category.PVP, true);
+		instance = this;
 	}
 
 	@Override
@@ -53,6 +62,8 @@ public class GapCounterModule extends Module {
 					Component.literal("FreedomClient Gap Counter"), PackActivationType.DEFAULT_ENABLED);
 			ResourceLoader.registerBuiltinPack(FreedomClient.id(OVERLAY_PACK), container,
 					Component.literal("FreedomClient Gap Counter (your apple)"), PackActivationType.NORMAL);
+			ResourceLoader.registerBuiltinPack(FreedomClient.id(PUMPKIN_PACK), container,
+					Component.literal("FreedomClient Gap Counter (pumpkins)"), PackActivationType.NORMAL);
 		});
 	}
 
@@ -92,11 +103,12 @@ public class GapCounterModule extends Module {
 		PackRepository repository = client.getResourcePackRepository();
 		String vanilla = packId(repository, VANILLA_PACK);
 		String overlay = packId(repository, OVERLAY_PACK);
-		if (vanilla == null || overlay == null) return;
-		String wanted = !enabled ? null : style.is("Vanilla numbers") ? vanilla : overlay;
+		String pumpkin = packId(repository, PUMPKIN_PACK);
+		if (vanilla == null || overlay == null || pumpkin == null) return;
+		String wanted = !enabled ? null : style.is("Vanilla numbers") ? vanilla : style.is("Pumpkin") ? pumpkin : overlay;
 		List<String> selected = new ArrayList<>(repository.getSelectedIds());
 		boolean changed = false;
-		for (String id : new String[] {vanilla, overlay}) {
+		for (String id : new String[] {vanilla, overlay, pumpkin}) {
 			if (!id.equals(wanted) && selected.remove(id)) changed = true;
 		}
 		// El elegido va el último de la lista, que es el de más prioridad: así sustituye a la manzana de otros paquetes.
@@ -116,13 +128,16 @@ public class GapCounterModule extends Module {
 		int size = 24;
 		int gap = Math.max(4, Math.min(14, (width - PREVIEW_COUNTS.length * size) / PREVIEW_COUNTS.length));
 		boolean vanilla = style.is("Vanilla numbers");
+		boolean pumpkin = style.is("Pumpkin");
 		for (int row = 0; row < 2; row++) {
 			String kind = row == 0 ? "gap" : "notch";
 			for (int i = 0; i < PREVIEW_COUNTS.length; i++) {
 				int n = PREVIEW_COUNTS[i];
 				int px = x + i * (size + gap);
 				int py = y + row * (size + 6);
-				if (vanilla) {
+				if (pumpkin) {
+					blit(graphics, FreedomClient.id("textures/item/gapcounter/pumpkin_" + kind + "_" + n + ".png"), px, py, size, 32);
+				} else if (vanilla) {
 					blit(graphics, FreedomClient.id("textures/item/gapcounter/" + kind + "_" + n + ".png"), px, py, size, 32);
 				} else {
 					blit(graphics, Identifier.withDefaultNamespace("textures/item/golden_apple.png"), px, py, size, 16);
@@ -130,6 +145,21 @@ public class GapCounterModule extends Module {
 				}
 			}
 		}
+	}
+
+	/** Si en la hotbar se cambia el número blanco de esta pila por el contador de colores. */
+	public static boolean showsInHotbar(ItemStack stack) {
+		GapCounterModule module = instance;
+		return module != null && module.isEnabled() && module.hotbar.get() && stack.getCount() > 1
+				&& (stack.is(Items.GOLDEN_APPLE) || stack.is(Items.ENCHANTED_GOLDEN_APPLE));
+	}
+
+	/** Dibuja el contador de colores sobre una casilla de la hotbar (16x16 en x, y). */
+	public static void renderHotbarCount(GuiGraphics graphics, ItemStack stack, int x, int y) {
+		int count = Math.min(64, stack.getCount());
+		String kind = stack.is(Items.ENCHANTED_GOLDEN_APPLE) ? "notch" : "gap";
+		graphics.blit(RenderPipelines.GUI_TEXTURED, FreedomClient.id("textures/item/gapcounter/badge_" + kind + "_" + count + ".png"),
+				x + 1, y + 1, 0.0F, 0.0F, 16, 16, 32, 32, 32, 32);
 	}
 
 	private static void blit(GuiGraphics graphics, Identifier texture, int x, int y, int size, int textureSize) {

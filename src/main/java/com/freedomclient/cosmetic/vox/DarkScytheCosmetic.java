@@ -72,7 +72,7 @@ public class DarkScytheCosmetic extends VoxCosmetic {
 			scythe = new Vox.Shape(PALETTE).art(SCYTHE, -12.5F, -13.0F, -1.0F, 2.0F);
 		}
 		poseStack.pushPose();
-		onBackDiagonal(parent, poseStack, size.getFloat(), side.is("Left"));
+		onBackDiagonal(parent, poseStack, state, size.getFloat(), side.is("Left"));
 		scythe.draw(poseStack, collector, light);
 		poseStack.popPose();
 	}
