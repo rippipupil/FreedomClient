@@ -34,7 +34,7 @@ grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 		find "$HOME/.gradle/caches/modules-2" -name "*${name}*.jar" 2>/dev/null | grep -v -- '-sources' | head -3 | while IFS= read -r dep; do
 			echo "-- $dep"
 			unzip -l "$dep" | grep -i -- "$pattern" | awk '{print $4}' | head -40 || true
-		done
+		done || true
 	elif [[ "$line" == \!* ]]; then
 		# "!texto": como "?texto" pero sin límite de líneas.
 		unzip -l "$jar" | grep -i -- "${line#!}" | awk '{print $4}' || true
@@ -45,7 +45,7 @@ grep -v '^\s*\(#\|$\)' "$CLASSES_FILE" | while IFS= read -r line; do
 	elif [[ "$line" == *"#"* ]]; then
 		class="${line%%#*}"
 		method="${line##*#}"
-		javap -c -p -cp "$classpath" "$class" 2>&1 | awk -v m=" $method(" 'index($0, m) && /\(/ {p=1} p {print} p && /^$/ {p=0}'
+		javap -c -p -cp "$classpath" "$class" 2>&1 | awk -v m=" $method(" 'index($0, m) && /\(/ {p=1} p {print} p && /^$/ {p=0}' || true
 	else
 		javap -p -cp "$classpath" "$line" 2>&1 | grep -v -E 'lambda\$|access\$|\$\$' || true
 	fi
