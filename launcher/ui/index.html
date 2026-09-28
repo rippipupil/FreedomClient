@@ -154,6 +154,21 @@
             <div><b>Launch with</b><small id="launch-with-hint"></small></div>
             <div class="chips" id="s-launch-with" data-options="official:Minecraft Launcher|freedom:FreedomClient"></div>
           </div>
+          <div class="setting" id="official-path-row">
+            <div><b>Minecraft Launcher location</b><small id="official-path-hint">Found automatically on any drive. If it is not found, pick it here.</small></div>
+            <div class="row">
+              <input id="s-official-path" class="wide" placeholder="Automatic (searches every drive)">
+              <button class="btn small" id="official-browse">Browse</button>
+              <button class="btn small" id="official-detect">Detect</button>
+            </div>
+          </div>
+          <div class="setting-help" id="official-path-help">
+            <b>How to find it:</b> right-click the <i>Minecraft Launcher</i> shortcut on your desktop or in the Start menu
+            → <i>Open file location</i> (if it opens another shortcut, do it again). The file is usually
+            <code>D:\Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe</code> or, if you installed it
+            with the Xbox app, <code>D:\XboxGames\Minecraft Launcher\Content\Minecraft.exe</code>
+            (with your drive letter). Click <i>Browse</i> and pick that file.
+          </div>
           <div class="setting">
             <div><b>When the game starts</b><small>Closing the launcher frees all its memory while you play.</small></div>
             <div class="chips" id="s-after" data-options="close:Close launcher|minimize:Minimize|keep_open:Keep open"></div>

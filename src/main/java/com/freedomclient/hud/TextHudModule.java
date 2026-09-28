@@ -37,11 +37,13 @@ public abstract class TextHudModule extends HudModule {
 	 * calcula como mucho una vez por tick (50 ms), que es lo que tardan en cambiar los datos del juego.
 	 */
 	private String cachedText;
-	private long cachedAt = Long.MIN_VALUE;
+	private long cachedAt;
+	private boolean cached;
 
 	private String currentText(Minecraft client) {
 		long now = System.currentTimeMillis();
-		if (now - cachedAt >= 50) {
+		if (!cached || now - cachedAt >= 50 || now < cachedAt) {
+			cached = true;
 			cachedText = client.player != null ? getText(client) : null;
 			cachedAt = now;
 		}

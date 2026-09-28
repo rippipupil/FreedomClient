@@ -130,6 +130,15 @@ fn load_state(state: State<'_, AppState>) -> StateView {
     }
 }
 
+/// Busca el launcher oficial en todos los discos (para el botón "Detect" de Configuración).
+#[tauri::command]
+async fn detect_official_launcher() -> Option<String> {
+    tauri::async_runtime::spawn_blocking(|| official::find_launcher().map(|p| p.to_string_lossy().into_owned()))
+        .await
+        .ok()
+        .flatten()
+}
+
 #[tauri::command]
 fn save_settings(state: State<'_, AppState>, settings: Settings) -> CmdResult<()> {
     let restart = {
@@ -455,9 +464,10 @@ async fn launch_official(app: &AppHandle, state: &AppState, settings: &Settings,
     let progress = progress_emitter(app);
     official::install(&state.http, &state.paths, settings, profile, &progress).await.map_err(|e| format!("{e:#}"))?;
     progress("Opening the Minecraft Launcher", 0, 0);
-    if !official::open_launcher() {
-        return Err("FreedomClient is ready in the official Minecraft Launcher, but the launcher was not found. \
-            Install it from minecraft.net, or choose \"FreedomClient\" in Settings → Launch with."
+    if !official::open_launcher(&settings.official_launcher_path) {
+        return Err("FreedomClient is ready in the official Minecraft Launcher, but the launcher was not found on any drive. \
+            Go to Settings → Minecraft Launcher location and click Browse to pick it, \
+            or choose \"FreedomClient\" in Settings → Launch with."
             .into());
     }
     if let Some(p) = state.profiles.lock().unwrap().iter_mut().find(|p| p.id == profile.id) {
@@ -606,7 +616,8 @@ fn main() {
             remove_account,
             select_account,
             launch,
-            launcher_update
+            launcher_update,
+            detect_official_launcher
         ])
         .run(tauri::generate_context!())
         .expect("error while running the launcher");

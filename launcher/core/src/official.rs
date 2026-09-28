@@ -135,12 +135,36 @@ fn write_profile(minecraft: &Path, settings: &Settings, profile: &Profile, versi
     Ok(())
 }
 
-/// Abre el launcher oficial. Devuelve false si no se encuentra.
-pub fn open_launcher() -> bool {
+/// Nombres del ejecutable del launcher oficial: el clásico y el de la app de Xbox.
+const LAUNCHER_EXES: [&str; 2] = ["MinecraftLauncher.exe", "Minecraft.exe"];
+
+/// Convierte lo que haya puesto el jugador (el .exe, un acceso directo o la carpeta) en el ejecutable a abrir.
+fn resolve_custom(custom: &str) -> Option<PathBuf> {
+    let path = PathBuf::from(custom.trim().trim_matches('"'));
+    if custom.trim().is_empty() {
+        return None;
+    }
+    if path.is_file() {
+        return Some(path);
+    }
+    if path.is_dir() {
+        for sub in ["", "Content"] {
+            for exe in LAUNCHER_EXES {
+                let candidate = if sub.is_empty() { path.join(exe) } else { path.join(sub).join(exe) };
+                if candidate.is_file() {
+                    return Some(candidate);
+                }
+            }
+        }
+    }
+    None
+}
+
+/// Busca el launcher oficial instalado: en las carpetas de programas de siempre, en el registro de Windows y en
+/// todas las unidades (C:, D:, E:...), también donde lo instala la app de Xbox (XboxGames). None si no está.
+pub fn find_launcher() -> Option<PathBuf> {
     #[cfg(windows)]
     {
-        use std::os::windows::process::CommandExt;
-        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
         let mut candidates = Vec::new();
         for var in ["ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA"] {
             if let Some(base) = std::env::var_os(var) {
@@ -149,12 +173,88 @@ pub fn open_launcher() -> bool {
                 candidates.push(base.join("Programs").join("Minecraft Launcher").join("MinecraftLauncher.exe"));
             }
         }
-        for exe in candidates {
-            if exe.is_file() && Command::new(&exe).spawn().is_ok() {
+        for folder in registry_install_locations() {
+            for exe in LAUNCHER_EXES {
+                candidates.push(folder.join(exe));
+            }
+        }
+        for letter in b'C'..=b'Z' {
+            let root = PathBuf::from(format!("{}:\\", letter as char));
+            if std::fs::metadata(&root).is_err() {
+                continue;
+            }
+            for sub in [
+                r"Program Files (x86)\Minecraft Launcher\MinecraftLauncher.exe",
+                r"Program Files\Minecraft Launcher\MinecraftLauncher.exe",
+                r"Minecraft Launcher\MinecraftLauncher.exe",
+                r"Games\Minecraft Launcher\MinecraftLauncher.exe",
+                r"Juegos\Minecraft Launcher\MinecraftLauncher.exe",
+                r"XboxGames\Minecraft Launcher\Content\Minecraft.exe",
+                r"XboxGames\Minecraft Launcher\Content\MinecraftLauncher.exe",
+            ] {
+                candidates.push(root.join(sub));
+            }
+        }
+        candidates.into_iter().find(|exe| exe.is_file())
+    }
+    #[cfg(not(windows))]
+    {
+        None
+    }
+}
+
+/// Carpetas de instalación que el instalador del launcher deja apuntadas en el registro de Windows.
+#[cfg(windows)]
+fn registry_install_locations() -> Vec<PathBuf> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    let mut folders = Vec::new();
+    for key in [
+        r"HKLM\SOFTWARE\WOW6432Node\Mojang\InstalledProducts\Minecraft Launcher",
+        r"HKLM\SOFTWARE\Mojang\InstalledProducts\Minecraft Launcher",
+        r"HKCU\SOFTWARE\Mojang\InstalledProducts\Minecraft Launcher",
+    ] {
+        let Ok(output) = Command::new("reg").args(["query", key, "/v", "InstallLocation"]).creation_flags(CREATE_NO_WINDOW).output() else {
+            continue;
+        };
+        let text = String::from_utf8_lossy(&output.stdout);
+        for line in text.lines() {
+            if let Some((_, value)) = line.split_once("REG_SZ") {
+                let value = value.trim();
+                if !value.is_empty() {
+                    folders.push(PathBuf::from(value));
+                }
+            }
+        }
+    }
+    folders
+}
+
+/// Abre el launcher oficial: primero el que haya elegido el jugador en Configuración y si no, el que se encuentre
+/// solo. Devuelve false si no se encuentra.
+pub fn open_launcher(custom: &str) -> bool {
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        let chosen = resolve_custom(custom).or_else(find_launcher);
+        if let Some(exe) = chosen {
+            let is_shortcut = exe.extension().is_some_and(|e| e.eq_ignore_ascii_case("lnk"));
+            let started = if is_shortcut {
+                // Un acceso directo lo abre el explorador, como al hacerle doble clic.
+                Command::new("explorer.exe").arg(&exe).creation_flags(CREATE_NO_WINDOW).spawn().is_ok()
+            } else {
+                let mut command = Command::new(&exe);
+                if let Some(dir) = exe.parent() {
+                    command.current_dir(dir);
+                }
+                command.spawn().is_ok()
+            };
+            if started {
                 return true;
             }
         }
-        // Launcher de la Microsoft Store / app de Xbox.
+        // Launcher de la Microsoft Store / app de Xbox (se abre por su ID de app, esté en el disco que esté).
         store_installed()
             && Command::new("explorer.exe")
                 .arg(r"shell:AppsFolder\Microsoft.4297127D64EC6_8wekyb3d8bbwe!Minecraft")
@@ -164,19 +264,34 @@ pub fn open_launcher() -> bool {
     }
     #[cfg(target_os = "macos")]
     {
+        if let Some(path) = resolve_custom(custom) {
+            return Command::new("open").arg(path).status().map(|s| s.success()).unwrap_or(false);
+        }
         Command::new("open").args(["-a", "Minecraft"]).status().map(|s| s.success()).unwrap_or(false)
     }
     #[cfg(all(unix, not(target_os = "macos")))]
     {
+        if let Some(path) = resolve_custom(custom) {
+            return Command::new(path).spawn().is_ok();
+        }
         Command::new("minecraft-launcher").spawn().is_ok()
     }
 }
 
-/// Si el launcher de la Store está instalado (su carpeta de paquete existe).
+/// Si el launcher de la Store o de la app de Xbox está instalado: su carpeta de datos existe, o Windows lo tiene
+/// registrado como app (aunque esté instalado en otro disco).
 #[cfg(windows)]
 fn store_installed() -> bool {
-    dirs::data_local_dir()
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    let data = dirs::data_local_dir()
         .map(|d| d.join("Packages").join("Microsoft.4297127D64EC6_8wekyb3d8bbwe").exists())
+        .unwrap_or(false);
+    data || Command::new("powershell")
+        .args(["-NoProfile", "-Command", "if (Get-AppxPackage -Name Microsoft.4297127D64EC6) { exit 0 } else { exit 1 }"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .status()
+        .map(|s| s.success())
         .unwrap_or(false)
 }
 

@@ -420,6 +420,9 @@
       s.launch_with === "official"
         ? "Launch opens the official launcher with FreedomClient ready: just press Play. It uses its Microsoft login."
         : "Starts the game from here with your own Microsoft login (needs the Azure app ID).";
+    $("official-path-row").classList.toggle("hidden", s.launch_with !== "official");
+    $("official-path-help").classList.toggle("hidden", s.launch_with !== "official");
+    if (document.activeElement !== $("s-official-path")) $("s-official-path").value = s.official_launcher_path || "";
     renderChips("s-gc", s.gc, (v) => update({ gc: v }));
     renderChips("s-after", s.after_launch, (v) => update({ after_launch: v }));
     renderChips("s-downloads", s.concurrent_downloads, (v) => update({ concurrent_downloads: Number(v) }));
@@ -454,6 +457,25 @@
   $("s-fullscreen").addEventListener("change", (e) => update({ fullscreen: e.target.checked }));
   $("s-jvm").addEventListener("input", (e) => update({ extra_jvm_args: e.target.value }, false));
   $("s-java").addEventListener("input", (e) => update({ java_path: e.target.value.trim() }, false));
+  $("s-official-path").addEventListener("input", (e) => update({ official_launcher_path: e.target.value.trim() }, false));
+  $("official-browse").addEventListener("click", async () => {
+    const picked = await tauri.dialog.open({
+      title: "Pick the Minecraft Launcher (MinecraftLauncher.exe or Minecraft.exe)",
+      filters: [{ name: "Minecraft Launcher", extensions: ["exe", "lnk"] }],
+    });
+    if (picked) update({ official_launcher_path: Array.isArray(picked) ? picked[0] : picked });
+  });
+  $("official-detect").addEventListener("click", async () => {
+    const hint = $("official-path-hint");
+    hint.textContent = "Searching every drive...";
+    const found = await call("detect_official_launcher");
+    if (found) {
+      update({ official_launcher_path: found });
+      $("official-path-hint").textContent = "Found it: " + found;
+    } else {
+      $("official-path-hint").textContent = "Not found automatically. Click Browse and pick it (see how below).";
+    }
+  });
   $("s-autoupdate").addEventListener("change", (e) => update({ auto_update_client: e.target.checked }));
   $("s-discord").addEventListener("change", (e) => update({ discord_rpc: e.target.checked }));
   $("s-discord-id").addEventListener("input", (e) => update({ discord_app_id: e.target.value.trim() }, false));

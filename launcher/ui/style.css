@@ -1145,3 +1145,34 @@ body.loading > main {
     3px 3px 0 var(--shadow),
     0 0 12px rgba(63, 215, 255, 0.45);
 }
+
+/* Ayuda para encontrar el launcher oficial a mano. */
+.setting-help {
+  margin: -4px 0 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  background: rgba(var(--border-rgb), 0.18);
+  border-left: 3px solid rgba(var(--border-rgb), 0.9);
+}
+
+.setting-help b {
+  color: var(--text);
+}
+
+.setting-help code {
+  font-family: inherit;
+  color: var(--text);
+  word-break: break-all;
+}
+
+#official-path-row .row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#official-path-row input.wide {
+  width: 240px;
+}

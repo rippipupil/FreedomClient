@@ -55,6 +55,8 @@ pub enum Theme {
 pub struct Settings {
     pub theme: Theme,
     pub launch_with: LaunchWith,
+    /// Dónde está el launcher oficial (el .exe o su carpeta); vacío = buscarlo solo en todos los discos.
+    pub official_launcher_path: String,
     /// Memoria para el juego en MB; 0 = automática según la RAM del PC.
     pub memory_mb: u32,
     pub gc: GcPreset,
@@ -80,6 +82,7 @@ impl Default for Settings {
         Self {
             theme: Theme::Angel,
             launch_with: LaunchWith::Official,
+            official_launcher_path: String::new(),
             memory_mb: 0,
             gc: GcPreset::Optimized,
             extra_jvm_args: String::new(),
