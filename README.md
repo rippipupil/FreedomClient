@@ -17,8 +17,14 @@ También van incluidos [Continuity](https://modrinth.com/mod/continuity) (textur
 [Debugify](https://modrinth.com/mod/debugify) (arregla bugs de vanilla), [Mouse Tweaks](https://modrinth.com/mod/mouse-tweaks)
 (mejores controles del inventario) y [Fast IP Ping](https://modrinth.com/mod/fast-ip-ping) (lista de servidores más rápida).
 
-Además, en la ClickGUI hay un botón **"Optimizar ajustes para FPS"**. Desactiva VSync, las nubes, las sombras de
-entidades y la mezcla de biomas, quita el límite de FPS y pone las partículas al mínimo.
+Además, en la ClickGUI hay un botón **"Optimizar ajustes para FPS"** (FPS Optimizer). Desactiva VSync, las nubes,
+las sombras de entidades, la mezcla de biomas, la viñeta, el fundido de chunks, el desenfoque de los menús y el
+filtrado de texturas, pone hojas rápidas y actualización de chunks en hilos, quita el límite de FPS (y lo baja
+estando AFK), pone las partículas al mínimo y aplica las opciones más rápidas de Sodium.
+
+Otros mods de rendimiento propios: **Particle Limiter** (tope de partículas a la vez y quitar las más pesadas:
+romper bloques, explosiones, lluvia, pociones, ambiente) y **Process Priority** (en Windows sube la prioridad del
+proceso del juego a Alta para que los programas en segundo plano le quiten menos CPU).
 
 Licencias de los mods integrados: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
