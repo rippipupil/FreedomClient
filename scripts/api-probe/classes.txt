@@ -1,16 +1,9 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-%sodium-extra:SodiumExtraGameOptions
-%sodium-extra:SodiumExtraClientMod
-%moreculling:config/MoreCullingConfig
-%c2me:c2me.fabric.mod.json
-?FramerateLimitTracker
-net.minecraft.client.FramerateLimitTracker
-net.minecraft.client.FramerateLimitTracker#getFramerateLimit
-net.minecraft.client.Minecraft#getFramerateLimit
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions$AnimationSettings
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions$ParticleSettings
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions$DetailSettings
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions$RenderSettings
-me.flashyreese.mods.sodiumextra.client.gui.SodiumExtraGameOptions$ExtraSettings
-me.flashyreese.mods.sodiumextra.client.SodiumExtraClientMod
+com.mojang.blaze3d.platform.FramerateLimitTracker
+com.mojang.blaze3d.platform.FramerateLimitTracker#getFramerateLimit
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$AnimationSettings
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$ParticleSettings
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$DetailSettings
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$RenderSettings
+me.flashyreese.mods.sodiumextra.client.config.SodiumExtraGameOptions$ExtraSettings
