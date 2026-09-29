@@ -194,6 +194,7 @@ public class ModuleManager {
 		// FNAF
 		add(new com.freedomclient.cosmetic.vox.FreddyHatCosmetic());
 		add(new com.freedomclient.cosmetic.vox.FreddyPetCosmetic());
+		add(new com.freedomclient.cosmetic.vox.CupcakePetCosmetic());
 		// OneShot
 		add(new com.freedomclient.cosmetic.vox.NikoHatCosmetic());
 		add(new com.freedomclient.cosmetic.vox.NikoScarfCosmetic());

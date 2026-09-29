@@ -358,6 +358,19 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 					com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class);
 			shoot(context, "fnaf_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.FreddyHatCosmetic.class,
 					com.freedomclient.cosmetic.vox.FreddyPetCosmetic.class);
+			// Mr. Cupcake: parado a tu lado y a mitad de un salto después de alejarte un poco.
+			shoot(context, "cupcake_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.CupcakePetCosmetic.class);
+			context.runOnClient(client -> {
+				cosmetic(com.freedomclient.cosmetic.vox.CupcakePetCosmetic.class).setEnabled(true);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+			});
+			context.waitTicks(12);
+			context.takeScreenshot("cupcake_back");
+			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ^ ^ ^3");
+			context.waitTicks(9);
+			context.takeScreenshot("cupcake_hop");
+			context.waitTicks(40);
+			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.vox.CupcakePetCosmetic.class).setEnabled(false));
 			shoot(context, "oneshot_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
 					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class);
 			shoot(context, "oneshot_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,

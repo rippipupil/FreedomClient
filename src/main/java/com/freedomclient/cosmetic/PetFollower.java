@@ -39,6 +39,11 @@ public final class PetFollower {
 		return worldToModel(world.subtract(entityX, entityY, entityZ), bodyRot, PLAYER_MODEL_SCALE * entityScale);
 	}
 
+	/** Pasa un desplazamiento en el mundo (desde el jugador) al espacio del modelo del jugador, para mascotas con su propia física. */
+	public static Vec3 worldOffsetToModel(Vec3 offset, float bodyRot, float entityScale) {
+		return worldToModel(offset, bodyRot, PLAYER_MODEL_SCALE * entityScale);
+	}
+
 	public void reset() {
 		previous = null;
 		current = null;
