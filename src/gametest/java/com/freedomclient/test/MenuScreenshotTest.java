@@ -371,6 +371,23 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.takeScreenshot("cupcake_hop");
 			context.waitTicks(40);
 			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.vox.CupcakePetCosmetic.class).setEnabled(false));
+			// Bufanda de Niko de lado: las puntas van hacia atrás.
+			context.runOnClient(client -> {
+				cosmetic(com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class).setEnabled(true);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+				client.player.setYRot(client.player.getYRot() + 90.0F);
+			});
+			context.waitTicks(25);
+			context.takeScreenshot("scarf_side");
+			context.runOnClient(client -> {
+				client.player.setYRot(client.player.getYRot() - 90.0F);
+				cosmetic(com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class).setEnabled(false);
+			});
+			context.waitTicks(25);
+			// Hide Armor: sin casco ni pechera, pantalones ni botas (la armadura de las pruebas sigue puesta).
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class).setEnabled(true));
+			shoot(context, "hide_armor", net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class).setEnabled(false));
 			shoot(context, "oneshot_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
 					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class);
 			shoot(context, "oneshot_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
@@ -557,6 +574,34 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setXRot(0.0F));
 			context.waitTicks(5);
 
+			// Freecam: la cámara se va 4 bloques atrás y 2 arriba y mira al jugador, que se queda quieto.
+			context.runOnClient(client -> {
+				client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+				float yaw = client.player.getYRot();
+				double rad = Math.toRadians(yaw);
+				net.minecraft.world.phys.Vec3 back = new net.minecraft.world.phys.Vec3(Math.sin(rad) * 4.0, 2.0, -Math.cos(rad) * 4.0);
+				com.freedomclient.module.utility.FreecamModule.startForTest(client, back, yaw, 25.0F);
+			});
+			context.waitTicks(5);
+			context.takeScreenshot("freecam");
+			context.runOnClient(com.freedomclient.module.utility.FreecamModule::stopForTest);
+			// Custom Sky: mirando al cielo con los temas morado, atardecer y menta.
+			for (String sky : new String[] {"Purple", "Sunset", "Mint"}) {
+				context.runOnClient(client -> {
+					var module = FreedomClient.getModuleManager().get(com.freedomclient.module.visual.CustomSkyModule.class);
+					setMode(module, "Sky", sky);
+					module.setEnabled(true);
+					client.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+					client.player.setXRot(-25.0F);
+				});
+				context.waitTicks(5);
+				context.takeScreenshot("custom_sky_" + sky.toLowerCase(Locale.ROOT));
+			}
+			context.runOnClient(client -> {
+				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.CustomSkyModule.class).setEnabled(false);
+				client.player.setXRot(0.0F);
+			});
+
 			// INV: inventario con los colores del tema y después con una imagen de fondo (un degradado generado).
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.InvModule.class).setEnabled(true));
 			context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.client.Minecraft.getInstance().player));
@@ -567,10 +612,18 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				try {
 					java.nio.file.Path folder = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("freedomclient").resolve("inventory");
 					java.nio.file.Files.createDirectories(folder);
-					com.mojang.blaze3d.platform.NativeImage image = new com.mojang.blaze3d.platform.NativeImage(64, 64, false);
-					for (int y = 0; y < 64; y++) {
-						for (int x = 0; x < 64; x++) {
-							image.setPixel(x, y, 0xFF000000 | (40 + y * 3) << 16 | (20 + x * 2) << 8 | (120 + (x + y)));
+					// Imagen apaisada (como una foto) con un círculo blanco y una cruz en el centro exacto y el borde rojo:
+					// en la captura se ve si el centro de la imagen cae en el centro de la ventana.
+					int iw = 320;
+					int ih = 180;
+					com.mojang.blaze3d.platform.NativeImage image = new com.mojang.blaze3d.platform.NativeImage(iw, ih, false);
+					for (int y = 0; y < ih; y++) {
+						for (int x = 0; x < iw; x++) {
+							int color = 0xFF000000 | (40 + y / 2) << 16 | (20 + x / 3) << 8 | (120 + (x + y) / 8);
+							double d = Math.hypot(x - iw / 2.0, y - ih / 2.0);
+							if (Math.abs(d - 30) < 3 || Math.abs(x - iw / 2) < 2 || Math.abs(y - ih / 2) < 2) color = 0xFFFFFFFF;
+							if (x < 6 || y < 6 || x >= iw - 6 || y >= ih - 6) color = 0xFFFF2020;
+							image.setPixel(x, y, color);
 						}
 					}
 					image.writeToFile(folder.resolve("background.png"));

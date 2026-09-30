@@ -53,7 +53,10 @@ public class InvModule extends Module {
 	private final ModeSetting imageFit = add(new ModeSetting("Image fit",
 			"Fill: covers the whole window (cuts the edges). Stretch: squeezes the whole image in. Fit: the whole image, centered.",
 			"Fill", "Fill", "Stretch", "Fit"));
-	private final PreviewSetting preview = add(new PreviewSetting("Preview", "How your inventory will look.", 74, this::renderPreview));
+	private final PreviewSetting preview = add(new PreviewSetting("Preview", "How your inventory will look.", 120, this::renderPreview));
+	private final NumberSetting imageZoom = add(new NumberSetting("Image zoom", "Make the picture bigger to show only a part of it.", 100, 100, 300, 5, "%"));
+	private final NumberSetting imageX = add(new NumberSetting("Image left/right", "Move the picture to show more of its left or right side.", 0, -100, 100, 5, "%"));
+	private final NumberSetting imageY = add(new NumberSetting("Image up/down", "Move the picture to show more of its top or bottom.", 0, -100, 100, 5, "%"));
 	private final NumberSetting borderSize = add(new NumberSetting("Border size", "Thickness of the window border.", 2, 1, 4, 1, " px"));
 	private final NumberSetting imageOpacity = add(new NumberSetting("Image opacity", "How visible the background image is.", 70, 10, 100, 5, "%"));
 	private final ColorSetting background = add(new ColorSetting("Background", "Color of the window (under the image).", 0xE83A0F1A, true));
@@ -76,6 +79,9 @@ public class InvModule extends Module {
 		}
 		imageFit.visibleWhen(this::hasImage);
 		imageOpacity.visibleWhen(this::hasImage);
+		imageZoom.visibleWhen(() -> hasImage() && !imageFit.is("Stretch"));
+		imageX.visibleWhen(() -> hasImage() && !imageFit.is("Stretch"));
+		imageY.visibleWhen(() -> hasImage() && !imageFit.is("Stretch"));
 		add(new ActionSetting("Background image", "Pick a picture (PNG or JPG) for the inventory background.", "Choose", this::chooseImage));
 		ActionSetting remove = add(new ActionSetting("Remove image", "Go back to a plain colored background.", "Remove", this::removeImage));
 		remove.visibleWhen(this::hasImage);
@@ -97,6 +103,12 @@ public class InvModule extends Module {
 		if (screen instanceof InventoryScreen) return module;
 		if (module.screens.is("Inventory and chests") && (screen instanceof ContainerScreen || screen instanceof ShulkerBoxScreen)) return module;
 		return null;
+	}
+
+	/** El módulo si está activo (para dibujar otras ventanas con su estilo, como la vista previa de las shulkers), o null. */
+	public static InvModule styled() {
+		InvModule module = instance;
+		return module != null && module.isEnabled() ? module : null;
 	}
 
 	// ---------- Colores ----------
@@ -199,36 +211,74 @@ public class InvModule extends Module {
 		switch (imageFit.get()) {
 			case "Stretch" -> g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, x, y, 0.0F, 0.0F, w, h, imageWidth, imageHeight, imageWidth, imageHeight, color);
 			case "Fit" -> {
-				float scale = Math.min(w / (float) imageWidth, h / (float) imageHeight);
-				int dw = Math.max(1, Math.round(imageWidth * scale));
-				int dh = Math.max(1, Math.round(imageHeight * scale));
-				g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, x + (w - dw) / 2, y + (h - dh) / 2, 0.0F, 0.0F, dw, dh, imageWidth, imageHeight,
-						imageWidth, imageHeight, color);
+				// Entera y centrada; con zoom crece desde el centro y lo que se sale de la ventana se recorta.
+				float scale = Math.min(w / (float) imageWidth, h / (float) imageHeight) * zoom();
+				drawScaled(g, x, y, w, h, scale, color);
 			}
 			default -> {
-				// Cubre toda la ventana: se toma el trozo central de la imagen con la misma forma que la ventana.
-				float scale = Math.max(w / (float) imageWidth, h / (float) imageHeight);
-				int uw = Math.max(1, Math.round(w / scale));
-				int vh = Math.max(1, Math.round(h / scale));
-				g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, x, y, (imageWidth - uw) / 2.0F, (imageHeight - vh) / 2.0F, w, h, uw, vh,
-						imageWidth, imageHeight, color);
+				// Cubre toda la ventana con el centro de la imagen en el centro de la ventana (más el desplazamiento elegido).
+				float scale = Math.max(w / (float) imageWidth, h / (float) imageHeight) * zoom();
+				drawScaled(g, x, y, w, h, scale, color);
 			}
 		}
 	}
 
-	/** Vista previa: una ventanita con casillas como las del inventario. */
+	private float zoom() {
+		return imageZoom.getFloat() / 100.0F;
+	}
+
+	/**
+	 * Dibuja la imagen a escala {@code scale} (px de ventana por px de imagen) centrada en la ventana y movida según
+	 * los ajustes, recortando lo que queda fuera. Así el centro de la imagen cae siempre en el centro de la ventana.
+	 */
+	private void drawScaled(GuiGraphics g, int x, int y, int w, int h, float scale, int color) {
+		float drawnW = imageWidth * scale;
+		float drawnH = imageHeight * scale;
+		// Desplazamiento: 100% lleva el borde de la imagen al borde de la ventana (si sobra imagen para moverse).
+		float left = x + (w - drawnW) / 2.0F - imageX.getFloat() / 100.0F * Math.abs(drawnW - w) / 2.0F;
+		float top = y + (h - drawnH) / 2.0F - imageY.getFloat() / 100.0F * Math.abs(drawnH - h) / 2.0F;
+		// Parte visible, en coordenadas de la ventana y de la imagen.
+		float x0 = Math.max(x, left);
+		float y0 = Math.max(y, top);
+		float x1 = Math.min(x + w, left + drawnW);
+		float y1 = Math.min(y + h, top + drawnH);
+		int dx = Math.round(x0);
+		int dy = Math.round(y0);
+		int dw = Math.round(x1) - dx;
+		int dh = Math.round(y1) - dy;
+		if (dw <= 0 || dh <= 0) return;
+		float u = (dx - left) / scale;
+		float v = (dy - top) / scale;
+		int uw = Math.max(1, Math.round(dw / scale));
+		int vh = Math.max(1, Math.round(dh / scale));
+		g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, dx, dy, u, v, dw, dh, uw, vh, imageWidth, imageHeight, color);
+	}
+
+	/**
+	 * Vista previa: el inventario de verdad (176x166, con sus casillas en su sitio) a escala, para que la imagen se
+	 * recorte y se centre exactamente igual que al abrirlo en el juego.
+	 */
 	private void renderPreview(GuiGraphics g, int x, int y, int width, int height) {
-		int w = Math.min(width, 9 * 18 + 14);
+		int w = 176;
+		int h = 166;
+		float scale = Math.min(1.0F, Math.min(width / (float) w, height / (float) h));
 		java.util.List<Slot> fake = new java.util.ArrayList<>();
-		net.minecraft.world.SimpleContainer container = new net.minecraft.world.SimpleContainer(27);
+		net.minecraft.world.SimpleContainer container = new net.minecraft.world.SimpleContainer(46);
+		int index = 0;
+		for (int i = 0; i < 4; i++) fake.add(new Slot(container, index++, 8, 8 + i * 18));
+		fake.add(new Slot(container, index++, 77, 62));
+		for (int i = 0; i < 4; i++) fake.add(new Slot(container, index++, 98 + (i % 2) * 18, 18 + (i / 2) * 18));
+		fake.add(new Slot(container, index++, 154, 28));
 		for (int row = 0; row < 3; row++) {
-			for (int col = 0; col < 9; col++) {
-				if (7 + col * 18 + 18 > w) continue;
-				fake.add(new Slot(container, row * 9 + col, 7 + col * 18, 14 + row * 18));
-			}
+			for (int col = 0; col < 9; col++) fake.add(new Slot(container, index++, 8 + col * 18, 84 + row * 18));
 		}
-		drawWindow(g, x, y, w, height, fake, false);
-		g.drawString(Minecraft.getInstance().font, "Inventory", x + 8, y + 4, textColor(), false);
+		for (int col = 0; col < 9; col++) fake.add(new Slot(container, index++, 8 + col * 18, 142));
+		g.pose().pushMatrix();
+		g.pose().translate(x + (width - w * scale) / 2.0F, y);
+		g.pose().scale(scale, scale);
+		drawWindow(g, 0, 0, w, h, fake, true);
+		g.drawString(Minecraft.getInstance().font, "Crafting", 97, 6, textColor(), false);
+		g.pose().popMatrix();
 	}
 
 	// ---------- Imagen ----------

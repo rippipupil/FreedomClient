@@ -22,8 +22,7 @@ public final class LoadingScreenRenderer {
 		int p = Math.max(3, height / 55);
 		int centerX = width / 2;
 		int logoY = height / 2 - p * 3;
-		PixelSky.halo(g, centerX, logoY - p * 10, p, 10, alpha);
-		PixelSky.logo(g, centerX, logoY, p, alpha);
+		PixelSky.logo(g, centerX, logoY - p * 2, p, alpha);
 
 		// La barra avanza suave aunque la carga vaya a saltos.
 		shownProgress += (progress - shownProgress) * 0.1F;

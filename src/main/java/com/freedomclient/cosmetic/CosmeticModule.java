@@ -32,6 +32,9 @@ public abstract class CosmeticModule extends Module {
 
 	/** Si hay que dibujar el cosmético en este jugador (solo en el tuyo y si no eres invisible). */
 	public boolean shouldRender(AvatarRenderState state) {
+		// Vista previa de una tarjeta del menú: solo ese cosmético, aunque esté apagado.
+		CosmeticModule preview = CosmeticPreview.of(state);
+		if (preview != null) return preview == this && !state.isInvisible;
 		Minecraft client = Minecraft.getInstance();
 		return isEnabled() && !state.isInvisible && client.player != null && state.id == client.player.getId();
 	}

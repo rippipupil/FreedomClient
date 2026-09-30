@@ -129,6 +129,20 @@ public class FreecamModule extends Module {
 		return true;
 	}
 
+	/** Para las pruebas: enciende la cámara libre y la lleva a un sitio relativo al jugador, mirando hacia él. */
+	public static void startForTest(Minecraft client, Vec3 offset, float yaw, float pitch) {
+		if (instance == null) return;
+		instance.start(client);
+		instance.position = instance.position.add(offset);
+		instance.previous = instance.position;
+		instance.yaw = yaw;
+		instance.pitch = pitch;
+	}
+
+	public static void stopForTest(Minecraft client) {
+		if (instance != null) instance.stop(client);
+	}
+
 	/** Posición interpolada de la cámara, o null si no está activa. */
 	public static Vec3 cameraPosition(float partialTick) {
 		if (!isActive() || instance.position == null) return null;

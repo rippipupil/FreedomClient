@@ -153,6 +153,7 @@ public class ModuleManager {
 		add(new com.freedomclient.module.visual.InvModule());
 		add(new com.freedomclient.module.visual.HideArmorModule());
 		add(new com.freedomclient.module.visual.CustomSkyModule());
+		add(new com.freedomclient.module.visual.CardBordersModule());
 
 		// Utility
 		add(new WaypointsModule());

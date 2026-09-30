@@ -2,6 +2,7 @@ package com.freedomclient.ui.menu;
 
 import com.freedomclient.FreedomClient;
 import com.freedomclient.cosmetic.CosmeticModule;
+import com.freedomclient.cosmetic.CosmeticPreview;
 import com.freedomclient.cosmetic.CosmeticSlot;
 import com.freedomclient.module.Category;
 import com.freedomclient.module.Module;
@@ -19,10 +20,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-/** Cuadrícula de tarjetas de mods (como el boceto: icono, nombre e interruptor), con filtros y búsqueda. */
+/**
+ * Cuadrícula de tarjetas de mods (como el boceto: icono o vista previa a la izquierda, nombre y la rueda de ajustes),
+ * con filtros y búsqueda. Las tarjetas se seleccionan con un clic para activar o apagar el mod.
+ */
 public class ModGridPage implements MenuPage {
 	private static final int CARD_MIN_WIDTH = 104;
 	private static final int CARD_HEIGHT = 34;
+	private static final int COSMETIC_CARD_HEIGHT = 58;
 	private static final int GAP = 4;
 	private static final int BAR_HEIGHT = 12;
 	private static final int SECTION_HEADER = 14;
@@ -187,7 +192,7 @@ public class ModGridPage implements MenuPage {
 		List<Module> modules = visibleModules();
 		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
 		int innerW = w;
-		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
+		int columns = Math.max(1, (innerW + GAP) / (cardMinWidth() + GAP));
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
 
 		int offset = scroll.begin(ui, x, y, innerW, h);
@@ -198,12 +203,12 @@ public class ModGridPage implements MenuPage {
 			cursor = sectionHeader(ui, slot.getDisplayName(), x, y, cursor - offset, innerW, h) + offset;
 			for (int i = 0; i < section.size(); i++) {
 				int cardX = x + (i % columns) * (cardWidth + GAP);
-				int cardY = y + cursor + (i / columns) * (CARD_HEIGHT + GAP) - offset;
-				if (cardY + CARD_HEIGHT < y || cardY > y + h) continue;
+				int cardY = y + cursor + (i / columns) * (cardHeight() + GAP) - offset;
+				if (cardY + cardHeight() < y || cardY > y + h) continue;
 				renderCard(ui, section.get(i), cardX, cardY, cardWidth);
 			}
 			int rows = (section.size() + columns - 1) / columns;
-			cursor += rows * (CARD_HEIGHT + GAP) + GAP;
+			cursor += rows * (cardHeight() + GAP) + GAP;
 		}
 		if (modules.isEmpty()) {
 			ui.g.drawCenteredString(ui.font, "No cosmetics found", x + innerW / 2, y + 20, ThemeManager.textMuted());
@@ -314,7 +319,7 @@ public class ModGridPage implements MenuPage {
 		if (filter == Category.PERFORMANCE) modules = all.stream().sorted(alphabetical).toList();
 		// Mismo margen a los dos lados: la barra de scroll va en el margen de la ventana.
 		int innerW = w;
-		int columns = Math.max(1, (innerW + GAP) / (CARD_MIN_WIDTH + GAP));
+		int columns = Math.max(1, (innerW + GAP) / (cardMinWidth() + GAP));
 		int cardWidth = (innerW - GAP * (columns - 1)) / columns;
 
 		int offset = scroll.begin(ui, x, y, innerW, h);
@@ -380,12 +385,12 @@ public class ModGridPage implements MenuPage {
 	private int gridRows(Ui ui, List<Module> modules, int x, int clipY, int top, int h, int columns, int cardWidth) {
 		for (int i = 0; i < modules.size(); i++) {
 			int cardX = x + (i % columns) * (cardWidth + GAP);
-			int cardY = top + (i / columns) * (CARD_HEIGHT + GAP);
-			if (cardY + CARD_HEIGHT < clipY || cardY > clipY + h) continue;
+			int cardY = top + (i / columns) * (cardHeight() + GAP);
+			if (cardY + cardHeight() < clipY || cardY > clipY + h) continue;
 			renderCard(ui, modules.get(i), cardX, cardY, cardWidth);
 		}
 		int rows = (modules.size() + columns - 1) / columns;
-		return Math.max(0, rows * (CARD_HEIGHT + GAP) - GAP);
+		return Math.max(0, rows * (cardHeight() + GAP) - GAP);
 	}
 
 	/** Estrella pixel de 8x8. */
@@ -398,75 +403,132 @@ public class ModGridPage implements MenuPage {
 		}
 	}
 
-	private void renderCard(Ui ui, Module module, int x, int y, int w) {
-		boolean hovered = ui.hovered(x, y, w, CARD_HEIGHT);
-		float hover = ui.animate("hover:" + module.getId(), hovered ? 1.0F : 0.0F);
-		int fill = ThemeManager.mix(ThemeManager.card(), ThemeManager.cardHover(), hover);
-		int border = ThemeManager.mix(ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.45F), ThemeManager.highlight(), hover);
-		Draw.bevelPanel(ui.g, x, y, w, CARD_HEIGHT, fill, border);
-		if (NeonStyle.on()) {
-			// Cada tarjeta con su tramo de la paleta según dónde está; al pasar el ratón brilla del todo.
-			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
-			NeonStyle.frame(ui.g, x, y, w, CARD_HEIGHT, phase, 0.5, 0.75F + 0.25F * hover);
-			// Los mods activados llevan una línea de energía arriba por dentro de la tarjeta.
-			if (module.isEnabled()) {
-				NeonStyle.hLine(ui.g, x + 2, x + w - 2, y + 1, 1, phase + 0.25, phase + 0.75, 0.55F + 0.45F * hover);
+	/** Ancho mínimo: las de cosméticos son más anchas para que quepan la vista previa y el texto. */
+	private int cardMinWidth() {
+		return isCosmetics() ? 150 : CARD_MIN_WIDTH;
+	}
+
+	/** Alto de las tarjetas: las de cosméticos son más altas para que quepa la vista previa. */
+	private int cardHeight() {
+		return isCosmetics() ? COSMETIC_CARD_HEIGHT : CARD_HEIGHT;
+	}
+
+	/** Rueda de ajustes pixel de 9x9. */
+	private static final String[] GEAR = {
+			"...#.#...",
+			".#######.",
+			".##...##.",
+			"##.....##",
+			".#..#..#.",
+			"##.....##",
+			".##...##.",
+			".#######.",
+			"...#.#...",
+	};
+
+	private static void gear(Ui ui, int x, int y, int color) {
+		for (int row = 0; row < GEAR.length; row++) {
+			for (int col = 0; col < GEAR[row].length(); col++) {
+				if (GEAR[row].charAt(col) == '#') ui.g.fill(x + col, y + row, x + col + 1, y + row + 1, color);
 			}
 		}
+	}
 
-		Draw.iconBox(ui.g, module.getIcon(), x + 5, y + 5, 24, module.getCategory().getColor());
+	/**
+	 * Tarjeta de un mod: se selecciona entera con un clic (activa o apaga el mod). Su color sale de la categoría:
+	 * apagada va oscura y, activada, se aclara y lleva el borde de Card Borders. Arriba a la derecha, la rueda
+	 * pixel abre los ajustes. En los cosméticos, en vez del icono sale una vista previa del cosmético puesto.
+	 */
+	private void renderCard(Ui ui, Module module, int x, int y, int w) {
+		int h = cardHeight();
+		String id = module.getId();
+		boolean alwaysOn = !module.canToggle();
+		boolean hovered = ui.hovered(x, y, w, h);
+		float hover = ui.animate("hover:" + id, hovered ? 1.0F : 0.0F);
+		float on = ui.animate("on:" + id, module.isEnabled() || alwaysOn && module instanceof BundledModModule ? 1.0F : 0.0F);
+		int category = module.getCategory().getColor();
 
-		int textX = x + 34;
-		// Se deja sitio a la derecha para la estrella de favorito.
-		int textWidth = w - 46;
-		// Los nombres largos pasan a dos líneas (y se omite el ON/OFF, que ya indica el interruptor).
+		int offFill = ThemeManager.mix(ThemeManager.card(), category, 0.07F);
+		int onFill = ThemeManager.mix(ThemeManager.mix(ThemeManager.card(), category, 0.34F), 0xFFFFFFFF, 0.06F);
+		int fill = ThemeManager.mix(ThemeManager.mix(offFill, onFill, on), ThemeManager.cardHover(), hover * 0.35F);
+		int border = ThemeManager.mix(ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F), category, 0.25F + 0.25F * hover);
+		Draw.bevelPanel(ui.g, x, y, w, h, fill, border);
+		if (NeonStyle.on() && on > 0.5F) {
+			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
+			NeonStyle.frame(ui.g, x, y, w, h, phase, 0.5, 0.6F + 0.4F * hover);
+		}
+		com.freedomclient.module.visual.CardBordersModule.draw(ui.g, x, y, w, h, category, on, hover);
+
+		// Izquierda: vista previa del cosmético o el icono del mod en su caja del color de la categoría.
+		int boxX = x + 5;
+		int boxY = y + 5;
+		int boxH = h - 10;
+		int boxW = isCosmetics() ? 40 : boxH;
+		boolean previewed = false;
+		if (isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
+			Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on),
+					ThemeManager.mix(category, ThemeManager.border(), 0.4F));
+			previewed = CosmeticPreview.render(ui.g, cosmetic, boxX + 1, boxY + 1, boxX + boxW - 1, boxY + boxH - 1);
+		}
+		if (!previewed) {
+			int iconBox = Math.min(boxW, boxH);
+			Draw.iconBox(ui.g, module.getIcon(), boxX + (boxW - iconBox) / 2, boxY + (boxH - iconBox) / 2, iconBox, category);
+		}
+
+		int textX = boxX + boxW + 5;
+		// A la derecha quedan la rueda de ajustes y la estrella.
+		int textWidth = x + w - textX - 24;
+		int nameColor = ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
 		boolean twoLines = ui.font.width(module.getName()) > textWidth;
+		int nameY = y + (isCosmetics() ? 7 : 5);
 		if (twoLines) {
-			// La segunda línea comparte altura con el interruptor, así que es más corta.
-			String[] lines = splitName(ui, module.getName(), textWidth, w - 34 - 30);
-			ui.g.drawString(ui.font, lines[0], textX, y + 5, ThemeManager.text(), false);
-			ui.g.drawString(ui.font, lines[1], textX, y + 15, ThemeManager.text(), false);
+			String[] lines = splitName(ui, module.getName(), textWidth, x + w - textX - 6);
+			ui.g.drawString(ui.font, lines[0], textX, nameY, nameColor, false);
+			ui.g.drawString(ui.font, lines[1], textX, nameY + 10, nameColor, false);
 		} else {
-			ui.g.drawString(ui.font, module.getName(), textX, y + 6, ThemeManager.text(), false);
+			ui.g.drawString(ui.font, module.getName(), textX, nameY + 1, nameColor, false);
 		}
 
 		// Si el mod sale por una opción (no por su nombre), se muestra cuál.
 		String query = query();
 		Setting<?> matched = query.isEmpty() || nameMatches(module, query) ? null : matchingSetting(module, query);
-
-		int toggleX = x + w - 25;
-		int toggleY = y + CARD_HEIGHT - 15;
+		int statusY = y + h - 13;
 		if (matched != null) {
-			String label = ui.font.plainSubstrByWidth("> " + matched.getName(), toggleX - textX - 3);
-			ui.g.drawString(ui.font, label, textX, y + 20, ThemeManager.highlight(), false);
+			String label = ui.font.plainSubstrByWidth("> " + matched.getName(), x + w - textX - 4);
+			ui.g.drawString(ui.font, label, textX, statusY, ThemeManager.highlight(), false);
+		} else if (!twoLines || isCosmetics()) {
+			// Estado con un punto de color: encendido en el color de la categoría.
+			String label = module instanceof BundledModModule ? "Always on" : alwaysOn ? "Open >" : module.isEnabled() ? "ON" : "OFF";
+			int dot = module.isEnabled() || alwaysOn ? category : ThemeManager.textMuted();
+			ui.g.fill(textX, statusY + 2, textX + 4, statusY + 6, dot);
+			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? ThemeManager.mix(category, 0xFFFFFFFF, 0.35F)
+					: ThemeManager.textMuted(), false);
 		}
-		if (module.canToggle()) {
-			boolean toggleHovered = ui.hovered(toggleX - 2, toggleY - 2, 24, 14);
-			float progress = ui.animate("toggle:" + module.getId(), module.isEnabled() ? 1.0F : 0.0F);
-			Draw.toggle(ui.g, toggleX, toggleY, progress, toggleHovered);
-			if (!twoLines && matched == null) {
-				ui.g.drawString(ui.font, module.isEnabled() ? "ON" : "OFF", textX, y + 20,
-						module.isEnabled() ? ThemeManager.accent() : ThemeManager.textMuted(), false);
-			}
-		} else if (!twoLines && matched == null) {
-			String label = module instanceof BundledModModule ? "Always on" : "Open >";
-			ui.g.drawString(ui.font, label, textX, y + 20, ThemeManager.accent(), false);
+		if (isCosmetics() && !twoLines) {
+			// Descripción corta debajo del nombre en las tarjetas de cosméticos, que tienen más sitio.
+			String description = ui.font.plainSubstrByWidth(module.getDescription(), x + w - textX - 5);
+			ui.g.drawString(ui.font, description, textX, nameY + 13, ThemeManager.textMuted(), false);
 		}
 
-		// Estrella de favorito arriba a la derecha: siempre visible si es favorito, y al pasar el ratón si no.
-		int starX = x + w - 11;
-		int starY = y + 3;
+		// Arriba a la derecha: rueda de ajustes (y la estrella de favorito a su izquierda).
+		int gearX = x + w - 13;
+		int gearY = y + 4;
+		boolean gearHovered = ui.hovered(gearX - 2, gearY - 2, 13, 13);
+		gear(ui, gearX, gearY, gearHovered ? ThemeManager.highlight() : hovered ? ThemeManager.text() : ThemeManager.textMuted());
+		int starX = gearX - 11;
+		int starY = y + 4;
 		boolean starHovered = ui.hovered(starX - 1, starY - 1, 10, 10);
 		if (module.isFavorite() || hovered) {
 			star(ui, starX, starY, module.isFavorite() ? ThemeManager.accent() : starHovered ? ThemeManager.highlight() : ThemeManager.textMuted());
 		}
+		if (gearHovered) ui.tooltip("Settings");
 
-		// El interruptor y la estrella se registran después de la tarjeta para tener prioridad al hacer clic.
-		ui.click(x, y, w, CARD_HEIGHT, (mx, my, button) -> {
-			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && module.canToggle()) {
-				module.toggle();
-			} else {
+		// Clic en la tarjeta: la selecciona (activa o apaga); clic derecho o la rueda: ajustes.
+		ui.click(x, y, w, h, (mx, my, button) -> {
+			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT || !module.canToggle()) {
 				screen.openModule(module, query);
+			} else {
+				module.toggle();
 			}
 			ui.playClick();
 			return true;
@@ -476,13 +538,11 @@ public class ModGridPage implements MenuPage {
 			ui.playClick();
 			return true;
 		});
-		if (module.canToggle()) {
-			ui.click(toggleX - 2, toggleY - 2, 24, 14, (mx, my, button) -> {
-				module.toggle();
-				ui.playClick();
-				return true;
-			});
-		}
+		ui.click(gearX - 2, gearY - 2, 13, 13, (mx, my, button) -> {
+			screen.openModule(module, query);
+			ui.playClick();
+			return true;
+		});
 	}
 
 	private static String[] splitName(Ui ui, String name, int firstWidth, int secondWidth) {

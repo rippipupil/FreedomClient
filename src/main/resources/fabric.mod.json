@@ -11,6 +11,7 @@
 		"sources": "https://github.com/rippipupil/FreedomClient"
 	},
 	"license": "MIT",
+	"icon": "assets/freedomclient/icon.png",
 	"environment": "client",
 	"entrypoints": {
 		"client": [

@@ -24,7 +24,8 @@ public class FreedomMenuScreen extends Screen {
 		MODS("Mods"),
 		HUD("HUD"),
 		COSMETICS("Cosmetics"),
-		THEME("Theme");
+		THEME("Theme"),
+		PACKS("Packs");
 
 		private final String label;
 
@@ -47,6 +48,7 @@ public class FreedomMenuScreen extends Screen {
 	private final HudPage hudPage = new HudPage(this);
 	private final CosmeticsPage cosmeticsPage = new CosmeticsPage(this);
 	private final ThemePage themePage = new ThemePage();
+	private final PacksPage packsPage = new PacksPage();
 	private Tab tab = lastTab;
 	private ModuleSettingsPage modulePage;
 	/** Pantalla a la que volver al cerrar (por ejemplo, el editor de HUD), o null para volver al juego. */
@@ -78,6 +80,13 @@ public class FreedomMenuScreen extends Screen {
 		} else {
 			modulePage = null;
 		}
+	}
+
+	/** Abre el menú directamente en una pestaña (por ejemplo, Packs con la tecla de Quick Pack). */
+	public static FreedomMenuScreen forTab(Tab tab) {
+		FreedomMenuScreen screen = new FreedomMenuScreen();
+		screen.setTab(tab);
+		return screen;
 	}
 
 	/** Abre directamente los ajustes de un mod y vuelve a {@code parent} al cerrarlos. */
@@ -151,6 +160,7 @@ public class FreedomMenuScreen extends Screen {
 			case HUD -> hudPage;
 			case COSMETICS -> cosmeticsPage;
 			case THEME -> themePage;
+			case PACKS -> packsPage;
 		};
 	}
 
@@ -168,8 +178,7 @@ public class FreedomMenuScreen extends Screen {
 		// Logo del cliente: las iniciales FC de circuito con el halo encima, y el nombre en dos colores.
 		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
 		int logoCenterY = y + 17;
-		PixelSky.halo(g, logoCenterX, y + 5, 1, 9, 1.0F);
-		PixelSky.logo(g, logoCenterX, logoCenterY, 1, 1.0F);
+		PixelSky.logo(g, logoCenterX, logoCenterY - 2, 1, 1.0F);
 		int nameX = x + 6 + PixelSky.logoWidth() + 8;
 		int nameY = y + 11;
 		g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);

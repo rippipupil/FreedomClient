@@ -341,11 +341,13 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 
 	@Override
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
-		if (current == null) return;
+		boolean preview = com.freedomclient.cosmetic.CosmeticPreview.drawing();
+		if (current == null && !preview) return;
 		if (base == null) build();
 		float partial = state.ageInTicks % 1.0F;
-		Vec3 world = previous.lerp(current, partial);
-		Vec3 model = PetFollower.worldOffsetToModel(world.subtract(state.x, state.y, state.z), state.bodyRot, state.scale);
+		// En la vista previa del menú, en el suelo al lado del jugador y mirando al frente.
+		Vec3 model = preview ? new Vec3(-12.0 / 16.0, 1.5, 0.0)
+				: PetFollower.worldOffsetToModel(previous.lerp(current, partial).subtract(state.x, state.y, state.z), state.bodyRot, state.scale);
 		float time = ticks + partial;
 		PetBehavior.Mood mood = PetBehavior.mood();
 		boolean sleeping = mood == PetBehavior.Mood.SLEEP;
@@ -489,7 +491,7 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 
 		poseStack.pushPose();
 		poseStack.translate(model.x, model.y, model.z);
-		poseStack.mulPose(Axis.YP.rotationDegrees(yaw - state.bodyRot));
+		poseStack.mulPose(Axis.YP.rotationDegrees(preview ? 0.0F : yaw - state.bodyRot));
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
 		poseStack.translate(jitterX / 16.0F, -lift / 16.0F, jitterZ / 16.0F);

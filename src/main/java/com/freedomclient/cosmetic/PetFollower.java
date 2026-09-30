@@ -34,6 +34,8 @@ public final class PetFollower {
 
 	/** Posición de la mascota en el espacio del modelo del jugador, o null si todavía no se ha colocado. */
 	public Vec3 modelPosition(double entityX, double entityY, double entityZ, float bodyRot, float entityScale, float partialTick) {
+		// En la vista previa del menú la mascota va en un sitio fijo al lado del jugador.
+		if (CosmeticPreview.drawing()) return CosmeticPreview.petSlot();
 		if (current == null) return null;
 		Vec3 world = previous.lerp(current, partialTick);
 		return worldToModel(world.subtract(entityX, entityY, entityZ), bodyRot, PLAYER_MODEL_SCALE * entityScale);

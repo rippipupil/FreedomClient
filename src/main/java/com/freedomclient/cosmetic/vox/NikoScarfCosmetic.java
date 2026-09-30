@@ -77,12 +77,14 @@ public class NikoScarfCosmetic extends VoxCosmetic {
 		Vec3 motion = player.getDeltaMovement();
 		double speed = Math.sqrt(motion.x * motion.x + motion.z * motion.z);
 		float turn = Float.isNaN(lastBodyRot) ? 0.0F : Mth.wrapDegrees(player.yBodyRot - lastBodyRot);
+		// Un salto de golpe (teletransporte, girar la cámara de repente) no es un giro de verdad.
+		if (Math.abs(turn) > 40.0F) turn = 0.0F;
 		lastBodyRot = player.yBodyRot;
 
 		// Quieta cuelga un poco hacia atrás; corriendo casi en horizontal; cayendo sube y saltando baja.
 		float targetLift = 22.0F + (float) Math.min(62.0, speed * 240.0) + (float) Mth.clamp(-motion.y * 90.0, -12.0, 34.0);
 		// Al girar, las puntas se quedan hacia el lado contrario.
-		float targetSway = Mth.clamp(-turn * 1.6F, -38.0F, 38.0F);
+		float targetSway = Mth.clamp(-turn * 1.2F, -18.0F, 18.0F);
 		liftVelocity = (liftVelocity + (targetLift - lift) * 0.22F) * 0.72F;
 		lift += liftVelocity;
 		swayVelocity = (swayVelocity + (targetSway - sway) * 0.2F) * 0.7F;
@@ -110,8 +112,8 @@ public class NikoScarfCosmetic extends VoxCosmetic {
 			poseStack.pushPose();
 			poseStack.translate(side * 1.3F / 16.0F, 0.6F / 16.0F, 4.2F / 16.0F);
 			// Abiertas en V hacia los lados y hacia atrás.
-			poseStack.mulPose(Axis.ZP.rotationDegrees(baseSway + side * (14.0F + walk * 6.0F)));
-			poseStack.mulPose(Axis.YP.rotationDegrees(side * 10.0F));
+			poseStack.mulPose(Axis.ZP.rotationDegrees(baseSway + side * (5.0F + walk * 4.0F)));
+			poseStack.mulPose(Axis.YP.rotationDegrees(side * 8.0F));
 			poseStack.mulPose(Axis.XP.rotationDegrees(baseLift + tail * 6.0F));
 			for (int i = 0; i < segments; i++) {
 				segment.draw(poseStack, collector, light);
@@ -119,7 +121,7 @@ public class NikoScarfCosmetic extends VoxCosmetic {
 				// Se va curvando hacia arriba y ondea como una tela, más al correr.
 				float wave = Mth.sin(time * (0.22F + walk * 0.18F) - i * 0.9F + tail * 1.7F) * (4.0F + walk * 9.0F);
 				poseStack.mulPose(Axis.XP.rotationDegrees(11.0F + walk * 5.0F + wave));
-				poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin(time * 0.13F - i * 0.7F + tail) * 3.0F));
+				poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin(time * 0.13F - i * 0.7F + tail) * 2.0F));
 			}
 			// Cuatro trozos sueltos al final, cada vez más pequeños y un poco torcidos.
 			for (int i = 0; i < PIECES; i++) {

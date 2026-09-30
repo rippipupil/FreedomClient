@@ -41,8 +41,7 @@ public class WhatsNewScreen extends Screen {
 		int x = (width - PANEL_WIDTH) / 2;
 		int y = (height - PANEL_HEIGHT) / 2;
 		Draw.bevelPanel(graphics, x, y, PANEL_WIDTH, PANEL_HEIGHT, ThemeManager.withAlpha(ThemeManager.background(), 0.94F), ThemeManager.border());
-		PixelSky.halo(graphics, x + 24, y + 7, 1, 9, 1.0F);
-		PixelSky.logo(graphics, x + 24, y + 19, 1, 1.0F);
+		PixelSky.logo(graphics, x + 24, y + 16, 1, 1.0F);
 		graphics.drawString(font, UiText.title("What's new"), x + 40, y + 10, ThemeManager.accent(), true);
 
 		// Lista de cambios con scroll.

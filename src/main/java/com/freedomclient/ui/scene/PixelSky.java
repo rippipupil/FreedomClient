@@ -92,48 +92,63 @@ public final class PixelSky {
 	};
 
 	/**
-	 * Emblema de FreedomClient sin letras (tools/fc_logo.py EMBLEM): tres barras, una diagonal y dos nodos.
-	 * '#' = trazo, 'o' = borde de un nodo, 'O' = centro de un nodo.
+	 * Emblema de FreedomClient sin letras (el icono del interior del cliente): halo dorado encima y tres barras
+	 * redondeadas en escalera con dos nodos, en pixel art de 48x48. 'o' = contorno, 'w' = blanco, 'b' = sombra
+	 * (cambia con el tema), 'g' = oro, 'p' = brillo del halo, 'y' = amarillo.
 	 */
-	private static final String[] FC = {
-			"..oo..................",
-			".oOOo#################",
-			".oOOo################.",
-			"..oo...........####...",
-			"..............####....",
-			"....#########.####....",
-			"...#########.####.....",
-			"............####......",
-			"...........####.......",
-			"..........####....oo..",
-			"..#############..oOOo.",
-			"..############...oOOo.",
-			"..................oo..",
+	private static final String[] EMBLEM_HALO = {
+			"................ooooooo................",
+			"..............oopgggggpoo..............",
+			".............opggoooooggpo.............",
+			".............oyoo.....ooygo............",
+			".............oggpooooopggo.............",
+			"..............oogggggggoo..............",
+			"................ooooooo................",
 	};
-	/** Degradado de los trazos por fila, nodos (borde, centro), halo (claro, oscuro) y contorno, en Angel Devil y en Neon. */
-	private static final int[] FC_ROWS = {0xFFFFFF, 0xFAF6EC, 0xF5F1E8, 0xF7EAD0, 0xF7E2BE, 0xF6D696, 0xF5CD78, 0xF2C45A, 0xECB646, 0xE8A93A, 0xDE783C, 0xD7263D, 0xD7263D};
-	private static final int[] FC_ROWS_NEON = {0xEAFAFF, 0xC8F4FF, 0xA0EAFF, 0x6EDCFF, 0x3FD7FF, 0x3CBEFF, 0x3AA0FF, 0x3482FF, 0x2E64FF, 0x2A50FF, 0x4646F0, 0x6B5BFF, 0x6B5BFF};
-	private static final int[] FC_EXTRA = {0xD7263D, 0xFF7878, 0xF2C94C, 0xC98F1E, 0x1A0508};
-	private static final int[] FC_EXTRA_NEON = {0xFFD84A, 0xFFF5AA, 0xA8F05A, 0x3FD7FF, 0x06081E};
-	private static final int[] FC_ROWS_PURPLE = {0xFFFFFF, 0xF6EEFF, 0xEEDFFF, 0xE3CCFF, 0xD7B8FF, 0xC9A3FF, 0xBA8CFF, 0xAB76FF, 0x9B5CFF, 0x8C4BF0, 0xA040D8, 0xC03AB8, 0xC03AB8};
-	private static final int[] FC_EXTRA_PURPLE = {0xC03AB8, 0xFF9AE8, 0xE6B8FF, 0x9B5CFF, 0x120726};
-	private static final int[] FC_ROWS_MINT = {0xFFFFFF, 0xF0FFFA, 0xE0FFF4, 0xCCFBEA, 0xB8F5E0, 0xA2EED5, 0x8AE6C9, 0x72DDBC, 0x5AD3AF, 0x44C8A2, 0x33B894, 0x2A9E86, 0x2A9E86};
-	private static final int[] FC_EXTRA_MINT = {0x2A9E86, 0xB8FFE4, 0xE8FFF6, 0x3FC9A0, 0x08201C};
+	private static final String[] EMBLEM_BODY = {
+			"............ooooooooooooooo......oooo..",
+			"...........owwwwwwwwwwwwwwwo....owwwwo.",
+			"..........owwwwwwwwwwwwwwwwwo...owwwwo.",
+			"..........owwwwwwwwwwwwwwwwwo..obwwwwbo",
+			"..........obwwwwwwwwwwwwwwwbo...owwwwo.",
+			"...........obbbbbbbbbbbbbbbo....obbbbo.",
+			"............ooooooooooooooo......oooo..",
+			"....ooooooooooooooooooooooooooo........",
+			"...owwwwwwwwwwwwwwwwwwwwwwwwwwwo.......",
+			"..owwwwwwwwwwwwwwwwwwwwwwwwwwwwwo......",
+			"..owwwwwwwwwwwwwwwwwwwwwwwwwwwwwo......",
+			"..obwwwwwwwwwwwwwwwwwwwwwwwwwwwbo......",
+			"...obbbbbbbbbbbbbbbbbbbbbbbbbbbo.......",
+			"....ooooooooooooooooooooooooooo........",
+			"..ooo...ooooooooooooooooooooooooooo....",
+			".owwwo.owwwwwwwwwwwwwwwwwwwwwwwwwwwo...",
+			"owwwwwowwwwwwwwwwwwwwwwwwwwwwwwwwwwwo..",
+			"owwwwwowwwwwwwwwwwwwwwwwwwwwwwwwwwwwo..",
+			"obwwwbobwwwwwwwwwwwwwwwwwwwwwwwwwwwbo..",
+			".obbbo.obbbbbbbbbbbbbbbbbbbbbbbbbbbo...",
+			"..ooo...ooooooooooooooooooooooooooo....",
+	};
+	private static final int EMBLEM_WIDTH = 39;
+	/** Huecos entre el halo y las barras, en píxeles del emblema. */
+	private static final int HALO_GAP = 2;
 
-	/** Degradado de los trazos del logo según el tema. */
-	private static int[] logoRows() {
-		if (ThemeManager.isNeon()) return FC_ROWS_NEON;
-		if (ThemeManager.isPurple()) return FC_ROWS_PURPLE;
-		if (ThemeManager.isMint()) return FC_ROWS_MINT;
-		return FC_ROWS;
-	}
-
-	/** Nodos, halo y contorno del logo según el tema. */
-	private static int[] logoExtra() {
-		if (ThemeManager.isNeon()) return FC_EXTRA_NEON;
-		if (ThemeManager.isPurple()) return FC_EXTRA_PURPLE;
-		if (ThemeManager.isMint()) return FC_EXTRA_MINT;
-		return FC_EXTRA;
+	/** Color de cada letra del emblema; la sombra de las barras toma el tono del tema. */
+	private static int emblemColor(char c) {
+		return switch (c) {
+			case 'o' -> 0x16224A;
+			case 'w' -> 0xFFFFFF;
+			case 'g' -> 0xE19623;
+			case 'p' -> 0xFFF4BE;
+			case 'y' -> 0xFFD65C;
+			default -> {
+				if (ThemeManager.isNeon()) yield 0x3FD7FF;
+				if (ThemeManager.isPurple()) yield 0xC9A3FF;
+				if (ThemeManager.isMint()) yield 0x8AE6C9;
+				if (ThemeManager.getPreset() == com.freedomclient.ui.theme.ThemePreset.RED_DEVIL
+						|| ThemeManager.getPreset() == com.freedomclient.ui.theme.ThemePreset.RED_SUNSET) yield 0xF5B8A8;
+				yield 0x96BEF0;
+			}
+		};
 	}
 
 	private PixelSky() {
@@ -306,70 +321,57 @@ public final class PixelSky {
 		}
 	}
 
-	/** Cubre cada píxel del logo (trazos y nodos) con un color: para la sombra y el contorno. */
-	private static void logoMask(GuiGraphics g, int x, int y, int p, int color) {
-		for (int row = 0; row < FC.length; row++) {
-			for (int column = 0; column < FC[row].length(); column++) {
-				if (FC[row].charAt(column) != '.') {
-					g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, color);
+	/** Dibuja un trozo del emblema a 1 px por píxel; los tramos seguidos del mismo color van en un solo rectángulo. */
+	private static void art(GuiGraphics g, String[] rows, int x, int y, float alpha, int shadow) {
+		for (int row = 0; row < rows.length; row++) {
+			String line = rows[row];
+			int column = 0;
+			while (column < line.length()) {
+				char c = line.charAt(column);
+				int end = column + 1;
+				if (shadow != 0) {
+					while (end < line.length() && (line.charAt(end) == '.') == (c == '.')) end++;
+				} else {
+					while (end < line.length() && line.charAt(end) == c) end++;
 				}
+				if (c != '.') {
+					int color = shadow != 0 ? shadow : color(emblemColor(c), alpha);
+					g.fill(x + column, y + row, x + end, y + row + 1, color);
+				}
+				column = end;
 			}
 		}
 	}
 
-	/** El emblema de FreedomClient con contorno, sombra y degradado, centrado en (cx, cy). Con el tema Neon cambia de colores. */
+	/**
+	 * El emblema de FreedomClient (halo y barras) centrado en (cx, cy), con una sombra suave. {@code p} es el tamaño
+	 * de píxel del logo antiguo: el emblema ocupa lo mismo de ancho ({@link #logoWidth()} * p). El halo sube y baja.
+	 */
 	public static void logo(GuiGraphics g, int cx, int cy, int p, float alpha) {
-		int[] rows = logoRows();
-		int[] extra = logoExtra();
-		int w = FC[0].length() * p;
-		int h = FC.length * p;
-		int x = cx - w / 2;
-		int y = cy - h / 2;
-		int outline = color(extra[4], alpha);
-		// Sombra abajo a la derecha y contorno oscuro alrededor.
-		logoMask(g, x + p * 2, y + p * 2, p, color(extra[4], alpha * 0.45F));
-		logoMask(g, x - p, y, p, outline);
-		logoMask(g, x + p, y, p, outline);
-		logoMask(g, x, y - p, p, outline);
-		logoMask(g, x, y + p, p, outline);
-		for (int row = 0; row < FC.length; row++) {
-			for (int column = 0; column < FC[row].length(); column++) {
-				char c = FC[row].charAt(column);
-				if (c == '.') continue;
-				int rgb = c == 'o' ? extra[0] : c == 'O' ? extra[1] : rows[Math.min(row, rows.length - 1)];
-				g.fill(x + column * p, y + row * p, x + (column + 1) * p, y + (row + 1) * p, color(rgb, alpha));
-			}
-		}
+		float scale = p * logoWidth() / (float) EMBLEM_WIDTH;
+		int height = EMBLEM_HALO.length + HALO_GAP + EMBLEM_BODY.length;
+		int bob = (int) Math.round(Math.sin(System.currentTimeMillis() / 400.0) * 1.2);
+		g.pose().pushMatrix();
+		g.pose().translate(cx, cy);
+		g.pose().scale(scale, scale);
+		int x = -EMBLEM_WIDTH / 2;
+		int y = -height / 2;
+		int bodyY = y + EMBLEM_HALO.length + HALO_GAP;
+		int shadow = color(0x000000, alpha * 0.35F);
+		art(g, EMBLEM_BODY, x + 2, bodyY + 2, alpha, shadow);
+		art(g, EMBLEM_BODY, x, bodyY, alpha, 0);
+		art(g, EMBLEM_HALO, x + 2, y + bob + 2, alpha, shadow);
+		art(g, EMBLEM_HALO, x, y + bob, alpha, 0);
+		g.pose().popMatrix();
 	}
 
-	/** Ancho y alto del logo en píxeles de logo (sin contorno). */
+	/** Ancho y alto del emblema en píxeles del logo antiguo (lo que ocupa al dibujarlo con {@code p = 1}). */
 	public static int logoWidth() {
-		return FC[0].length();
+		return 22;
 	}
 
 	public static int logoHeight() {
-		return FC.length;
-	}
-
-	/** Halo (anillo pixelado) que flota arriba y abajo: dorado, o cian y verde con el tema Neon. */
-	public static void halo(GuiGraphics g, int cx, int cy, int p, float alpha) {
-		halo(g, cx, cy, p, 9, alpha);
-	}
-
-	/** Halo con un radio horizontal de {@code radius} píxeles de logo. */
-	public static void halo(GuiGraphics g, int cx, int cy, int p, int radius, float alpha) {
-		int bob = (int) Math.round(Math.sin(System.currentTimeMillis() / 400.0) * 1.5) * p;
-		int rx = p * radius;
-		int ry = p * 2;
-		int[] extra = logoExtra();
-		int gold = color(extra[2], alpha);
-		int dark = color(extra[3], alpha);
-		for (int x = -rx; x <= rx; x += p) {
-			double t = x / (double) rx;
-			int dy = (int) Math.round(Math.sqrt(Math.max(0, 1 - t * t)) * ry / p) * p;
-			g.fill(cx + x, cy + bob - dy - p, cx + x + p, cy + bob - dy, gold);
-			g.fill(cx + x, cy + bob + dy, cx + x + p, cy + bob + dy + p, dark);
-		}
+		return Math.round((EMBLEM_HALO.length + HALO_GAP + EMBLEM_BODY.length) * logoWidth() / (float) EMBLEM_WIDTH);
 	}
 
 	private static void disc(GuiGraphics g, int cx, int cy, int r, int p, int color) {

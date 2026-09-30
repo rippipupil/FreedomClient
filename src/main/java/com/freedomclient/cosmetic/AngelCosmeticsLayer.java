@@ -186,6 +186,15 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 
 	@Override
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, float yRot, float xRot) {
+		CosmeticPreview.begin(state);
+		try {
+			submitCosmetics(poseStack, collector, light, state);
+		} finally {
+			CosmeticPreview.end();
+		}
+	}
+
+	private void submitCosmetics(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		if (WavyCapeRenderer.shouldRender(state)) {
 			wavyCape.render(getParentModel(), poseStack, collector, light, state);
 		}
