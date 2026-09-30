@@ -31,6 +31,14 @@ public final class ThemeManager {
 		return preset == ThemePreset.NEON;
 	}
 
+	public static boolean isPurple() {
+		return preset == ThemePreset.PURPLE;
+	}
+
+	public static boolean isMint() {
+		return preset == ThemePreset.MINT;
+	}
+
 	/** Cambia de preset y descarta los colores personalizados. */
 	public static void setPreset(ThemePreset newPreset) {
 		preset = newPreset;

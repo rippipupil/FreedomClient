@@ -11,6 +11,14 @@
     0x04061a, 0x060a24, 0x080e2e, 0x0b1338, 0x0e1842, 0x121d4d, 0x162358, 0x1a2963,
     0x1f306f, 0x25387b, 0x2b4086, 0x31488f, 0x2f5aa0, 0x2d6fb0, 0x2c86bf,
   ];
+  const PURPLE = [
+    0x120726, 0x1a0a33, 0x230d40, 0x2d114d, 0x38155a, 0x441a66, 0x511f72, 0x5f257d,
+    0x6e2c87, 0x7e3490, 0x8f3e98, 0xa04a9e, 0xb158a3, 0xc168a6, 0xd07ba8,
+  ];
+  const MINT = [
+    0x2e8c8a, 0x359692, 0x3da09a, 0x46aaa2, 0x50b4aa, 0x5bbdb2, 0x67c6ba, 0x74cec2,
+    0x82d6ca, 0x91ddd1, 0xa1e4d9, 0xb2eae0, 0xc4f0e8,
+  ];
   // Colores de los rayos de arriba abajo: se mezclan como la energía de Neon.
   const BOLT = [0xffe14a, 0xe6f055, 0xc6f25a, 0x8ef07a, 0x5ef0c8, 0x3fd7ff, 0x3fa8ff, 0x3a7bff, 0x6b5bff];
   const THEMES = {
@@ -21,6 +29,14 @@
     neon: {
       bands: STORM, star: 0xbfefff, sun: false,
       clouds: [0x26307a, 0x121840, 0x1c2458, 0x1a2160], hills: [0x0b1236, 0x060920], rim: 0x2f6bff,
+    },
+    purple: {
+      bands: PURPLE, star: 0xf3e6ff, sun: false,
+      clouds: [0x9a63b8, 0x7a4a9e, 0x7a4a9e, 0x5e3680], hills: [0x4a2270, 0x1e0b33], rim: 0,
+    },
+    mint: {
+      bands: MINT, star: 0xffffff, sun: true,
+      clouds: [0xffffff, 0xd4f2ea, 0xf2fffb, 0xcdefe6], hills: [0x5fbf8c, 0x2f7a5e], rim: 0,
     },
   };
   const CLOUD = [
@@ -160,10 +176,20 @@
     // Sol que se pone (solo en el atardecer).
     if (theme.sun) {
       const sunX = Math.floor(w * 0.68 + px * 0.5);
-      const sunY = horizon - 2 + Math.round(py * 0.5);
+      const sunY = (theme === THEMES.mint ? Math.floor(horizon / 4) : horizon - 2) + Math.round(py * 0.5);
       disc(sunX, sunY, 17, hex(0xffd27a, 0.3));
       disc(sunX, sunY, 13, hex(0xffe08a));
       disc(sunX, sunY, 9, hex(0xfff1c2));
+    }
+
+    // Luna en el tema morado.
+    if (theme === THEMES.purple) {
+      const moonX = Math.floor(w * 0.68 + px * 0.5);
+      const moonY = Math.floor(horizon / 4) + Math.round(py * 0.5);
+      disc(moonX, moonY, 12, hex(0xe6b8ff, 0.18));
+      disc(moonX, moonY, 8, hex(0xf6efff));
+      disc(moonX - 2, moonY - 2, 2, hex(0xd8c8ee));
+      disc(moonX + 3, moonY + 2, 1, hex(0xd8c8ee));
     }
 
     // Nubes que se mueven despacio.

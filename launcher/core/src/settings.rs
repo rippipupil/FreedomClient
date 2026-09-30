@@ -48,6 +48,10 @@ pub enum Theme {
     Angel,
     /// Noche con tormenta eléctrica azul, cian y amarilla.
     Neon,
+    /// Anochecer morado con luna.
+    Purple,
+    /// Mañana verde menta.
+    Mint,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

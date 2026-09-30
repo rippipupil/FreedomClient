@@ -13,7 +13,8 @@ public class EntityMixin {
 	/** Con Freelook activo, el ratón mueve solo la cámara y el jugador sigue mirando hacia delante. */
 	@Inject(method = "turn", at = @At("HEAD"), cancellable = true)
 	private void freedomclient$freelook(double yaw, double pitch, CallbackInfo ci) {
-		if ((Object) this == Minecraft.getInstance().player && FreelookModule.consumeTurn(yaw, pitch)) {
+		if ((Object) this == Minecraft.getInstance().player
+				&& (com.freedomclient.module.utility.FreecamModule.consumeTurn(yaw, pitch) || FreelookModule.consumeTurn(yaw, pitch))) {
 			ci.cancel();
 		}
 	}

@@ -143,6 +143,7 @@ public class ModuleManager {
 		add(new TagModule());
 		add(new com.freedomclient.module.pvp.GapCounterModule());
 		add(new com.freedomclient.module.utility.CustomF3Module());
+		add(new com.freedomclient.module.utility.FreecamModule());
 		add(new BetterGrassModule());
 		add(new WavyCapesModule());
 		add(new CapesModule());
@@ -150,6 +151,8 @@ public class ModuleManager {
 		add(new TotemPopModule());
 		add(new VisualsModule());
 		add(new com.freedomclient.module.visual.InvModule());
+		add(new com.freedomclient.module.visual.HideArmorModule());
+		add(new com.freedomclient.module.visual.CustomSkyModule());
 
 		// Utility
 		add(new WaypointsModule());
@@ -210,6 +213,7 @@ public class ModuleManager {
 		add(new EntityCullingModule());
 		add(new CullLeavesModule());
 		add(new ParticleLimiterModule());
+		add(new com.freedomclient.module.performance.NoBreakParticlesModule());
 		add(new com.freedomclient.module.performance.ChunkPreloaderModule());
 		add(new ProcessPriorityModule());
 		add(new BundledModModule("Sodium", "sodium", "Modern rendering engine. The biggest FPS boost."));

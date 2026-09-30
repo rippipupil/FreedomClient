@@ -26,12 +26,20 @@ public class DiscordPresenceModule extends Module {
 	private final StringSetting applicationId = add(new StringSetting("Application ID",
 			"ID of the Discord application (from discord.com/developers).", DEFAULT_APPLICATION_ID, 32));
 	private final BooleanSetting showServer = add(new BooleanSetting("Show server", "Show the server address you are playing on.", true));
+	private final BooleanSetting showPlayer = add(new BooleanSetting("Show head and name",
+			"Show your Minecraft head and name in the corner of the logo. Turn it off to hide who you are.", true));
+	private final BooleanSetting showDimension = add(new BooleanSetting("Show dimension",
+			"Show whether you are in the Overworld, the Nether or the End.", true));
+	private final BooleanSetting showButton = add(new BooleanSetting("Download button",
+			"Adds a \"Get FreedomClient\" button to your profile so friends can download it.", true));
 
 	private ScheduledExecutorService executor;
 	private DiscordIpc ipc;
 	private String connectedId;
 	private volatile String details = "In the menus";
 	private volatile String state = "";
+	private volatile String playerName = "";
+	private volatile String headUrl = "";
 	private String sent;
 	private final long startedAt = System.currentTimeMillis() / 1000;
 	private long retryAt;
@@ -56,17 +64,45 @@ public class DiscordPresenceModule extends Module {
 			executor.scheduleWithFixedDelay(this::update, 1, 5, TimeUnit.SECONDS);
 		}
 
+		String where = client.level == null || !showDimension.get() ? "" : dimension(client);
 		if (client.level == null) {
 			details = "In the menus";
 			state = "";
 		} else if (client.isLocalServer()) {
 			details = "Playing Singleplayer";
-			state = "";
+			state = where;
 		} else {
 			ServerData server = client.getCurrentServer();
 			details = "Playing Multiplayer";
-			state = showServer.get() && server != null ? server.ip : "";
+			String address = showServer.get() && server != null ? server.ip : "";
+			state = address.isEmpty() ? where : where.isEmpty() ? address : address + " · " + where;
 		}
+
+		if (showPlayer.get()) {
+			playerName = client.getUser().getName();
+			headUrl = headUrl(client);
+		} else {
+			playerName = "";
+			headUrl = "";
+		}
+	}
+
+	private static String dimension(Minecraft client) {
+		var key = client.level.dimension();
+		if (key == net.minecraft.world.level.Level.OVERWORLD) return "In the Overworld";
+		if (key == net.minecraft.world.level.Level.NETHER) return "In the Nether";
+		if (key == net.minecraft.world.level.Level.END) return "In the End";
+		return "";
+	}
+
+	/**
+	 * Cabeza del jugador desde mc-heads.net (Discord descarga imágenes de https). Con cuenta de Microsoft se usa el
+	 * UUID, que sigue funcionando aunque cambies de nombre; sin ella, el nombre.
+	 */
+	private static String headUrl(Minecraft client) {
+		java.util.UUID id = client.getUser().getProfileId();
+		String key = id != null && id.version() == 4 ? id.toString().replace("-", "") : client.getUser().getName();
+		return "https://mc-heads.net/avatar/" + key + "/128";
 	}
 
 	@Override
@@ -99,7 +135,7 @@ public class DiscordPresenceModule extends Module {
 				connectedId = id;
 				sent = null;
 			}
-			String current = details + "|" + state;
+			String current = details + "|" + state + "|" + playerName + "|" + headUrl + "|" + showButton.get();
 			if (Objects.equals(current, sent)) return;
 			ipc.setActivity(activity());
 			sent = current;
@@ -120,7 +156,19 @@ public class DiscordPresenceModule extends Module {
 		JsonObject assets = new JsonObject();
 		assets.addProperty("large_image", "logo");
 		assets.addProperty("large_text", FreedomClient.NAME + " for Minecraft 1.21.11");
+		if (!headUrl.isEmpty()) {
+			assets.addProperty("small_image", headUrl);
+			assets.addProperty("small_text", playerName);
+		}
 		activity.add("assets", assets);
+		if (showButton.get()) {
+			com.google.gson.JsonArray buttons = new com.google.gson.JsonArray();
+			JsonObject download = new JsonObject();
+			download.addProperty("label", "Get FreedomClient");
+			download.addProperty("url", "https://github.com/rippipupil/FreedomClient/releases/tag/latest");
+			buttons.add(download);
+			activity.add("buttons", buttons);
+		}
 		return activity;
 	}
 

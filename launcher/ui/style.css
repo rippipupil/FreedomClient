@@ -62,6 +62,64 @@
   --shadow-rgb: 4, 7, 26;
 }
 
+/* Tema Morado: violeta y lavanda con toques rosa. */
+:root[data-theme="purple"] {
+  --bg: #160a2a;
+  --bg-2: #1f0e3a;
+  --panel: rgba(22, 10, 42, 0.84);
+  --panel-solid: #1f0e3a;
+  --card: #2e1650;
+  --card-2: #3a1c64;
+  --border: #9b5cff;
+  --border-rgb: 155, 92, 255;
+  --border-light: #c9a3ff;
+  --accent: #e6b8ff;
+  --accent-rgb: 230, 184, 255;
+  --accent-dark: #a877d0;
+  --accent-light: #f0d2ff;
+  --accent-lighter: #f8e8ff;
+  --accent-hover: #ecc6ff;
+  --on-accent: #160a2a;
+  --toggle-on: #4a2a70;
+  --orange: #ff7ad9;
+  --orange-light: #ff9ae8;
+  --red: #ff4f9a;
+  --sky: #c9a3ff;
+  --text: #f3eaff;
+  --muted: #b9a2d8;
+  --shadow: #0a0418;
+  --shadow-rgb: 10, 4, 24;
+}
+
+/* Tema Menta: verde menta fresco sobre verde azulado oscuro. */
+:root[data-theme="mint"] {
+  --bg: #0b2622;
+  --bg-2: #10332e;
+  --panel: rgba(11, 38, 34, 0.84);
+  --panel-solid: #10332e;
+  --card: #15433d;
+  --card-2: #1b534b;
+  --border: #3fe0b0;
+  --border-rgb: 63, 224, 176;
+  --border-light: #8af0cf;
+  --accent: #b8ffe4;
+  --accent-rgb: 184, 255, 228;
+  --accent-dark: #6fcfa8;
+  --accent-light: #d2fff0;
+  --accent-lighter: #e8fff7;
+  --accent-hover: #c6ffea;
+  --on-accent: #0b2622;
+  --toggle-on: #1f5a4a;
+  --orange: #7fd8ff;
+  --orange-light: #a6e6ff;
+  --red: #ff6b8a;
+  --sky: #7fd8ff;
+  --text: #eafff7;
+  --muted: #9cc9bb;
+  --shadow: #041411;
+  --shadow-rgb: 4, 20, 17;
+}
+
 * {
   box-sizing: border-box;
 }

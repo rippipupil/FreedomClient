@@ -68,15 +68,24 @@ public class CustomF3Module extends Module {
 		return instance != null && manager != null && instance.isEnabled() ? instance : null;
 	}
 
+	/**
+	 * Si la pantalla F3 está abierta de verdad. No vale showDebugScreen(): también es true cuando hay alguna opción
+	 * de depuración siempre activa, como las hitboxes de F3+B, y entonces salía el F3 propio sin pulsar F3.
+	 */
+	private static boolean f3Open() {
+		Minecraft client = Minecraft.getInstance();
+		return client.debugEntries.isOverlayVisible() && client.gui.getDebugOverlay().showDebugScreen();
+	}
+
 	/** Si la pantalla F3 propia sustituye a la de vanilla ahora mismo. */
 	public static boolean replacesVanilla() {
-		return active() != null && Minecraft.getInstance().gui.getDebugOverlay().showDebugScreen();
+		return active() != null && f3Open();
 	}
 
 	/** Si hay que ocultar el HUD del cliente (F3 abierto y la opción activada). */
 	public static boolean hidesHud() {
 		CustomF3Module module = active();
-		return module != null && module.hideHud.get() && Minecraft.getInstance().gui.getDebugOverlay().showDebugScreen();
+		return module != null && module.hideHud.get() && f3Open();
 	}
 
 	@Override
