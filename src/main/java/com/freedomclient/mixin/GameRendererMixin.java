@@ -21,7 +21,8 @@ public class GameRendererMixin {
 
 	@Inject(method = "renderItemInHand", at = @At("HEAD"), cancellable = true)
 	private void freedomclient$hideHandWhileZooming(float partialTick, boolean sleeping, Matrix4f projection, CallbackInfo ci) {
-		if (FovController.shouldHideHand()) {
+		// Sin mano mientras haces zoom o con la cámara libre de Freecam.
+		if (FovController.shouldHideHand() || com.freedomclient.module.utility.FreecamModule.isActive()) {
 			ci.cancel();
 		}
 	}
