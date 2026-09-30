@@ -1,0 +1,20 @@
+{
+  "theme": "neon",
+  "launch_with": "official",
+  "official_launcher_path": "",
+  "memory_mb": 0,
+  "gc": "optimized",
+  "extra_jvm_args": "",
+  "java_path": "",
+  "width": 1280,
+  "height": 720,
+  "fullscreen": false,
+  "after_launch": "close",
+  "auto_update_client": true,
+  "concurrent_downloads": 32,
+  "discord_rpc": true,
+  "discord_app_id": "1553214754758074368",
+  "microsoft_client_id": "",
+  "selected_profile": "default",
+  "selected_account": ""
+}

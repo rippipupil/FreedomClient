@@ -1,0 +1,11 @@
+
+Name                              Id     MB
+----                              --     --
+FreedomClient-Launcher-Portable 1980  33.00
+msedgewebview2                  3864   9.00
+msedgewebview2                  4296  79.00
+msedgewebview2                  5912 132.00
+msedgewebview2                  6068  18.00
+msedgewebview2                  9348  31.00
+
+Total: 301 MB
