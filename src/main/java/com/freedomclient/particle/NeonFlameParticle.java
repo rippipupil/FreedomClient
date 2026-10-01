@@ -51,7 +51,8 @@ public class NeonFlameParticle extends SingleQuadParticle {
 	}
 
 	private void applyColor(float heat) {
-		int rgb = ramp(heat);
+		// Calor negativo: reflejo claro (las vetas casi blancas que recorren el muro).
+		int rgb = startHeat < 0.0F ? 0xD8FFFF : ramp(heat);
 		setColor((rgb >> 16 & 0xFF) / 255.0F, (rgb >> 8 & 0xFF) / 255.0F, (rgb & 0xFF) / 255.0F);
 	}
 
@@ -67,7 +68,7 @@ public class NeonFlameParticle extends SingleQuadParticle {
 		quadSize = baseSize * grow;
 		// Al subir se enfría hacia el azul.
 		applyColor(Math.min(1.0F, startHeat + life * 0.45F));
-		setAlpha(life < 0.5F ? 0.62F : Math.max(0.0F, (1.0F - life) / 0.5F * 0.62F));
+		setAlpha(life < 0.5F ? 0.8F : Math.max(0.0F, (1.0F - life) / 0.5F * 0.8F));
 	}
 
 	@Override

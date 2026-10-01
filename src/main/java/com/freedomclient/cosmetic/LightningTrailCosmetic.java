@@ -104,6 +104,11 @@ public class LightningTrailCosmetic extends CosmeticModule {
 				float size = 0.22F + random.nextFloat() * 0.2F + (float) height * 0.04F;
 				NeonFlameParticle.spawn(x, y, z, size, 0.1F + level * 0.8F, 0.012 + random.nextDouble() * 0.02, life - random.nextInt(6));
 			}
+			// De vez en cuando una veta clara que sube por el muro.
+			if (random.nextFloat() < 0.35F) {
+				NeonFlameParticle.spawn(x, groundY + 0.15 + random.nextDouble() * height * 0.6, z, 0.18F + random.nextFloat() * 0.1F, -1.0F,
+						0.02 + random.nextDouble() * 0.015, life / 2 + random.nextInt(6));
+			}
 		}
 		if (++zigzag % 7 == 0) {
 			NeonFx.discharge(last.x, groundY + 0.2 + random.nextDouble() * height * 0.7, last.z, 0.14F, 5);
