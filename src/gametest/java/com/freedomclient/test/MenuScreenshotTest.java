@@ -414,6 +414,9 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
 			shoot(context, "guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
 			shoot(context, "star_guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.StarGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 70.0F));
+			shoot(context, "guitar_side", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 70.0F));
 			context.runOnClient(client -> setMode((Module) cosmetic(HaloCosmetic.class), "Style", "Sun & Moon"));
 			shoot(context, "halo_sun_moon", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, HaloCosmetic.class);
 			context.runOnClient(client -> setMode((Module) cosmetic(HaloCosmetic.class), "Style", "Ring"));

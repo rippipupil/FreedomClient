@@ -186,9 +186,9 @@ public class StarGuitarCosmetic extends VoxCosmetic {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		if (guitar == null) build();
 		poseStack.pushPose();
-		onBackDiagonal(parent, poseStack, state, size.getFloat() * 0.64F, side.is("Left"));
-		// El centro del giro cae cerca de donde el mástil entra en el cuerpo.
-		poseStack.translate(0.0F, -2.0F / 16.0F, 0.0F);
+		onBackDiagonal(parent, poseStack, state, size.getFloat() * 0.64F, side.is("Left"), 1.2F);
+		// El cuerpo de la guitarra queda en el centro de la espalda y el mástil asoma por encima del hombro.
+		poseStack.translate(0.0F, -5.0F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);
 		poseStack.popPose();
 	}
