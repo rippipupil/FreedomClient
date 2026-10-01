@@ -447,6 +447,16 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			// Élitros con el diseño de la capa de FreedomClient.
 			singleplayer.getServer().runCommand("item replace entity @a armor.chest with elytra");
 			shoot(context, "elytra_cape", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.CapeCosmetic.class);
+			// Élitros ocultos con Hide Armor: la capa tiene que verse igual.
+			context.runOnClient(client -> {
+				Module hide = FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class);
+				for (Setting<?> setting : hide.getSettings()) {
+					if (setting instanceof com.freedomclient.setting.BooleanSetting flag && flag.getName().equals("Elytra")) flag.set(true);
+				}
+				hide.setEnabled(true);
+			});
+			shoot(context, "elytra_hidden_cape", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.CardCapeCosmetic.class);
+			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class).setEnabled(false));
 			singleplayer.getServer().runCommand("item replace entity @a armor.chest with air");
 			shoot(context, "oneshot_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
 					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class);
