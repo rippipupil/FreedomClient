@@ -112,8 +112,8 @@ public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 		poseStack.popPose();
 
 		// Centro del agujero negro, detrás del soporte.
-		poseStack.translate(0.0F, 6.2F / 16.0F, (10.0F + backClearance(state)) / 16.0F);
-		float s = size.getFloat() * 0.62F;
+		poseStack.translate(0.0F, 5.4F / 16.0F, (6.8F + backClearance(state)) / 16.0F);
+		float s = size.getFloat() * 0.8F;
 		poseStack.scale(s, s, s);
 		// Flota un poco arriba y abajo dentro del anillo.
 		poseStack.translate(0.0F, Mth.sin(time * 0.09F) * 0.4F / 16.0F, 0.0F);
