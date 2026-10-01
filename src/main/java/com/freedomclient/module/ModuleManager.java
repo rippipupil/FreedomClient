@@ -204,6 +204,12 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.NikoScarfCosmetic());
 		add(new com.freedomclient.cosmetic.vox.SunBackpackCosmetic());
 		add(new com.freedomclient.cosmetic.vox.NikoPetCosmetic());
+		// Celeste
+		add(new com.freedomclient.cosmetic.vox.MadelinePetCosmetic());
+		// Verity
+		add(new com.freedomclient.cosmetic.vox.VerityPetCosmetic());
+		// Música
+		add(new com.freedomclient.cosmetic.vox.GuitarCosmetic());
 		// Halloween y rastros de flores
 		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
 		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());

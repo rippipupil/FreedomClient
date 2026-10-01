@@ -22,6 +22,7 @@ public class NikoPetCosmetic extends ShoulderPetCosmetic {
 	private Vox.Shape hat;
 	private Vox.Shape sun;
 	private Vox.Shape socket;
+	private Vox.Shape bigSun;
 
 	public NikoPetCosmetic() {
 		super("Niko", "OneShot: Niko sitting on your shoulder with the Sun in their arms, being silly: head tilts, hops, spins, squishes and wobbles.");
@@ -82,6 +83,7 @@ public class NikoPetCosmetic extends ShoulderPetCosmetic {
 				.box('s', -0.7F, 3.3F, -0.7F, 1.4F, 0.9F, 1.4F);
 		hat = NikoHatCosmetic.build();
 		sun = SunBackpackCosmetic.sun(1.8F);
+		bigSun = SunBackpackCosmetic.sun(4.6F);
 		// Casquillo de rosca de la bombilla.
 		socket = new Vox.Shape(PALETTE)
 				.box('G', -0.9F, 1.4F, -0.9F, 1.8F, 1.4F, 1.8F)
@@ -115,13 +117,28 @@ public class NikoPetCosmetic extends ShoulderPetCosmetic {
 			default -> {
 			}
 		}
+		boolean flying = com.freedomclient.cosmetic.PetBehavior.flying();
+		if (flying) {
+			// Volando con élitros: Niko va montado encima del Sol, la bombilla gigante, que gira despacio y brilla.
+			poseStack.pushPose();
+			poseStack.translate(0.0F, 4.4F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(-15.0F));
+			poseStack.mulPose(Axis.YP.rotationDegrees(time * 3.0F));
+			bigSun.drawGlow(poseStack, collector);
+			poseStack.scale(2.5F, 2.5F, 2.5F);
+			socket.draw(poseStack, collector, light);
+			poseStack.popPose();
+			wobble = Mth.sin(time * 0.25F) * 6.0F;
+			headTilt = -wobble;
+		}
 		poseStack.translate(0.0F, -hop / 16.0F, 0.0F);
 		poseStack.mulPose(Axis.YP.rotationDegrees(spin));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(wobble));
 		poseStack.scale(1.0F + squish * 0.35F, 1.0F - squish * 0.45F, 1.0F + squish * 0.35F);
 		body.draw(poseStack, collector, light);
 		// Brazos hacia delante sujetando el Sol (o levantándolo por encima de la cabeza).
-		float armAngle = -70.0F - sunUp * 100.0F;
+		// Volando se agarra a la bombilla con los brazos hacia abajo.
+		float armAngle = flying ? -20.0F : -70.0F - sunUp * 100.0F;
 		for (int side = -1; side <= 1; side += 2) {
 			poseStack.pushPose();
 			poseStack.translate(side * 2.9F / 16.0F, -6.4F / 16.0F, 0.0F);
@@ -130,14 +147,17 @@ public class NikoPetCosmetic extends ShoulderPetCosmetic {
 			arm.draw(poseStack, collector, light);
 			poseStack.popPose();
 		}
-		poseStack.pushPose();
-		poseStack.translate(0.0F, (-5.0F - sunUp * 9.0F) / 16.0F, (-4.2F + sunUp * 3.0F) / 16.0F);
-		sun.drawGlow(poseStack, collector);
-		socket.draw(poseStack, collector, light);
-		poseStack.popPose();
+		if (!flying) {
+			poseStack.pushPose();
+			poseStack.translate(0.0F, (-5.0F - sunUp * 9.0F) / 16.0F, (-4.2F + sunUp * 3.0F) / 16.0F);
+			sun.drawGlow(poseStack, collector);
+			socket.draw(poseStack, collector, light);
+			poseStack.popPose();
+		}
 		poseStack.translate(0.0F, -7.4F / 16.0F, 0.0F);
 		poseStack.mulPose(Axis.ZP.rotationDegrees(headTilt));
 		head.draw(poseStack, collector, light);
+		PetEmotes.blush(poseStack, collector, light, 2.2F, -1.5F, -3.4F);
 		poseStack.translate(0.0F, -6.3F / 16.0F, 0.0F);
 		poseStack.scale(0.62F, 0.62F, 0.62F);
 		hat.draw(poseStack, collector, light);

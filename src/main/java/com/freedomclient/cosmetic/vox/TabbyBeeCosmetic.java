@@ -63,6 +63,7 @@ public class TabbyBeeCosmetic extends FollowPetCosmetic {
 		poseStack.scale(1.0F, 1.0F - stretch * 0.15F, 1.0F + stretch * 0.2F);
 		poseStack.translate(0.0F, 4.0F / 16.0F, 0.0F);
 		body.draw(poseStack, collector, light);
+		PetEmotes.blush(poseStack, collector, light, 2.6F, -3.0F, -4.45F);
 		for (int side = -1; side <= 1; side += 2) {
 			poseStack.pushPose();
 			poseStack.translate(side * 2.5F / 16.0F, -8.0F / 16.0F, -2.8F / 16.0F);

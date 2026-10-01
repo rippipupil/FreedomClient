@@ -41,7 +41,8 @@ public abstract class ShoulderPetCosmetic extends VoxCosmetic {
 		int cycle = (int) (time / CYCLE);
 		float inCycle = time - cycle * CYCLE;
 		boolean sleeping = PetBehavior.mood() == PetBehavior.Mood.SLEEP;
-		int emote = !sleeping && inCycle < EMOTE ? Math.floorMod(cycle * 7 + 3, emotes()) : -1;
+		// Volando con élitros no hace emotes: hace su animación de vuelo.
+		int emote = !sleeping && !PetBehavior.flying() && inCycle < EMOTE ? Math.floorMod(cycle * 7 + 3, emotes()) : -1;
 		float progress = emote < 0 ? 0.0F : inCycle / EMOTE;
 		poseStack.pushPose();
 		parent.body.translateAndRotate(poseStack);
@@ -51,7 +52,11 @@ public abstract class ShoulderPetCosmetic extends VoxCosmetic {
 		poseStack.translate(x / 16.0F, (state.chestEquipment.isEmpty() ? -0.6F : -1.4F) / 16.0F, 0.2F / 16.0F);
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
+		poseStack.translate(0.0F, -PetEmotes.hop() / 16.0F, 0.0F);
+		poseStack.pushPose();
 		renderPet(poseStack, collector, light, time, emote, progress, sleeping);
+		poseStack.popPose();
+		PetEmotes.hearts(poseStack, collector, -16.0F);
 		poseStack.popPose();
 	}
 }

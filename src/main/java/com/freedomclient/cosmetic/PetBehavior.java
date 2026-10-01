@@ -13,6 +13,17 @@ import net.minecraft.world.entity.LivingEntity;
 public final class PetBehavior {
 	public enum Mood { IDLE, WAVE, CELEBRATE, SLEEP, HIDE }
 
+	/** Emociones sueltas que salen de vez en cuando estando tranquilos: contentos, sonrojados o soltando corazoncitos. */
+	public enum Emotion { NONE, HAPPY, BLUSH, HEARTS }
+
+	private static final long EMOTION_MS = 3500;
+	private static final java.util.Random RANDOM = new java.util.Random();
+	private static Emotion emotion = Emotion.NONE;
+	private static long emotionSince;
+	private static long nextEmotionAt = System.currentTimeMillis() + 8000;
+	private static boolean flying;
+	private static boolean forcedFlying;
+
 	private static final long WAVE_MS = 4000;
 	private static final long CELEBRATE_MS = 2500;
 	private static final long AFK_MS = 30_000;
@@ -41,6 +52,7 @@ public final class PetBehavior {
 			lastActivityAt = now;
 		}
 		if (player == null) return;
+		flying = player.isFallFlying() || forcedFlying;
 
 		// Actividad: moverse, mirar a otro lado o tener una pantalla abierta cuenta como no estar AFK.
 		if (player.getX() != lastX || player.getY() != lastY || player.getZ() != lastZ
@@ -70,6 +82,44 @@ public final class PetBehavior {
 			mood = next;
 			moodSince = now;
 		}
+
+		// Emociones: solo tranquilos y sin volar; cada 12-22 s una al azar durante unos segundos.
+		if (emotion != Emotion.NONE && now - emotionSince > EMOTION_MS) emotion = Emotion.NONE;
+		if (mood != Mood.IDLE || flying) {
+			emotion = Emotion.NONE;
+		} else if (emotion == Emotion.NONE && now >= nextEmotionAt) {
+			Emotion[] options = {Emotion.HAPPY, Emotion.BLUSH, Emotion.HEARTS};
+			emotion = options[RANDOM.nextInt(options.length)];
+			emotionSince = now;
+			nextEmotionAt = now + EMOTION_MS + 12_000 + RANDOM.nextInt(10_000);
+		}
+	}
+
+	/** Si estás volando con élitros (las mascotas hacen su animación de vuelo). */
+	public static boolean flying() {
+		return flying;
+	}
+
+	public static Emotion emotion() {
+		return emotion;
+	}
+
+	/** Segundos desde que empezó la emoción actual. */
+	public static float emotionSeconds() {
+		return (System.currentTimeMillis() - emotionSince) / 1000.0F;
+	}
+
+	/** Para pruebas: fuerza una emoción ahora mismo. */
+	public static void forceEmotion(Emotion forced) {
+		emotion = forced;
+		emotionSince = System.currentTimeMillis();
+		nextEmotionAt = emotionSince + EMOTION_MS + 15_000;
+	}
+
+	/** Para pruebas: hace como si volaras con élitros. */
+	public static void forceFlying(boolean value) {
+		forcedFlying = value;
+		flying = value;
 	}
 
 	public static Mood mood() {

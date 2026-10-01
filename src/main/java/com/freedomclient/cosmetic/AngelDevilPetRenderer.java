@@ -154,10 +154,29 @@ public final class AngelDevilPetRenderer {
 			}
 		}
 
+		boolean flying = PetBehavior.flying();
+		if (flying) {
+			// Volando con élitros: pose de superhéroe, brazos al frente y alas echadas hacia atrás aleteando fuerte.
+			rightArm = -170.0F;
+			leftArm = -170.0F;
+			holdsCone = false;
+			flap = 55.0F + Mth.sin(time * 0.9F) * 18.0F;
+			headTilt = -20.0F;
+			headTurn = 0.0F;
+		}
+
 		poseStack.pushPose();
 		poseStack.translate(position.x + shake / 16.0F, position.y + bob / 16.0F, position.z);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
+		poseStack.translate(0.0F, -com.freedomclient.cosmetic.vox.PetEmotes.hop() / 16.0F, 0.0F);
+		com.freedomclient.cosmetic.vox.PetEmotes.hearts(poseStack, collector, -22.0F);
+		if (flying) {
+			poseStack.translate(0.0F, -10.0F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(65.0F));
+			poseStack.translate(0.0F, 10.0F / 16.0F, 0.0F);
+			com.freedomclient.cosmetic.vox.PetEmotes.speedLines(poseStack, collector, light, time, -10.0F);
+		}
 		body.draw(poseStack, collector, light);
 		// Alas grandes a la espalda, abiertas y moviéndose despacio.
 		for (int side = -1; side <= 1; side += 2) {

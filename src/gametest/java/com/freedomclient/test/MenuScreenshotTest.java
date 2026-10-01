@@ -388,6 +388,55 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class).setEnabled(true));
 			shoot(context, "hide_armor", net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
 			context.runOnClient(client -> FreedomClient.getModuleManager().get(com.freedomclient.module.visual.HideArmorModule.class).setEnabled(false));
+			// Mascotas nuevas y sus emociones: corazoncitos, sonrojadas y volando con élitros.
+			Class<?>[] pets = {com.freedomclient.cosmetic.vox.FreddyPetCosmetic.class, com.freedomclient.cosmetic.vox.MadelinePetCosmetic.class,
+					com.freedomclient.cosmetic.vox.VerityPetCosmetic.class, com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class};
+			context.runOnClient(client -> PetBehavior.forceEmotion(PetBehavior.Emotion.HEARTS));
+			context.waitTicks(16);
+			shoot(context, "pets_hearts", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, pets);
+			context.runOnClient(client -> PetBehavior.forceEmotion(PetBehavior.Emotion.BLUSH));
+			shoot(context, "pets_blush", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, pets);
+			context.runOnClient(client -> PetBehavior.forceEmotion(PetBehavior.Emotion.NONE));
+			context.runOnClient(client -> PetBehavior.forceFlying(true));
+			shoot(context, "pets_flying", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.FreddyPetCosmetic.class,
+					com.freedomclient.cosmetic.vox.MadelinePetCosmetic.class, com.freedomclient.cosmetic.vox.VerityPetCosmetic.class,
+					com.freedomclient.cosmetic.vox.CupcakePetCosmetic.class);
+			shoot(context, "pets_flying_2", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class,
+					com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class, com.freedomclient.cosmetic.NeonPetCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceFlying(false));
+			shoot(context, "madeline_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.MadelinePetCosmetic.class);
+			shoot(context, "guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(HaloCosmetic.class), "Style", "Sun & Moon"));
+			shoot(context, "halo_sun_moon", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, HaloCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(HaloCosmetic.class), "Style", "Ring"));
+			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.AuraCosmetic.class), "Style", "Clouds"));
+			context.waitTicks(1);
+			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.AuraCosmetic.class).setEnabled(true));
+			context.waitTicks(60);
+			shoot(context, "aura_clouds", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.AuraCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.AuraCosmetic.class), "Style", "Angel light"));
+			// Muro de energía de Neon: el jugador avanza unos pasos con el rastro y los pasos puestos.
+			context.runOnClient(client -> {
+				cosmetic(com.freedomclient.cosmetic.LightningTrailCosmetic.class).setEnabled(true);
+				cosmetic(com.freedomclient.cosmetic.NeonStepsCosmetic.class).setEnabled(true);
+				client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+			});
+			for (int step = 0; step < 14; step++) {
+				singleplayer.getServer().runCommand("execute as @a at @s run tp @s ^ ^ ^-0.25");
+				context.waitTicks(1);
+			}
+			context.waitTicks(2);
+			context.takeScreenshot("neon_wall");
+			context.runOnClient(client -> {
+				cosmetic(com.freedomclient.cosmetic.LightningTrailCosmetic.class).setEnabled(false);
+				cosmetic(com.freedomclient.cosmetic.NeonStepsCosmetic.class).setEnabled(false);
+			});
+			for (int step = 0; step < 14; step++) singleplayer.getServer().runCommand("execute as @a at @s run tp @s ^ ^ ^0.25");
+			context.waitTicks(30);
+			// Élitros con el diseño de la capa de FreedomClient.
+			singleplayer.getServer().runCommand("item replace entity @a armor.chest with elytra");
+			shoot(context, "elytra_cape", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.CapeCosmetic.class);
+			singleplayer.getServer().runCommand("item replace entity @a armor.chest with air");
 			shoot(context, "oneshot_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,
 					com.freedomclient.cosmetic.vox.NikoScarfCosmetic.class, com.freedomclient.cosmetic.vox.NikoPetCosmetic.class);
 			shoot(context, "oneshot_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.NikoHatCosmetic.class,

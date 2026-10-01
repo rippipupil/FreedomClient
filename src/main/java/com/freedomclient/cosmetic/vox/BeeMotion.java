@@ -22,6 +22,14 @@ final class BeeMotion {
 
 	/** Aplica el vuelo y la pirueta al modelo, con el centro de la abeja en (0, -4, 0). */
 	static void apply(PoseStack poseStack, float time, PetBehavior.Mood mood, float moodSeconds) {
+		if (PetBehavior.flying()) {
+			// Volando con élitros: se lanza en picado hacia delante, como un cohete con alas, con un balanceo rápido.
+			poseStack.translate(0.0F, -4.0F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(55.0F));
+			poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.sin(time * 0.6F) * 10.0F));
+			poseStack.translate(0.0F, 4.0F / 16.0F, 0.0F);
+			return;
+		}
 		boolean sleeping = mood == PetBehavior.Mood.SLEEP;
 		float bob = sleeping ? Mth.sin(time * 0.05F) * 0.5F : Mth.sin(time * 0.15F) * 1.2F;
 		poseStack.translate(0.0F, bob / 16.0F, 0.0F);
@@ -47,6 +55,7 @@ final class BeeMotion {
 
 	/** Ángulo del aleteo en grados (rápido; lento si duerme). */
 	static float flap(float time, PetBehavior.Mood mood) {
+		if (PetBehavior.flying()) return Mth.sin(time * 3.4F) * 36.0F;
 		return mood == PetBehavior.Mood.SLEEP ? Mth.sin(time * 0.2F) * 6.0F : Mth.sin(time * 1.6F) * 28.0F;
 	}
 }

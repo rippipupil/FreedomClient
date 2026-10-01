@@ -77,6 +77,7 @@ public class WindyBeeCosmetic extends FollowPetCosmetic {
 		if (body == null) build();
 		BeeMotion.apply(poseStack, time, mood, moodSeconds);
 		body.draw(poseStack, collector, light);
+		PetEmotes.blush(poseStack, collector, light, 2.8F, -2.9F, -4.45F);
 		poseStack.pushPose();
 		poseStack.translate(0.0F, Mth.sin(time * 0.1F) * 0.4F / 16.0F, 0.0F);
 		clouds.drawTranslucent(poseStack, collector, light);
@@ -92,7 +93,8 @@ public class WindyBeeCosmetic extends FollowPetCosmetic {
 		}
 		poseStack.pushPose();
 		poseStack.translate(0.0F, -4.0F / 16.0F, 0.0F);
-		poseStack.mulPose(Axis.YP.rotationDegrees(time * 6.0F));
+		// Volando con élitros el remolino gira a toda velocidad, como un tornado que la empuja.
+		poseStack.mulPose(Axis.YP.rotationDegrees(time * (PetBehavior.flying() ? 28.0F : 6.0F)));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(14.0F + Mth.sin(time * 0.1F) * 6.0F));
 		poseStack.translate(0.0F, 4.0F / 16.0F, 0.0F);
 		swirl.drawTranslucent(poseStack, collector, light);

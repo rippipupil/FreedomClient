@@ -30,7 +30,7 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 	private static final Vox.Palette PALETTE = new Vox.Palette("cupcake_pet",
 			'p', 0xFFE8457A, 'P', 0xFFC23262, 'h', 0xFFF57DA2, 'o', 0xFFE0602A, 'O', 0xFFB8421C,
 			'w', 0xFFF6F2EA, 'k', 0xFF141014, 'i', 0xFFC8702A, 'c', 0xFFF4E8C8, 'y', 0xFFE8B83A,
-			'f', 0xFFFF9A20, 'F', 0xFFFFE070, 'g', 0xFFB8BCC4, 'G', 0xFF7A7E88);
+			'f', 0xFFFF9A20, 'F', 0xFFFFE070, 'g', 0xFFB8BCC4, 'G', 0xFF7A7E88, 'L', 0xFF7CF5D0, 'M', 0xFFFF7AD9);
 	private static final double GRAVITY = 0.08;
 	/** Centro de cada ojo en píxeles del modelo (y hacia abajo, cara hacia -z). */
 	private static final float EYE_X = 2.9F;
@@ -54,6 +54,9 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 	private Vox.Shape lid;
 	private Vox.Shape teeth;
 	private Vox.Shape flame;
+	private Vox.Shape saucer;
+	private Vox.Shape lightsA;
+	private Vox.Shape lightsB;
 
 	// Física en el mundo (se actualiza cada tick; al dibujar se interpola).
 	private ClientLevel level;
@@ -82,6 +85,19 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 	// ---------------------------------------------------------------- modelo
 
 	private void build() {
+		// Platillo volante (volando con élitros): el plato crece, gira y lleva lucecitas que parpadean.
+		saucer = new Vox.Shape(PALETTE)
+				.disc('g', 0.0F, -0.4F, 0.0F, 9.0F, 0.8F)
+				.disc('G', 0.0F, 0.4F, 0.0F, 7.5F, 0.8F)
+				.disc('G', 0.0F, 1.2F, 0.0F, 4.0F, 0.8F);
+		lightsA = new Vox.Shape(PALETTE);
+		lightsB = new Vox.Shape(PALETTE);
+		for (int i = 0; i < 12; i++) {
+			float angle = i * Mth.TWO_PI / 12.0F;
+			float lx = Mth.cos(angle) * 8.3F;
+			float lz = Mth.sin(angle) * 8.3F;
+			(i % 2 == 0 ? lightsA : lightsB).box(i % 2 == 0 ? 'L' : 'M', lx - 0.5F, -0.2F, lz - 0.5F, 1.0F, 0.8F, 1.0F);
+		}
 		base = new Vox.Shape(PALETTE)
 				// Plato plateado.
 				.disc('G', 0.0F, -0.6F, 0.0F, 6.5F, 0.6F)
@@ -176,6 +192,24 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 		if (client.isPaused()) return;
 		ticks++;
 		PetBehavior.Mood mood = PetBehavior.mood();
+		if (PetBehavior.flying()) {
+			// Volando con élitros: va por el aire en su platillo a tu lado (sin saltos ni gravedad).
+			level = client.level;
+			Vec3 air = target(player, mood).add(0.0, 0.9, 0.0);
+			if (current == null || current.distanceToSqr(air) > 12.0 * 12.0) current = air;
+			previous = current;
+			current = current.lerp(air, 0.6);
+			grounded = false;
+			velocityX = 0.0;
+			velocityY = 0.0;
+			velocityZ = 0.0;
+			hopStartY = current.y;
+			crouchTicks = 0;
+			landTicks = 100;
+			emote = -1;
+			yaw = player.yBodyRot;
+			return;
+		}
 		Vec3 target = target(player, mood);
 		if (current == null || client.level != level || current.distanceToSqr(target) > 12.0 * 12.0
 				|| Math.abs(current.y - player.getY()) > 8.0) {
@@ -494,6 +528,8 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 		poseStack.mulPose(Axis.YP.rotationDegrees(preview ? 0.0F : yaw - state.bodyRot));
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
+		poseStack.translate(0.0F, -PetEmotes.hop() / 16.0F, 0.0F);
+		PetEmotes.hearts(poseStack, collector, -30.0F);
 		poseStack.translate(jitterX / 16.0F, -lift / 16.0F, jitterZ / 16.0F);
 		poseStack.mulPose(Axis.YP.rotationDegrees(spinY));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(swayZ));
@@ -502,6 +538,16 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 			poseStack.translate(0.0F, 0.0F, -6.0F / 16.0F);
 			poseStack.mulPose(Axis.XP.rotationDegrees(leanX));
 			poseStack.translate(0.0F, 0.0F, 6.0F / 16.0F);
+		}
+		if (PetBehavior.flying() && !preview) {
+			// Platillo volante debajo, girando, con las luces alternándose.
+			poseStack.pushPose();
+			poseStack.translate(0.0F, Mth.sin(time * 0.2F) * 0.6F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.YP.rotationDegrees(time * 12.0F));
+			saucer.draw(poseStack, collector, light);
+			(Mth.floor(time / 4.0F) % 2 == 0 ? lightsA : lightsB).drawGlow(poseStack, collector);
+			poseStack.popPose();
+			poseStack.translate(0.0F, -1.0F / 16.0F, 0.0F);
 		}
 		poseStack.scale(2.0F - squash, squash, 2.0F - squash);
 		base.draw(poseStack, collector, light);
@@ -522,6 +568,7 @@ public class CupcakePetCosmetic extends VoxCosmetic {
 		poseStack.mulPose(Axis.XP.rotationDegrees(headNod));
 		poseStack.translate(0.0F, -NECK_Y / 16.0F, 0.0F);
 		head.draw(poseStack, collector, light);
+		PetEmotes.blush(poseStack, collector, light, 4.4F, -8.0F, -6.7F);
 		for (int side = -1; side <= 1; side += 2) {
 			float ex = side * EYE_X;
 			poseStack.pushPose();

@@ -164,10 +164,30 @@ public final class NeonPetRenderer {
 			}
 		}
 
+		boolean flying = PetBehavior.flying();
+		if (flying) {
+			// Volando con élitros: sprint eléctrico de Neon, brazos echados atrás y los moños al viento.
+			rightArmX = 65.0F;
+			leftArmX = 65.0F;
+			rightArmZ = 14.0F;
+			leftArmZ = -14.0F;
+			headPitch = -15.0F;
+			headYaw = 0.0F;
+			bunSway = Mth.sin(time * 1.2F) * 14.0F;
+		}
+
 		poseStack.pushPose();
 		poseStack.translate(position.x + shake / 16.0F, position.y + bob / 16.0F, position.z);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
+		poseStack.translate(0.0F, -com.freedomclient.cosmetic.vox.PetEmotes.hop() / 16.0F, 0.0F);
+		com.freedomclient.cosmetic.vox.PetEmotes.hearts(poseStack, collector, -20.0F);
+		if (flying) {
+			poseStack.translate(0.0F, -9.0F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(55.0F));
+			poseStack.translate(0.0F, 9.0F / 16.0F, 0.0F);
+			com.freedomclient.cosmetic.vox.PetEmotes.speedLines(poseStack, collector, light, time, -9.0F);
+		}
 		body.draw(poseStack, collector, light);
 		energy.drawGlow(poseStack, collector);
 		for (int side = -1; side <= 1; side += 2) {

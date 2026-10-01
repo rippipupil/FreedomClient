@@ -12,11 +12,13 @@ import net.minecraft.util.Mth;
 public class FreddyPetCosmetic extends ShoulderPetCosmetic {
 	private static final Vox.Palette PALETTE = new Vox.Palette("freddy_pet",
 			'b', 0xFF8A4E28, 'B', 0xFF6E3C1E, 'l', 0xFFC9884E, 'o', 0xFFE09A52, 'k', 0xFF141417,
-			'w', 0xFFF4F4F4, 'u', 0xFF4A7AE0, 'd', 0xFF3A2010, 'g', 0xFF8C8E96);
+			'w', 0xFFF4F4F4, 'u', 0xFF4A7AE0, 'd', 0xFF3A2010, 'g', 0xFF8C8E96,
+			'D', 0xFFD9A35E, 'E', 0xFFB87A3A, 'T', 0xFFC8321E, 'Z', 0xFFFFD45E, 'Q', 0xFF9E1E1E);
 	private Vox.Shape body;
 	private Vox.Shape head;
 	private Vox.Shape arm;
 	private Vox.Shape hat;
+	private Vox.Shape pizza;
 
 	public FreddyPetCosmetic() {
 		super("Freddy", "FNAF: a Freddy plush sitting on your shoulder with his top hat and bow tie. Waves, claps, hops, spins and dances.");
@@ -54,6 +56,20 @@ public class FreddyPetCosmetic extends ShoulderPetCosmetic {
 				.box('o', 2.1F, -7.1F, -1.0F, 1.4F, 1.4F, 0.3F);
 		arm = new Vox.Shape(PALETTE).box('b', -1.0F, 0.0F, -1.0F, 2.0F, 4.4F, 2.0F).box('o', -0.9F, 3.8F, -1.1F, 1.8F, 0.6F, 1.8F);
 		hat = FreddyHatCosmetic.build(2.2F, 1.5F, 3);
+		// Pizza para surfear volando con élitros: borde, tomate, queso y pepperoni.
+		pizza = new Vox.Shape(PALETTE)
+				.disc('E', 0.0F, 0.4F, 0.0F, 7.2F, 0.6F)
+				.disc('D', 0.0F, -0.4F, 0.0F, 7.2F, 0.8F)
+				.disc('T', 0.0F, -0.6F, 0.0F, 6.3F, 0.3F)
+				.disc('Z', 0.0F, -0.8F, 0.0F, 5.6F, 0.3F)
+				.box('Q', -3.6F, -1.0F, -2.0F, 1.8F, 0.3F, 1.8F)
+				.box('Q', 1.4F, -1.0F, -3.4F, 1.8F, 0.3F, 1.8F)
+				.box('Q', 2.0F, -1.0F, 1.6F, 1.8F, 0.3F, 1.8F)
+				.box('Q', -1.6F, -1.0F, 2.6F, 1.8F, 0.3F, 1.8F)
+				.box('Q', -0.6F, -1.0F, -0.6F, 1.6F, 0.3F, 1.6F)
+				// Queso derretido que cae por el borde.
+				.box('Z', 5.2F, -0.8F, -0.6F, 0.8F, 1.6F, 1.0F)
+				.box('Z', -6.0F, -0.8F, 1.0F, 0.8F, 1.4F, 1.0F);
 	}
 
 	@Override
@@ -87,6 +103,21 @@ public class FreddyPetCosmetic extends ShoulderPetCosmetic {
 			rightArm = -60.0F * wave;
 			leftArm = -60.0F * wave;
 		}
+		boolean flying = com.freedomclient.cosmetic.PetBehavior.flying();
+		if (flying) {
+			// Volando con élitros: surfea una pizza que gira, con los brazos abiertos para no caerse.
+			poseStack.pushPose();
+			poseStack.translate(0.0F, -0.2F / 16.0F, -1.0F / 16.0F);
+			poseStack.mulPose(Axis.YP.rotationDegrees(time * 14.0F));
+			pizza.draw(poseStack, collector, light);
+			poseStack.popPose();
+			poseStack.translate(0.0F, -1.4F / 16.0F, 0.0F);
+			armsIn = -1.8F;
+			rightArm = 0.0F;
+			leftArm = 0.0F;
+			sway = Mth.sin(time * 0.3F) * 9.0F;
+			headTilt = -sway * 0.6F;
+		}
 		poseStack.translate(0.0F, -hop / 16.0F, 0.0F);
 		poseStack.mulPose(Axis.YP.rotationDegrees(spin));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(sway));
@@ -106,6 +137,7 @@ public class FreddyPetCosmetic extends ShoulderPetCosmetic {
 		poseStack.mulPose(Axis.YP.rotationDegrees(headTurn));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(headTilt));
 		head.draw(poseStack, collector, light);
+		PetEmotes.blush(poseStack, collector, light, 2.6F, -2.4F, -3.35F);
 		poseStack.translate(0.6F / 16.0F, -6.0F / 16.0F, 0.0F);
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-8.0F));
 		hat.draw(poseStack, collector, light);

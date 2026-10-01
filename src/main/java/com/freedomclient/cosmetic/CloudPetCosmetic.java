@@ -20,6 +20,6 @@ public class CloudPetCosmetic extends CosmeticModule {
 			return;
 		}
 		// La nube va un poco más despacio que la otra mascota, para que se note que te sigue flotando.
-		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), 0.12F);
+		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), PetBehavior.flying() ? 0.55F : 0.12F);
 	}
 }

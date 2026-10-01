@@ -20,7 +20,7 @@ public class PetCosmetic extends CosmeticModule {
 			follower.reset();
 			return;
 		}
-		follower.tick(client.player, slot(side.is("Right") ? -1.0F : 1.0F), 0.2F);
+		follower.tick(client.player, slot(side.is("Right") ? -1.0F : 1.0F), PetBehavior.flying() ? 0.6F : 0.2F);
 	}
 
 	/** Sitio de la mascota en el espacio del modelo del jugador (x negativo = derecha, y negativo = arriba). */

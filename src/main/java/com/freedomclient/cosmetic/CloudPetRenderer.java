@@ -128,6 +128,13 @@ public final class CloudPetRenderer {
 			default -> {
 			}
 		}
+		boolean flying = PetBehavior.flying();
+		if (flying) {
+			// Volando con élitros: se estira como una nube veloz, alas a tope y gira como un taladro.
+			flap = 0.6F + Mth.sin(time * 1.8F) * 0.5F;
+			spin = time * 0.5F;
+			tilt = 0.0F;
+		}
 		rightWing.yRot = flap;
 		leftWing.yRot = -flap;
 		halo.yRot = time * 0.05F;
@@ -136,6 +143,13 @@ public final class CloudPetRenderer {
 		poseStack.translate(position.x + shake / 16.0F, position.y + bob / 16.0F, position.z);
 		float size = module.size.getFloat();
 		poseStack.scale(size, size, size);
+		poseStack.translate(0.0F, -com.freedomclient.cosmetic.vox.PetEmotes.hop() / 16.0F, 0.0F);
+		com.freedomclient.cosmetic.vox.PetEmotes.hearts(poseStack, collector, -14.0F);
+		if (flying) {
+			com.freedomclient.cosmetic.vox.PetEmotes.speedLines(poseStack, collector, light, time, -6.0F);
+			poseStack.mulPose(Axis.XP.rotationDegrees(70.0F));
+			poseStack.scale(0.85F, 1.25F, 0.85F);
+		}
 		poseStack.mulPose(Axis.YP.rotation(spin));
 		poseStack.mulPose(Axis.ZP.rotation(tilt));
 		collector.submitModelPart(root, poseStack, RenderTypes.entityCutoutNoCull(texture), light, OverlayTexture.NO_OVERLAY, null);

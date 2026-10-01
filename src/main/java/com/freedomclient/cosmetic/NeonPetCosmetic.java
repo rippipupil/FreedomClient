@@ -21,6 +21,6 @@ public class NeonPetCosmetic extends CosmeticModule {
 			follower.reset();
 			return;
 		}
-		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), 0.2F);
+		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), PetBehavior.flying() ? 0.6F : 0.2F);
 	}
 }

@@ -38,7 +38,8 @@ public abstract class FollowPetCosmetic extends VoxCosmetic {
 			follower.reset();
 			return;
 		}
-		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), 0.2F);
+		// Volando con élitros va mucho más rápido: la mascota se pega más para no quedarse atrás.
+		follower.tick(client.player, PetCosmetic.slot(side.is("Right") ? -1.0F : 1.0F), PetBehavior.flying() ? 0.6F : 0.2F);
 	}
 
 	/** Dibuja la mascota con los pies en el origen, mirando hacia -z. */
@@ -52,7 +53,12 @@ public abstract class FollowPetCosmetic extends VoxCosmetic {
 		poseStack.translate(position.x, position.y, position.z);
 		float s = size.getFloat();
 		poseStack.scale(s, s, s);
+		poseStack.translate(0.0F, -PetEmotes.hop() / 16.0F, 0.0F);
+		poseStack.pushPose();
 		renderPet(poseStack, collector, light, state.ageInTicks, PetBehavior.mood(), PetBehavior.moodSeconds());
+		poseStack.popPose();
+		PetEmotes.hearts(poseStack, collector, -11.0F);
+		if (PetBehavior.flying()) PetEmotes.speedLines(poseStack, collector, light, state.ageInTicks, -4.0F);
 		poseStack.popPose();
 	}
 }
