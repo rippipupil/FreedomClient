@@ -203,6 +203,7 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.NikoHatCosmetic());
 		add(new com.freedomclient.cosmetic.vox.NikoScarfCosmetic());
 		add(new com.freedomclient.cosmetic.vox.SunBackpackCosmetic());
+		add(new com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic());
 		add(new com.freedomclient.cosmetic.vox.NikoPetCosmetic());
 		// Celeste
 		add(new com.freedomclient.cosmetic.vox.MadelinePetCosmetic());

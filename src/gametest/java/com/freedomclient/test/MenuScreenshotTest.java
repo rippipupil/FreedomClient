@@ -405,6 +405,13 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 					com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class, com.freedomclient.cosmetic.NeonPetCosmetic.class);
 			context.runOnClient(client -> PetBehavior.forceFlying(false));
 			shoot(context, "madeline_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.MadelinePetCosmetic.class);
+			shoot(context, "black_hole_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK,
+					com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic.class);
+			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic.class), "Style", "Void"));
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 60.0F));
+			shoot(context, "black_hole_void_side", net.minecraft.client.CameraType.THIRD_PERSON_BACK,
+					com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
 			shoot(context, "guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
 			context.runOnClient(client -> setMode((Module) cosmetic(HaloCosmetic.class), "Style", "Sun & Moon"));
 			shoot(context, "halo_sun_moon", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, HaloCosmetic.class);
