@@ -208,6 +208,10 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
 		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());
 		add(new com.freedomclient.cosmetic.AbyssFlowersCosmetic());
+		// Bordes con efectos para las tarjetas del menú
+		add(new com.freedomclient.cosmetic.border.ElectricBorderCosmetic());
+		add(new com.freedomclient.cosmetic.border.RainbowBorderCosmetic());
+		add(new com.freedomclient.cosmetic.border.SparkleBorderCosmetic());
 
 		// Performance
 		add(new GameOptimizerModule());

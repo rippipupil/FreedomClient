@@ -9,7 +9,9 @@ public enum CosmeticSlot {
 	BACK("Back"),
 	PET("Pets"),
 	TRAIL("Trails"),
-	EFFECT("Effects");
+	EFFECT("Effects"),
+	/** Bordes con efectos para las tarjetas del menú (no se ven en el jugador). */
+	BORDERS("Borders");
 
 	private final String displayName;
 

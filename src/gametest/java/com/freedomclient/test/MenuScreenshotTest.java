@@ -690,6 +690,20 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				context.takeScreenshot("theme_" + preset.name().toLowerCase(Locale.ROOT));
 			}
 			context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET));
+			// Bordes de la sección Borders de Cosmetics en las tarjetas de mods.
+			Class<?>[] borders = {com.freedomclient.cosmetic.border.ElectricBorderCosmetic.class,
+					com.freedomclient.cosmetic.border.RainbowBorderCosmetic.class, com.freedomclient.cosmetic.border.SparkleBorderCosmetic.class};
+			for (Class<?> border : borders) {
+				context.runOnClient(client -> cosmetic(border).setEnabled(true));
+				context.setScreen(() -> {
+					FreedomMenuScreen screen = new FreedomMenuScreen();
+					screen.setTab(FreedomMenuScreen.Tab.MODS);
+					return screen;
+				});
+				context.waitTicks(10);
+				context.takeScreenshot("border_" + border.getSimpleName().replace("BorderCosmetic", "").toLowerCase(Locale.ROOT));
+			}
+			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.border.SparkleBorderCosmetic.class).setEnabled(false));
 			// Pestaña Cosmetics con las fichas de secciones compactas.
 			context.setScreen(() -> {
 				FreedomMenuScreen screen = new FreedomMenuScreen();

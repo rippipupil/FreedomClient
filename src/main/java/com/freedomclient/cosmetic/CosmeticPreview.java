@@ -31,7 +31,7 @@ public final class CosmeticPreview {
 
 	/** Si este cosmético se puede enseñar en el modelo (los rastros y efectos de partículas no). */
 	public static boolean supports(CosmeticModule cosmetic) {
-		return cosmetic.getSlot() != CosmeticSlot.TRAIL && cosmetic.getSlot() != CosmeticSlot.EFFECT;
+		return cosmetic.getSlot() != CosmeticSlot.TRAIL && cosmetic.getSlot() != CosmeticSlot.EFFECT && cosmetic.getSlot() != CosmeticSlot.BORDERS;
 	}
 
 	/** El cosmético de la vista previa de este estado, o null si es un render normal del juego. */

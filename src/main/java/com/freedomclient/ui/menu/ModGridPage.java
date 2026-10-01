@@ -457,7 +457,10 @@ public class ModGridPage implements MenuPage {
 			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
 			NeonStyle.frame(ui.g, x, y, w, h, phase, 0.5, 0.6F + 0.4F * hover);
 		}
-		com.freedomclient.module.visual.CardBordersModule.draw(ui.g, x, y, w, h, category, on, hover);
+		// Un borde de la sección Borders de Cosmetics sustituye al de Card Borders.
+		if (!com.freedomclient.cosmetic.border.BorderCosmetic.drawActive(ui.g, x, y, w, h, category, on, hover)) {
+			com.freedomclient.module.visual.CardBordersModule.draw(ui.g, x, y, w, h, category, on, hover);
+		}
 
 		// Izquierda: vista previa del cosmético o el icono del mod en su caja del color de la categoría.
 		int boxX = x + 5;
@@ -465,7 +468,18 @@ public class ModGridPage implements MenuPage {
 		int boxH = h - 10;
 		int boxW = isCosmetics() ? 40 : boxH;
 		boolean previewed = false;
-		if (isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
+		if (module instanceof com.freedomclient.cosmetic.border.BorderCosmetic border) {
+			// Vista previa de un borde: una mini tarjeta con el efecto puesto.
+			Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.shade(), ThemeManager.mix(category, ThemeManager.border(), 0.4F));
+			int miniX = boxX + 6;
+			int miniY = boxY + 10;
+			int miniW = boxW - 12;
+			int miniH = boxH - 20;
+			Draw.bevelPanel(ui.g, miniX, miniY, miniW, miniH, ThemeManager.mix(ThemeManager.card(), category, 0.3F), ThemeManager.border());
+			border.draw(ui.g, miniX, miniY, miniW, miniH, category, 1.0F, hover);
+			previewed = true;
+		}
+		if (!previewed && isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
 			Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on),
 					ThemeManager.mix(category, ThemeManager.border(), 0.4F));
 			previewed = CosmeticPreview.render(ui.g, cosmetic, boxX + 1, boxY + 1, boxX + boxW - 1, boxY + boxH - 1);
