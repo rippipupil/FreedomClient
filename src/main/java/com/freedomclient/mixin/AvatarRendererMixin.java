@@ -1,7 +1,6 @@
 package com.freedomclient.mixin;
 
-import com.freedomclient.cosmetic.CapeCosmetic;
-import com.freedomclient.cosmetic.CosmeticModule;
+import com.freedomclient.cosmetic.ClientCapeCosmetic;
 import com.freedomclient.module.visual.CapesModule;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -21,9 +20,9 @@ public class AvatarRendererMixin {
 	@Inject(method = "extractRenderState(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;F)V", at = @At("TAIL"))
 	private void freedomclient$cape(Avatar entity, AvatarRenderState state, float partialTick, CallbackInfo ci) {
 		if (state.skin == null) return;
-		CapeCosmetic cape = CosmeticModule.get(CapeCosmetic.class);
+		ClientCapeCosmetic cape = ClientCapeCosmetic.active();
 		PlayerSkin skin = state.skin;
-		if (cape != null && cape.isEnabled() && entity == Minecraft.getInstance().player) {
+		if (cape != null && entity == Minecraft.getInstance().player) {
 			state.skin = new PlayerSkin(skin.body(), cape.texture(), skin.elytra(), skin.model(), skin.secure());
 			state.showCape = true;
 			return;

@@ -81,7 +81,7 @@ public final class CosmeticPreview {
 		state.scale = 1.0F;
 		state.lightCoords = 0xF000F0;
 		state.isCrouching = false;
-		if (cosmetic instanceof CapeCosmetic cape && state.skin != null) {
+		if (cosmetic instanceof ClientCapeCosmetic cape && state.skin != null) {
 			PlayerSkin skin = state.skin;
 			state.skin = new PlayerSkin(skin.body(), cape.texture(), skin.elytra(), skin.model(), skin.secure());
 			state.showCape = true;

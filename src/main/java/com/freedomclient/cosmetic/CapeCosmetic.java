@@ -5,7 +5,7 @@ import com.freedomclient.setting.ModeSetting;
 import net.minecraft.core.ClientAsset;
 
 /** Capa de FreedomClient con el emblema sin letras: estilo Angel Devil (atardecer) o Neon (energía eléctrica). */
-public class CapeCosmetic extends CosmeticModule {
+public class CapeCosmetic extends ClientCapeCosmetic {
 	public static final ClientAsset.Texture ANGEL_CAPE = new ClientAsset.ResourceTexture(
 			FreedomClient.id("cosmetic/cape_angel"), FreedomClient.id("textures/cosmetic/cape_angel.png"));
 	public static final ClientAsset.Texture NEON_CAPE = new ClientAsset.ResourceTexture(
@@ -15,10 +15,11 @@ public class CapeCosmetic extends CosmeticModule {
 			"Angel Devil", "Angel Devil", "Neon"));
 
 	public CapeCosmetic() {
-		super("Cape", "FreedomClient cape with the client emblem, in the Angel Devil or Neon style.", CosmeticSlot.CAPE);
+		super("Cape", "FreedomClient cape with the client emblem, in the Angel Devil or Neon style.", true);
 	}
 
 	/** Textura de la capa con el estilo elegido. */
+	@Override
 	public ClientAsset.Texture texture() {
 		return style.is("Neon") ? NEON_CAPE : ANGEL_CAPE;
 	}
