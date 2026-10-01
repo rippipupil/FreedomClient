@@ -88,20 +88,20 @@ public class LightningTrailCosmetic extends CosmeticModule {
 		double groundY = player.getY() + 0.02;
 		int life = length.getInt() + 8;
 		double height = wallHeight.get();
-		int steps = (int) Math.ceil(distance / 0.14);
+		int steps = (int) Math.ceil(distance / 0.11);
 		for (int i = 0; i < steps; i++) {
 			double t = (i + 1) / (double) steps;
 			travelled += distance / steps;
 			double x = last.x + delta.x * t + (random.nextDouble() - 0.5) * 0.08;
 			double z = last.z + delta.z * t + (random.nextDouble() - 0.5) * 0.08;
 			// Base: línea muy brillante pegada al suelo.
-			NeonFlameParticle.spawn(x, groundY + 0.05, z, 0.16F, 0.0F, 0.004, life);
+			NeonFlameParticle.spawn(x, groundY + 0.05, z, 0.22F, 0.0F, 0.004, life);
 			// Lenguas de energía repartidas por la altura del muro.
-			int tongues = 2 + random.nextInt(2);
+			int tongues = 3 + random.nextInt(2);
 			for (int k = 0; k < tongues; k++) {
 				float level = random.nextFloat();
 				double y = groundY + 0.1 + level * level * height;
-				float size = 0.2F + random.nextFloat() * 0.18F + (float) height * 0.05F;
+				float size = 0.22F + random.nextFloat() * 0.2F + (float) height * 0.04F;
 				NeonFlameParticle.spawn(x, y, z, size, 0.1F + level * 0.8F, 0.012 + random.nextDouble() * 0.02, life - random.nextInt(6));
 			}
 		}

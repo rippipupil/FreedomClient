@@ -120,6 +120,8 @@ public class NikoPetCosmetic extends ShoulderPetCosmetic {
 		boolean flying = com.freedomclient.cosmetic.PetBehavior.flying();
 		if (flying) {
 			// Volando con élitros: Niko va montado encima del Sol, la bombilla gigante, que gira despacio y brilla.
+			// Todo sube por encima del hombro para que la bombilla no quede dentro del brazo.
+			poseStack.translate(0.0F, -9.6F / 16.0F, 0.0F);
 			poseStack.pushPose();
 			poseStack.translate(0.0F, 4.4F / 16.0F, 0.0F);
 			poseStack.mulPose(Axis.XP.rotationDegrees(-15.0F));

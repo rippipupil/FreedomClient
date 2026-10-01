@@ -67,7 +67,7 @@ public class NeonFlameParticle extends SingleQuadParticle {
 		quadSize = baseSize * grow;
 		// Al subir se enfría hacia el azul.
 		applyColor(Math.min(1.0F, startHeat + life * 0.45F));
-		setAlpha(life < 0.55F ? 0.9F : Math.max(0.0F, (1.0F - life) / 0.45F * 0.9F));
+		setAlpha(life < 0.5F ? 0.62F : Math.max(0.0F, (1.0F - life) / 0.5F * 0.62F));
 	}
 
 	@Override
