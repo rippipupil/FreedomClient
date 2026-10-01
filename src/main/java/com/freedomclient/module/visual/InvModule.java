@@ -41,6 +41,8 @@ import java.util.Locale;
  */
 public class InvModule extends Module {
 	private static final Identifier IMAGE = FreedomClient.id("inv/background");
+	/** Copia pequeña y desenfocada de la imagen: rellena lo que sobra alrededor en el modo Fit. */
+	private static final Identifier IMAGE_BLUR = FreedomClient.id("inv/background_blur");
 	/** Lado máximo de la imagen: las más grandes se reducen para no gastar memoria de vídeo. */
 	private static final int MAX_IMAGE = 1024;
 	private static InvModule instance;
@@ -51,7 +53,8 @@ public class InvModule extends Module {
 			"Menu theme", "Menu theme", "Custom"));
 	private final ModeSetting corners = add(new ModeSetting("Corners", "Shape of the window corners.", "Rounded", "Rounded", "Square"));
 	private final ModeSetting imageFit = add(new ModeSetting("Image fit",
-			"Fill: covers the whole window (cuts the edges). Stretch: squeezes the whole image in. Fit: the whole image, centered.",
+			"Fill: covers the whole window (cuts the edges). Stretch: squeezes the whole image in. "
+					+ "Fit: the whole image, centered, with a blurred copy filling the rest of the window.",
 			"Fill", "Fill", "Stretch", "Fit"));
 	private final PreviewSetting preview = add(new PreviewSetting("Preview", "How your inventory will look.", 120, this::renderPreview));
 	private final NumberSetting imageZoom = add(new NumberSetting("Image zoom", "Make the picture bigger to show only a part of it.", 100, 100, 300, 5, "%"));
@@ -66,6 +69,9 @@ public class InvModule extends Module {
 	private final ColorSetting text = add(new ColorSetting("Text", "Color of the titles (Crafting, Inventory, chest name...).", 0xFFF5F1E8, false));
 
 	private DynamicTexture texture;
+	private DynamicTexture blurTexture;
+	private int blurWidth;
+	private int blurHeight;
 	private int imageWidth;
 	private int imageHeight;
 	private boolean loaded;
@@ -211,7 +217,12 @@ public class InvModule extends Module {
 		switch (imageFit.get()) {
 			case "Stretch" -> g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, x, y, 0.0F, 0.0F, w, h, imageWidth, imageHeight, imageWidth, imageHeight, color);
 			case "Fit" -> {
-				// Entera y centrada; con zoom crece desde el centro y lo que se sale de la ventana se recorta.
+				// Entera y centrada; con zoom crece desde el centro y lo que se sale de la ventana se recorta. El hueco
+				// que queda alrededor se rellena con la misma imagen desenfocada, así la ventana siempre queda llena.
+				if (blurTexture != null) {
+					float cover = Math.max(w / (float) blurWidth, h / (float) blurHeight);
+					drawScaled(g, IMAGE_BLUR, blurWidth, blurHeight, x, y, w, h, cover, color, 0.0F, 0.0F);
+				}
 				float scale = Math.min(w / (float) imageWidth, h / (float) imageHeight) * zoom();
 				drawScaled(g, x, y, w, h, scale, color);
 			}
@@ -232,11 +243,16 @@ public class InvModule extends Module {
 	 * los ajustes, recortando lo que queda fuera. Así el centro de la imagen cae siempre en el centro de la ventana.
 	 */
 	private void drawScaled(GuiGraphics g, int x, int y, int w, int h, float scale, int color) {
+		drawScaled(g, IMAGE, imageWidth, imageHeight, x, y, w, h, scale, color, imageX.getFloat() / 100.0F, imageY.getFloat() / 100.0F);
+	}
+
+	private static void drawScaled(GuiGraphics g, Identifier id, int imageWidth, int imageHeight, int x, int y, int w, int h, float scale,
+			int color, float offsetX, float offsetY) {
 		float drawnW = imageWidth * scale;
 		float drawnH = imageHeight * scale;
 		// Desplazamiento: 100% lleva el borde de la imagen al borde de la ventana (si sobra imagen para moverse).
-		float left = x + (w - drawnW) / 2.0F - imageX.getFloat() / 100.0F * Math.abs(drawnW - w) / 2.0F;
-		float top = y + (h - drawnH) / 2.0F - imageY.getFloat() / 100.0F * Math.abs(drawnH - h) / 2.0F;
+		float left = x + (w - drawnW) / 2.0F - offsetX * Math.abs(drawnW - w) / 2.0F;
+		float top = y + (h - drawnH) / 2.0F - offsetY * Math.abs(drawnH - h) / 2.0F;
 		// Parte visible, en coordenadas de la ventana y de la imagen.
 		float x0 = Math.max(x, left);
 		float y0 = Math.max(y, top);
@@ -251,7 +267,7 @@ public class InvModule extends Module {
 		float v = (dy - top) / scale;
 		int uw = Math.max(1, Math.round(dw / scale));
 		int vh = Math.max(1, Math.round(dh / scale));
-		g.blit(RenderPipelines.GUI_TEXTURED, IMAGE, dx, dy, u, v, dw, dh, uw, vh, imageWidth, imageHeight, color);
+		g.blit(RenderPipelines.GUI_TEXTURED, id, dx, dy, u, v, dw, dh, uw, vh, imageWidth, imageHeight, color);
 	}
 
 	/**
@@ -326,8 +342,78 @@ public class InvModule extends Module {
 		imageWidth = scaled.getWidth();
 		imageHeight = scaled.getHeight();
 		// Registrar con el mismo nombre sustituye (y cierra) la imagen anterior.
+		NativeImage blurred = blur(scaled);
+		blurWidth = blurred.getWidth();
+		blurHeight = blurred.getHeight();
 		texture = new DynamicTexture(() -> "FreedomClient inventory image", scaled);
 		Minecraft.getInstance().getTextureManager().register(IMAGE, texture);
+		blurTexture = new DynamicTexture(() -> "FreedomClient inventory image (blurred)", blurred);
+		Minecraft.getInstance().getTextureManager().register(IMAGE_BLUR, blurTexture);
+	}
+
+	/**
+	 * Copia pequeña (96 px de lado mayor), desenfocada y un poco más oscura de la imagen, para el fondo del modo Fit.
+	 * Al estirarla queda suave porque cada píxel ya es la media de muchos.
+	 */
+	private static NativeImage blur(NativeImage source) {
+		int sw = source.getWidth();
+		int sh = source.getHeight();
+		float scale = 96.0F / Math.max(sw, sh);
+		int w = Math.max(1, Math.round(sw * scale));
+		int h = Math.max(1, Math.round(sh * scale));
+		float[][] channels = new float[3][w * h];
+		// Reducción haciendo la media de cada bloque.
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int x0 = (int) (x / scale);
+				int y0 = (int) (y / scale);
+				int x1 = Math.max(x0 + 1, Math.min(sw, (int) ((x + 1) / scale)));
+				int y1 = Math.max(y0 + 1, Math.min(sh, (int) ((y + 1) / scale)));
+				float r = 0, gr = 0, b = 0;
+				int n = 0;
+				for (int yy = y0; yy < y1; yy += 2) {
+					for (int xx = x0; xx < x1; xx += 2) {
+						int c = source.getPixel(Math.min(sw - 1, xx), Math.min(sh - 1, yy));
+						r += c >> 16 & 0xFF;
+						gr += c >> 8 & 0xFF;
+						b += c & 0xFF;
+						n++;
+					}
+				}
+				channels[0][y * w + x] = r / n;
+				channels[1][y * w + x] = gr / n;
+				channels[2][y * w + x] = b / n;
+			}
+		}
+		// Desenfoque de caja (dos pasadas) y oscurecido para que no compita con la imagen nítida.
+		for (int pass = 0; pass < 2; pass++) {
+			for (float[] channel : channels) {
+				float[] copy = channel.clone();
+				for (int y = 0; y < h; y++) {
+					for (int x = 0; x < w; x++) {
+						float sum = 0;
+						int n = 0;
+						for (int dy = -2; dy <= 2; dy++) {
+							for (int dx = -2; dx <= 2; dx++) {
+								int xx = Math.min(w - 1, Math.max(0, x + dx));
+								int yy = Math.min(h - 1, Math.max(0, y + dy));
+								sum += copy[yy * w + xx];
+								n++;
+							}
+						}
+						channel[y * w + x] = sum / n;
+					}
+				}
+			}
+		}
+		NativeImage out = new NativeImage(w, h, false);
+		for (int i = 0; i < w * h; i++) {
+			int r = (int) (channels[0][i] * 0.7F);
+			int gr = (int) (channels[1][i] * 0.7F);
+			int b = (int) (channels[2][i] * 0.7F);
+			out.setPixel(i % w, i / w, 0xFF000000 | r << 16 | gr << 8 | b);
+		}
+		return out;
 	}
 
 	/** Reduce las imágenes muy grandes (vecino más cercano) para que no pesen en la memoria de vídeo. */
@@ -400,6 +486,7 @@ public class InvModule extends Module {
 			FreedomClient.LOGGER.warn("Could not delete the inventory image", e);
 		}
 		texture = null;
+		blurTexture = null;
 	}
 
 	private static void message(String text) {

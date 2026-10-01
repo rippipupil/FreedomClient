@@ -690,6 +690,13 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(5);
 			context.takeScreenshot("inv_image");
 			context.setScreen(() -> null);
+			// Modo Fit: la imagen entera y el hueco que sobra relleno con la misma imagen desenfocada.
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.visual.InvModule.class), "Image fit", "Fit"));
+			context.setScreen(() -> new net.minecraft.client.gui.screens.inventory.InventoryScreen(net.minecraft.client.Minecraft.getInstance().player));
+			context.waitTicks(5);
+			context.takeScreenshot("inv_image_fit");
+			context.setScreen(() -> null);
+			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.visual.InvModule.class), "Image fit", "Fill"));
 			// Menú de paquetes de recursos: solo una entrada "FreedomClient".
 			context.setScreen(() -> new net.minecraft.client.gui.screens.packs.PackSelectionScreen(
 					net.minecraft.client.Minecraft.getInstance().getResourcePackRepository(), repository -> {
