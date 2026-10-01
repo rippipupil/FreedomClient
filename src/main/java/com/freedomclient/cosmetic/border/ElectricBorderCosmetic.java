@@ -18,7 +18,7 @@ public class ElectricBorderCosmetic extends BorderCosmetic {
 
 	private final ModeSetting color = add(new ModeSetting("Color", "Color of the electricity.", "Neon", "Neon", "Blue", "Gold", "Purple"));
 	private final NumberSetting speed = add(new NumberSetting("Speed", "How fast the bolts run around the card.", 5, 1, 10, 1));
-	private final NumberSetting bolts = add(new NumberSetting("Bolts", "How many bolts run around each card.", 2, 1, 4, 1));
+	private final NumberSetting bolts = add(new NumberSetting("Bolts", "How many bolts run around each card.", 3, 1, 5, 1));
 
 	public ElectricBorderCosmetic() {
 		super("Electric Border", "Zigzag lightning running around your enabled mod cards, with sparks and a flash now and then.");
@@ -36,15 +36,17 @@ public class ElectricBorderCosmetic extends BorderCosmetic {
 	@Override
 	public void draw(GuiGraphics g, int x, int y, int w, int h, int categoryColor, float strength, float hover) {
 		int[] colors = palette();
-		long time = System.currentTimeMillis();
+		long time = System.currentTimeMillis() % 100_000_000L;
 		int p = perimeter(w, h);
 		// Chispazo: cada ~3 s el borde entero se ilumina un momento (desfasado por tarjeta).
 		long cycle = (time + (x * 31L + y * 17L)) % 3100;
 		float flash = cycle < 160 ? 1.0F - cycle / 160.0F : 0.0F;
-		outline(g, x, y, w, h, alpha(colors[3], strength * (0.28F + 0.6F * flash)));
+		outline(g, x, y, w, h, alpha(colors[3], strength * (0.55F + 0.45F * flash)));
+		// Segunda línea por dentro, más suave, para que el marco se vea cargado de energía.
+		outline(g, x + 1, y + 1, w - 2, h - 2, alpha(colors[4], strength * (0.25F + 0.3F * flash)));
 
 		int count = bolts.getInt();
-		int length = Math.max(10, Math.min(28, p / 8));
+		int length = Math.max(14, Math.min(40, p / 6));
 		double travel = time * speed.get() * 0.012;
 		// El zigzag cambia de forma unas 14 veces por segundo, como la corriente.
 		long jitterStep = time / 70;
@@ -58,10 +60,11 @@ public class ElectricBorderCosmetic extends BorderCosmetic {
 				int c = colors[Math.min(colors.length - 1, i * colors.length / length)];
 				int px = pt[0] + pt[2] * offset;
 				int py = pt[1] + pt[3] * offset;
+				// Rayo de 2 px de grueso con brillo a los dos lados.
 				pixel(g, px, py, alpha(c, strength * fade));
-				// Brillo a los dos lados del rayo.
-				pixel(g, px + pt[2], py + pt[3], alpha(c, strength * fade * 0.35F));
-				pixel(g, px - pt[2], py - pt[3], alpha(c, strength * fade * 0.2F));
+				pixel(g, px - pt[2], py - pt[3], alpha(c, strength * fade * 0.85F));
+				pixel(g, px + pt[2], py + pt[3], alpha(c, strength * fade * 0.45F));
+				pixel(g, px - pt[2] * 2, py - pt[3] * 2, alpha(c, strength * fade * 0.25F));
 			}
 			// Chispas sueltas alrededor de la punta.
 			int[] tip = point(head, x, y, w, h);

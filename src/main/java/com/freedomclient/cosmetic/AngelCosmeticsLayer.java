@@ -2,6 +2,7 @@ package com.freedomclient.cosmetic;
 
 import com.freedomclient.FreedomClient;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
@@ -271,12 +272,66 @@ public class AngelCosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerMo
 		poseStack.popPose();
 	}
 
+	private static final com.freedomclient.cosmetic.vox.Vox.Palette SUN_MOON = new com.freedomclient.cosmetic.vox.Vox.Palette("sun_moon",
+			'y', 0xFFFFD84A, 'o', 0xFFF29A2E, 'w', 0xFFFFF5C8, 'm', 0xFFE8ECF8, 'g', 0xFFB4BCD6, 'd', 0xFF7F88A8);
+	private com.freedomclient.cosmetic.vox.Vox.Shape sun;
+	private com.freedomclient.cosmetic.vox.Vox.Shape moon;
+
+	/**
+	 * Halo de sol y luna: un sol pixel con sus rayos y una luna con cráteres dando vueltas alrededor de la cabeza,
+	 * uno enfrente del otro, en una órbita un poco inclinada. Brillan aunque sea de noche.
+	 */
+	private void renderSunAndMoon(PoseStack poseStack, SubmitNodeCollector collector, float time, HaloCosmetic module) {
+		if (sun == null) {
+			sun = new com.freedomclient.cosmetic.vox.Vox.Shape(SUN_MOON)
+					.sphere(0.0F, 0.0F, 0.0F, 2.3F, dy -> dy == -2 ? 'w' : 'y')
+					.box('o', -0.5F, -3.9F, -0.5F, 1.0F, 1.2F, 1.0F)
+					.box('o', -0.5F, 2.7F, -0.5F, 1.0F, 1.2F, 1.0F)
+					.box('o', -3.9F, -0.5F, -0.5F, 1.2F, 1.0F, 1.0F)
+					.box('o', 2.7F, -0.5F, -0.5F, 1.2F, 1.0F, 1.0F)
+					.box('o', -0.5F, -0.5F, -3.9F, 1.0F, 1.0F, 1.2F)
+					.box('o', -0.5F, -0.5F, 2.7F, 1.0F, 1.0F, 1.2F)
+					.box('o', -2.9F, -2.9F, -0.4F, 0.8F, 0.8F, 0.8F)
+					.box('o', 2.1F, -2.9F, -0.4F, 0.8F, 0.8F, 0.8F)
+					.box('o', -2.9F, 2.1F, -0.4F, 0.8F, 0.8F, 0.8F)
+					.box('o', 2.1F, 2.1F, -0.4F, 0.8F, 0.8F, 0.8F);
+			moon = new com.freedomclient.cosmetic.vox.Vox.Shape(SUN_MOON)
+					.sphere(0.0F, 0.0F, 0.0F, 2.0F, dy -> dy == 1 ? 'g' : 'm')
+					.box('d', -1.2F, -1.0F, -2.1F, 0.9F, 0.9F, 0.4F)
+					.box('d', 0.5F, 0.3F, -2.1F, 0.7F, 0.7F, 0.4F)
+					.box('d', 0.8F, -1.4F, 1.7F, 0.8F, 0.8F, 0.4F)
+					.box('d', -1.6F, 0.4F, 1.7F, 0.6F, 0.6F, 0.4F);
+		}
+		float orbit = module.spin.get() ? time * 2.6F : 35.0F;
+		float bob = module.spin.get() ? Mth.sin(time * 0.08F) * 0.6F : 0.0F;
+		for (int i = 0; i < 2; i++) {
+			float angle = orbit + i * 180.0F;
+			poseStack.pushPose();
+			poseStack.translate(0.0F, (-7.0F - module.height.getFloat() * 0.6F - bob) / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.ZP.rotationDegrees(16.0F));
+			poseStack.mulPose(Axis.YP.rotationDegrees(angle));
+			poseStack.translate(7.5F / 16.0F, 0.0F, 0.0F);
+			// Se deshace el giro de la órbita para que no den vueltas sobre sí mismos (el sol gira despacio).
+			poseStack.mulPose(Axis.YP.rotationDegrees(-angle + (i == 0 ? time * 1.5F : 0.0F)));
+			poseStack.mulPose(Axis.ZP.rotationDegrees(-16.0F));
+			poseStack.scale(0.8F, 0.8F, 0.8F);
+			(i == 0 ? sun : moon).drawGlow(poseStack, collector);
+			poseStack.popPose();
+		}
+	}
+
 	private void renderHalo(PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state, HaloCosmetic module) {
 		float time = state.ageInTicks;
 		poseStack.pushPose();
 		getParentModel().head.translateAndRotate(poseStack);
 		if (module.style.is("Horns")) {
 			collector.submitModelPart(horns, poseStack, RenderTypes.entityCutoutNoCull(HALO_STYLES_TEXTURE), light, OverlayTexture.NO_OVERLAY, null);
+			poseStack.popPose();
+			return;
+		}
+
+		if (module.style.is("Sun & Moon")) {
+			renderSunAndMoon(poseStack, collector, time, module);
 			poseStack.popPose();
 			return;
 		}

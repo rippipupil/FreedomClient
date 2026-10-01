@@ -20,11 +20,13 @@ public class RainbowBorderCosmetic extends BorderCosmetic {
 		int p = perimeter(w, h);
 		int t = thickness.getInt();
 		float sat = saturation.getFloat() / 100.0F;
-		double shift = System.currentTimeMillis() * speed.get() * 0.00006;
+		// El reloj se reduce antes de multiplicar: con los milisegundos enteros el float perdía los decimales y
+		// todo el borde salía del mismo color.
+		double shift = (System.currentTimeMillis() % 1_000_000L) * speed.get() * 0.00006;
 		for (int s = 0; s < p; s++) {
 			int[] pt = point(s, x, y, w, h);
-			float hue = (float) ((double) s / p - shift);
-			int rgb = java.awt.Color.HSBtoRGB(hue - (float) Math.floor(hue), sat, 1.0F) & 0xFFFFFF;
+			double hue = (double) s / p - shift;
+			int rgb = java.awt.Color.HSBtoRGB((float) (hue - Math.floor(hue)), sat, 1.0F) & 0xFFFFFF;
 			int c = alpha(rgb, strength);
 			// Grosor hacia dentro de la tarjeta (contra la normal).
 			int x1 = pt[0];
