@@ -18,6 +18,8 @@ import net.minecraft.util.Mth;
  */
 public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 	private static final Vox.Palette GARGANTUA = palette("black_hole_gargantua", 0xFFFFFDF0, 0xFFFFE08A, 0xFFFF9A2A, 0xFFB8401E, 0xFF7CF5FF);
+	/** Cuánto se aplastan el disco y la materia hacia la espalda. */
+	private static final float DEPTH = 0.4F;
 	private static final Vox.Palette VOID = palette("black_hole_void", 0xFFF4FAFF, 0xFF9FE8FF, 0xFF8A5CFF, 0xFF3A1E9E, 0xFFFF7AD9);
 
 	public final ModeSetting style = add(new ModeSetting("Style", "Gargantua: gold and orange disk. Void: cyan and violet disk.",
@@ -54,14 +56,13 @@ public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 
 	private static Parts build(Vox.Palette palette) {
 		Parts p = new Parts();
-		// Arnés por los hombros y placa de la espalda con el soporte del anillo.
+		// Arnés por los hombros y placa de la espalda donde va pegado el anillo.
 		p.harness = new Vox.Shape(palette)
 				.box('l', -3.8F, -0.1F, -2.3F, 1.6F, 7.0F, 0.4F)
 				.box('l', 2.2F, -0.1F, -2.3F, 1.6F, 7.0F, 0.4F)
 				.box('l', -3.8F, -0.4F, -2.3F, 1.6F, 0.4F, 4.8F)
 				.box('l', 2.2F, -0.4F, -2.3F, 1.6F, 0.4F, 4.8F)
-				.box('L', -3.2F, 2.6F, 2.1F, 6.4F, 7.0F, 0.9F)
-				.box('M', -1.2F, 5.2F, 3.0F, 2.4F, 2.0F, 3.2F);
+				.box('L', -3.2F, 2.6F, 2.1F, 6.4F, 7.0F, 0.9F);
 		// Anillo de contención vertical (mirando hacia atrás) alrededor del agujero negro.
 		p.frame = new Vox.Shape(palette)
 				.ring('m', 0.0F, -0.5F, 0.0F, 7.0F, 6.0F, 1.0F)
@@ -111,8 +112,8 @@ public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 		p.harness.draw(poseStack, collector, light);
 		poseStack.popPose();
 
-		// Centro del agujero negro, detrás del soporte.
-		poseStack.translate(0.0F, 5.4F / 16.0F, (6.8F + backClearance(state)) / 16.0F);
+		// Centro del agujero negro, pegado a la placa de la espalda.
+		poseStack.translate(0.0F, 5.4F / 16.0F, (5.3F + backClearance(state)) / 16.0F);
 		float s = size.getFloat() * 0.8F;
 		poseStack.scale(s, s, s);
 		// Flota un poco arriba y abajo dentro del anillo.
@@ -138,8 +139,10 @@ public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 		p.halo.drawGlow(poseStack, collector);
 		poseStack.popPose();
 
-		// Disco de acreción girando, inclinado como en las fotos de los agujeros negros.
+		// Disco de acreción girando, inclinado como en las fotos de los agujeros negros. Se aplasta hacia la espalda
+		// (desde atrás se ve igual) para que no se meta en el cuerpo.
 		poseStack.pushPose();
+		poseStack.scale(1.0F, 1.0F, DEPTH);
 		poseStack.mulPose(Axis.XP.rotationDegrees(14.0F));
 		poseStack.mulPose(Axis.ZP.rotationDegrees(-10.0F));
 		poseStack.mulPose(Axis.YP.rotationDegrees(time * spin.getFloat() * 1.2F));
@@ -152,6 +155,7 @@ public class BlackHoleBackpackCosmetic extends VoxCosmetic {
 			float radius = 3.4F + (1.0F - phase) * 7.0F;
 			float angle = (i * 45.0F + phase * 540.0F) * Mth.DEG_TO_RAD;
 			poseStack.pushPose();
+			poseStack.scale(1.0F, 1.0F, DEPTH);
 			poseStack.mulPose(Axis.XP.rotationDegrees(14.0F));
 			poseStack.mulPose(Axis.ZP.rotationDegrees(-10.0F));
 			poseStack.translate(Mth.cos(angle) * radius / 16.0F, Mth.sin(angle * 2.0F) * 0.4F / 16.0F, Mth.sin(angle) * radius / 16.0F);

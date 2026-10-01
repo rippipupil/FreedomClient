@@ -32,14 +32,12 @@ public class SunBackpackCosmetic extends VoxCosmetic {
 
 	private void build() {
 		harness = new Vox.Shape(PALETTE)
-				// Correas por los hombros (delante y detrás) y la placa de la espalda con el casquillo.
+				// Correas por los hombros (delante y detrás) y la placa de la espalda donde va pegada la bombilla.
 				.box('l', -3.8F, -0.1F, -2.3F, 1.6F, 7.0F, 0.4F)
 				.box('l', 2.2F, -0.1F, -2.3F, 1.6F, 7.0F, 0.4F)
 				.box('l', -3.8F, -0.4F, -2.3F, 1.6F, 0.4F, 4.8F)
 				.box('l', 2.2F, -0.4F, -2.3F, 1.6F, 0.4F, 4.8F)
-				.box('L', -3.0F, 3.0F, 2.1F, 6.0F, 6.0F, 0.8F)
-				.box('G', -1.6F, 5.6F, 2.9F, 3.2F, 1.6F, 1.6F)
-				.box('g', -1.3F, 5.0F, 4.5F, 2.6F, 2.6F, 1.2F);
+				.box('L', -3.0F, 3.0F, 2.1F, 6.0F, 6.0F, 0.8F);
 		sun = sun(4.2F);
 	}
 
@@ -58,9 +56,9 @@ public class SunBackpackCosmetic extends VoxCosmetic {
 		harness.draw(poseStack, collector, light);
 		poseStack.popPose();
 		poseStack.translate(0.0F, 0.0F, backClearance(state) / 16.0F);
-		// La bombilla, detrás del casquillo, con un latido suave de luz.
+		// La bombilla, pegada a la placa de la espalda, con un latido suave de luz.
 		float pulse = 1.0F + Mth.sin(state.ageInTicks * 0.12F) * 0.025F;
-		poseStack.translate(0.0F, 6.2F / 16.0F, 9.6F / 16.0F);
+		poseStack.translate(0.0F, 6.2F / 16.0F, 7.0F / 16.0F);
 		poseStack.scale(pulse, pulse, pulse);
 		sun.drawGlow(poseStack, collector);
 		poseStack.popPose();
