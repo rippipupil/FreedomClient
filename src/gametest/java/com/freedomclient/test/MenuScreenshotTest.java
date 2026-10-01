@@ -494,6 +494,7 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			shoot(context, "cape_angel_sky", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.AngelSkyCapeCosmetic.class);
 			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.AngelSkyCapeCosmetic.class), "Style", "Black & White"));
 			shoot(context, "cape_angel_sky_mono", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.AngelSkyCapeCosmetic.class);
+			shoot(context, "cape_neon_card", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.NeonCardCapeCosmetic.class);
 			// Flores al andar.
 			for (Class<?> trail : new Class<?>[] {com.freedomclient.cosmetic.FlowerStepsCosmetic.class, com.freedomclient.cosmetic.AbyssFlowersCosmetic.class}) {
 				context.runOnClient(client -> {

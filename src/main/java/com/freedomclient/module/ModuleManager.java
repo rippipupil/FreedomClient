@@ -180,6 +180,7 @@ public class ModuleManager {
 		add(new CapeCosmetic());
 		add(new com.freedomclient.cosmetic.CardCapeCosmetic());
 		add(new com.freedomclient.cosmetic.AngelSkyCapeCosmetic());
+		add(new com.freedomclient.cosmetic.NeonCardCapeCosmetic());
 		add(new PetCosmetic());
 		add(new CloudPetCosmetic());
 		add(new AuraCosmetic());
