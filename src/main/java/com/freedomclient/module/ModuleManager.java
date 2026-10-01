@@ -211,6 +211,7 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.VerityPetCosmetic());
 		// Música
 		add(new com.freedomclient.cosmetic.vox.GuitarCosmetic());
+		add(new com.freedomclient.cosmetic.vox.StarGuitarCosmetic());
 		// Halloween y rastros de flores
 		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
 		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());
