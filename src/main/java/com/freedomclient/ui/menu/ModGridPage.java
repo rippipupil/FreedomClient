@@ -468,7 +468,7 @@ public class ModGridPage implements MenuPage {
 		int boxH = h - 10;
 		int boxW = isCosmetics() ? 40 : boxH;
 		boolean previewed = false;
-		if (module instanceof com.freedomclient.cosmetic.border.BorderCosmetic border) {
+		if (module instanceof com.freedomclient.cosmetic.border.BorderCosmetic borderCosmetic) {
 			// Vista previa de un borde: una mini tarjeta con el efecto puesto.
 			Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.shade(), ThemeManager.mix(category, ThemeManager.border(), 0.4F));
 			int miniX = boxX + 6;
@@ -476,7 +476,7 @@ public class ModGridPage implements MenuPage {
 			int miniW = boxW - 12;
 			int miniH = boxH - 20;
 			Draw.bevelPanel(ui.g, miniX, miniY, miniW, miniH, ThemeManager.mix(ThemeManager.card(), category, 0.3F), ThemeManager.border());
-			border.draw(ui.g, miniX, miniY, miniW, miniH, category, 1.0F, hover);
+			borderCosmetic.draw(ui.g, miniX, miniY, miniW, miniH, category, 1.0F, hover);
 			previewed = true;
 		}
 		if (!previewed && isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
