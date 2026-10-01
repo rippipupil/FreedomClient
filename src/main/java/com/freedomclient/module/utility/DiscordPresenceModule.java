@@ -30,8 +30,6 @@ public class DiscordPresenceModule extends Module {
 			"Show your Minecraft head and name in the corner of the logo. Turn it off to hide who you are.", true));
 	private final BooleanSetting showDimension = add(new BooleanSetting("Show dimension",
 			"Show whether you are in the Overworld, the Nether or the End.", true));
-	private final BooleanSetting showButton = add(new BooleanSetting("Download button",
-			"Adds a \"Get FreedomClient\" button to your profile so friends can download it.", true));
 
 	private ScheduledExecutorService executor;
 	private DiscordIpc ipc;
@@ -135,7 +133,7 @@ public class DiscordPresenceModule extends Module {
 				connectedId = id;
 				sent = null;
 			}
-			String current = details + "|" + state + "|" + playerName + "|" + headUrl + "|" + showButton.get();
+			String current = details + "|" + state + "|" + playerName + "|" + headUrl;
 			if (Objects.equals(current, sent)) return;
 			ipc.setActivity(activity());
 			sent = current;
@@ -161,14 +159,6 @@ public class DiscordPresenceModule extends Module {
 			assets.addProperty("small_text", playerName);
 		}
 		activity.add("assets", assets);
-		if (showButton.get()) {
-			com.google.gson.JsonArray buttons = new com.google.gson.JsonArray();
-			JsonObject download = new JsonObject();
-			download.addProperty("label", "Get FreedomClient");
-			download.addProperty("url", "https://github.com/rippipupil/FreedomClient/releases/tag/latest");
-			buttons.add(download);
-			activity.add("buttons", buttons);
-		}
 		return activity;
 	}
 
