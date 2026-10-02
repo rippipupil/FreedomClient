@@ -27,7 +27,8 @@ import java.util.function.Supplier;
  * Los mods registran su parte con {@link #layer} y llaman a {@link #refresh} cuando cambian.
  */
 public final class FreedomPack {
-	public static final String ID = "freedomclient";
+	/** Distinto del id del mod: Fabric ya usa "freedomclient" para el paquete con los recursos del mod. */
+	public static final String ID = "freedomclient_pack";
 	private static final PackLocationInfo INFO = new PackLocationInfo(ID, Component.literal("FreedomClient"), PackSource.BUILT_IN, Optional.empty());
 	private static final PackSelectionConfig SELECTION = new PackSelectionConfig(true, Pack.Position.TOP, true);
 
