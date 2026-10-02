@@ -168,6 +168,9 @@ public class ModuleManager {
 		add(new DiscordPresenceModule());
 		add(new UpdatesModule());
 
+		// QoL
+		add(new com.freedomclient.module.qol.GlassModule());
+
 		// Mods originales incluidos (siempre activos).
 		add(new BundledModModule("Continuity", "continuity", "Connected textures for glass and resource packs that use them.", Category.VISUAL));
 		add(new com.freedomclient.module.utility.MouseTweaksModule());

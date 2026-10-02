@@ -849,6 +849,14 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(5);
 			context.takeScreenshot("block_outline");
 			context.runOnClient(client -> client.player.setXRot(0.0F));
+			// Glass: una pared de cristal y otra de cristal tintado de azul, conectadas sin marcos entre bloques.
+			singleplayer.getServer().runCommand("execute as @a at @s run tp @s ~ ~ ~ 0 0");
+			context.waitTicks(3);
+			singleplayer.getServer().runCommand("execute at @a run fill ~-3 ~ ~4 ~-1 ~2 ~4 minecraft:glass");
+			singleplayer.getServer().runCommand("execute at @a run fill ~1 ~ ~4 ~3 ~2 ~4 minecraft:light_blue_stained_glass");
+			context.waitTicks(20);
+			context.takeScreenshot("glass_connected");
+			singleplayer.getServer().runCommand("execute at @a run fill ~-3 ~ ~4 ~3 ~2 ~4 minecraft:air");
 
 			// Misma vista con la escala de interfaz 2, para ver la ventana compacta en pantallas grandes.
 			context.runOnClient(client -> {

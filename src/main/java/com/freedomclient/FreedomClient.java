@@ -123,6 +123,7 @@ public class FreedomClient implements ClientModInitializer {
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			moduleManager.get(BetterGrassModule.class).syncWithPacks(client);
 			moduleManager.get(VisualsModule.class).syncWithPacks(client);
+			moduleManager.get(com.freedomclient.module.qol.GlassModule.class).applyOnStart(client);
 			if (moduleManager.get(UpdatesModule.class).isEnabled()) UpdateChecker.checkAsync();
 		});
 
