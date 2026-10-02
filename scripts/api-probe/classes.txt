@@ -1,14 +1,4 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-net.minecraft.client.renderer.state.SkyRenderState
-net.minecraft.client.renderer.SkyRenderer#extractRenderState
-net.minecraft.client.renderer.fog.FogRenderer#computeFogColor
-net.minecraft.server.packs.PackResources
-net.minecraft.server.packs.resources.IoSupplier
-net.minecraft.client.gui.screens.inventory.InventoryScreen#renderEntityInInventoryFollowsMouse
-net.minecraft.client.renderer.entity.EntityRenderDispatcher
-net.minecraft.client.renderer.entity.layers.WingsLayer
-net.minecraft.client.User
-net.minecraft.client.renderer.LevelRenderer#extractLevel
-net.minecraft.client.renderer.LevelRenderer#renderLevel
-net.minecraft.client.renderer.state.LevelRenderState
-net.minecraft.client.renderer.CloudRenderer
+%continuity:resourcepacks
+%continuity:pack.mcmeta
+%continuity:ContinuityClient
