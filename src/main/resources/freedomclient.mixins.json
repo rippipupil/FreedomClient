@@ -14,6 +14,7 @@
 		"DebugScreenOverlayMixin",
 		"ClientLevelMixin",
 		"ClientLevelDataMixin",
+		"PackRepositoryMixin",
 		"ContainerBackgroundMixin",
 		"ContainerLabelsMixin",
 		"EntityHitboxDebugRendererMixin",

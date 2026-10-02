@@ -62,11 +62,11 @@ public class PacksPage implements MenuPage {
 		return !pending.equals(new ArrayList<>(repository().getSelectedIds()));
 	}
 
-	/** Packs que el jugador puede poner o quitar (los obligatorios, como el de Minecraft, no salen). */
+	/** Packs que el jugador puede poner o quitar (los obligatorios, como Minecraft y FreedomClient, y los internos no salen). */
 	private static List<Pack> choosable() {
 		List<Pack> packs = new ArrayList<>();
 		for (Pack pack : repository().getAvailablePacks()) {
-			if (!pack.isRequired() && !pack.isFixedPosition()) packs.add(pack);
+			if (!pack.isRequired() && !pack.isFixedPosition() && !com.freedomclient.pack.FreedomPack.isInternal(pack.getId())) packs.add(pack);
 		}
 		packs.sort((a, b) -> a.getTitle().getString().compareToIgnoreCase(b.getTitle().getString()));
 		return packs;

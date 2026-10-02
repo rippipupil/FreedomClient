@@ -111,19 +111,20 @@ public class FreedomClient implements ClientModInitializer {
 				Config.save();
 			}
 		});
-		// Entrada única "FreedomClient" en el menú de paquetes (los paquetes internos se ocultan, ver
-		// TransferableSelectionListMixin).
-		net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(container ->
-				net.fabricmc.fabric.api.resource.v1.ResourceLoader.registerBuiltinPack(id("fc_resources"), container,
-						net.minecraft.network.chat.Component.literal("FreedomClient"),
-						net.fabricmc.fabric.api.resource.v1.pack.PackActivationType.ALWAYS_ENABLED));
-		BetterGrassModule.registerPack();
-		VisualsModule.registerPacks();
-		com.freedomclient.module.pvp.GapCounterModule.registerPacks();
+		// Un solo paquete de recursos "FreedomClient" (ver FreedomPack) con las partes que estén activas, de abajo arriba.
+		com.freedomclient.pack.FreedomPack.layer("better_grass", MOD_ID, "resourcepacks/bettergrass",
+				() -> moduleManager.get(BetterGrassModule.class).isEnabled());
+		com.freedomclient.pack.FreedomPack.layer("glass", "continuity", "resourcepacks/default", com.freedomclient.module.qol.GlassModule::active);
+		for (String color : VisualsModule.glintColors()) {
+			com.freedomclient.pack.FreedomPack.layer("glint_" + color, MOD_ID, "resourcepacks/glint_" + color.toLowerCase(java.util.Locale.ROOT),
+					() -> VisualsModule.glintColor().equals(color));
+		}
+		for (String pack : com.freedomclient.module.pvp.GapCounterModule.packs()) {
+			com.freedomclient.pack.FreedomPack.layer(pack, MOD_ID, "resourcepacks/" + pack,
+					() -> pack.equals(com.freedomclient.module.pvp.GapCounterModule.activePack()));
+		}
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-			moduleManager.get(BetterGrassModule.class).syncWithPacks(client);
-			moduleManager.get(VisualsModule.class).syncWithPacks(client);
-			moduleManager.get(com.freedomclient.module.qol.GlassModule.class).applyOnStart(client);
+			com.freedomclient.module.qol.GlassModule.removeLegacyPack(client);
 			if (moduleManager.get(UpdatesModule.class).isEnabled()) UpdateChecker.checkAsync();
 		});
 
