@@ -1,4 +1,14 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-%continuity:resourcepacks
-%continuity:pack.mcmeta
-%continuity:ContinuityClient
+net.minecraft.server.packs.PackResources
+net.minecraft.server.packs.CompositePackResources
+net.minecraft.server.packs.PathPackResources
+net.minecraft.server.packs.PathPackResources$PathResourcesSupplier
+net.minecraft.server.packs.PackLocationInfo
+net.minecraft.server.packs.PackSelectionConfig
+net.minecraft.server.packs.repository.Pack
+net.minecraft.server.packs.repository.Pack$ResourcesSupplier
+net.minecraft.server.packs.repository.Pack$Position
+net.minecraft.server.packs.repository.PackSource
+net.minecraft.server.packs.repository.RepositorySource
+net.minecraft.server.packs.repository.PackRepository
+net.minecraft.client.resources.ClientPackSource
