@@ -1,0 +1,225 @@
+Jar: .gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-6c1f373ab1/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-6c1f373ab1-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
+
+==================== net.minecraft.server.packs.PackResources
+Compiled from "PackResources.java"
+public interface net.minecraft.server.packs.PackResources extends java.lang.AutoCloseable {
+  public static final java.lang.String METADATA_EXTENSION;
+  public static final java.lang.String PACK_META;
+  public abstract net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String...);
+  public abstract net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType, net.minecraft.resources.Identifier);
+  public abstract void listResources(net.minecraft.server.packs.PackType, java.lang.String, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput);
+  public abstract java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType);
+  public abstract <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionType<T>) throws java.io.IOException;
+  public abstract net.minecraft.server.packs.PackLocationInfo location();
+  public default java.lang.String packId();
+  public default java.util.Optional<net.minecraft.server.packs.repository.KnownPack> knownPackInfo();
+  public abstract void close();
+}
+
+==================== net.minecraft.server.packs.CompositePackResources
+Compiled from "CompositePackResources.java"
+public class net.minecraft.server.packs.CompositePackResources implements net.minecraft.server.packs.PackResources {
+  private final net.minecraft.server.packs.PackResources primaryPackResources;
+  private final java.util.List<net.minecraft.server.packs.PackResources> packResourcesStack;
+  public net.minecraft.server.packs.CompositePackResources(net.minecraft.server.packs.PackResources, java.util.List<net.minecraft.server.packs.PackResources>);
+  public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String...);
+  public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType, net.minecraft.resources.Identifier);
+  public void listResources(net.minecraft.server.packs.PackType, java.lang.String, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput);
+  public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType);
+  public <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionType<T>) throws java.io.IOException;
+  public net.minecraft.server.packs.PackLocationInfo location();
+  public void close();
+}
+
+==================== net.minecraft.server.packs.PathPackResources
+Compiled from "PathPackResources.java"
+public class net.minecraft.server.packs.PathPackResources extends net.minecraft.server.packs.AbstractPackResources {
+  private static final org.slf4j.Logger LOGGER;
+  private static final com.google.common.base.Joiner PATH_JOINER;
+  private final java.nio.file.Path root;
+  public net.minecraft.server.packs.PathPackResources(net.minecraft.server.packs.PackLocationInfo, java.nio.file.Path);
+  public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String...);
+  public static boolean validatePath(java.nio.file.Path);
+  public net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType, net.minecraft.resources.Identifier);
+  public static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.resources.Identifier, java.nio.file.Path);
+  private static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> returnFileIfExists(java.nio.file.Path);
+  public void listResources(net.minecraft.server.packs.PackType, java.lang.String, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput);
+  public static void listPath(java.lang.String, java.nio.file.Path, java.util.List<java.lang.String>, net.minecraft.server.packs.PackResources$ResourceOutput);
+  private static boolean isRegularFile(java.nio.file.Path, java.nio.file.attribute.BasicFileAttributes);
+  public java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType);
+  public void close();
+  private static void method_45184(java.nio.file.Path, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput, java.nio.file.Path);
+  private static void method_45182(java.lang.String, com.mojang.serialization.DataResult$Error);
+  private void method_45181(net.minecraft.server.packs.PackType, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput, java.util.List);
+  private static net.minecraft.server.packs.resources.IoSupplier method_45179(net.minecraft.resources.Identifier, com.mojang.serialization.DataResult$Error);
+  private static net.minecraft.server.packs.resources.IoSupplier method_45186(java.nio.file.Path, java.util.List);
+  static {};
+}
+
+==================== net.minecraft.server.packs.PathPackResources$PathResourcesSupplier
+Compiled from "PathPackResources.java"
+public class net.minecraft.server.packs.PathPackResources$PathResourcesSupplier implements net.minecraft.server.packs.repository.Pack$ResourcesSupplier {
+  private final java.nio.file.Path content;
+  public net.minecraft.server.packs.PathPackResources$PathResourcesSupplier(java.nio.file.Path);
+  public net.minecraft.server.packs.PackResources openPrimary(net.minecraft.server.packs.PackLocationInfo);
+  public net.minecraft.server.packs.PackResources openFull(net.minecraft.server.packs.PackLocationInfo, net.minecraft.server.packs.repository.Pack$Metadata);
+}
+
+==================== net.minecraft.server.packs.PackLocationInfo
+Compiled from "PackLocationInfo.java"
+public final class net.minecraft.server.packs.PackLocationInfo extends java.lang.Record {
+  private final java.lang.String id;
+  private final net.minecraft.network.chat.Component title;
+  private final net.minecraft.server.packs.repository.PackSource source;
+  private final java.util.Optional<net.minecraft.server.packs.repository.KnownPack> knownPackInfo;
+  public net.minecraft.server.packs.PackLocationInfo(java.lang.String, net.minecraft.network.chat.Component, net.minecraft.server.packs.repository.PackSource, java.util.Optional<net.minecraft.server.packs.repository.KnownPack>);
+  public net.minecraft.network.chat.Component createChatLink(boolean, net.minecraft.network.chat.Component);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public java.lang.String id();
+  public net.minecraft.network.chat.Component title();
+  public net.minecraft.server.packs.repository.PackSource source();
+  public java.util.Optional<net.minecraft.server.packs.repository.KnownPack> knownPackInfo();
+  private net.minecraft.network.chat.Style method_56928(boolean, net.minecraft.network.chat.Component, net.minecraft.network.chat.Style);
+}
+
+==================== net.minecraft.server.packs.PackSelectionConfig
+Compiled from "PackSelectionConfig.java"
+public final class net.minecraft.server.packs.PackSelectionConfig extends java.lang.Record {
+  private final boolean required;
+  private final net.minecraft.server.packs.repository.Pack$Position defaultPosition;
+  private final boolean fixedPosition;
+  public net.minecraft.server.packs.PackSelectionConfig(boolean, net.minecraft.server.packs.repository.Pack$Position, boolean);
+  public final java.lang.String toString();
+  public final int hashCode();
+  public final boolean equals(java.lang.Object);
+  public boolean required();
+  public net.minecraft.server.packs.repository.Pack$Position defaultPosition();
+  public boolean fixedPosition();
+}
+
+==================== net.minecraft.server.packs.repository.Pack
+Compiled from "Pack.java"
+public class net.minecraft.server.packs.repository.Pack {
+  private static final org.slf4j.Logger LOGGER;
+  private final net.minecraft.server.packs.PackLocationInfo location;
+  private final net.minecraft.server.packs.repository.Pack$ResourcesSupplier resources;
+  private final net.minecraft.server.packs.repository.Pack$Metadata metadata;
+  private final net.minecraft.server.packs.PackSelectionConfig selectionConfig;
+  public static net.minecraft.server.packs.repository.Pack readMetaAndCreate(net.minecraft.server.packs.PackLocationInfo, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.server.packs.PackType, net.minecraft.server.packs.PackSelectionConfig);
+  public net.minecraft.server.packs.repository.Pack(net.minecraft.server.packs.PackLocationInfo, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.server.packs.repository.Pack$Metadata, net.minecraft.server.packs.PackSelectionConfig);
+  public static net.minecraft.server.packs.repository.Pack$Metadata readPackMetadata(net.minecraft.server.packs.PackLocationInfo, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.server.packs.metadata.pack.PackFormat, net.minecraft.server.packs.PackType);
+  public net.minecraft.server.packs.PackLocationInfo location();
+  public net.minecraft.network.chat.Component getTitle();
+  public net.minecraft.network.chat.Component getDescription();
+  public net.minecraft.network.chat.Component getChatLink(boolean);
+  public net.minecraft.server.packs.repository.PackCompatibility getCompatibility();
+  public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatures();
+  public net.minecraft.server.packs.PackResources open();
+  public java.lang.String getId();
+  public net.minecraft.server.packs.PackSelectionConfig selectionConfig();
+  public boolean isRequired();
+  public boolean isFixedPosition();
+  public net.minecraft.server.packs.repository.Pack$Position getDefaultPosition();
+  public net.minecraft.server.packs.repository.PackSource getPackSource();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+  static {};
+}
+
+==================== net.minecraft.server.packs.repository.Pack$ResourcesSupplier
+Compiled from "Pack.java"
+public interface net.minecraft.server.packs.repository.Pack$ResourcesSupplier {
+  public abstract net.minecraft.server.packs.PackResources openPrimary(net.minecraft.server.packs.PackLocationInfo);
+  public abstract net.minecraft.server.packs.PackResources openFull(net.minecraft.server.packs.PackLocationInfo, net.minecraft.server.packs.repository.Pack$Metadata);
+}
+
+==================== net.minecraft.server.packs.repository.Pack$Position
+Compiled from "Pack.java"
+public final class net.minecraft.server.packs.repository.Pack$Position extends java.lang.Enum<net.minecraft.server.packs.repository.Pack$Position> {
+  public static final net.minecraft.server.packs.repository.Pack$Position TOP;
+  public static final net.minecraft.server.packs.repository.Pack$Position BOTTOM;
+  private static final net.minecraft.server.packs.repository.Pack$Position[] $VALUES;
+  public static net.minecraft.server.packs.repository.Pack$Position[] values();
+  public static net.minecraft.server.packs.repository.Pack$Position valueOf(java.lang.String);
+  private net.minecraft.server.packs.repository.Pack$Position();
+  public <T> int insert(java.util.List<T>, T, java.util.function.Function<T, net.minecraft.server.packs.PackSelectionConfig>, boolean);
+  public net.minecraft.server.packs.repository.Pack$Position opposite();
+  private static net.minecraft.server.packs.repository.Pack$Position[] $values();
+  static {};
+}
+
+==================== net.minecraft.server.packs.repository.PackSource
+Compiled from "PackSource.java"
+public interface net.minecraft.server.packs.repository.PackSource {
+  public static final java.util.function.UnaryOperator<net.minecraft.network.chat.Component> NO_DECORATION;
+  public static final net.minecraft.server.packs.repository.PackSource DEFAULT;
+  public static final net.minecraft.server.packs.repository.PackSource BUILT_IN;
+  public static final net.minecraft.server.packs.repository.PackSource FEATURE;
+  public static final net.minecraft.server.packs.repository.PackSource WORLD;
+  public static final net.minecraft.server.packs.repository.PackSource SERVER;
+  public abstract net.minecraft.network.chat.Component decorate(net.minecraft.network.chat.Component);
+  public abstract boolean shouldAddAutomatically();
+  public static net.minecraft.server.packs.repository.PackSource create(java.util.function.UnaryOperator<net.minecraft.network.chat.Component>, boolean);
+  private static java.util.function.UnaryOperator<net.minecraft.network.chat.Component> decorateWithSource(java.lang.String);
+  private static net.minecraft.network.chat.Component method_45283(net.minecraft.network.chat.Component, net.minecraft.network.chat.Component);
+  static {};
+}
+
+==================== net.minecraft.server.packs.repository.RepositorySource
+Compiled from "RepositorySource.java"
+public interface net.minecraft.server.packs.repository.RepositorySource {
+  public abstract void loadPacks(java.util.function.Consumer<net.minecraft.server.packs.repository.Pack>);
+}
+
+==================== net.minecraft.server.packs.repository.PackRepository
+Compiled from "PackRepository.java"
+public class net.minecraft.server.packs.repository.PackRepository {
+  private final java.util.Set<net.minecraft.server.packs.repository.RepositorySource> sources;
+  private java.util.Map<java.lang.String, net.minecraft.server.packs.repository.Pack> available;
+  private java.util.List<net.minecraft.server.packs.repository.Pack> selected;
+  public net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.repository.RepositorySource...);
+  public static java.lang.String displayPackList(java.util.Collection<net.minecraft.server.packs.repository.Pack>);
+  public void reload();
+  private java.util.Map<java.lang.String, net.minecraft.server.packs.repository.Pack> discoverAvailable();
+  public boolean isAbleToClearAnyPack();
+  public void setSelected(java.util.Collection<java.lang.String>);
+  public boolean addPack(java.lang.String);
+  public boolean removePack(java.lang.String);
+  private java.util.List<net.minecraft.server.packs.repository.Pack> rebuildSelected(java.util.Collection<java.lang.String>);
+  private java.util.stream.Stream<net.minecraft.server.packs.repository.Pack> getAvailablePacks(java.util.Collection<java.lang.String>);
+  public java.util.Collection<java.lang.String> getAvailableIds();
+  public java.util.Collection<net.minecraft.server.packs.repository.Pack> getAvailablePacks();
+  public java.util.Collection<java.lang.String> getSelectedIds();
+  public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatureFlags();
+  public java.util.Collection<net.minecraft.server.packs.repository.Pack> getSelectedPacks();
+  public net.minecraft.server.packs.repository.Pack getPack(java.lang.String);
+  public boolean isAvailable(java.lang.String);
+  public java.util.List<net.minecraft.server.packs.PackResources> openAllSelected();
+  private static void method_29484(java.util.Map, net.minecraft.server.packs.repository.Pack);
+  private static java.lang.String method_59808(net.minecraft.server.packs.repository.Pack);
+}
+
+==================== net.minecraft.client.resources.ClientPackSource
+Compiled from "ClientPackSource.java"
+public class net.minecraft.client.resources.ClientPackSource extends net.minecraft.server.packs.repository.BuiltInPackSource {
+  private static final net.minecraft.server.packs.metadata.pack.PackMetadataSection VERSION_METADATA_SECTION;
+  private static final net.minecraft.server.packs.BuiltInMetadata BUILT_IN_METADATA;
+  public static final java.lang.String HIGH_CONTRAST_PACK;
+  private static final java.util.Map<java.lang.String, net.minecraft.network.chat.Component> SPECIAL_PACK_NAMES;
+  private static final net.minecraft.server.packs.PackLocationInfo VANILLA_PACK_INFO;
+  private static final net.minecraft.server.packs.PackSelectionConfig VANILLA_SELECTION_CONFIG;
+  private static final net.minecraft.server.packs.PackSelectionConfig BUILT_IN_SELECTION_CONFIG;
+  private static final net.minecraft.resources.Identifier PACKS_DIR;
+  private final java.nio.file.Path externalAssetDir;
+  public net.minecraft.client.resources.ClientPackSource(java.nio.file.Path, net.minecraft.world.level.validation.DirectoryValidator);
+  private static net.minecraft.server.packs.PackLocationInfo createBuiltInPackLocation(java.lang.String, net.minecraft.network.chat.Component);
+  private java.nio.file.Path findExplodedAssetPacks(java.nio.file.Path);
+  private static net.minecraft.server.packs.VanillaPackResources createVanillaPackSource(java.nio.file.Path);
+  protected net.minecraft.network.chat.Component getPackTitle(java.lang.String);
+  protected net.minecraft.server.packs.repository.Pack createVanillaPack(net.minecraft.server.packs.PackResources);
+  protected net.minecraft.server.packs.repository.Pack createBuiltinPack(java.lang.String, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.network.chat.Component);
+  protected void populatePackList(java.util.function.BiConsumer<java.lang.String, java.util.function.Function<java.lang.String, net.minecraft.server.packs.repository.Pack>>);
+  static {};
+}
