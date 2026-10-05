@@ -260,6 +260,12 @@ public class ModGridPage implements MenuPage {
 		return x + width + 3;
 	}
 
+	/** Escribe en el buscador (lo usan los tests para enseñar una tarjeta concreta). */
+	public void setSearch(String text) {
+		search.setText(text);
+		scroll.reset();
+	}
+
 	private String query() {
 		return search.getText().toLowerCase(Locale.ROOT).trim();
 	}
@@ -461,6 +467,9 @@ public class ModGridPage implements MenuPage {
 		int fill = ThemeManager.mix(ThemeManager.mix(offFill, onFill, on), ThemeManager.cardHover(), hover * 0.35F);
 		int border = ThemeManager.mix(ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.5F), category, 0.25F + 0.25F * hover);
 		Draw.bevelPanel(ui.g, x, y, w, h, fill, border);
+		// Algunos cosméticos traen su propio fondo de tarjeta, fijo (no cambia con el tema).
+		boolean customBackground = module instanceof CosmeticModule cosmeticCard && cosmeticCard.drawCardBackground(ui.g, x + 1, y + 1, w - 2, h - 2);
+		if (customBackground && hover > 0.01F) ui.g.fill(x + 1, y + 1, x + w - 1, y + h - 1, ThemeManager.withAlpha(0xFFFFFFFF, 0.06F * hover));
 		if (NeonStyle.on() && on > 0.5F) {
 			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
 			NeonStyle.frame(ui.g, x, y, w, h, phase, 0.5, 0.6F + 0.4F * hover);
@@ -488,7 +497,9 @@ public class ModGridPage implements MenuPage {
 			previewed = true;
 		}
 		if (!previewed && isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
-			Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on),
+			// Con fondo propio, la caja de la vista previa deja ver el fondo.
+			int boxFill = ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on);
+			Draw.panel(ui.g, boxX, boxY, boxW, boxH, customBackground ? ThemeManager.withAlpha(boxFill, 0.35F) : boxFill,
 					ThemeManager.mix(category, ThemeManager.border(), 0.4F));
 			previewed = CosmeticPreview.render(ui.g, cosmetic, boxX + 1, boxY + 1, boxX + boxW - 1, boxY + boxH - 1);
 		}
@@ -500,7 +511,8 @@ public class ModGridPage implements MenuPage {
 		int textX = boxX + boxW + 5;
 		// A la derecha quedan la rueda de ajustes y la estrella.
 		int textWidth = x + w - textX - 24;
-		int nameColor = ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
+		// Sobre un fondo propio (siempre oscuro) el texto va claro, sea cual sea el tema.
+		int nameColor = customBackground ? 0xFFF2F2F0 : ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
 		boolean twoLines = ui.font.width(module.getName()) > textWidth;
 		int nameY = y + (isCosmetics() ? 7 : 5);
 		if (twoLines) {
@@ -529,7 +541,7 @@ public class ModGridPage implements MenuPage {
 		if (isCosmetics() && !twoLines) {
 			// Descripción corta debajo del nombre en las tarjetas de cosméticos, que tienen más sitio.
 			String description = ui.font.plainSubstrByWidth(module.getDescription(), x + w - textX - 5);
-			ui.g.drawString(ui.font, description, textX, nameY + 13, ThemeManager.textMuted(), false);
+			ui.g.drawString(ui.font, description, textX, nameY + 13, customBackground ? 0xFFB4B4BC : ThemeManager.textMuted(), false);
 		}
 
 		// Arriba a la derecha: rueda de ajustes (y la estrella de favorito a su izquierda).

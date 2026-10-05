@@ -94,5 +94,14 @@
 			"freedomclient:hit/click_crit"
 		],
 		"subtitle": "freedomclient.subtitle.hit"
+	},
+	"guitar.hades": {
+		"sounds": [
+			{
+				"name": "freedomclient:guitar/hades",
+				"stream": true
+			}
+		],
+		"subtitle": "freedomclient.subtitle.guitar"
 	}
 }

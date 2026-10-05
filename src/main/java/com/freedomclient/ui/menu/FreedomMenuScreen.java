@@ -84,6 +84,11 @@ public class FreedomMenuScreen extends Screen {
 		}
 	}
 
+	/** Busca en la pestaña Cosmetics (lo usan los tests para enseñar una tarjeta concreta). */
+	public void searchCosmetics(String text) {
+		cosmeticsPage.setSearch(text);
+	}
+
 	/** Abre el menú directamente en una pestaña (por ejemplo, Packs con la tecla de Quick Pack). */
 	public static FreedomMenuScreen forTab(Tab tab) {
 		FreedomMenuScreen screen = new FreedomMenuScreen();

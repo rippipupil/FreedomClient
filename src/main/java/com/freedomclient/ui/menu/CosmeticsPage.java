@@ -15,6 +15,10 @@ public class CosmeticsPage implements MenuPage {
 		this.grid = new ModGridPage(screen, Category.COSMETICS);
 	}
 
+	public void setSearch(String text) {
+		grid.setSearch(text);
+	}
+
 	@Override
 	public void render(Ui ui, int x, int y, int w, int h) {
 		Draw.panel(ui.g, x, y, w, NOTE_HEIGHT, ThemeManager.shade(), ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.3F));

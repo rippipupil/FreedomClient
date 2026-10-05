@@ -48,6 +48,14 @@ public abstract class CosmeticModule extends Module {
 		return state.chestEquipment.isEmpty() ? 0.0F : 1.2F;
 	}
 
+	/**
+	 * Fondo propio de la tarjeta del menú (fijo, no cambia con el tema). Dibuja dentro del rectángulo y devuelve true;
+	 * por defecto no hay y la tarjeta usa el color de su categoría.
+	 */
+	public boolean drawCardBackground(net.minecraft.client.gui.GuiGraphics g, int x, int y, int w, int h) {
+		return false;
+	}
+
 	public static <T extends CosmeticModule> T get(Class<T> type) {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		return manager == null ? null : manager.get(type);

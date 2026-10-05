@@ -414,6 +414,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
 			shoot(context, "guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
 			shoot(context, "star_guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.StarGuitarCosmetic.class);
+			shoot(context, "hades_guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
+			shoot(context, "hades_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 70.0F));
 			shoot(context, "guitar_side", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 70.0F));
@@ -809,6 +813,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_cosmetics_chips");
+			// Tarjeta de Hades con su fondo propio (jardín de noche con espíritus).
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.setTab(FreedomMenuScreen.Tab.COSMETICS);
+				screen.searchCosmetics("guitar");
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_cosmetics_hades");
 
 			context.setScreen(() -> {
 				FreedomMenuScreen screen = new FreedomMenuScreen();
