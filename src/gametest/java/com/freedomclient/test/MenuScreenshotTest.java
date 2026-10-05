@@ -751,6 +751,21 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 					com.freedomclient.ui.menu.ModFolders.toggle("PvP set", id);
 				}
 			});
+			// Rendimiento del menú: FPS (en el log, "[perf]") con un borde animado puesto, en Mods, Cosmetics y con
+			// el tema Red Devil, que es el que más dibuja.
+			context.runOnClient(client -> cosmetic(com.freedomclient.cosmetic.border.ElectricBorderCosmetic.class).setEnabled(true));
+			for (String perf : new String[] {"mods", "cosmetics", "mods_red_devil"}) {
+				context.runOnClient(client -> {
+					if (perf.equals("mods_red_devil")) com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_DEVIL);
+				});
+				context.setScreen(() -> FreedomMenuScreen.forTab(perf.equals("cosmetics") ? FreedomMenuScreen.Tab.COSMETICS : FreedomMenuScreen.Tab.MODS));
+				context.waitTicks(80);
+				context.runOnClient(client -> FreedomClient.LOGGER.info("[perf] menu {} fps {}", perf, client.getFps()));
+			}
+			context.runOnClient(client -> {
+				cosmetic(com.freedomclient.cosmetic.border.ElectricBorderCosmetic.class).setEnabled(false);
+				com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET);
+			});
 			for (FreedomMenuScreen.Tab tab : FreedomMenuScreen.Tab.values()) {
 				context.setScreen(() -> {
 					FreedomMenuScreen screen = new FreedomMenuScreen();
