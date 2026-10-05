@@ -139,7 +139,7 @@ public class FreedomMenuScreen extends Screen {
 
 	/** Ancho de la ventana: con vista previa ocupa la parte izquierda y deja el juego a la vista. */
 	private int windowWidth() {
-		if (livePreview() != null) return Math.max(230, Math.min(MAX_WIDTH, Math.round(width * 0.42F)));
+		if (livePreview() != null) return Math.max(230, Math.min(MAX_WIDTH, Math.round(width * 0.46F)));
 		return Math.min(MAX_WIDTH, width - 16);
 	}
 
@@ -224,18 +224,21 @@ public class FreedomMenuScreen extends Screen {
 			g.fill(x + 1, y + HEADER_HEIGHT, x + w - 1, y + HEADER_HEIGHT + 1, ThemeManager.border());
 		}
 
-		// Logo del cliente: las iniciales FC de circuito con el halo encima, y el nombre en dos colores.
-		int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
-		int logoCenterY = y + 17;
-		PixelSky.logo(g, logoCenterX, logoCenterY - 2, 1, 1.0F);
+		// Logo del cliente: las iniciales FC de circuito con el halo encima, y el nombre en dos colores. En la ventana
+		// estrecha (vista previa en directo) lo que no cabe junto a las pestañas no se dibuja.
+		int tabsWidth = 0;
+		for (Tab current : Tab.values()) tabsWidth += font.width(current.label) + 12;
+		int tabsLeft = x + w - 4 - tabsWidth;
+		if (x + 6 + PixelSky.logoWidth() + 4 <= tabsLeft) {
+			int logoCenterX = x + 6 + PixelSky.logoWidth() / 2 + 1;
+			int logoCenterY = y + 17;
+			PixelSky.logo(g, logoCenterX, logoCenterY - 2, 1, 1.0F);
+		}
 		int nameX = x + 6 + PixelSky.logoWidth() + 8;
 		int nameY = y + 11;
 		int freedomWidth = font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
 		int nameWidth = freedomWidth + font.width(Component.literal("Client").withStyle(ChatFormatting.BOLD));
-		int tabsWidth = 0;
-		for (Tab current : Tab.values()) tabsWidth += font.width(current.label) + 12;
-		// En la ventana estrecha (vista previa en directo) el nombre no cabe junto a las pestañas: solo va el logo.
-		if (nameX + nameWidth + 6 <= x + w - 4 - tabsWidth) {
+		if (nameX + nameWidth + 6 <= tabsLeft) {
 			g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
 			int clientX = nameX + freedomWidth;
 			if (NeonStyle.on()) {
