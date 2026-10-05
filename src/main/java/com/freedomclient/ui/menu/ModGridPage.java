@@ -28,7 +28,8 @@ public class ModGridPage implements MenuPage {
 	private static final int CARD_MIN_WIDTH = 104;
 	private static final int CARD_HEIGHT = 34;
 	private static final int COSMETIC_CARD_HEIGHT = 58;
-	private static final int GAP = 4;
+	/** Separación entre tarjetas: deja sitio a los bordes (los de brillo se salen un poco de la tarjeta). */
+	private static final int GAP = 6;
 	private static final int BAR_HEIGHT = 12;
 	private static final int SECTION_HEADER = 14;
 
@@ -187,6 +188,20 @@ public class ModGridPage implements MenuPage {
 		return module instanceof CosmeticModule cosmetic ? cosmetic.getSlot() : CosmeticSlot.EFFECT;
 	}
 
+	/** Cosméticos agrupados por sección, calculado solo cuando cambia la lista (no en cada fotograma). */
+	private List<Module> groupedFrom;
+	private java.util.Map<CosmeticSlot, List<Module>> grouped = java.util.Map.of();
+
+	private java.util.Map<CosmeticSlot, List<Module>> sectionsBySlot(List<Module> modules) {
+		if (modules != groupedFrom) {
+			java.util.Map<CosmeticSlot, List<Module>> bySlot = new java.util.EnumMap<>(CosmeticSlot.class);
+			for (Module module : modules) bySlot.computeIfAbsent(slotOf(module), key -> new java.util.ArrayList<>()).add(module);
+			grouped = bySlot;
+			groupedFrom = modules;
+		}
+		return grouped;
+	}
+
 	/** Cosméticos agrupados por sección, cada una con su título y su cuadrícula. */
 	private void renderSections(Ui ui, int x, int y, int w, int h) {
 		List<Module> modules = visibleModules();
@@ -198,7 +213,7 @@ public class ModGridPage implements MenuPage {
 		int offset = scroll.begin(ui, x, y, innerW, h);
 		int cursor = 0;
 		for (CosmeticSlot slot : CosmeticSlot.values()) {
-			List<Module> section = modules.stream().filter(module -> slotOf(module) == slot).toList();
+			List<Module> section = sectionsBySlot(modules).getOrDefault(slot, List.of());
 			if (section.isEmpty()) continue;
 			cursor = sectionHeader(ui, slot.getDisplayName(), x, y, cursor - offset, innerW, h) + offset;
 			for (int i = 0; i < section.size(); i++) {
@@ -394,13 +409,10 @@ public class ModGridPage implements MenuPage {
 	}
 
 	/** Estrella pixel de 8x8. */
+	private static final String[] STAR = {"...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"};
+
 	private static void star(Ui ui, int x, int y, int color) {
-		String[] rows = {"...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"};
-		for (int row = 0; row < rows.length; row++) {
-			for (int col = 0; col < rows[row].length(); col++) {
-				if (rows[row].charAt(col) == '#') ui.g.fill(x + col, y + row, x + col + 1, y + row + 1, color);
-			}
-		}
+		Draw.art(ui.g, STAR, x, y, color);
 	}
 
 	/** Ancho mínimo: las de cosméticos son más anchas para que quepan la vista previa y el texto. */
@@ -427,11 +439,7 @@ public class ModGridPage implements MenuPage {
 	};
 
 	private static void gear(Ui ui, int x, int y, int color) {
-		for (int row = 0; row < GEAR.length; row++) {
-			for (int col = 0; col < GEAR[row].length(); col++) {
-				if (GEAR[row].charAt(col) == '#') ui.g.fill(x + col, y + row, x + col + 1, y + row + 1, color);
-			}
-		}
+		Draw.art(ui.g, GEAR, x, y, color);
 	}
 
 	/**

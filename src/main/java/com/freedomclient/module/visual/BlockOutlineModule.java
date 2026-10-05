@@ -10,7 +10,7 @@ import com.freedomclient.setting.NumberSetting;
 import com.freedomclient.util.ColorUtil;
 
 /** ColorCubeBorders: color y grosor del contorno del bloque al que apuntas, y el bloque entero teñido de ese color. */
-public class BlockOutlineModule extends Module {
+public class BlockOutlineModule extends Module implements com.freedomclient.module.LivePreview {
 	private final ColorSetting color = add(new ColorSetting("Color", "Color of the block outline.", 0xFFF2C94C, true));
 	private final BooleanSetting rainbow = add(new BooleanSetting("Rainbow", "Animated rainbow outline.", false));
 	private final NumberSetting width = add(new NumberSetting("Thickness", "Thickness of the outline lines.", 2.5, 1, 8, 0.5));
@@ -53,5 +53,11 @@ public class BlockOutlineModule extends Module {
 	public static float width(float vanilla) {
 		BlockOutlineModule module = active();
 		return module == null ? vanilla : module.width.getFloat();
+	}
+
+	/** Vista previa en directo de los ajustes con esta cámara. */
+	@Override
+	public net.minecraft.client.CameraType previewCamera() {
+		return net.minecraft.client.CameraType.FIRST_PERSON;
 	}
 }

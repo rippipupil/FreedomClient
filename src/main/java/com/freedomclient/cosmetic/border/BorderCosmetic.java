@@ -5,6 +5,7 @@ import com.freedomclient.cosmetic.CosmeticModule;
 import com.freedomclient.cosmetic.CosmeticSlot;
 import com.freedomclient.module.ModuleManager;
 import com.freedomclient.setting.ModeSetting;
+import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.theme.ThemeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,7 +56,9 @@ public abstract class BorderCosmetic extends CosmeticModule {
 	/** Dibuja el efecto en el rectángulo; {@code strength} (0..1) es la opacidad general. */
 	public abstract void draw(GuiGraphics g, int x, int y, int w, int h, int categoryColor, float strength, float hover);
 
-	// ---------- Ayudas para recorrer el borde ----------
+	// ---------- Ayudas para dibujar el borde ----------
+	// Todo se dibuja con tramos enteros (un rectángulo por trozo de línea), nunca píxel a píxel: con muchas tarjetas a
+	// la vista eran cientos de rectángulos por tarjeta y el menú iba a tirones.
 
 	/** Píxeles que tiene el contorno de un rectángulo de w x h. */
 	protected static int perimeter(int w, int h) {
@@ -64,7 +67,7 @@ public abstract class BorderCosmetic extends CosmeticModule {
 
 	/**
 	 * Punto del contorno a {@code s} píxeles desde la esquina de arriba a la izquierda, en el sentido de las agujas
-	 * del reloj: {x, y, nx, ny} con la normal hacia fuera.
+	 * del reloj: {x, y, nx, ny, lado} con la normal hacia fuera (lado: 0 arriba, 1 derecha, 2 abajo, 3 izquierda).
 	 */
 	protected static int[] point(int s, int x, int y, int w, int h) {
 		int p = perimeter(w, h);
@@ -72,22 +75,60 @@ public abstract class BorderCosmetic extends CosmeticModule {
 		int top = w - 1;
 		int right = top + h - 1;
 		int bottom = right + w - 1;
-		if (s < top) return new int[] {x + s, y, 0, -1};
-		if (s < right) return new int[] {x + w - 1, y + s - top, 1, 0};
-		if (s < bottom) return new int[] {x + w - 1 - (s - right), y + h - 1, 0, 1};
-		return new int[] {x, y + h - 1 - (s - bottom), -1, 0};
+		if (s < top) return new int[] {x + s, y, 0, -1, 0};
+		if (s < right) return new int[] {x + w - 1, y + s - top, 1, 0, 1};
+		if (s < bottom) return new int[] {x + w - 1 - (s - right), y + h - 1, 0, 1, 2};
+		return new int[] {x, y + h - 1 - (s - bottom), -1, 0, 3};
 	}
 
-	protected static void pixel(GuiGraphics g, int x, int y, int color) {
-		g.fill(x, y, x + 1, y + 1, color);
-	}
-
-	/** Contorno de 1 px. */
-	protected static void outline(GuiGraphics g, int x, int y, int w, int h, int color) {
-		g.fill(x, y, x + w, y + 1, color);
-		g.fill(x, y + h - 1, x + w, y + h, color);
+	/**
+	 * Marco de 1 px con las esquinas recortadas, como los paneles del cliente ({@code inset} px hacia dentro).
+	 */
+	protected static void frame(GuiGraphics g, int x, int y, int w, int h, int inset, int color) {
+		x += inset;
+		y += inset;
+		w -= inset * 2;
+		h -= inset * 2;
+		if (w < 3 || h < 3) return;
+		g.fill(x + 1, y, x + w - 1, y + 1, color);
+		g.fill(x + 1, y + h - 1, x + w - 1, y + h, color);
 		g.fill(x, y + 1, x + 1, y + h - 1, color);
 		g.fill(x + w - 1, y + 1, x + w, y + h - 1, color);
+	}
+
+	/**
+	 * Tramo recto del borde entre los puntos {@code s0} y {@code s1} del contorno (incluidos, del mismo lado),
+	 * desplazado {@code out} px hacia fuera y de {@code thick} px de grueso hacia dentro.
+	 */
+	protected static void run(GuiGraphics g, int[] a, int[] b, int out, int thick, int color) {
+		int x1 = Math.min(a[0], b[0]) + a[2] * out;
+		int y1 = Math.min(a[1], b[1]) + a[3] * out;
+		int x2 = Math.max(a[0], b[0]) + 1 + a[2] * out;
+		int y2 = Math.max(a[1], b[1]) + 1 + a[3] * out;
+		// El grueso crece hacia dentro de la tarjeta (contra la normal).
+		if (a[2] > 0) x1 -= thick - 1;
+		if (a[2] < 0) x2 += thick - 1;
+		if (a[3] > 0) y1 -= thick - 1;
+		if (a[3] < 0) y2 += thick - 1;
+		g.fill(x1, y1, x2, y2, color);
+	}
+
+	/**
+	 * Tramo del contorno de {@code from} a {@code to} (puntos, en el sentido de las agujas del reloj) partido por
+	 * las esquinas: un rectángulo por cada lado que toca.
+	 */
+	protected static void span(GuiGraphics g, int from, int to, int x, int y, int w, int h, int out, int thick, int color) {
+		int[] start = point(from, x, y, w, h);
+		int s = from;
+		for (int i = from + 1; i <= to; i++) {
+			int[] next = point(i, x, y, w, h);
+			if (next[4] != start[4]) {
+				run(g, start, point(i - 1, x, y, w, h), out, thick, color);
+				start = next;
+				s = i;
+			}
+		}
+		if (s <= to) run(g, start, point(to, x, y, w, h), out, thick, color);
 	}
 
 	/** Número pseudoaleatorio estable (0..1) a partir de una semilla. */
@@ -103,14 +144,8 @@ public abstract class BorderCosmetic extends CosmeticModule {
 		return ThemeManager.withAlpha(0xFF000000 | rgb, alpha);
 	}
 
-	/** Dibuja un dibujito de '#' centrado en (cx, cy). */
+	/** Dibuja un dibujito de '#' centrado en (cx, cy), con un rectángulo por tramo de cada fila. */
 	protected static void pattern(GuiGraphics g, String[] rows, int cx, int cy, int color) {
-		int x0 = cx - rows[0].length() / 2;
-		int y0 = cy - rows.length / 2;
-		for (int row = 0; row < rows.length; row++) {
-			for (int col = 0; col < rows[row].length(); col++) {
-				if (rows[row].charAt(col) == '#') pixel(g, x0 + col, y0 + row, color);
-			}
-		}
+		Draw.art(g, rows, cx - rows[0].length() / 2, cy - rows.length / 2, color);
 	}
 }

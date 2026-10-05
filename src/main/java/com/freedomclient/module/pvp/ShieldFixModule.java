@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /** Baja y encoge el escudo en primera persona para que no tape la vista al bloquear. */
-public class ShieldFixModule extends Module {
+public class ShieldFixModule extends Module implements com.freedomclient.module.LivePreview {
 	private final NumberSetting lower = add(new NumberSetting("Lower by", "How much lower the shield is drawn.", 0.2, 0, 0.6, 0.05));
 	private final NumberSetting size = add(new NumberSetting("Size", "Size of the shield in first person.", 0.85, 0.5, 1, 0.05, "x"));
 
@@ -27,5 +27,11 @@ public class ShieldFixModule extends Module {
 	@Override
 	public boolean isVisibleInModuleList() {
 		return false;
+	}
+
+	/** Vista previa en directo de los ajustes con esta cámara. */
+	@Override
+	public net.minecraft.client.CameraType previewCamera() {
+		return net.minecraft.client.CameraType.FIRST_PERSON;
 	}
 }

@@ -12,7 +12,7 @@ import net.minecraft.world.entity.EquipmentSlot;
  * Hide Armor: no dibuja las piezas de armadura que elijas en tu jugador (en F5, el inventario y el menú). Solo cambia
  * lo que ves tú: la armadura sigue puesta y protegiendo, y los demás jugadores la siguen viendo.
  */
-public class HideArmorModule extends Module {
+public class HideArmorModule extends Module implements com.freedomclient.module.LivePreview {
 	private static HideArmorModule instance;
 
 	private final BooleanSetting helmet = add(new BooleanSetting("Helmet", "Hide your helmet.", true));
@@ -54,5 +54,11 @@ public class HideArmorModule extends Module {
 	public static boolean hidesElytra(HumanoidRenderState state) {
 		HideArmorModule module = instance;
 		return module != null && module.isEnabled() && module.elytra.get() && isOwnPlayer(state);
+	}
+
+	/** Vista previa en directo de los ajustes con esta cámara. */
+	@Override
+	public net.minecraft.client.CameraType previewCamera() {
+		return net.minecraft.client.CameraType.THIRD_PERSON_FRONT;
 	}
 }

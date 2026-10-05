@@ -5,8 +5,9 @@ import com.freedomclient.setting.NumberSetting;
 import net.minecraft.client.gui.GuiGraphics;
 
 /**
- * Borde eléctrico: rayos en zigzag que recorren el marco de la tarjeta con chispas en la punta, sobre una línea
- * de energía tenue, y de vez en cuando un chispazo que enciende todo el borde.
+ * Borde eléctrico: rayos en zigzag que recorren el marco de la tarjeta con una chispa en la punta, sobre una línea
+ * de energía tenue, y de vez en cuando un chispazo que enciende todo el borde. Cada rayo son unos pocos tramos rectos
+ * (uno cada 3 px, saltando hacia dentro o hacia fuera) en vez de un rectángulo por píxel.
  */
 public class ElectricBorderCosmetic extends BorderCosmetic {
 	private static final int[][] PALETTES = {
@@ -15,6 +16,8 @@ public class ElectricBorderCosmetic extends BorderCosmetic {
 			{0xFFF5AA, 0xFFE14A, 0xFFC23A, 0xF29A2E, 0xD9701E, 0xA84A12},
 			{0xF6EEFF, 0xE6B8FF, 0xC9A3FF, 0xFF7AD9, 0x9B5CFF, 0x5E2AB0},
 	};
+	/** Largo de cada tramo recto del zigzag. */
+	private static final int STEP = 3;
 
 	private final ModeSetting color = add(new ModeSetting("Color", "Color of the electricity.", "Neon", "Neon", "Blue", "Gold", "Purple"));
 	private final NumberSetting speed = add(new NumberSetting("Speed", "How fast the bolts run around the card.", 5, 1, 10, 1));
@@ -41,39 +44,35 @@ public class ElectricBorderCosmetic extends BorderCosmetic {
 		// Chispazo: cada ~3 s el borde entero se ilumina un momento (desfasado por tarjeta).
 		long cycle = (time + (x * 31L + y * 17L)) % 3100;
 		float flash = cycle < 160 ? 1.0F - cycle / 160.0F : 0.0F;
-		outline(g, x, y, w, h, alpha(colors[3], strength * (0.55F + 0.45F * flash)));
+		frame(g, x, y, w, h, 0, alpha(colors[3], strength * (0.45F + 0.5F * flash)));
 		// Segunda línea por dentro, más suave, para que el marco se vea cargado de energía.
-		outline(g, x + 1, y + 1, w - 2, h - 2, alpha(colors[4], strength * (0.25F + 0.3F * flash)));
+		frame(g, x, y, w, h, 1, alpha(colors[4], strength * (0.18F + 0.3F * flash)));
 
 		int count = bolts.getInt();
-		int length = Math.max(14, Math.min(40, p / 6));
+		int length = Math.max(12, Math.min(36, p / 6));
 		double travel = time * speed.get() * 0.012;
 		// El zigzag cambia de forma unas 14 veces por segundo, como la corriente.
 		long jitterStep = time / 70;
 		for (int b = 0; b < count; b++) {
 			int head = (int) (travel + (double) b * p / count) + x + y;
-			for (int i = 0; i < length; i++) {
-				int[] pt = point(head - i, x, y, w, h);
-				float rnd = hash(jitterStep * 131 + (head - i) * 7L + b);
-				int offset = rnd < 0.3F ? -1 : rnd > 0.7F ? 1 : 0;
+			for (int i = 0; i < length; i += STEP) {
+				float rnd = hash(jitterStep * 131 + (head - i) / STEP * 7L + b);
+				// Cada tramo salta un píxel hacia fuera o hacia dentro: así se ve el zigzag del rayo.
+				int offset = rnd < 0.33F ? 1 : rnd > 0.66F ? -1 : 0;
 				float fade = 1.0F - i / (float) length;
 				int c = colors[Math.min(colors.length - 1, i * colors.length / length)];
-				int px = pt[0] + pt[2] * offset;
-				int py = pt[1] + pt[3] * offset;
-				// Rayo de 2 px de grueso con brillo a los dos lados.
-				pixel(g, px, py, alpha(c, strength * fade));
-				pixel(g, px - pt[2], py - pt[3], alpha(c, strength * fade * 0.85F));
-				pixel(g, px + pt[2], py + pt[3], alpha(c, strength * fade * 0.45F));
-				pixel(g, px - pt[2] * 2, py - pt[3] * 2, alpha(c, strength * fade * 0.25F));
+				int from = head - Math.min(length - 1, i + STEP - 1);
+				int to = head - i;
+				span(g, from, to, x, y, w, h, offset, 1, alpha(c, strength * fade));
+				// Brillo por dentro del rayo.
+				span(g, from, to, x, y, w, h, offset - 1, 1, alpha(c, strength * fade * 0.35F));
 			}
-			// Chispas sueltas alrededor de la punta.
-			int[] tip = point(head, x, y, w, h);
-			for (int k = 0; k < 3; k++) {
-				float a = hash(jitterStep * 977 + k * 13L + b);
-				float d = hash(jitterStep * 389 + k * 29L + b);
-				int sx = tip[0] + Math.round((a - 0.5F) * 6.0F) + tip[2] * Math.round(d * 3.0F);
-				int sy = tip[1] + Math.round((d - 0.5F) * 6.0F) + tip[3] * Math.round(a * 3.0F);
-				pixel(g, sx, sy, alpha(colors[k % 2 == 0 ? 0 : 2], strength * (0.5F + 0.5F * a)));
+			// Chispa en la punta: una crucecita blanca que parpadea.
+			if (hash(jitterStep * 977 + b) > 0.35F) {
+				int[] tip = point(head, x, y, w, h);
+				int spark = alpha(colors[0], strength);
+				g.fill(tip[0] - 1, tip[1], tip[0] + 2, tip[1] + 1, spark);
+				g.fill(tip[0], tip[1] - 1, tip[0] + 1, tip[1] + 2, spark);
 			}
 		}
 	}

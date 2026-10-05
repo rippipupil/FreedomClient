@@ -818,6 +818,33 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_settings_zoom");
+			// Vista previa en directo: ViewModel con la mano movida y girada; la ventana deja ver el juego a la derecha.
+			context.runOnClient(client -> {
+				Module viewModel = FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.ViewModelModule.class);
+				viewModel.setEnabled(true);
+				for (Setting<?> setting : viewModel.getSettings()) {
+					if (setting instanceof com.freedomclient.setting.NumberSetting number) {
+						if (number.getName().equals("Position X")) number.set(-0.35);
+						if (number.getName().equals("Rotation Y")) number.set(30.0);
+						if (number.getName().equals("Scale")) number.set(1.3);
+					}
+				}
+			});
+			context.setScreen(() -> {
+				FreedomMenuScreen screen = new FreedomMenuScreen();
+				screen.setTab(FreedomMenuScreen.Tab.MODS);
+				screen.openModule(FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.ViewModelModule.class));
+				return screen;
+			});
+			context.waitTicks(10);
+			context.takeScreenshot("menu_settings_viewmodel_live");
+			context.runOnClient(client -> {
+				Module viewModel = FreedomClient.getModuleManager().get(com.freedomclient.module.pvp.ViewModelModule.class);
+				for (Setting<?> setting : viewModel.getSettings()) {
+					if (setting instanceof com.freedomclient.setting.NumberSetting number) number.set(number.getDefault());
+				}
+				viewModel.setEnabled(false);
+			});
 
 			// Selector de opciones con todas a la vista (HitSounds).
 			context.setScreen(() -> {

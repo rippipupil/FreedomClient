@@ -5,7 +5,7 @@ import com.freedomclient.module.Module;
 import com.freedomclient.setting.NumberSetting;
 
 /** Wavy Capes: las capas se dibujan en tiras que se curvan y ondean con el movimiento (ver WavyCapeRenderer). */
-public class WavyCapesModule extends Module {
+public class WavyCapesModule extends Module implements com.freedomclient.module.LivePreview {
 	private static WavyCapesModule instance;
 
 	public final NumberSetting wind = add(new NumberSetting("Wind", "How much the cape waves.", 1, 0, 2, 0.1, "x"));
@@ -24,5 +24,11 @@ public class WavyCapesModule extends Module {
 	/** El módulo activo, o null si está desactivado. */
 	public static WavyCapesModule active() {
 		return instance != null && instance.isEnabled() ? instance : null;
+	}
+
+	/** Vista previa en directo de los ajustes con esta cámara. */
+	@Override
+	public net.minecraft.client.CameraType previewCamera() {
+		return net.minecraft.client.CameraType.THIRD_PERSON_BACK;
 	}
 }

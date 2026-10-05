@@ -17,7 +17,7 @@ import net.minecraft.world.level.dimension.DimensionType;
  * por los de los temas del cliente: atardecer de Angel Devil, noche estrellada, día, tormenta Neon, morado o menta.
  * Puede seguir el día y la noche del juego (de noche se oscurece con los colores nocturnos del tema) o quedarse fijo.
  */
-public class CustomSkyModule extends Module {
+public class CustomSkyModule extends Module implements com.freedomclient.module.LivePreview {
 	private static CustomSkyModule instance;
 
 	/** Colores de un cielo: de día y de noche, arriba (cielo) y en el horizonte (niebla), nubes y cuánto brillan las estrellas. */

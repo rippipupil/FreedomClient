@@ -23,6 +23,13 @@ import java.util.WeakHashMap;
  */
 public final class CosmeticPreview {
 	private static final Map<AvatarRenderState, CosmeticModule> PREVIEWS = Collections.synchronizedMap(new WeakHashMap<>());
+	/** Cada cuánto se vuelve a sacar el estado del jugador de cada vista previa. */
+	private static final long REFRESH_MS = 250L;
+	private static final Map<CosmeticModule, Cached> CACHE = new java.util.HashMap<>();
+
+	/** Estado del jugador de una vista previa, con su skin original (sin la capa puesta) y cuándo se sacó. */
+	private record Cached(AvatarRenderState state, PlayerSkin skin, long time) {
+	}
 	/** Cosmético de la vista previa que se está dibujando ahora mismo (entre begin y end de la capa), o null. */
 	private static CosmeticModule drawing;
 
@@ -66,29 +73,41 @@ public final class CosmeticPreview {
 		Minecraft client = Minecraft.getInstance();
 		LocalPlayer player = client.player;
 		if (player == null || !supports(cosmetic)) return false;
-		AvatarRenderer<AbstractClientPlayer> renderer = client.getEntityRenderDispatcher().getPlayerRenderer(player);
-		AvatarRenderState state = renderer.createRenderState(player, 1.0F);
+		float partialTick = client.getDeltaTracker().getGameTimeDeltaPartialTick(false);
+		long now = System.currentTimeMillis();
+		// El estado del jugador se reutiliza y solo se vuelve a sacar cada poco: sacarlo entero para cada tarjeta en
+		// cada fotograma era lo que más costaba del menú. Lo que se mueve (giro y animaciones) se pone en cada fotograma.
+		Cached cached = CACHE.get(cosmetic);
+		if (cached == null || now - cached.time > REFRESH_MS) {
+			AvatarRenderer<AbstractClientPlayer> renderer = client.getEntityRenderDispatcher().getPlayerRenderer(player);
+			AvatarRenderState fresh = renderer.createRenderState(player, partialTick);
+			fresh.yRot = 0.0F;
+			fresh.xRot = 0.0F;
+			fresh.boundingBoxWidth /= fresh.scale;
+			fresh.boundingBoxHeight /= fresh.scale;
+			fresh.scale = 1.0F;
+			fresh.lightCoords = 0xF000F0;
+			fresh.isCrouching = false;
+			cached = new Cached(fresh, fresh.skin, now);
+			CACHE.put(cosmetic, cached);
+			PREVIEWS.put(fresh, cosmetic);
+		}
+		AvatarRenderState state = cached.state;
+		state.ageInTicks = player.tickCount + partialTick;
 
 		CosmeticSlot slot = cosmetic.getSlot();
 		boolean back = slot == CosmeticSlot.CAPE || slot == CosmeticSlot.WINGS || slot == CosmeticSlot.BACK;
 		// Tres cuartos: se ve de frente (o de espaldas) y un poco de lado, girando despacio.
-		float sway = (float) Math.sin(System.currentTimeMillis() / 1400.0) * 18.0F;
+		float sway = (float) Math.sin(now % 1_000_000L / 1400.0) * 18.0F;
 		state.bodyRot = (back ? 0.0F : 180.0F) + 28.0F + sway;
-		state.yRot = 0.0F;
-		state.xRot = 0.0F;
-		state.boundingBoxWidth /= state.scale;
-		state.boundingBoxHeight /= state.scale;
-		state.scale = 1.0F;
-		state.lightCoords = 0xF000F0;
-		state.isCrouching = false;
-		if (cosmetic instanceof ClientCapeCosmetic cape && state.skin != null) {
-			PlayerSkin skin = state.skin;
+		if (cosmetic instanceof ClientCapeCosmetic cape && cached.skin != null) {
+			// La textura de las capas animadas cambia con el tiempo, así que se pone en cada fotograma.
+			PlayerSkin skin = cached.skin;
 			state.skin = new PlayerSkin(skin.body(), cape.texture(), skin.elytra(), skin.model(), skin.secure());
 			state.showCape = true;
 		} else {
 			state.showCape = false;
 		}
-		PREVIEWS.put(state, cosmetic);
 
 		// Encuadre: altura del cuerpo que queda en el centro y tamaño (px por bloque) según dónde va el cosmético.
 		int boxH = y1 - y0;

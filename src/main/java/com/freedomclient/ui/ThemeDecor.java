@@ -182,20 +182,22 @@ public final class ThemeDecor {
 		}
 	}
 
-	/** Llamas que suben del borde de abajo, cada columna con su altura moviéndose (rojo, naranja y amarillo). */
+	/**
+	 * Llamas que suben del borde de abajo, cada columna con su altura moviéndose (rojo, naranja y amarillo). Columnas
+	 * de 6 px con dos degradados cada una (antes eran de 4 px con tres): la mitad de rectángulos por fotograma.
+	 */
 	private static void flames(GuiGraphics g, int x, int bottom, int w) {
-		double t = now() / 1000.0;
-		int step = 4;
+		double t = now() % 1_000_000L / 1000.0;
+		int step = 6;
 		for (int i = 0; i * step < w; i++) {
-			double wave = Math.sin(t * 3.1 + i * 0.9) + Math.sin(t * 5.3 + i * 1.7) * 0.6 + Math.sin(t * 1.3 + i * 0.35) * 0.8;
+			double wave = Math.sin(t * 3.1 + i * 1.3) + Math.sin(t * 5.3 + i * 2.5) * 0.6 + Math.sin(t * 1.3 + i * 0.5) * 0.8;
 			int height = 8 + (int) Math.round((wave + 2.4) * 3.2);
 			int left = x + i * step;
 			int right = Math.min(x + w, left + step);
 			g.fillGradient(left, bottom - height, right, bottom, 0x00D7263D, 0xA0E0303D);
+			// Núcleo: de naranja a amarillo claro en la base.
 			int core = height * 3 / 5;
-			g.fillGradient(left, bottom - core, right, bottom, 0x00FF7A2A, 0x90FF8C3A);
-			int tip = height / 3;
-			g.fillGradient(left + 1, bottom - tip, right - 1, bottom, 0x00FFD060, 0x90FFE08A);
+			g.fillGradient(left + 1, bottom - core, right - 1, bottom, 0x00FF7A2A, 0xA0FFD27A);
 		}
 	}
 

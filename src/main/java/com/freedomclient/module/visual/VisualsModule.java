@@ -18,7 +18,7 @@ import java.util.List;
  * - Física de objetos: los objetos tirados quedan tumbados en el suelo sin girar ni flotar.
  * - Color del brillo de encantamiento (una parte del paquete de FreedomClient por color).
  */
-public class VisualsModule extends Module {
+public class VisualsModule extends Module implements com.freedomclient.module.LivePreview {
 	private static final List<String> GLINTS = List.of("Red", "Gold", "Sky", "Pink", "White", "Purple", "Green");
 	private static VisualsModule instance;
 

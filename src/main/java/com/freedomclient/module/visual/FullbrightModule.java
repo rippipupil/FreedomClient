@@ -8,7 +8,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 /** Visión completa en la oscuridad mediante un efecto de visión nocturna solo en el cliente. */
-public class FullbrightModule extends Module {
+public class FullbrightModule extends Module implements com.freedomclient.module.LivePreview {
 	public FullbrightModule() {
 		super("Fullbright", "Lights up everything as if it were daytime.", Category.VISUAL, false);
 	}

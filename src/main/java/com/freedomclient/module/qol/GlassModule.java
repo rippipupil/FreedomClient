@@ -10,7 +10,7 @@ import net.minecraft.server.packs.repository.PackRepository;
  * Glass: los bloques y paneles de cristal que están juntos se ven conectados, sin el marco entre ellos. Usa las
  * texturas conectadas de Continuity (incluido en el cliente), que van como una parte del paquete de FreedomClient.
  */
-public class GlassModule extends Module {
+public class GlassModule extends Module implements com.freedomclient.module.LivePreview {
 	private static GlassModule instance;
 
 	public GlassModule() {

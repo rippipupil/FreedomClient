@@ -14,7 +14,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 
 /** ViewModel: mueve, gira y escala la mano y el objeto que ves en primera persona. */
-public class ViewModelModule extends Module {
+public class ViewModelModule extends Module implements com.freedomclient.module.LivePreview {
 	private final NumberSetting x = add(new NumberSetting("Position X", "Move the hands sideways.", 0, -1, 1, 0.05));
 	private final NumberSetting y = add(new NumberSetting("Position Y", "Move the hands up or down.", 0, -1, 1, 0.05));
 	private final NumberSetting z = add(new NumberSetting("Position Z", "Move the hands closer or further.", 0, -1, 1, 0.05));
@@ -80,5 +80,11 @@ public class ViewModelModule extends Module {
 	public static boolean hideOffhand() {
 		ViewModelModule module = active();
 		return module != null && module.hideOffhand.get();
+	}
+
+	/** Vista previa en directo de los ajustes con esta cámara. */
+	@Override
+	public net.minecraft.client.CameraType previewCamera() {
+		return net.minecraft.client.CameraType.FIRST_PERSON;
 	}
 }

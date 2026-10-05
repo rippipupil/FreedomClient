@@ -56,6 +56,49 @@ public final class Draw {
 		panel(g, knobX, y - 2, 4, 10, hovered ? ThemeManager.highlight() : ThemeManager.text(), 0xFF000000);
 	}
 
+	/**
+	 * Rectángulo con degradado de izquierda ({@code left}) a derecha ({@code right}). El juego solo hace degradados
+	 * de arriba abajo, así que se dibuja girado 90 grados.
+	 */
+	public static void hGradient(GuiGraphics g, int x1, int y1, int x2, int y2, int left, int right) {
+		if (x2 <= x1 || y2 <= y1) return;
+		g.pose().pushMatrix();
+		g.pose().translate(x1, y2);
+		g.pose().rotate((float) (-Math.PI / 2.0));
+		g.fillGradient(0, 0, y2 - y1, x2 - x1, left, right);
+		g.pose().popMatrix();
+	}
+
+	/** Tramos horizontales de cada dibujo pixel ({x, y, largo}), calculados una vez por dibujo. */
+	private static final java.util.Map<String[], int[][]> ART_RUNS = new java.util.IdentityHashMap<>();
+
+	/**
+	 * Dibujo pixel hecho con '#' en {@code (x, y)}: cada tramo seguido de una fila es un solo rectángulo, en vez de
+	 * un rectángulo por píxel (la rueda de ajustes pasa de 40 a 14).
+	 */
+	public static void art(GuiGraphics g, String[] rows, int x, int y, int color) {
+		int[][] runs = ART_RUNS.computeIfAbsent(rows, Draw::runs);
+		for (int[] run : runs) g.fill(x + run[0], y + run[1], x + run[0] + run[2], y + run[1] + 1, color);
+	}
+
+	private static int[][] runs(String[] rows) {
+		java.util.List<int[]> runs = new java.util.ArrayList<>();
+		for (int row = 0; row < rows.length; row++) {
+			String line = rows[row];
+			int col = 0;
+			while (col < line.length()) {
+				if (line.charAt(col) != '#') {
+					col++;
+					continue;
+				}
+				int start = col;
+				while (col < line.length() && line.charAt(col) == '#') col++;
+				runs.add(new int[] {start, row, col - start});
+			}
+		}
+		return runs.toArray(new int[0][]);
+	}
+
 	/** Dibuja un icono (propio de 16x16 o el original de un mod) escalado a {@code size} px. */
 	public static void icon(GuiGraphics g, Identifier icon, int x, int y, int size) {
 		int textureSize = ModIcons.textureSize(icon);

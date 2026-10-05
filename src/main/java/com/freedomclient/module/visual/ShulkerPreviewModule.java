@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Shulker Box Tooltip: muestra el contenido de las cajas de shulker (y otros contenedores) en el tooltip, como una
- * ventanita de cofre con una línea de resumen (casillas usadas y objetos). Si el mod INV está activo, la ventanita
+ * Shulker Box Tooltip: mientras mantienes Shift sobre una caja de shulker (u otro contenedor), muestra su contenido en
+ * el tooltip, como una ventanita de cofre con una línea de resumen (casillas usadas y objetos). Si el mod INV está activo, la ventanita
  * usa su aspecto (fondo, imagen, borde y casillas), igual que tu inventario.
  */
 public class ShulkerPreviewModule extends Module {
@@ -32,10 +32,11 @@ public class ShulkerPreviewModule extends Module {
 	private static ShulkerPreviewModule instance;
 
 	private final BooleanSetting summary = add(new BooleanSetting("Summary", "A line with the used slots and how many items there are.", true));
+	private final BooleanSetting holdShift = add(new BooleanSetting("Hold Shift", "Only show the contents while you hold Shift over the shulker box.", true));
 	private final BooleanSetting invStyle = add(new BooleanSetting("Use INV look", "Use the look of your inventory from the INV mod when it is on.", true));
 
 	public ShulkerPreviewModule() {
-		super("Shulker Preview", "Shows the items inside shulker boxes when you hover them, in a small window like your inventory.",
+		super("Shulker Preview", "Hold Shift over a shulker box to see the items inside, in a small window like your inventory.",
 				Category.VISUAL, true);
 		instance = this;
 	}
@@ -52,7 +53,9 @@ public class ShulkerPreviewModule extends Module {
 	/** Llamado desde ItemStackMixin: devuelve la vista previa si el objeto tiene contenido. */
 	public static Optional<TooltipComponent> preview(ItemStack stack) {
 		ModuleManager manager = FreedomClient.getModuleManager();
-		if (manager == null || !manager.get(ShulkerPreviewModule.class).isEnabled()) return Optional.empty();
+		if (manager == null) return Optional.empty();
+		ShulkerPreviewModule module = manager.get(ShulkerPreviewModule.class);
+		if (!module.isEnabled() || module.holdShift.get() && !shiftDown()) return Optional.empty();
 
 		ItemContainerContents contents = stack.get(DataComponents.CONTAINER);
 		if (contents == null || contents.nonEmptyStream().findAny().isEmpty()) return Optional.empty();
@@ -60,6 +63,12 @@ public class ShulkerPreviewModule extends Module {
 		NonNullList<ItemStack> items = NonNullList.withSize(COLUMNS * ROWS, ItemStack.EMPTY);
 		contents.copyInto(items);
 		return Optional.of(new Contents(items));
+	}
+
+	private static boolean shiftDown() {
+		com.mojang.blaze3d.platform.Window window = net.minecraft.client.Minecraft.getInstance().getWindow();
+		return com.mojang.blaze3d.platform.InputConstants.isKeyDown(window, org.lwjgl.glfw.GLFW.GLFW_KEY_LEFT_SHIFT)
+				|| com.mojang.blaze3d.platform.InputConstants.isKeyDown(window, org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT);
 	}
 
 	/** Cómo se dibuja la vista previa: resumen arriba y una ventanita 9x3 como la del cofre. */

@@ -63,6 +63,10 @@ public class ModuleSettingsPage implements MenuPage {
 	/** Texto buscado: las opciones que lo contienen se marcan (vacío si no se viene de una búsqueda). */
 	private final String highlight;
 
+	public Module module() {
+		return module;
+	}
+
 	public ModuleSettingsPage(FreedomMenuScreen screen, Module module) {
 		this(screen, module, "");
 	}
