@@ -136,7 +136,9 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 			float speed = 0.004F + (i % 3) * 0.0025F;
 			float drift = (time * speed + i * 97.0F) % (w + 12.0F) - 6.0F;
 			int sx = x + Math.round(i % 2 == 0 ? drift : w - drift);
-			int sy = y + 6 + (i * 13) % Math.max(1, h - 22) + Math.round(Mth.sin(time / 600.0F + i * 1.7F) * 3.0F);
+			// Flotan en la franja libre entre la descripción y el estado, para no tapar el texto.
+			int band = Math.max(1, h - 40);
+			int sy = y + 27 + (i * 5) % band + Math.round(Mth.sin(time / 600.0F + i * 1.7F) * 2.0F);
 			boolean small = i % 4 == 3;
 			String[] art = small ? SPIRIT_SMALL : (time / 300 + i) % 2 == 0 ? SPIRIT_A : SPIRIT_B;
 			int kind = i % 3;
