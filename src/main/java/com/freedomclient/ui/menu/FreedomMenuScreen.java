@@ -230,12 +230,19 @@ public class FreedomMenuScreen extends Screen {
 		PixelSky.logo(g, logoCenterX, logoCenterY - 2, 1, 1.0F);
 		int nameX = x + 6 + PixelSky.logoWidth() + 8;
 		int nameY = y + 11;
-		g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
-		int clientX = nameX + font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
-		if (NeonStyle.on()) {
-			NeonStyle.gradientText(g, font, "Client", clientX, nameY, NeonStyle.flow(), 0.5, true);
-		} else {
-			g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
+		int freedomWidth = font.width(Component.literal("Freedom").withStyle(ChatFormatting.BOLD));
+		int nameWidth = freedomWidth + font.width(Component.literal("Client").withStyle(ChatFormatting.BOLD));
+		int tabsWidth = 0;
+		for (Tab current : Tab.values()) tabsWidth += font.width(current.label) + 12;
+		// En la ventana estrecha (vista previa en directo) el nombre no cabe junto a las pestañas: solo va el logo.
+		if (nameX + nameWidth + 6 <= x + w - 4 - tabsWidth) {
+			g.drawString(font, Component.literal("Freedom").withStyle(ChatFormatting.BOLD), nameX, nameY, ThemeManager.text(), true);
+			int clientX = nameX + freedomWidth;
+			if (NeonStyle.on()) {
+				NeonStyle.gradientText(g, font, "Client", clientX, nameY, NeonStyle.flow(), 0.5, true);
+			} else {
+				g.drawString(font, Component.literal("Client").withStyle(ChatFormatting.BOLD), clientX, nameY, ThemeManager.accent(), true);
+			}
 		}
 
 		// Pestañas alineadas a la derecha.
