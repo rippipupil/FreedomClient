@@ -335,7 +335,8 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 		g.blit(RenderPipelines.GUI_TEXTURED, ROOT_LEFT, x, y, 0.0F, 0.0F, ROOT, side, ROOT, side, ROOT, CARD_HEIGHT);
 		g.blit(RenderPipelines.GUI_TEXTURED, ROOT_RIGHT, x + w - ROOT, y, 0.0F, 0.0F, ROOT, side, ROOT, side, ROOT, CARD_HEIGHT);
 		g.blit(RenderPipelines.GUI_TEXTURED, CORNER_PURPLE, x + w - CORNER + 5, y - 5, 0.0F, 0.0F, CORNER, CORNER, CORNER, CORNER, CORNER, CORNER);
-		g.blit(RenderPipelines.GUI_TEXTURED, CORNER_RED, x - 5, y + h - CORNER + 5, 0.0F, 0.0F, CORNER, CORNER, CORNER, CORNER, CORNER, CORNER);
+		// La roja no sale por la izquierda (ahí corta la zona de las tarjetas) y queda por debajo de la vista previa.
+		g.blit(RenderPipelines.GUI_TEXTURED, CORNER_RED, x, y + h - 5, 0.0F, 0.0F, CORNER, CORNER, CORNER, CORNER, CORNER, CORNER);
 		return true;
 	}
 
