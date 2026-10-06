@@ -233,13 +233,14 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	 */
 	@Override
 	public boolean drawCardBorder(GuiGraphics g, int x, int y, int w, int h, float on, float hover) {
-		int frame = ThemeManager.mix(0xFF2A2A30, 0xFF6A6A74, 0.35F * on + 0.25F * hover);
+		int frame = ThemeManager.mix(0xFF4A4A54, 0xFF9A9AA4, 0.5F * on + 0.3F * hover);
 		g.fill(x + 1, y, x + w - 1, y + 1, frame);
 		g.fill(x + 1, y + h - 1, x + w - 1, y + h, frame);
 		g.fill(x, y + 1, x + 1, y + h - 1, frame);
 		g.fill(x + w - 1, y + 1, x + w, y + h - 1, frame);
 		// Ramas en las esquinas (las mismas, en espejo).
-		int branch = ThemeManager.mix(0xFF16161A, 0xFF4A4A52, 0.4F * on);
+		// En gris claro para que se vean sobre el bosque oscuro (más claras con el cosmético puesto).
+		int branch = ThemeManager.mix(0xFF7A7A84, 0xFFC9C9CF, 0.6F * on + 0.2F * hover);
 		Draw.art(g, BRANCH_TL, x, y, branch);
 		Draw.art(g, BRANCH_TR, x + w - BRANCH_TL[0].length(), y, branch);
 		Draw.art(g, BRANCH_BL, x, y + h - BRANCH_TL.length, branch);
