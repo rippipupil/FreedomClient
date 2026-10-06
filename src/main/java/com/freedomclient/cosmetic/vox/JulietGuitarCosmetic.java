@@ -1,0 +1,231 @@
+package com.freedomclient.cosmetic.vox;
+
+import com.freedomclient.FreedomClient;
+import com.freedomclient.setting.BooleanSetting;
+import com.freedomclient.setting.ModeSetting;
+import com.freedomclient.setting.NumberSetting;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.util.Mth;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * Juliet (Música): la guitarra diseñada en Claude Design. Cuerpo blanco con puntas de mechón, una flor morada en relieve
+ * en la boca de la que cae sangre, hojas verdes y cintas moradas; la pala con flequillo, gotas azules y una mini flor, y
+ * el diapasón con flores incrustadas. Alrededor caen despacio flores de vóxeles moradas, blancas y rojas que giran.
+ * <p>
+ * El modelo (assets/freedomclient/vox/juliet.vox) sale del código del propio diseño con
+ * scripts/textures/juliet_guitar: es vóxel a vóxel el mismo. Las flores usan los mismos números que el diseño.
+ */
+public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
+	/** Colores del diseño (PAL, en el mismo orden): w d g l b r p v u m n e y c s h k. */
+	private static final Vox.Palette PALETTE = new Vox.Palette("guitar_juliet",
+			'w', 0xFFF7F7F9, 'd', 0xFF3A3A42, 'g', 0xFFB9BAC2, 'l', 0xFFD6D7DD, 'b', 0xFFC3CBEA, 'r', 0xFFB1101C,
+			'p', 0xFFECC4C8, 'v', 0xFF5A3EA8, 'u', 0xFF6D50C4, 'm', 0xFF4B3196, 'n', 0xFF35206E, 'e', 0xFF3F7D2C,
+			'y', 0xFF8CB43C, 'c', 0xFF6A3FA3, 's', 0xFFDFE1EA, 'h', 0xFFE4E5EA, 'k', 0xFFCDCED6);
+	private static final String MODEL = "/assets/freedomclient/vox/juliet.vox";
+	/** Inclinación de la guitarra en el diseño (rotation.z = -0,38 rad, con y hacia arriba). */
+	private static final float TILT = 0.38F;
+	/** Centro de la flor de la boca en el .vox: queda en el centro de la espalda. */
+	private static final float CENTER_Y = -31.0F;
+	/** Origen del diseño (donde giran la guitarra y las flores) en el .vox: y = 60 del diseño, menos su base 107,5. */
+	private static final float PIVOT_Y = -47.5F;
+
+	/** Las 21 piezas de cada flor del diseño: x, y, z (y hacia arriba) y lado del cubo, en múltiplos de su tamaño. */
+	private static final float[][] FLOWER = flower();
+	/** Colores de las 13 flores del diseño (FC). */
+	private static final int[] FLOWER_COLORS = {0x5A3EA8, 0xF7F7F9, 0xB1101C, 0x6D50C4, 0xE9E4F5, 0xD0202E, 0x8A6FD8, 0xF3D6DA,
+			0x8A0D17, 0x4B3196, 0xC9B8EE, 0xE0566A, 0xA24BB5};
+
+	public final NumberSetting size = add(new NumberSetting("Size", "How big the guitar is.", 0.75, 0.5, 1.1, 0.05, "x"));
+	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Left", "Left", "Right"));
+	public final BooleanSetting flowers = add(new BooleanSetting("Flowers",
+			"Little voxel flowers in purple, white and red slowly falling and spinning around the guitar, like in its design.", true));
+
+	private Vox.Shape guitar;
+	private Vox.Shape[] flowerShapes;
+	/** Datos de cada flor (los mismos números aleatorios que el diseño): r, y, v, w, ph, sz, eje x, y, z, rs. */
+	private float[][] petals;
+
+	public JulietGuitarCosmetic() {
+		super("Juliet", "Music: a white guitar with a purple flower in relief, falling blood, green leaves and purple ribbons. "
+				+ "Little voxel flowers fall around it.");
+	}
+
+	/** Juliet no suelta notas musicales: su ambiente son las flores del diseño. */
+	@Override
+	public boolean beatNotes() {
+		return false;
+	}
+
+	private static float[][] flower() {
+		float[][] list = new float[21][];
+		for (int j = 0; j < 8; j++) {
+			double a = j * Math.PI / 4.0;
+			list[j] = new float[] {(float) (Math.cos(a) * 1.75), (float) (Math.sin(a) * 1.75), 0.0F, 0.85F};
+		}
+		for (int j = 0; j < 8; j++) {
+			double a = j * Math.PI / 4.0 + Math.PI / 8.0;
+			list[8 + j] = new float[] {(float) (Math.cos(a) * 0.95), (float) (Math.sin(a) * 0.95), 0.55F, 0.75F};
+		}
+		list[16] = new float[] {0.0F, 0.0F, 0.0F, 1.5F};
+		list[17] = new float[] {0.0F, 0.0F, 0.95F, 0.9F};
+		list[18] = new float[] {0.0F, 0.0F, 1.5F, 0.5F};
+		list[19] = new float[] {0.0F, 0.0F, -0.7F, 1.1F};
+		list[20] = new float[] {0.0F, 0.0F, -1.5F, 0.45F};
+		return list;
+	}
+
+	/** Color de la pieza {@code j} de una flor de color {@code c}, como en el diseño. */
+	static int flowerPieceColor(int c, int j) {
+		if (j == 18) return 0x35206E;
+		if (j == 19) return 0x3F7D2C;
+		if (j == 20) return 0x28531C;
+		float[] rgb = {(c >> 16 & 255) / 255.0F, (c >> 8 & 255) / 255.0F, (c & 255) / 255.0F};
+		for (int i = 0; i < 3; i++) {
+			if (j < 8) {
+				if (j % 2 == 1) rgb[i] *= 0.86F;
+			} else if (j < 16) {
+				rgb[i] += (1.0F - rgb[i]) * 0.28F;
+			} else if (j == 16) {
+				rgb[i] *= 0.78F;
+			} else {
+				rgb[i] *= 0.62F;
+			}
+		}
+		return Math.round(rgb[0] * 255.0F) << 16 | Math.round(rgb[1] * 255.0F) << 8 | Math.round(rgb[2] * 255.0F);
+	}
+
+	private void build() {
+		guitar = new Vox.Shape(PALETTE);
+		InputStream stream = JulietGuitarCosmetic.class.getResourceAsStream(MODEL);
+		if (stream == null) {
+			FreedomClient.LOGGER.warn("Missing guitar model {}", MODEL);
+		} else {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					if (line.isBlank() || line.startsWith("#")) continue;
+					String[] p = line.trim().split("\\s+");
+					guitar.box(p[0].charAt(0), Float.parseFloat(p[1]), Float.parseFloat(p[2]), Float.parseFloat(p[3]),
+							Float.parseFloat(p[4]), Float.parseFloat(p[5]), Float.parseFloat(p[6]));
+				}
+			} catch (Exception e) {
+				FreedomClient.LOGGER.warn("Could not read guitar model {}", MODEL, e);
+			}
+		}
+		// Una paleta con los colores distintos de todas las flores (una franja por color) y una pieza por flor.
+		java.util.List<Integer> colors = new java.util.ArrayList<>();
+		char[][] chars = new char[FLOWER_COLORS.length][FLOWER.length];
+		for (int i = 0; i < FLOWER_COLORS.length; i++) {
+			for (int j = 0; j < FLOWER.length; j++) {
+				int color = flowerPieceColor(FLOWER_COLORS[i], j);
+				if (!colors.contains(color)) colors.add(color);
+				chars[i][j] = (char) (0x100 + colors.indexOf(color));
+			}
+		}
+		Object[] pairs = new Object[colors.size() * 2];
+		for (int c = 0; c < colors.size(); c++) {
+			pairs[c * 2] = (char) (0x100 + c);
+			pairs[c * 2 + 1] = 0xFF000000 | colors.get(c);
+		}
+		Vox.Palette flowerPalette = new Vox.Palette("guitar_juliet_flowers", pairs);
+		flowerShapes = new Vox.Shape[FLOWER_COLORS.length];
+		for (int i = 0; i < FLOWER_COLORS.length; i++) {
+			Vox.Shape shape = new Vox.Shape(flowerPalette);
+			for (int j = 0; j < FLOWER.length; j++) {
+				float[] l = FLOWER[j];
+				shape.box(chars[i][j], l[0] - l[3] / 2.0F, l[1] - l[3] / 2.0F, l[2] - l[3] / 2.0F, l[3], l[3], l[3]);
+			}
+			flowerShapes[i] = shape;
+		}
+		// Los números aleatorios del diseño: rnd() de Park-Miller con semilla 7, en el mismo orden.
+		long[] seed = {7L};
+		java.util.function.DoubleSupplier rnd = () -> (seed[0] = seed[0] * 16807L % 2147483647L) / 2147483647.0;
+		petals = new float[FLOWER_COLORS.length][];
+		for (int i = 0; i < petals.length; i++) {
+			double r = 16 + rnd.getAsDouble() * 16;
+			double y = 70 - rnd.getAsDouble() * 140;
+			double v = 0.012 + rnd.getAsDouble() * 0.009;
+			double w = 0.0012 + rnd.getAsDouble() * 0.0012;
+			double ph = rnd.getAsDouble() * 6.28;
+			double sz = 0.36 + rnd.getAsDouble() * 0.16;
+			Vector3f axis = new Vector3f((float) (rnd.getAsDouble() - 0.5), (float) (rnd.getAsDouble() - 0.5), (float) (rnd.getAsDouble() - 0.5)).normalize();
+			double rs = 0.004 + rnd.getAsDouble() * 0.008;
+			petals[i] = new float[] {(float) r, (float) y, (float) v, (float) w, (float) ph, (float) sz, axis.x, axis.y, axis.z, (float) rs};
+		}
+	}
+
+	@Override
+	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
+		if (guitar == null) build();
+		poseStack.pushPose();
+		// Mide unos 101 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras.
+		float scale = size.getFloat() * 0.42F;
+		// El diseño avanza un paso por fotograma a 60 por segundo: tres por tick.
+		float tick = state.ageInTicks * 3.0F % 1_000_000.0F;
+		boolean hands = inHands(state);
+		float tilt = side.is("Left") ? TILT : -TILT;
+		if (hands) {
+			inHands(parent, poseStack, state, scale, scale, 2.0F);
+		} else {
+			parent.body.translateAndRotate(poseStack);
+			// La tapa de atrás del cuerpo llega 2 vóxeles detrás de su plano central: así queda pegada a la espalda.
+			poseStack.translate(0.0F, 6.5F / 16.0F, (2.1F + backClearance(state) + 2.0F * scale) / 16.0F);
+			poseStack.scale(scale, scale, scale);
+			// Flota arriba y abajo muy despacio, como en el diseño (y hacia abajo aquí, de ahí el signo).
+			poseStack.translate(0.0F, -Mth.sin(tick * 0.012F) * 1.6F / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.ZP.rotation(tilt));
+		}
+		// La flor de la boca cae en el centro de la espalda.
+		poseStack.translate(0.0F, -CENTER_Y / 16.0F, 0.0F);
+		guitar.draw(poseStack, collector, light);
+		if (flowers.get()) {
+			poseStack.translate(0.0F, PIVOT_Y / 16.0F, 0.0F);
+			// En el diseño las flores no se inclinan ni flotan con la guitarra.
+			if (!hands) {
+				poseStack.mulPose(Axis.ZP.rotation(-tilt));
+				poseStack.translate(0.0F, Mth.sin(tick * 0.012F) * 1.6F / 16.0F, 0.0F);
+			}
+			drawFlowers(poseStack, collector, light, tick);
+		}
+		poseStack.popPose();
+	}
+
+	/**
+	 * Flores del diseño: caen girando alrededor de la guitarra, cada una sobre su propio eje, y crecen y menguan en los
+	 * extremos. Mismas fórmulas que el diseño; lo único distinto es la profundidad de la órbita, que se aplasta hacia
+	 * fuera para que no atraviesen al jugador.
+	 */
+	private void drawFlowers(PoseStack poseStack, SubmitNodeCollector collector, int light, float tick) {
+		poseStack.pushPose();
+		// A partir de aquí, y hacia arriba como en el diseño.
+		poseStack.scale(1.0F, -1.0F, 1.0F);
+		Quaternionf spin = new Quaternionf();
+		for (int i = 0; i < petals.length; i++) {
+			float[] a = petals[i];
+			// y baja a.v por fotograma y vuelve a 70 al pasar de -70.
+			float y = 70.0F - ((70.0F - a[1] + a[2] * tick) % 140.0F);
+			float f = Math.min(1.0F, Math.min((70.0F - y) / 22.0F, (y + 70.0F) / 22.0F));
+			float ang = a[4] + tick * a[3];
+			float rr = a[0] + Mth.sin(tick * 0.006F + a[4]) * 2.5F;
+			float k = a[5] * f + 0.001F;
+			poseStack.pushPose();
+			poseStack.translate(Mth.cos(ang) * rr / 16.0F, y / 16.0F, (6.0F + Mth.sin(ang) * rr * 0.25F) / 16.0F);
+			poseStack.mulPose(spin.identity().rotateAxis(a[4] + tick * a[9], a[6], a[7], a[8]));
+			poseStack.scale(k, k, k);
+			flowerShapes[i].draw(poseStack, collector, light);
+			poseStack.popPose();
+		}
+		poseStack.popPose();
+	}
+}

@@ -418,9 +418,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
 			shoot(context, "hades_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
+			shoot(context, "juliet_guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
+			shoot(context, "juliet_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
 			// Emote de tocar la guitarra (tecla X): Hades en las manos, de frente y de espaldas, y la Electric Guitar.
-			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
-				String name = guitarType == com.freedomclient.cosmetic.vox.GuitarCosmetic.class ? "electric" : "hades";
+			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class,
+					com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
+				String name = guitarType == com.freedomclient.cosmetic.vox.GuitarCosmetic.class ? "electric"
+						: guitarType == com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class ? "juliet" : "hades";
 				context.runOnClient(client -> {
 					cosmetic(guitarType).setEnabled(true);
 					client.player.setYRot(client.player.getYRot() + 150.0F);
