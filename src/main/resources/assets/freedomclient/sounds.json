@@ -103,5 +103,14 @@
 			}
 		],
 		"subtitle": "freedomclient.subtitle.guitar"
+	},
+	"guitar.juliet": {
+		"sounds": [
+			{
+				"name": "freedomclient:guitar/juliet",
+				"stream": true
+			}
+		],
+		"subtitle": "freedomclient.subtitle.guitar"
 	}
 }

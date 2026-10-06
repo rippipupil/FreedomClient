@@ -33,6 +33,10 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 			'p', 0xFFECC4C8, 'v', 0xFF5A3EA8, 'u', 0xFF6D50C4, 'm', 0xFF4B3196, 'n', 0xFF35206E, 'e', 0xFF3F7D2C,
 			'y', 0xFF8CB43C, 'c', 0xFF6A3FA3, 's', 0xFFDFE1EA, 'h', 0xFFE4E5EA, 'k', 0xFFCDCED6);
 	private static final String MODEL = "/assets/freedomclient/vox/juliet.vox";
+	/** Sonido de su canción (sounds.json). */
+	public static final String SONG = "guitar.juliet";
+	/** Ritmo del rasgueo: la canción va a 140 pulsos (medido sobre el audio); un rasgueo cada dos, tranquilo. */
+	private static final float BPM = 70.0F;
 	/** Inclinación de la guitarra en el diseño (rotation.z = -0,38 rad, con y hacia arriba). */
 	private static final float TILT = 0.38F;
 	/** Centro de la flor de la boca en el .vox: queda en el centro de la espalda. */
@@ -60,6 +64,26 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 	public JulietGuitarCosmetic() {
 		super("Juliet", "Music: a white guitar with a purple flower in relief, falling blood, green leaves and purple ribbons. "
 				+ "Little voxel flowers fall around it.");
+	}
+
+	@Override
+	public String song() {
+		return SONG;
+	}
+
+	@Override
+	public String songTitle() {
+		return "Hello Juliet — Clarion";
+	}
+
+	@Override
+	public float bpm() {
+		return BPM;
+	}
+
+	@Override
+	public float motion() {
+		return 0.6F;
 	}
 
 	/** Juliet no suelta notas musicales: su ambiente son las flores del diseño. */
