@@ -1,10 +1,10 @@
-"""Tarjeta de Juliet: un campo de flores rojas y blancas en un vacío blanco, con una flor morada en el medio, todo
-plantado en un terreno blanco que se pierde a lo lejos. Borde de raíces blancas con espinas, una flor morada arriba a
-la derecha y una roja abajo a la izquierda.
+"""Tarjeta de Juliet: un vacío blanco con un terreno blanco que se pierde a lo lejos; a los lados, montones de flores
+sin tallo plantadas en la tierra (sobre todo blancas, algunas rojas) y en el centro una flor morada plantada. Borde de
+raíces blancas con espinas, una flor morada arriba a la derecha y una roja abajo a la izquierda.
 
-Capas del fondo (320x64, en bucle a lo ancho): lejos (cielo, suelo y flores lejanas y medias), neblina (se desplaza
-despacio) y cerca (flores grandes). Aparte: la flor morada del centro, el rótulo JULIET, las raíces de los cuatro
-lados y las dos flores de las esquinas.
+Capas del fondo (320x64, en bucle a lo ancho): lejos (vacío y suelo) y neblina (se desplaza despacio). Aparte: los
+montones de flores de cada lado, la flor morada del centro, el rótulo JULIET, las raíces de los cuatro lados y las dos
+flores de las esquinas.
     python3 card.py <carpeta de texturas>
 """
 import math
@@ -67,25 +67,6 @@ for k in range(1, 12):
     y = HORIZON + round((k / 11) ** 2 * (H - HORIZON - 1))
     for x in range(W):
         if (x + k * 7) % 5 != 0: put(far, x, y, mix(p[x % W, y][:3], (226, 223, 233), 0.35))
-rnd = random.Random(21)
-# Flores lejanas y medias: más pequeñas y más pálidas cuanto más lejos.
-for i in range(900):
-    y = HORIZON + 1 + (rnd.random() ** 1.7) * (H - HORIZON - 14)
-    d = depth(y)
-    x = rnd.random() * W
-    red = rnd.random() < 0.55
-    petal = RED if red else WHITE
-    edge = RED_D if red else WHITE_D
-    if d < 0.18:
-        put(far, x, y, fade(RED if red else WHITE_D, y))
-    elif d < 0.4:
-        put(far, x, y + 1, fade(LEAF, y))
-        put(far, x, y, fade(petal, y)); put(far, x + 1, y, fade(edge, y))
-    else:
-        # Florecita en cruz con tallo.
-        for k in range(1, 3): put(far, x, y + k, fade(LEAF if k == 1 else LEAF_L, y))
-        put(far, x, y - 1, fade(petal, y)); put(far, x - 1, y, fade(petal, y)); put(far, x + 1, y, fade(edge, y))
-        put(far, x, y + 0.6, fade(edge, y)); put(far, x, y, fade(RED_D if not red else (90, 10, 18), y))
 far.save(f'{OUT}/juliet_card_far.png')
 
 # ---------- Neblina: un velo blanco a ras del horizonte que pasa despacio ----------
@@ -100,61 +81,109 @@ for x in range(W):
         if a > 0: put(haze, x, y, (252, 252, 254, int(a * 150)))
 haze.save(f'{OUT}/juliet_card_haze.png')
 
-# ---------- Cerca: flores grandes rojas y blancas, con hojas ----------
-near = Image.new('RGBA', (W, H))
-rnd = random.Random(8)
-RED_FLOWER = ['.rr.rr.', 'rRRrRRr', 'rRRcRRr', '.rRRRr.', '..rrr..']
-WHITE_FLOWER = ['.ww.ww.', 'wWWwWWw', 'wWWcWWw', '.wWWWw.', '..www..']
+# ---------- Flores sin tallo: cinco pétalos redondos que se solapan, con contorno y luz arriba a la izquierda ----------
+def bloom(img, cx, cy, r, colors, turn):
+    """colors: (contorno, sombra, pétalo, luz, centro, centro oscuro)."""
+    edge, shade, petal, light, core, core_d = colors
+    w, h = img.size
+    centers = [(math.cos(turn + k * 2 * math.pi / 5) * r * 0.5, math.sin(turn + k * 2 * math.pi / 5) * r * 0.5) for k in range(5)]
+    pr = r * 0.56
+    cells = {}
+    R = int(r) + 2
+    for y in range(-R, R + 1):
+        for x in range(-R, R + 1):
+            inside = [k for k, (px, py) in enumerate(centers) if math.hypot(x - px, y - py) <= pr]
+            if not inside and math.hypot(x, y) > r * 0.45: continue
+            d = math.hypot(x, y)
+            c = petal
+            # Cada pétalo con su sombra abajo a la derecha y su luz arriba a la izquierda.
+            if inside:
+                px, py = centers[inside[-1]]
+                lx, ly = x - px, y - py
+                if lx + ly > pr * 0.6: c = shade
+                elif lx + ly < -pr * 0.8: c = light
+                # Línea entre dos pétalos que se solapan.
+                if len(inside) > 1 and abs(math.hypot(x - centers[inside[0]][0], y - centers[inside[0]][1]) - pr) < 0.7: c = shade
+            if d <= r * 0.3: c = core_d if x + y > 0 else core
+            cells[(x, y)] = c
+    for (x, y), c in cells.items():
+        X, Y = int(round(cx + x)), int(round(cy + y))
+        if not (0 <= X < w and 0 <= Y < h): continue
+        outline = any((x + dx, y + dy) not in cells for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        put(img, X, Y, edge if outline else c, False)
 
 
-def flower(img, x, y, rows, colors, stem):
-    # Tallo y una hoja.
-    for k in range(len(rows), len(rows) + stem):
-        put(img, x + 3, y + k, LEAF)
-    put(img, x + 4, y + len(rows) + stem // 2, LEAF_L); put(img, x + 5, y + len(rows) + stem // 2 - 1, LEAF_L)
-    for r, row in enumerate(rows):
-        for c, ch in enumerate(row):
-            if ch != '.': put(img, x + c, y + r, colors[ch])
+WHITE_BLOOM = ((150, 150, 162), WHITE_S, WHITE, (255, 255, 255), (232, 208, 120), (196, 160, 80))
+RED_BLOOM = ((96, 8, 16), RED_D, RED, RED_L, (53, 32, 110), (35, 20, 74))
 
 
-placed = []
-for i in range(60):
-    x = rnd.randrange(W)
-    y = rnd.randint(H - 17, H - 6)
-    red = rnd.random() < 0.5
-    if red:
-        flower(near, x, y, RED_FLOWER, {'r': RED_D, 'R': RED, 'c': P_DARK}, H - y)
-    else:
-        flower(near, x, y, WHITE_FLOWER, {'w': WHITE_D, 'W': WHITE, 'c': RED_L}, H - y)
-# Hierba baja blanca y verde pálido a ras del suelo.
-for x in range(W):
-    for k in range(rnd.randint(0, 2)):
-        put(near, x, H - 1 - k, mix(LEAF_L, VOID, 0.55) if (x * 7) % 3 else LEAF)
-near.save(f'{OUT}/juliet_card_near.png')
+def mound(img, cx, base, half):
+    """Tierra blanca amontonada donde están plantadas, con su sombra para que se vea sobre el suelo blanco."""
+    w, h = img.size
+    for x in range(-half, half + 1):
+        top = base - round(3.5 * math.sqrt(max(0.0, 1 - (x / (half + 0.5)) ** 2)))
+        for y in range(top, base + 1):
+            c = (252, 252, 253) if y == top else (232, 230, 238) if y < base - 1 else (206, 203, 216)
+            if x > half * 0.4 and y > top: c = mix(c, (190, 187, 202), 0.4)
+            put(img, cx + x, y, c, False)
 
-# ---------- La flor morada del centro (como la de la guitarra), con su tallo ----------
-FW, FH = 17, 26
+
+def cluster(seed, width=40, height=40):
+    """Montón de flores plantadas, como un arbusto: abajo dos o tres grandes delante, subiendo una o dos más pequeñas.
+    Tres de cada cuatro son blancas."""
+    img = Image.new('RGBA', (width, height))
+    r = random.Random(seed)
+    base = height - 1
+    mound(img, width // 2, base, width // 2 - 1)
+    flowers = []
+    y = base - 7
+    level = 0
+    while y > 7:
+        n = 3 if level == 0 else 2 if level < 3 else 1
+        size = 8.0 - level * 0.7 + r.random() * 0.6
+        for k in range(n):
+            x = width / 2 + (k - (n - 1) / 2) * size * 1.25 + r.uniform(-2.5, 2.5) + (2 if level % 2 else -2)
+            flowers.append((y + r.uniform(-1.5, 1.5), x, size + r.uniform(-0.6, 0.4), (len(flowers) + seed) % 4 == 1, r.random() * 6.28))
+        y -= size * 1.15
+        level += 1
+    # De arriba abajo: las de abajo quedan delante.
+    for y, x, size, red, turn in sorted(flowers):
+        bloom(img, x, y, size, RED_BLOOM if red else WHITE_BLOOM, turn)
+    return img
+
+
+cluster(4).save(f'{OUT}/juliet_card_left.png')
+cluster(12).transpose(Image.FLIP_LEFT_RIGHT).save(f'{OUT}/juliet_card_right.png')
+
+# ---------- La flor morada del centro, plantada en su montoncito de tierra ----------
+FW, FH = 21, 19
 fl = Image.new('RGBA', (FW, FH))
-cx, cy = 8, 7
-for y in range(15):
+mound(fl, FW // 2, FH - 2, 9)
+cx, cy = FW // 2, 8
+PURPLES = (P_MID, P_BASE, P_LIGHT, P_GLOW, P_DARK)
+for y in range(FH):
     for x in range(FW):
         fx, fy = x - cx, y - cy
         d = math.hypot(fx, fy); th = math.atan2(fy, fx)
         c = None
-        if d <= 7.4 * 0.95 + 0.9 * math.cos(8 * th): c = P_MID
-        if d <= 6.2 * 0.95 + 0.8 * math.cos(8 * th + 1.2): c = P_BASE
-        if d <= 4.8 * 0.95 + 0.7 * math.cos(8 * th + 2.4): c = P_LIGHT
+        if d <= 7.4 + 0.9 * math.cos(8 * th): c = P_MID
+        if d <= 6.2 + 0.8 * math.cos(8 * th + 1.2): c = P_BASE
+        if d <= 4.8 + 0.7 * math.cos(8 * th + 2.4): c = P_LIGHT
         if d <= 3.3 + 0.5 * math.cos(6 * th): c = P_BASE
         if d <= 2 + 0.3 * math.cos(6 * th + 1): c = P_MID
         if d <= 1: c = P_DARK
         if c: put(fl, x, y, c, False)
-# Brillo arriba a la izquierda de los pétalos.
-for x, y in [(4, 3), (5, 2), (3, 5)]: put(fl, x, y, P_GLOW, False)
-for y in range(15, FH):
-    put(fl, cx, y, LEAF, False)
-for x, y in [(9, 18), (10, 17), (11, 17), (12, 16), (7, 21), (6, 20), (5, 20), (4, 19)]:
-    put(fl, x, y, LEAF_L if y < 18 or x < 6 else LEAF, False)
-fl.save(f'{OUT}/juliet_card_flower.png')
+for x, y in [(cx - 4, cy - 4), (cx - 3, cy - 5), (cx - 5, cy - 2)]: put(fl, x, y, P_GLOW, False)
+# Contorno oscuro para que se despegue del blanco.
+pp = fl.load(); out = fl.copy(); q = out.load()
+for y in range(FH):
+    for x in range(FW):
+        if pp[x, y][3] and pp[x, y][:3] in PURPLES[:4] and any(
+                not (0 <= x + dx < FW and 0 <= y + dy < FH) or pp[x + dx, y + dy][3] == 0 or pp[x + dx, y + dy][:3] not in PURPLES
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+            q[x, y] = rgba(P_DARK)
+out.save(f'{OUT}/juliet_card_flower.png')
+print('flower', out.size)
 
 # ---------- Rótulo JULIET: letras pixel moradas con una gota roja ----------
 L = {

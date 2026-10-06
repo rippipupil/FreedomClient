@@ -545,6 +545,8 @@ public class ModGridPage implements MenuPage {
 			// Estado con un punto de color: encendido en el color de la categoría.
 			String label = module instanceof BundledModModule ? "Always on" : alwaysOn ? "Open >" : module.isEnabled() ? "ON" : "OFF";
 			int dot = module.isEnabled() || alwaysOn ? category : muted;
+			// Sobre un fondo claro con dibujos, una plaquita blanca deja leer el estado.
+			if (lightCard) ui.g.fill(textX - 2, statusY - 1, textX + 9 + ui.font.width(label), statusY + 9, ThemeManager.withAlpha(0xFFFFFFFF, 0.8F));
 			ui.g.fill(textX, statusY + 2, textX + 4, statusY + 6, dot);
 			int onColor = lightCard ? ThemeManager.mix(category, 0xFF000000, 0.25F) : ThemeManager.mix(category, 0xFFFFFFFF, 0.35F);
 			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? onColor : muted, false);

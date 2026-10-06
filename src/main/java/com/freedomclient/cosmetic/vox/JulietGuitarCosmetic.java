@@ -48,10 +48,11 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 	/** Origen del diseño (donde giran la guitarra y las flores) en el .vox: y = 60 del diseño, menos su base 107,5. */
 	private static final float PIVOT_Y = -47.5F;
 
-	/** Tarjeta del menú (scripts/textures/juliet_guitar/card.py): campo lejano, neblina, flores cercanas, flor morada. */
+	/** Tarjeta del menú (scripts/textures/juliet_guitar/card.py): vacío y suelo, neblina, montones de flores, flor morada. */
 	private static final Identifier CARD_FAR = FreedomClient.id("textures/cosmetic/juliet_card_far.png");
 	private static final Identifier CARD_HAZE = FreedomClient.id("textures/cosmetic/juliet_card_haze.png");
-	private static final Identifier CARD_NEAR = FreedomClient.id("textures/cosmetic/juliet_card_near.png");
+	private static final Identifier CARD_LEFT = FreedomClient.id("textures/cosmetic/juliet_card_left.png");
+	private static final Identifier CARD_RIGHT = FreedomClient.id("textures/cosmetic/juliet_card_right.png");
 	private static final Identifier CARD_FLOWER = FreedomClient.id("textures/cosmetic/juliet_card_flower.png");
 	private static final Identifier TITLE = FreedomClient.id("textures/cosmetic/juliet_title.png");
 	private static final Identifier ROOT_TOP = FreedomClient.id("textures/cosmetic/juliet_root_top.png");
@@ -62,8 +63,14 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 	private static final Identifier CORNER_RED = FreedomClient.id("textures/cosmetic/juliet_corner_red.png");
 	private static final int CARD_WIDTH = 320;
 	private static final int CARD_HEIGHT = 64;
-	private static final int FLOWER_WIDTH = 17;
-	private static final int FLOWER_HEIGHT = 26;
+	private static final int FLOWER_WIDTH = 21;
+	private static final int FLOWER_HEIGHT = 19;
+	/** Montones de flores de los lados. */
+	private static final int CLUSTER = 40;
+	/** Hueco que deja a la izquierda la vista previa de la guitarra (su recuadro mide 40 y empieza a 4 del fondo). */
+	private static final int PREVIEW_SPACE = 45;
+	/** Lo que se plantan por encima del borde de abajo (las raíces). */
+	private static final int GROUND = 4;
 	private static final int TITLE_WIDTH = 45;
 	private static final int TITLE_HEIGHT = 12;
 	/** Grosor de las tiras de raíces del borde. */
@@ -287,9 +294,10 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 	}
 
 	/**
-	 * Fondo fijo de su tarjeta: un campo de flores rojas y blancas en un vacío blanco que se pierde a lo lejos, con una
-	 * neblina que pasa despacio por el horizonte, la flor morada plantada en el medio y unos pétalos que lleva el
-	 * viento. Cinco dibujos de textura y unos pocos píxeles por fotograma.
+	 * Fondo fijo de su tarjeta: un vacío blanco con el terreno blanco perdiéndose a lo lejos y una neblina que pasa
+	 * despacio por el horizonte; a cada lado, un montón de flores sin tallo plantadas en la tierra (sobre todo blancas,
+	 * algunas rojas), la flor morada plantada en el medio y unos pétalos que lleva el viento. Seis dibujos de textura y
+	 * unos pocos píxeles por fotograma.
 	 */
 	@Override
 	public boolean drawCardBackground(GuiGraphics g, int x, int y, int w, int h) {
@@ -297,11 +305,14 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 		drawCardLayer(g, CARD_FAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
 		// La neblina da una vuelta entera cada 51 segundos.
 		drawCardLayer(g, CARD_HAZE, x, y, w, h, (int) (time / 160L % CARD_WIDTH), CARD_WIDTH, CARD_HEIGHT);
-		int flowerX = x + w / 2 + 6 - FLOWER_WIDTH / 2;
-		int flowerY = y + h - FLOWER_HEIGHT - 3;
-		g.blit(RenderPipelines.GUI_TEXTURED, CARD_FLOWER, flowerX, flowerY, 0.0F, 0.0F, FLOWER_WIDTH, FLOWER_HEIGHT, FLOWER_WIDTH, FLOWER_HEIGHT,
-				FLOWER_WIDTH, FLOWER_HEIGHT);
-		drawCardLayer(g, CARD_NEAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
+		int leftX = x + PREVIEW_SPACE;
+		int rightX = x + w - CLUSTER - 3;
+		int ground = y + h - GROUND;
+		blit(g, CARD_LEFT, leftX, ground - CLUSTER, CLUSTER, CLUSTER);
+		blit(g, CARD_RIGHT, rightX, ground - CLUSTER, CLUSTER, CLUSTER);
+		// La flor morada, en el medio del campo que queda entre los dos montones.
+		int middle = (leftX + CLUSTER + rightX) / 2;
+		blit(g, CARD_FLOWER, middle - FLOWER_WIDTH / 2, ground - FLOWER_HEIGHT, FLOWER_WIDTH, FLOWER_HEIGHT);
 		// Pétalos que cruzan la tarjeta con el viento, bajando poco a poco y meciéndose.
 		int count = Math.max(4, w / 30);
 		for (int i = 0; i < count; i++) {
@@ -316,6 +327,10 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 			if ((time / 300L + i) % 2 == 0) g.fill(px + 1, py + 1, px + 2, py + 2, ThemeManager.withAlpha(color, alpha * 0.7F));
 		}
 		return true;
+	}
+
+	private static void blit(GuiGraphics g, Identifier texture, int x, int y, int w, int h) {
+		g.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0.0F, 0.0F, w, h, w, h, w, h);
 	}
 
 	/**
