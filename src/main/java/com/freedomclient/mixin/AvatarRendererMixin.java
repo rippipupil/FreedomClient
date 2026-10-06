@@ -25,6 +25,13 @@ public class AvatarRendererMixin {
 		// Hide Armor con la élitra oculta: se quita también del estado, así la capa vuelve a verse (con élitra puesta
 		// Minecraft no dibuja la capa) y los cosméticos de la espalda no se apartan para dejarle sitio.
 		if (state.chestEquipment.has(DataComponents.GLIDER) && HideArmorModule.hidesElytra(state)) state.chestEquipment = ItemStack.EMPTY;
+		// Tocando la guitarra, las manos van en la guitarra: no se dibuja lo que lleves en ellas.
+		if (com.freedomclient.cosmetic.vox.GuitarEmote.isPlaying() && entity == Minecraft.getInstance().player) {
+			state.rightHandItemState.clear();
+			state.leftHandItemState.clear();
+			state.rightArmPose = net.minecraft.client.model.HumanoidModel.ArmPose.EMPTY;
+			state.leftArmPose = net.minecraft.client.model.HumanoidModel.ArmPose.EMPTY;
+		}
 		if (state.skin == null) return;
 		ClientCapeCosmetic cape = ClientCapeCosmetic.active();
 		PlayerSkin skin = state.skin;

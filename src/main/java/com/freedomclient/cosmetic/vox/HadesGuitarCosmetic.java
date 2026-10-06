@@ -1,7 +1,6 @@
 package com.freedomclient.cosmetic.vox;
 
 import com.freedomclient.FreedomClient;
-import com.freedomclient.cosmetic.CosmeticSlot;
 import com.freedomclient.particle.GlowParticle;
 import com.freedomclient.particle.PixelParticles;
 import com.freedomclient.setting.BooleanSetting;
@@ -33,9 +32,11 @@ import java.nio.charset.StandardCharsets;
  * En el menú, su tarjeta tiene un fondo propio que no cambia con el tema: vegetación de noche con espíritus blancos,
  * grises y negros flotando.
  */
-public class HadesGuitarCosmetic extends VoxCosmetic {
-	/** Sonido de su canción (sounds.json), para el sistema de música de las guitarras. */
+public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
+	/** Sonido de su canción (sounds.json). */
 	public static final String SONG = "guitar.hades";
+	/** Tempo de la canción (medido sobre el audio: 73,5 pulsos; el rasgueo va al doble). */
+	private static final float BPM = 147.0F;
 
 	private static final Vox.Palette PALETTE = new Vox.Palette("guitar_hades",
 			'k', 0xFF111114, 'd', 0xFF3A3A42, 'g', 0xFF8A8A94, 'l', 0xFFC9C9CF, 'w', 0xFFF2F2F0, 's', 0xFFB8B8C0,
@@ -62,7 +63,22 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 
 	public HadesGuitarCosmetic() {
 		super("Hades", "Music: a winter guitar in white, greys and black, with curling flames, dry branches and its own song. "
-				+ "Its card has a night garden full of spirits.", CosmeticSlot.BACK);
+				+ "Its card has a night garden full of spirits.");
+	}
+
+	@Override
+	public String song() {
+		return SONG;
+	}
+
+	@Override
+	public String songTitle() {
+		return "hades in the dead of winter — My Dead Girlfriend, toumobits";
+	}
+
+	@Override
+	public float bpm() {
+		return BPM;
 	}
 
 	private void build() {
@@ -93,14 +109,18 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 		// doble de gruesa (su cuerpo solo tiene 9 vóxeles de fondo y de lado se veía como una tabla).
 		float scale = size.getFloat() * 0.32F;
 		float thickness = scale * THICKNESS;
-		parent.body.translateAndRotate(poseStack);
-		// La parte de atrás del cuerpo llega 5 vóxeles detrás de su plano central: así queda pegada a la espalda.
-		poseStack.translate(0.0F, 6.5F / 16.0F, (2.1F + backClearance(state) + 5.0F * thickness) / 16.0F);
-		poseStack.scale(scale, scale, thickness);
-		if (side.is("Left")) poseStack.scale(-1.0F, 1.0F, 1.0F);
-		// Menos inclinada que las otras guitarras: el cuerpo queda en el centro de la espalda y el mástil asoma por
-		// encima del hombro.
-		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-20.0F));
+		if (inHands(state)) {
+			inHands(parent, poseStack, state, scale, thickness, 5.0F);
+		} else {
+			parent.body.translateAndRotate(poseStack);
+			// La parte de atrás del cuerpo llega 5 vóxeles detrás de su plano central: así queda pegada a la espalda.
+			poseStack.translate(0.0F, 6.5F / 16.0F, (2.1F + backClearance(state) + 5.0F * thickness) / 16.0F);
+			poseStack.scale(scale, scale, thickness);
+			if (side.is("Left")) poseStack.scale(-1.0F, 1.0F, 1.0F);
+			// Menos inclinada que las otras guitarras: el cuerpo queda en el centro de la espalda y el mástil asoma por
+			// encima del hombro.
+			poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-20.0F));
+		}
 		// El centro del cuerpo (x -0.4, 21.6 vóxeles por encima de la base) cae justo en el centro de la espalda.
 		poseStack.translate(0.44F / 16.0F, 21.6F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);

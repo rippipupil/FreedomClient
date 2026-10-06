@@ -96,6 +96,8 @@ public class FreedomClient implements ClientModInitializer {
 
 			CombatTracker.tick(client);
 			PetBehavior.tick(client);
+			com.freedomclient.cosmetic.vox.GuitarEmote.tick(client);
+			com.freedomclient.cosmetic.vox.GuitarMusic.tick(client);
 			moduleManager.onTick(client);
 		});
 

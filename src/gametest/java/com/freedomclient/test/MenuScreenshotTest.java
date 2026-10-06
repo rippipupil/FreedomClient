@@ -418,6 +418,30 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
 			shoot(context, "hades_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
+			// Emote de tocar la guitarra (tecla X): Hades en las manos, de frente y de espaldas, y la Electric Guitar.
+			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
+				String name = guitarType == com.freedomclient.cosmetic.vox.GuitarCosmetic.class ? "electric" : "hades";
+				context.runOnClient(client -> {
+					cosmetic(guitarType).setEnabled(true);
+					client.player.setYRot(client.player.getYRot() + 150.0F);
+					client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+					com.freedomclient.cosmetic.vox.GuitarEmote.start(client);
+				});
+				context.waitTicks(16);
+				context.takeScreenshot("guitar_emote_" + name + "_front");
+				context.runOnClient(client -> {
+					FreedomClient.LOGGER.info("[guitar] test: playing {} volume {} song {}", com.freedomclient.cosmetic.vox.GuitarEmote.isPlaying(),
+							com.freedomclient.cosmetic.vox.GuitarMusic.volume(), com.freedomclient.cosmetic.vox.GuitarMusic.playingSong());
+					client.player.setYRot(client.player.getYRot() - 150.0F);
+					client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+				});
+				context.waitTicks(4);
+				context.takeScreenshot("guitar_emote_" + name + "_back");
+				context.runOnClient(client -> {
+					com.freedomclient.cosmetic.vox.GuitarEmote.stop(client, "test");
+					cosmetic(guitarType).setEnabled(false);
+				});
+			}
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 70.0F));
 			shoot(context, "guitar_side", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 70.0F));

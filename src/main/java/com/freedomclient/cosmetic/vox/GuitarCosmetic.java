@@ -1,6 +1,5 @@
 package com.freedomclient.cosmetic.vox;
 
-import com.freedomclient.cosmetic.CosmeticSlot;
 import com.freedomclient.particle.GlowParticle;
 import com.freedomclient.particle.PixelParticles;
 import com.freedomclient.setting.BooleanSetting;
@@ -20,7 +19,7 @@ import net.minecraft.util.RandomSource;
  * Cuerpo rojo con golpeador blanco, tres pastillas, puente cromado, mástil de arce con diapasón oscuro y la pala
  * crema con sus clavijas. De vez en cuando suelta notas musicales.
  */
-public class GuitarCosmetic extends VoxCosmetic {
+public class GuitarCosmetic extends MusicGuitarCosmetic {
 	private static final Vox.Palette PALETTE = new Vox.Palette("guitar",
 			'r', 0xFFC8182A, 'R', 0xFF8E0E1C, 'h', 0xFFE84050, 'w', 0xFFF4F2EC, 'W', 0xFFCFCBC2, 'k', 0xFF1E1A1E,
 			's', 0xFFD8DCE4, 'S', 0xFF9AA0AC, 'n', 0xFFE6C48A, 'N', 0xFFC49A5E, 'f', 0xFF4A2A1C, 'c', 0xFFF2E3C2);
@@ -64,8 +63,7 @@ public class GuitarCosmetic extends VoxCosmetic {
 	private Vox.Shape guitar;
 
 	public GuitarCosmetic() {
-		super("Electric Guitar", "Music: a red electric guitar on your back with a white pickguard, maple neck and chrome bridge. Plays little music notes.",
-				CosmeticSlot.BACK);
+		super("Electric Guitar", "Music: a red electric guitar on your back with a white pickguard, maple neck and chrome bridge. Plays little music notes.");
 	}
 
 	private void build() {
@@ -100,7 +98,12 @@ public class GuitarCosmetic extends VoxCosmetic {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		if (guitar == null) build();
 		poseStack.pushPose();
-		onBackDiagonal(parent, poseStack, state, size.getFloat() * 0.62F, side.is("Left"), 1.2F);
+		float scale = size.getFloat() * 0.62F;
+		if (inHands(state)) {
+			inHands(parent, poseStack, state, scale, scale, 1.2F);
+		} else {
+			onBackDiagonal(parent, poseStack, state, scale, side.is("Left"), 1.2F);
+		}
 		// El cuerpo de la guitarra queda en el centro de la espalda y el mástil asoma por encima del hombro.
 		poseStack.translate(0.0F, -7.0F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);

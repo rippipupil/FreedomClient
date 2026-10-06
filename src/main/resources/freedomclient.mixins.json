@@ -15,6 +15,7 @@
 		"ClientLevelMixin",
 		"ClientLevelDataMixin",
 		"PackRepositoryMixin",
+		"PlayerModelMixin",
 		"ContainerBackgroundMixin",
 		"ContainerLabelsMixin",
 		"EntityHitboxDebugRendererMixin",
