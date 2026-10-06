@@ -40,6 +40,11 @@ public abstract class MusicGuitarCosmetic extends VoxCosmetic {
 		return null;
 	}
 
+	/** Si al tocarla salen notas musicales a cada pulso. */
+	public boolean beatNotes() {
+		return true;
+	}
+
 	/** Pulsos por minuto: marcan el rasgueo y las notas mientras se toca. */
 	public float bpm() {
 		return 110.0F;

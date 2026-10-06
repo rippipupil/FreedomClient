@@ -132,7 +132,7 @@ public final class GuitarEmote {
 		int beat = (int) beats();
 		if (beat != lastBeat) {
 			lastBeat = beat;
-			spawnNotes(client, player);
+			if (guitar.beatNotes()) spawnNotes(client, player);
 		}
 	}
 

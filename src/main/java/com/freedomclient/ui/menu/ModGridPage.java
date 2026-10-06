@@ -475,7 +475,8 @@ public class ModGridPage implements MenuPage {
 			NeonStyle.frame(ui.g, x, y, w, h, phase, 0.5, 0.6F + 0.4F * hover);
 		}
 		// Un borde de la sección Borders de Cosmetics sustituye al de Card Borders.
-		if (!com.freedomclient.cosmetic.border.BorderCosmetic.drawActive(ui.g, x, y, w, h, category, on, hover)) {
+		boolean customBorder = module instanceof CosmeticModule cosmeticBorder && cosmeticBorder.drawCardBorder(ui.g, x, y, w, h, on, hover);
+		if (!customBorder && !com.freedomclient.cosmetic.border.BorderCosmetic.drawActive(ui.g, x, y, w, h, category, on, hover)) {
 			com.freedomclient.module.visual.CardBordersModule.draw(ui.g, x, y, w, h, category, on, hover);
 		}
 
@@ -497,10 +498,11 @@ public class ModGridPage implements MenuPage {
 			previewed = true;
 		}
 		if (!previewed && isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
-			// Con fondo propio, la caja de la vista previa deja ver el fondo.
-			int boxFill = ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on);
-			Draw.panel(ui.g, boxX, boxY, boxW, boxH, customBackground ? ThemeManager.withAlpha(boxFill, 0.35F) : boxFill,
-					ThemeManager.mix(category, ThemeManager.border(), 0.4F));
+			// Con fondo propio no hay caja: el cosmético se ve directamente sobre el fondo de la tarjeta.
+			if (!customBackground) {
+				Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on),
+						ThemeManager.mix(category, ThemeManager.border(), 0.4F));
+			}
 			previewed = CosmeticPreview.render(ui.g, cosmetic, boxX + 1, boxY + 1, boxX + boxW - 1, boxY + boxH - 1);
 		}
 		if (!previewed) {

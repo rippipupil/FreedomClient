@@ -1,18 +1,14 @@
 package com.freedomclient.cosmetic.vox;
 
 import com.freedomclient.FreedomClient;
-import com.freedomclient.particle.GlowParticle;
-import com.freedomclient.particle.PixelParticles;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.NumberSetting;
 import com.freedomclient.ui.Draw;
 import com.freedomclient.ui.theme.ThemeManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.player.PlayerModel;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
@@ -43,7 +39,10 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 			'n', 0xFF24242A, 'f', 0xFF18181C);
 	/** Cajas del diseño (scripts/textures/hades_guitar): "color x y z ancho alto fondo", 1 vóxel = 1 px del modelo. */
 	private static final String MODEL = "/assets/freedomclient/vox/hades.vox";
-	private static final Identifier CARD = FreedomClient.id("textures/cosmetic/hades_card.png");
+	/** Capas del bosque muerto de su tarjeta (scripts/textures/hades_guitar/forest.py). */
+	private static final Identifier FAR = FreedomClient.id("textures/cosmetic/hades_card_far.png");
+	private static final Identifier FOG = FreedomClient.id("textures/cosmetic/hades_card_fog.png");
+	private static final Identifier NEAR = FreedomClient.id("textures/cosmetic/hades_card_near.png");
 	/** Grosor respecto al diseño (en profundidad): el suyo, fina como en Claude Design. */
 	private static final float THICKNESS = 1.0F;
 	/** Copos de ceniza y nieve del diseño que suben en espiral alrededor de la guitarra. */
@@ -51,17 +50,29 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	private static final int CARD_WIDTH = 320;
 	private static final int CARD_HEIGHT = 64;
 
-	/** Espíritu: cabeza redonda y la cola ondulada (dos fotogramas). */
-	private static final String[] SPIRIT_A = {".###.", "#####", "#####", "#####", "#.#.#"};
-	private static final String[] SPIRIT_B = {".###.", "#####", "#####", "#####", ".#.#."};
-	private static final String[] SPIRIT_SMALL = {".#.", "###", "#.#"};
+	/** Rama seca de la esquina de arriba a la izquierda: corre por el borde y suelta ramitas hacia dentro. */
+	private static final String[] BRANCH_TL = {
+			"##############.###....",
+			"####.##..#.##.....#...",
+			"##.....#...........#..",
+			"##......#.............",
+			"#.#...................",
+			"##....................",
+			"#.#...................",
+			"#.....................",
+			"##....................",
+			".#....................",
+	};
+	private static final String[] BRANCH_TR = mirrorX(BRANCH_TL);
+	private static final String[] BRANCH_BL = mirrorY(BRANCH_TL);
+	private static final String[] BRANCH_BR = mirrorX(BRANCH_BL);
+	/** Espíritu sin cara: una gotita redonda con la cola deshilachada. */
+	private static final String[] WISP = {".##.", "####", "####", "#.##"};
 
 	public final NumberSetting size = add(new NumberSetting("Size", "How big the guitar is.", 0.75, 0.5, 1.1, 0.05, "x"));
 	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Left", "Left", "Right"));
-	public final BooleanSetting notes = add(new BooleanSetting("Music notes", "Little music notes float out of the guitar now and then.", true));
 	public final BooleanSetting snow = add(new BooleanSetting("Snow", "Ash and snow flakes rising around the guitar, like in its design.", true));
 
-	private final RandomSource random = RandomSource.create();
 	private Vox.Shape guitar;
 	/** Un cubito por color de copo (gris, gris claro y blanco) y los datos de cada copo. */
 	private final Vox.Shape[] flake = {
@@ -169,75 +180,111 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 		}
 	}
 
-	/** Notas musicales que salen de la guitarra y suben despacio (solo en tercera persona). */
+	/** Hades no suelta notas musicales: su ambiente son los copos y los espíritus. */
 	@Override
-	public void onTick(Minecraft client) {
-		LocalPlayer player = client.player;
-		if (!notes.get() || client.level == null || player == null || player.isInvisible() || client.isPaused()) return;
-		if (client.options.getCameraType().isFirstPerson() || random.nextFloat() > 0.06F) return;
-		float yaw = player.yBodyRot * Mth.DEG_TO_RAD;
-		double backX = Mth.sin(yaw);
-		double backZ = -Mth.cos(yaw);
-		double rightX = -Mth.cos(yaw);
-		double rightZ = -Mth.sin(yaw);
-		double lateral = (random.nextDouble() - 0.5) * 0.5;
-		double x = player.getX() + rightX * lateral + backX * 0.4;
-		double y = player.getY() + 0.9 + random.nextDouble() * 0.5;
-		double z = player.getZ() + rightZ * lateral + backZ * 0.4;
-		GlowParticle note = new GlowParticle(client.level, x, y, z, (random.nextDouble() - 0.5) * 0.01, 0.025, (random.nextDouble() - 0.5) * 0.01,
-				PixelParticles.sprite("note"), 0.07F, 0.09F, 30 + random.nextInt(15));
-		client.particleEngine.add(note.thirdPersonOnly());
+	public boolean beatNotes() {
+		return false;
 	}
 
 	/**
-	 * Fondo fijo de su tarjeta: el jardín de noche (abajo, que es donde está la vegetación) y espíritus blancos,
-	 * grises y negros que cruzan flotando despacio.
+	 * Fondo fijo de su tarjeta: un bosque muerto en tres capas (árboles lejanos, niebla que pasa despacio y árboles
+	 * cercanos) y unas lucecitas espirituales que suben. Son cuatro dibujos de textura y unos pocos píxeles por
+	 * fotograma, sin nada calculado píxel a píxel.
 	 */
 	@Override
 	public boolean drawCardBackground(GuiGraphics g, int x, int y, int w, int h) {
-		int v = Math.max(0, CARD_HEIGHT - h);
-		int drawH = Math.min(h, CARD_HEIGHT);
-		for (int dx = 0; dx < w; dx += CARD_WIDTH) {
-			int part = Math.min(CARD_WIDTH, w - dx);
-			g.blit(RenderPipelines.GUI_TEXTURED, CARD, x + dx, y + h - drawH, 0.0F, v, part, drawH, part, drawH, CARD_WIDTH, CARD_HEIGHT);
-		}
 		long time = System.currentTimeMillis() % 1_000_000L;
-		int count = Math.max(3, w / 32);
+		layer(g, FAR, x, y, w, h, 0);
+		// La niebla da una vuelta entera cada 40 segundos.
+		layer(g, FOG, x, y, w, h, (int) (time / 125L % CARD_WIDTH));
+		layer(g, NEAR, x, y, w, h, 0);
+		// Lucecitas que suben despacio entre los árboles y se apagan arriba.
+		int count = Math.max(3, w / 40);
 		for (int i = 0; i < count; i++) {
-			// Cada espíritu cruza la tarjeta a su ritmo y sube y baja meciéndose.
-			float speed = 0.004F + (i % 3) * 0.0025F;
-			float drift = (time * speed + i * 97.0F) % (w + 12.0F) - 6.0F;
-			int sx = x + Math.round(i % 2 == 0 ? drift : w - drift);
-			// Flotan en la franja libre entre la descripción y el estado, para no tapar el texto.
-			int band = Math.max(1, h - 40);
-			int sy = y + 27 + (i * 5) % band + Math.round(Mth.sin(time / 600.0F + i * 1.7F) * 2.0F);
-			boolean small = i % 4 == 3;
-			String[] art = small ? SPIRIT_SMALL : (time / 300 + i) % 2 == 0 ? SPIRIT_A : SPIRIT_B;
-			int kind = i % 3;
-			int body = kind == 0 ? 0xFFF2F2F0 : kind == 1 ? 0xFF8A8A94 : 0xFF0B0B0E;
-			if (sx < x - 3 || sx > x + w - 3) continue;
-			if (kind == 2) {
-				// Los negros llevan un contorno gris para verse sobre la noche.
-				int rim = ThemeManager.withAlpha(0xFF8A8A94, 0.8F);
-				Draw.art(g, art, sx - 1, sy, rim);
-				Draw.art(g, art, sx + 1, sy, rim);
-				Draw.art(g, art, sx, sy - 1, rim);
-			} else {
-				// Halo suave.
-				Draw.art(g, art, sx, sy + 1, ThemeManager.withAlpha(body, 0.25F));
-			}
-			Draw.art(g, art, sx, sy, body);
-			if (!small) {
-				// Ojos: oscuros en los claros, blancos en los negros.
-				int eye = kind == 2 ? 0xFFF2F2F0 : 0xFF111114;
-				g.fill(sx + 1, sy + 2, sx + 2, sy + 3, eye);
-				g.fill(sx + 3, sy + 2, sx + 4, sy + 3, eye);
-				// Estela de motitas detrás.
-				int trail = ThemeManager.withAlpha(body | 0xFF000000, 0.35F);
-				int back = i % 2 == 0 ? -2 : 6;
-				g.fill(sx + back, sy + 3, sx + back + 1, sy + 4, trail);
-			}
+			float period = 5200.0F + i * 900.0F;
+			float p = ((time + i * 1700L) % (long) period) / period;
+			int lx = x + 6 + (i * 53 + (int) (Mth.sin(time / 900.0F + i) * 3.0F)) % Math.max(1, w - 12);
+			int ly = y + h - 6 - Math.round(p * (h - 12));
+			float alpha = Mth.sin(p * Mth.PI) * 0.8F;
+			g.fill(lx, ly, lx + 1, ly + 1, ThemeManager.withAlpha(i % 2 == 0 ? 0xFFF2F2F0 : 0xFFC9C9CF, alpha));
+			g.fill(lx - 1, ly, lx + 2, ly + 1, ThemeManager.withAlpha(0xFFF2F2F0, alpha * 0.25F));
 		}
 		return true;
+	}
+
+	/** Una capa del fondo pegada abajo; {@code scroll} la desplaza (las capas se repiten en bucle a lo ancho). */
+	private static void layer(GuiGraphics g, Identifier texture, int x, int y, int w, int h, int scroll) {
+		int drawH = Math.min(h, CARD_HEIGHT);
+		int v = CARD_HEIGHT - drawH;
+		int top = y + h - drawH;
+		int done = 0;
+		int u = scroll;
+		while (done < w) {
+			int part = Math.min(CARD_WIDTH - u, w - done);
+			g.blit(RenderPipelines.GUI_TEXTURED, texture, x + done, top, u, v, part, drawH, part, drawH, CARD_WIDTH, CARD_HEIGHT);
+			done += part;
+			u = 0;
+		}
+	}
+
+	/**
+	 * Borde propio de su tarjeta: un marco oscuro con ramas secas que crecen desde las cuatro esquinas, y espíritus
+	 * sin cara que dan vueltas por el borde dejando una estela. Unos 60 rectángulos por tarjeta.
+	 */
+	@Override
+	public boolean drawCardBorder(GuiGraphics g, int x, int y, int w, int h, float on, float hover) {
+		int frame = ThemeManager.mix(0xFF2A2A30, 0xFF6A6A74, 0.35F * on + 0.25F * hover);
+		g.fill(x + 1, y, x + w - 1, y + 1, frame);
+		g.fill(x + 1, y + h - 1, x + w - 1, y + h, frame);
+		g.fill(x, y + 1, x + 1, y + h - 1, frame);
+		g.fill(x + w - 1, y + 1, x + w, y + h - 1, frame);
+		// Ramas en las esquinas (las mismas, en espejo).
+		int branch = ThemeManager.mix(0xFF16161A, 0xFF4A4A52, 0.4F * on);
+		Draw.art(g, BRANCH_TL, x, y, branch);
+		Draw.art(g, BRANCH_TR, x + w - BRANCH_TL[0].length(), y, branch);
+		Draw.art(g, BRANCH_BL, x, y + h - BRANCH_TL.length, branch);
+		Draw.art(g, BRANCH_BR, x + w - BRANCH_TL[0].length(), y + h - BRANCH_TL.length, branch);
+		// Espíritus sin cara recorriendo el borde (dos en un sentido y uno en el otro), con su estela.
+		long time = System.currentTimeMillis() % 10_000_000L;
+		int perimeter = 2 * (w + h);
+		float strength = 0.55F + 0.45F * Math.max(on, hover);
+		int[] colors = {0xFFF2F2F0, 0xFF8A8A94, 0xFF0B0B0E};
+		for (int i = 0; i < 3; i++) {
+			int direction = i == 1 ? -1 : 1;
+			int s = Math.floorMod((int) (time / (34L + i * 9L)) * direction + i * perimeter / 3, perimeter);
+			int color = colors[i];
+			for (int k = 3; k >= 1; k--) {
+				int[] trail = perimeterPoint(Math.floorMod(s - direction * k * 3, perimeter), x, y, w, h);
+				g.fill(trail[0], trail[1], trail[0] + 1, trail[1] + 1, ThemeManager.withAlpha(i == 2 ? 0xFF8A8A94 : color, strength * 0.5F / k));
+			}
+			int[] p = perimeterPoint(s, x, y, w, h);
+			int bob = (int) (time / 220L + i) % 2;
+			if (i == 2) Draw.art(g, WISP, p[0] - 2, p[1] - 3 + bob, ThemeManager.withAlpha(0xFF8A8A94, strength));
+			Draw.art(g, WISP, p[0] - 1, p[1] - 2 + bob, ThemeManager.withAlpha(color, strength));
+		}
+		return true;
+	}
+
+	/** Punto del borde a {@code s} píxeles de la esquina de arriba a la izquierda, en el sentido de las agujas del reloj. */
+	private static int[] perimeterPoint(int s, int x, int y, int w, int h) {
+		if (s < w) return new int[] {x + s, y};
+		s -= w;
+		if (s < h) return new int[] {x + w - 1, y + s};
+		s -= h;
+		if (s < w) return new int[] {x + w - 1 - s, y + h - 1};
+		s -= w;
+		return new int[] {x, y + h - 1 - Math.min(s, h - 1)};
+	}
+
+	private static String[] mirrorX(String[] rows) {
+		String[] out = new String[rows.length];
+		for (int i = 0; i < rows.length; i++) out[i] = new StringBuilder(rows[i]).reverse().toString();
+		return out;
+	}
+
+	private static String[] mirrorY(String[] rows) {
+		String[] out = new String[rows.length];
+		for (int i = 0; i < rows.length; i++) out[i] = rows[rows.length - 1 - i];
+		return out;
 	}
 }

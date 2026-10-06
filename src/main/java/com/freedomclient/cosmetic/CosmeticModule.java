@@ -56,6 +56,14 @@ public abstract class CosmeticModule extends Module {
 		return false;
 	}
 
+	/**
+	 * Borde propio de la tarjeta del menú (fijo, sustituye a Card Borders y a los cosméticos de borde). {@code on} y
+	 * {@code hover} van de 0 a 1. Dibuja y devuelve true; por defecto no hay.
+	 */
+	public boolean drawCardBorder(net.minecraft.client.gui.GuiGraphics g, int x, int y, int w, int h, float on, float hover) {
+		return false;
+	}
+
 	public static <T extends CosmeticModule> T get(Class<T> type) {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		return manager == null ? null : manager.get(type);
