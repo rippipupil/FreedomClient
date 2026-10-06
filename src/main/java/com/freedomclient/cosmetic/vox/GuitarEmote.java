@@ -26,6 +26,7 @@ public final class GuitarEmote {
 	private static long startedAt;
 	private static int ticks;
 	private static float bpm = 110.0F;
+	private static float motion = 1.0F;
 	private static CameraType savedCamera;
 	private static boolean keyWasDown;
 	private static int lastBeat = -1;
@@ -60,6 +61,11 @@ public final class GuitarEmote {
 		return Mth.cos(phase * Mth.TWO_PI);
 	}
 
+	/** Cuánto se mueve el jugador con la guitarra que toca (ver {@link MusicGuitarCosmetic#motion()}). */
+	public static float motion() {
+		return motion;
+	}
+
 	public static void start(Minecraft client) {
 		MusicGuitarCosmetic guitar = MusicGuitarCosmetic.active();
 		LocalPlayer player = client.player;
@@ -69,6 +75,7 @@ public final class GuitarEmote {
 		lastBeat = -1;
 		lastHurtTime = player.hurtTime;
 		bpm = guitar.bpm();
+		motion = guitar.motion();
 		startedAt = System.currentTimeMillis();
 		if (client.options.getCameraType().isFirstPerson()) {
 			savedCamera = client.options.getCameraType();

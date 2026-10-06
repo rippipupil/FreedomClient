@@ -50,6 +50,11 @@ public abstract class MusicGuitarCosmetic extends VoxCosmetic {
 		return 110.0F;
 	}
 
+	/** Cuánto se mueve el jugador al tocarla: 1 es un rasgueo enérgico; menos, más suave (canciones lentas). */
+	public float motion() {
+		return 1.0F;
+	}
+
 	@Override
 	protected void onEnable(Minecraft client) {
 		ModuleManager manager = FreedomClient.getModuleManager();
@@ -82,12 +87,13 @@ public abstract class MusicGuitarCosmetic extends VoxCosmetic {
 	 */
 	protected static void inHands(PlayerModel parent, PoseStack poseStack, AvatarRenderState state, float scale, float depthScale, float frontDepth) {
 		parent.body.translateAndRotate(poseStack);
-		float bounce = GuitarEmote.strum() * 0.25F;
+		float strum = GuitarEmote.strum() * GuitarEmote.motion();
+		float bounce = strum * 0.25F;
 		poseStack.translate(-1.0F / 16.0F, (8.0F + bounce) / 16.0F, -(2.1F + backClearance(state) + frontDepth * depthScale) / 16.0F);
 		poseStack.scale(scale, scale, depthScale);
 		// Vuelta para que la cara de la guitarra (hacia +z en el modelo) mire hacia fuera del pecho.
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
 		// El mástil sube hacia el lado izquierdo del jugador, casi horizontal, como al tocar.
-		poseStack.mulPose(Axis.ZP.rotationDegrees(-62.0F + GuitarEmote.strum() * 1.5F));
+		poseStack.mulPose(Axis.ZP.rotationDegrees(-62.0F + strum * 1.5F));
 	}
 }

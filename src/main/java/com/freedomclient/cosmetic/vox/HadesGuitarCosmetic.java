@@ -31,8 +31,11 @@ import java.nio.charset.StandardCharsets;
 public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	/** Sonido de su canción (sounds.json). */
 	public static final String SONG = "guitar.hades";
-	/** Tempo de la canción (medido sobre el audio: 73,5 pulsos; el rasgueo va al doble). */
-	private static final float BPM = 147.0F;
+	/**
+	 * Ritmo del rasgueo: la canción va a 73,5 pulsos y es melancólica, así que el brazo baja una sola vez cada tres
+	 * pulsos (unos 2,4 s), despacio y en bucle.
+	 */
+	private static final float BPM = 73.5F / 3.0F;
 
 	private static final Vox.Palette PALETTE = new Vox.Palette("guitar_hades",
 			'k', 0xFF111114, 'd', 0xFF3A3A42, 'g', 0xFF8A8A94, 'l', 0xFFC9C9CF, 'w', 0xFFF2F2F0, 's', 0xFFB8B8C0,
@@ -103,6 +106,11 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	@Override
 	public float bpm() {
 		return BPM;
+	}
+
+	@Override
+	public float motion() {
+		return 0.3F;
 	}
 
 	private void build() {
