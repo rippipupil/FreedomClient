@@ -56,7 +56,12 @@ public class PlayerModelMixin {
 		if (part.hasChild(name)) {
 			layer.resetPose();
 		} else {
-			layer.copyFrom(part);
+			layer.x = part.x;
+			layer.y = part.y;
+			layer.z = part.z;
+			layer.xRot = part.xRot;
+			layer.yRot = part.yRot;
+			layer.zRot = part.zRot;
 		}
 	}
 }
