@@ -205,7 +205,7 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 				float angle = w[4] + (t - lag) * w[3];
 				float sway = Mth.sin((t - lag) * 0.04F + w[4]) * 2.5F;
 				float radius = w[0] * (0.5F + 0.5F / (1.0F + (float) Math.exp((y + 8.0F) / 14.0F))) + sway;
-				float size = w[5] * fade * (k == 0 ? 1.0F : 0.55F / k);
+				float size = w[5] * fade * (k == 0 ? 2.0F : 1.1F / k);
 				if (size <= 0.04F) continue;
 				poseStack.pushPose();
 				poseStack.translate(Mth.cos(angle) * radius / 16.0F, -(y + 56.0F) / 16.0F, (6.0F + Mth.sin(angle) * radius * 0.35F) / 16.0F);
