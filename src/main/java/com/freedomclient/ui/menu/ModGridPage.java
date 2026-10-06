@@ -498,8 +498,10 @@ public class ModGridPage implements MenuPage {
 			previewed = true;
 		}
 		if (!previewed && isCosmetics() && module instanceof CosmeticModule cosmetic && CosmeticPreview.supports(cosmetic)) {
-			// Con fondo propio no hay caja: el cosmético se ve directamente sobre el fondo de la tarjeta.
-			if (!customBackground) {
+			if (customBackground) {
+				// Con fondo propio, un recuadro oscuro medio transparente separa la vista previa del fondo.
+				Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.withAlpha(0xFF0E0E12, 0.62F), ThemeManager.mix(0xFF4A4A54, 0xFF9A9AA4, 0.5F * on));
+			} else {
 				Draw.panel(ui.g, boxX, boxY, boxW, boxH, ThemeManager.mix(ThemeManager.shade(), category, 0.14F + 0.12F * on),
 						ThemeManager.mix(category, ThemeManager.border(), 0.4F));
 			}
@@ -515,13 +517,15 @@ public class ModGridPage implements MenuPage {
 		int textWidth = x + w - textX - 24;
 		// Sobre un fondo propio (siempre oscuro) el texto va claro, sea cual sea el tema.
 		int nameColor = customBackground ? 0xFFF2F2F0 : ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
-		boolean twoLines = ui.font.width(module.getName()) > textWidth;
 		int nameY = y + (isCosmetics() ? 7 : 5);
+		// Algunos cosméticos traen su propio rótulo en vez del nombre en texto.
+		boolean customTitle = module instanceof CosmeticModule titled && titled.drawCardTitle(ui.g, textX, nameY, on);
+		boolean twoLines = !customTitle && ui.font.width(module.getName()) > textWidth;
 		if (twoLines) {
 			String[] lines = splitName(ui, module.getName(), textWidth, x + w - textX - 6);
 			ui.g.drawString(ui.font, lines[0], textX, nameY, nameColor, false);
 			ui.g.drawString(ui.font, lines[1], textX, nameY + 10, nameColor, false);
-		} else {
+		} else if (!customTitle) {
 			ui.g.drawString(ui.font, module.getName(), textX, nameY + 1, nameColor, false);
 		}
 
@@ -540,7 +544,7 @@ public class ModGridPage implements MenuPage {
 			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? ThemeManager.mix(category, 0xFFFFFFFF, 0.35F)
 					: ThemeManager.textMuted(), false);
 		}
-		if (isCosmetics() && !twoLines) {
+		if (isCosmetics() && !twoLines && (!(module instanceof CosmeticModule described) || described.showCardDescription())) {
 			// Descripción corta debajo del nombre en las tarjetas de cosméticos, que tienen más sitio.
 			String description = ui.font.plainSubstrByWidth(module.getDescription(), x + w - textX - 5);
 			ui.g.drawString(ui.font, description, textX, nameY + 13, customBackground ? 0xFFB4B4BC : ThemeManager.textMuted(), false);

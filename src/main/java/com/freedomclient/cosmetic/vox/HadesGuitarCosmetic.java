@@ -43,6 +43,10 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	private static final Identifier FAR = FreedomClient.id("textures/cosmetic/hades_card_far.png");
 	private static final Identifier FOG = FreedomClient.id("textures/cosmetic/hades_card_fog.png");
 	private static final Identifier NEAR = FreedomClient.id("textures/cosmetic/hades_card_near.png");
+	/** Rótulo "HADES" en letras pixel góticas (scripts/textures/hades_guitar/title.py). */
+	private static final Identifier TITLE = FreedomClient.id("textures/cosmetic/hades_title.png");
+	private static final int TITLE_WIDTH = 45;
+	private static final int TITLE_HEIGHT = 11;
 	/** Grosor respecto al diseño (en profundidad): el suyo, fina como en Claude Design. */
 	private static final float THICKNESS = 1.0F;
 	/** Copos de ceniza y nieve del diseño que suben en espiral alrededor de la guitarra. */
@@ -210,6 +214,18 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 			g.fill(lx - 1, ly, lx + 2, ly + 1, ThemeManager.withAlpha(0xFFF2F2F0, alpha * 0.25F));
 		}
 		return true;
+	}
+
+	/** Su nombre en la tarjeta: el rótulo pixel "HADES" en vez del texto, y sin la línea de descripción. */
+	@Override
+	public boolean drawCardTitle(GuiGraphics g, int x, int y, float on) {
+		g.blit(RenderPipelines.GUI_TEXTURED, TITLE, x, y - 1, 0.0F, 0.0F, TITLE_WIDTH, TITLE_HEIGHT, TITLE_WIDTH, TITLE_HEIGHT, TITLE_WIDTH, TITLE_HEIGHT);
+		return true;
+	}
+
+	@Override
+	public boolean showCardDescription() {
+		return false;
 	}
 
 	/** Una capa del fondo pegada abajo; {@code scroll} la desplaza (las capas se repiten en bucle a lo ancho). */

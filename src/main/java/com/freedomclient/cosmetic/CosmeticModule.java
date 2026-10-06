@@ -64,6 +64,16 @@ public abstract class CosmeticModule extends Module {
 		return false;
 	}
 
+	/** Rótulo propio en la tarjeta del menú en vez del nombre en texto. Dibuja en (x, y) y devuelve true; por defecto no hay. */
+	public boolean drawCardTitle(net.minecraft.client.gui.GuiGraphics g, int x, int y, float on) {
+		return false;
+	}
+
+	/** Si su tarjeta enseña la línea de descripción debajo del nombre. */
+	public boolean showCardDescription() {
+		return true;
+	}
+
 	public static <T extends CosmeticModule> T get(Class<T> type) {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		return manager == null ? null : manager.get(type);
