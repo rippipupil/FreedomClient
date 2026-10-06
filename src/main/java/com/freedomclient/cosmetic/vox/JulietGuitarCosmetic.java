@@ -47,7 +47,8 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 			0x8A0D17, 0x4B3196, 0xC9B8EE, 0xE0566A, 0xA24BB5};
 
 	public final NumberSetting size = add(new NumberSetting("Size", "How big the guitar is.", 0.75, 0.5, 1.1, 0.05, "x"));
-	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Left", "Left", "Right"));
+	/** Por defecto, hacia el mismo lado que en el diseño. */
+	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Right", "Left", "Right"));
 	public final BooleanSetting flowers = add(new BooleanSetting("Flowers",
 			"Little voxel flowers in purple, white and red slowly falling and spinning around the guitar, like in its design.", true));
 
@@ -174,9 +175,10 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 		// El diseño avanza un paso por fotograma a 60 por segundo: tres por tick.
 		float tick = state.ageInTicks * 3.0F % 1_000_000.0F;
 		boolean hands = inHands(state);
-		float tilt = side.is("Left") ? TILT : -TILT;
+		float tilt = side.is("Right") ? TILT : -TILT;
 		if (hands) {
 			inHands(parent, poseStack, state, scale, scale, 2.0F);
+			poseStack.scale(-1.0F, 1.0F, 1.0F);
 		} else {
 			parent.body.translateAndRotate(poseStack);
 			// La tapa de atrás del cuerpo llega 2 vóxeles detrás de su plano central: así queda pegada a la espalda.
@@ -184,6 +186,9 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 			poseStack.scale(scale, scale, scale);
 			// Flota arriba y abajo muy despacio, como en el diseño (y hacia abajo aquí, de ahí el signo).
 			poseStack.translate(0.0F, -Mth.sin(tick * 0.012F) * 1.6F / 16.0F, 0.0F);
+			// El espacio de los modelos de Minecraft es el del diseño en espejo: se da la vuelta en x para que la
+			// guitarra (y el sentido en que giran las flores) quede igual que en el diseño y no al revés.
+			poseStack.scale(-1.0F, 1.0F, 1.0F);
 			poseStack.mulPose(Axis.ZP.rotation(tilt));
 		}
 		// La flor de la boca cae en el centro de la espalda.
