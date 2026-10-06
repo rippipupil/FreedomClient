@@ -107,7 +107,7 @@ public final class GuitarMusic {
 
 		@Override
 		public void tick() {
-			if (sound != this) {
+			if (GuitarMusic.sound != this) {
 				stop();
 				return;
 			}
