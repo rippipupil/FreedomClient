@@ -52,8 +52,10 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	private static final int TITLE_HEIGHT = 11;
 	/** Grosor respecto al diseño (en profundidad): el suyo, fina como en Claude Design. */
 	private static final float THICKNESS = 1.0F;
-	/** Copos de ceniza y nieve del diseño que suben en espiral alrededor de la guitarra. */
-	private static final int SNOW = 26;
+	/** Espíritus sin cara que suben despacio en espiral alrededor de la guitarra. */
+	private static final int SPIRITS = 10;
+	/** Colores de los espíritus (gris oscuro, gris y negro, como los del marco de su tarjeta) */
+	private static final char[] SPIRIT_COLORS = {'d', 'g', 'k'};
 	private static final int CARD_WIDTH = 320;
 	private static final int CARD_HEIGHT = 64;
 
@@ -78,15 +80,13 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 
 	public final NumberSetting size = add(new NumberSetting("Size", "How big the guitar is.", 0.75, 0.5, 1.1, 0.05, "x"));
 	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Left", "Left", "Right"));
-	public final BooleanSetting snow = add(new BooleanSetting("Snow", "Ash and snow flakes rising around the guitar, like in its design.", true));
+	public final BooleanSetting spirits = add(new BooleanSetting("Spirits", "Faceless spirits in dark grey, grey and black slowly rising around the guitar.", true));
 
 	private Vox.Shape guitar;
-	/** Un cubito por color de copo (gris, gris claro y blanco) y los datos de cada copo. */
-	private final Vox.Shape[] flake = {
-			new Vox.Shape(PALETTE).box('g', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F),
-			new Vox.Shape(PALETTE).box('l', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F),
-			new Vox.Shape(PALETTE).box('w', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F)};
-	private float[][] flakes;
+	/** Un espíritu de vóxeles y un cubito de su estela por color, y los datos de cada espíritu. */
+	private final Vox.Shape[] spirit = new Vox.Shape[SPIRIT_COLORS.length];
+	private final Vox.Shape[] trail = new Vox.Shape[SPIRIT_COLORS.length];
+	private float[][] wisps;
 
 	public HadesGuitarCosmetic() {
 		super("Hades", "Music: a winter guitar in white, greys and black, with curling flames, dry branches and its own song. "
@@ -155,44 +155,75 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 		// El centro del cuerpo (x -0.4, 21.6 vóxeles por encima de la base) cae justo en el centro de la espalda.
 		poseStack.translate(0.44F / 16.0F, 21.6F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);
-		if (snow.get()) drawSnow(poseStack, collector, state.ageInTicks);
+		if (spirits.get()) drawSpirits(poseStack, collector, state.ageInTicks);
 		poseStack.popPose();
 	}
 
 	/**
-	 * Partículas del diseño: copos grises, gris claro y blancos que suben girando alrededor de la guitarra, más
-	 * abiertos abajo y más cerrados arriba, y se apagan al llegar a los extremos. Van por delante de la espalda (la
-	 * órbita se aplasta hacia fuera para no meterse en el jugador). Coordenadas del diseño: y hacia arriba con la
-	 * base de la guitarra en y = -56.
+	 * El espíritu del marco de la tarjeta ({@link #WISP}) hecho en 3D: una gotita redonda, más gruesa en el centro, con
+	 * la cola deshilachada hacia abajo. Centrado en el origen, 4 vóxeles de ancho.
 	 */
-	private void drawSnow(PoseStack poseStack, SubmitNodeCollector collector, float ageInTicks) {
-		if (flakes == null) {
+	private static Vox.Shape spiritShape(char c) {
+		return new Vox.Shape(PALETTE)
+				.box(c, -1.0F, -2.5F, -1.0F, 2.0F, 1.0F, 2.0F)
+				.box(c, -2.0F, -1.5F, -1.0F, 4.0F, 2.0F, 2.0F)
+				.box(c, -1.0F, -1.5F, -2.0F, 2.0F, 2.0F, 4.0F)
+				.box(c, -2.0F, 0.5F, -1.0F, 1.0F, 1.0F, 1.0F)
+				.box(c, 0.0F, 0.5F, -0.5F, 2.0F, 1.0F, 1.5F)
+				.box(c, 0.5F, 1.5F, 0.0F, 1.0F, 1.0F, 1.0F);
+	}
+
+	/**
+	 * Partículas de Hades: espíritus sin cara en gris oscuro, gris y negro que suben muy despacio girando alrededor de
+	 * la guitarra, meciéndose de lado a lado y dejando una estela de cubitos. Más abiertos abajo y más cerrados
+	 * arriba, aparecen y se van encogiendo en los extremos. Van por delante de la espalda (la órbita se aplasta hacia
+	 * fuera para no meterse en el jugador). Coordenadas del diseño: y hacia arriba con la base de la guitarra en y = -56.
+	 */
+	private void drawSpirits(PoseStack poseStack, SubmitNodeCollector collector, float ageInTicks) {
+		if (wisps == null) {
+			for (int i = 0; i < SPIRIT_COLORS.length; i++) {
+				spirit[i] = spiritShape(SPIRIT_COLORS[i]);
+				trail[i] = new Vox.Shape(PALETTE).box(SPIRIT_COLORS[i], -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F);
+			}
 			RandomSource rnd = RandomSource.create(7L);
-			flakes = new float[SNOW][];
-			for (int i = 0; i < SNOW; i++) {
-				float kind = rnd.nextFloat();
-				flakes[i] = new float[] {20.0F + rnd.nextFloat() * 9.0F, (rnd.nextFloat() - 0.5F) * 140.0F, 0.028F + rnd.nextFloat() * 0.03F,
-						0.0045F + rnd.nextFloat() * 0.003F, rnd.nextFloat() * Mth.TWO_PI, 0.7F + rnd.nextFloat() * 0.7F, kind < 0.3F ? 0 : kind < 0.5F ? 1 : 2};
+			wisps = new float[SPIRITS][];
+			for (int i = 0; i < SPIRITS; i++) {
+				// Radio, altura de salida, subida, giro, fase, tamaño y color (repartidos a partes iguales).
+				wisps[i] = new float[] {20.0F + rnd.nextFloat() * 10.0F, (i + rnd.nextFloat() * 0.6F) / SPIRITS * 140.0F - 70.0F,
+						0.06F + rnd.nextFloat() * 0.03F, 0.007F + rnd.nextFloat() * 0.003F, rnd.nextFloat() * Mth.TWO_PI,
+						0.8F + rnd.nextFloat() * 0.35F, i % SPIRIT_COLORS.length};
 			}
 		}
-		// El diseño avanza un paso por fotograma a 60 por segundo: tres por tick.
-		float t = ageInTicks * 3.0F % 100_000.0F;
-		for (float[] f : flakes) {
-			float y = (f[1] + 70.0F + f[2] * t) % 140.0F - 70.0F;
-			float fade = Math.min(1.0F, Math.min((70.0F - y) / 22.0F, (y + 70.0F) / 22.0F));
-			float angle = f[4] + t * f[3];
-			float radius = f[0] * (0.5F + 0.5F / (1.0F + (float) Math.exp((y + 8.0F) / 14.0F))) + Mth.sin(t * 0.006F + f[4]) * 1.5F;
-			float size = (f[5] * fade * (0.85F + 0.15F * Mth.sin(t * 0.01F + f[4])) + 0.01F) * 1.6F;
-			if (size <= 0.02F) continue;
-			poseStack.pushPose();
-			poseStack.translate(Mth.cos(angle) * radius / 16.0F, -(y + 56.0F) / 16.0F, (6.0F + Mth.sin(angle) * radius * 0.35F) / 16.0F);
-			poseStack.scale(size, size, size);
-			flake[(int) f[6]].drawGlow(poseStack, collector);
-			poseStack.popPose();
+		float t = ageInTicks % 1_000_000.0F;
+		for (float[] w : wisps) {
+			int color = (int) w[6];
+			for (int k = 0; k <= 2; k++) {
+				// k = 0 es el espíritu; 1 y 2, su estela, un poco más abajo y atrás en el giro.
+				float lag = k * 30.0F;
+				float y = (w[1] + 70.0F + w[2] * (t - lag)) % 140.0F - 70.0F;
+				float fade = Mth.clamp(Math.min((70.0F - y) / 24.0F, (y + 70.0F) / 24.0F), 0.0F, 1.0F);
+				float angle = w[4] + (t - lag) * w[3];
+				float sway = Mth.sin((t - lag) * 0.04F + w[4]) * 2.5F;
+				float radius = w[0] * (0.5F + 0.5F / (1.0F + (float) Math.exp((y + 8.0F) / 14.0F))) + sway;
+				float size = w[5] * fade * (k == 0 ? 1.0F : 0.55F / k);
+				if (size <= 0.04F) continue;
+				poseStack.pushPose();
+				poseStack.translate(Mth.cos(angle) * radius / 16.0F, -(y + 56.0F) / 16.0F, (6.0F + Mth.sin(angle) * radius * 0.35F) / 16.0F);
+				poseStack.scale(size, size, size);
+				if (k == 0) {
+					// Gira despacio sobre sí mismo y se ladea con el vaivén, para que se vea en 3D.
+					poseStack.mulPose(com.mojang.math.Axis.YP.rotation(angle * 1.5F + t * 0.01F));
+					poseStack.mulPose(com.mojang.math.Axis.ZP.rotation(Mth.cos(t * 0.04F + w[4]) * 0.25F));
+					spirit[color].drawGlow(poseStack, collector);
+				} else {
+					trail[color].drawGlow(poseStack, collector);
+				}
+				poseStack.popPose();
+			}
 		}
 	}
 
-	/** Hades no suelta notas musicales: su ambiente son los copos y los espíritus. */
+	/** Hades no suelta notas musicales: su ambiente son los espíritus. */
 	@Override
 	public boolean beatNotes() {
 		return false;
