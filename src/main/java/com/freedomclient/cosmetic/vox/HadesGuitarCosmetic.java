@@ -44,8 +44,10 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	/** Cajas del diseño (scripts/textures/hades_guitar): "color x y z ancho alto fondo", 1 vóxel = 1 px del modelo. */
 	private static final String MODEL = "/assets/freedomclient/vox/hades.vox";
 	private static final Identifier CARD = FreedomClient.id("textures/cosmetic/hades_card.png");
-	/** Cuánto más gruesa que el diseño (en profundidad). */
-	private static final float THICKNESS = 2.0F;
+	/** Grosor respecto al diseño (en profundidad): el suyo, fina como en Claude Design. */
+	private static final float THICKNESS = 1.0F;
+	/** Copos de ceniza y nieve del diseño que suben en espiral alrededor de la guitarra. */
+	private static final int SNOW = 26;
 	private static final int CARD_WIDTH = 320;
 	private static final int CARD_HEIGHT = 64;
 
@@ -57,9 +59,16 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	public final NumberSetting size = add(new NumberSetting("Size", "How big the guitar is.", 0.75, 0.5, 1.1, 0.05, "x"));
 	public final ModeSetting side = add(new ModeSetting("Neck side", "Which shoulder the neck sticks out over.", "Left", "Left", "Right"));
 	public final BooleanSetting notes = add(new BooleanSetting("Music notes", "Little music notes float out of the guitar now and then.", true));
+	public final BooleanSetting snow = add(new BooleanSetting("Snow", "Ash and snow flakes rising around the guitar, like in its design.", true));
 
 	private final RandomSource random = RandomSource.create();
 	private Vox.Shape guitar;
+	/** Un cubito por color de copo (gris, gris claro y blanco) y los datos de cada copo. */
+	private final Vox.Shape[] flake = {
+			new Vox.Shape(PALETTE).box('g', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F),
+			new Vox.Shape(PALETTE).box('l', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F),
+			new Vox.Shape(PALETTE).box('w', -0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 1.0F)};
+	private float[][] flakes;
 
 	public HadesGuitarCosmetic() {
 		super("Hades", "Music: a winter guitar in white, greys and black, with curling flames, dry branches and its own song. "
@@ -105,8 +114,7 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		if (guitar == null) build();
 		poseStack.pushPose();
-		// El diseño mide unos 134 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras, y el
-		// doble de gruesa (su cuerpo solo tiene 9 vóxeles de fondo y de lado se veía como una tabla).
+		// El diseño mide unos 134 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras.
 		float scale = size.getFloat() * 0.32F;
 		float thickness = scale * THICKNESS;
 		if (inHands(state)) {
@@ -124,7 +132,41 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 		// El centro del cuerpo (x -0.4, 21.6 vóxeles por encima de la base) cae justo en el centro de la espalda.
 		poseStack.translate(0.44F / 16.0F, 21.6F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);
+		if (snow.get()) drawSnow(poseStack, collector, state.ageInTicks);
 		poseStack.popPose();
+	}
+
+	/**
+	 * Partículas del diseño: copos grises, gris claro y blancos que suben girando alrededor de la guitarra, más
+	 * abiertos abajo y más cerrados arriba, y se apagan al llegar a los extremos. Van por delante de la espalda (la
+	 * órbita se aplasta hacia fuera para no meterse en el jugador). Coordenadas del diseño: y hacia arriba con la
+	 * base de la guitarra en y = -56.
+	 */
+	private void drawSnow(PoseStack poseStack, SubmitNodeCollector collector, float ageInTicks) {
+		if (flakes == null) {
+			RandomSource rnd = RandomSource.create(7L);
+			flakes = new float[SNOW][];
+			for (int i = 0; i < SNOW; i++) {
+				float kind = rnd.nextFloat();
+				flakes[i] = new float[] {20.0F + rnd.nextFloat() * 9.0F, (rnd.nextFloat() - 0.5F) * 140.0F, 0.028F + rnd.nextFloat() * 0.03F,
+						0.0045F + rnd.nextFloat() * 0.003F, rnd.nextFloat() * Mth.TWO_PI, 0.7F + rnd.nextFloat() * 0.7F, kind < 0.3F ? 0 : kind < 0.5F ? 1 : 2};
+			}
+		}
+		// El diseño avanza un paso por fotograma a 60 por segundo: tres por tick.
+		float t = ageInTicks * 3.0F % 100_000.0F;
+		for (float[] f : flakes) {
+			float y = (f[1] + 70.0F + f[2] * t) % 140.0F - 70.0F;
+			float fade = Math.min(1.0F, Math.min((70.0F - y) / 22.0F, (y + 70.0F) / 22.0F));
+			float angle = f[4] + t * f[3];
+			float radius = f[0] * (0.5F + 0.5F / (1.0F + (float) Math.exp((y + 8.0F) / 14.0F))) + Mth.sin(t * 0.006F + f[4]) * 1.5F;
+			float size = (f[5] * fade * (0.85F + 0.15F * Mth.sin(t * 0.01F + f[4])) + 0.01F) * 1.6F;
+			if (size <= 0.02F) continue;
+			poseStack.pushPose();
+			poseStack.translate(Mth.cos(angle) * radius / 16.0F, -(y + 56.0F) / 16.0F, (6.0F + Mth.sin(angle) * radius * 0.35F) / 16.0F);
+			poseStack.scale(size, size, size);
+			flake[(int) f[6]].drawGlow(poseStack, collector);
+			poseStack.popPose();
+		}
 	}
 
 	/** Notas musicales que salen de la guitarra y suben despacio (solo en tercera persona). */
