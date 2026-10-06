@@ -91,7 +91,7 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 		poseStack.pushPose();
 		// El diseño mide unos 134 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras, y el
 		// doble de gruesa (su cuerpo solo tiene 9 vóxeles de fondo y de lado se veía como una tabla).
-		float scale = size.getFloat() * 0.24F;
+		float scale = size.getFloat() * 0.32F;
 		float thickness = scale * THICKNESS;
 		parent.body.translateAndRotate(poseStack);
 		// La parte de atrás del cuerpo llega 5 vóxeles detrás de su plano central: así queda pegada a la espalda.
