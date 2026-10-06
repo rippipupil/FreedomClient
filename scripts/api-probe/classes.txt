@@ -1,14 +1,12 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-net.minecraft.server.packs.PackResources
-net.minecraft.server.packs.CompositePackResources
-net.minecraft.server.packs.PathPackResources
-net.minecraft.server.packs.PathPackResources$PathResourcesSupplier
-net.minecraft.server.packs.PackLocationInfo
-net.minecraft.server.packs.PackSelectionConfig
-net.minecraft.server.packs.repository.Pack
-net.minecraft.server.packs.repository.Pack$ResourcesSupplier
-net.minecraft.server.packs.repository.Pack$Position
-net.minecraft.server.packs.repository.PackSource
-net.minecraft.server.packs.repository.RepositorySource
-net.minecraft.server.packs.repository.PackRepository
-net.minecraft.client.resources.ClientPackSource
+net.minecraft.client.model.player.PlayerModel
+net.minecraft.client.model.HumanoidModel
+net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
+net.minecraft.client.resources.sounds.AbstractSoundInstance
+net.minecraft.client.resources.sounds.SoundInstance
+net.minecraft.client.player.ClientInput
+net.minecraft.world.entity.player.Input
+net.minecraft.client.renderer.entity.state.HumanoidRenderState
+net.minecraft.client.renderer.entity.state.ArmedEntityRenderState
+net.minecraft.client.renderer.entity.state.AvatarRenderState
+net.minecraft.client.sounds.SoundManager
