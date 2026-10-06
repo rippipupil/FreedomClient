@@ -74,6 +74,30 @@ public abstract class CosmeticModule extends Module {
 		return true;
 	}
 
+	/** Si su fondo de tarjeta es claro: entonces el estado, la rueda y la estrella van en oscuro para que se lean. */
+	public boolean lightCardBackground() {
+		return false;
+	}
+
+	/**
+	 * Dibuja una capa de fondo de tarjeta ({@code texW} x {@code texH}, en bucle a lo ancho) pegada abajo del
+	 * rectángulo; {@code scroll} la desplaza hacia la izquierda.
+	 */
+	protected static void drawCardLayer(net.minecraft.client.gui.GuiGraphics g, net.minecraft.resources.Identifier texture, int x, int y, int w, int h,
+			int scroll, int texW, int texH) {
+		int drawH = Math.min(h, texH);
+		int v = texH - drawH;
+		int top = y + h - drawH;
+		int done = 0;
+		int u = Math.floorMod(scroll, texW);
+		while (done < w) {
+			int part = Math.min(texW - u, w - done);
+			g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, texture, x + done, top, u, v, part, drawH, part, drawH, texW, texH);
+			done += part;
+			u = 0;
+		}
+	}
+
 	public static <T extends CosmeticModule> T get(Class<T> type) {
 		ModuleManager manager = FreedomClient.getModuleManager();
 		return manager == null ? null : manager.get(type);

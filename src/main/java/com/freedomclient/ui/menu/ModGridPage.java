@@ -469,7 +469,12 @@ public class ModGridPage implements MenuPage {
 		Draw.bevelPanel(ui.g, x, y, w, h, fill, border);
 		// Algunos cosméticos traen su propio fondo de tarjeta, fijo (no cambia con el tema).
 		boolean customBackground = module instanceof CosmeticModule cosmeticCard && cosmeticCard.drawCardBackground(ui.g, x + 1, y + 1, w - 2, h - 2);
-		if (customBackground && hover > 0.01F) ui.g.fill(x + 1, y + 1, x + w - 1, y + h - 1, ThemeManager.withAlpha(0xFFFFFFFF, 0.06F * hover));
+		// Sobre un fondo propio claro, el estado, la rueda y la estrella van en oscuro.
+		boolean lightCard = customBackground && ((CosmeticModule) module).lightCardBackground();
+		if (customBackground && hover > 0.01F) {
+			ui.g.fill(x + 1, y + 1, x + w - 1, y + h - 1, ThemeManager.withAlpha(lightCard ? 0xFF000000 : 0xFFFFFFFF, (lightCard ? 0.04F : 0.06F) * hover));
+		}
+		int muted = lightCard ? 0xFF6A6A78 : ThemeManager.textMuted();
 		if (NeonStyle.on() && on > 0.5F) {
 			double phase = (x + y) / 700.0 + NeonStyle.flow() * 0.5;
 			NeonStyle.frame(ui.g, x, y, w, h, phase, 0.5, 0.6F + 0.4F * hover);
@@ -516,7 +521,7 @@ public class ModGridPage implements MenuPage {
 		// A la derecha quedan la rueda de ajustes y la estrella.
 		int textWidth = x + w - textX - 24;
 		// Sobre un fondo propio (siempre oscuro) el texto va claro, sea cual sea el tema.
-		int nameColor = customBackground ? 0xFFF2F2F0 : ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
+		int nameColor = lightCard ? 0xFF35206E : customBackground ? 0xFFF2F2F0 : ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
 		int nameY = y + (isCosmetics() ? 7 : 5);
 		// Algunos cosméticos traen su propio rótulo en vez del nombre en texto.
 		boolean customTitle = module instanceof CosmeticModule titled && titled.drawCardTitle(ui.g, textX, nameY, on);
@@ -539,10 +544,10 @@ public class ModGridPage implements MenuPage {
 		} else if (!twoLines || isCosmetics()) {
 			// Estado con un punto de color: encendido en el color de la categoría.
 			String label = module instanceof BundledModModule ? "Always on" : alwaysOn ? "Open >" : module.isEnabled() ? "ON" : "OFF";
-			int dot = module.isEnabled() || alwaysOn ? category : ThemeManager.textMuted();
+			int dot = module.isEnabled() || alwaysOn ? category : muted;
 			ui.g.fill(textX, statusY + 2, textX + 4, statusY + 6, dot);
-			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? ThemeManager.mix(category, 0xFFFFFFFF, 0.35F)
-					: ThemeManager.textMuted(), false);
+			int onColor = lightCard ? ThemeManager.mix(category, 0xFF000000, 0.25F) : ThemeManager.mix(category, 0xFFFFFFFF, 0.35F);
+			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? onColor : muted, false);
 		}
 		if (isCosmetics() && !twoLines && (!(module instanceof CosmeticModule described) || described.showCardDescription())) {
 			// Descripción corta debajo del nombre en las tarjetas de cosméticos, que tienen más sitio.
@@ -554,12 +559,12 @@ public class ModGridPage implements MenuPage {
 		int gearX = x + w - 13;
 		int gearY = y + 4;
 		boolean gearHovered = ui.hovered(gearX - 2, gearY - 2, 13, 13);
-		gear(ui, gearX, gearY, gearHovered ? ThemeManager.highlight() : hovered ? ThemeManager.text() : ThemeManager.textMuted());
+		gear(ui, gearX, gearY, gearHovered ? ThemeManager.highlight() : hovered ? (lightCard ? 0xFF35206E : ThemeManager.text()) : muted);
 		int starX = gearX - 11;
 		int starY = y + 4;
 		boolean starHovered = ui.hovered(starX - 1, starY - 1, 10, 10);
 		if (module.isFavorite() || hovered) {
-			star(ui, starX, starY, module.isFavorite() ? ThemeManager.accent() : starHovered ? ThemeManager.highlight() : ThemeManager.textMuted());
+			star(ui, starX, starY, module.isFavorite() ? ThemeManager.accent() : starHovered ? ThemeManager.highlight() : muted);
 		}
 		if (gearHovered) ui.tooltip("Settings");
 

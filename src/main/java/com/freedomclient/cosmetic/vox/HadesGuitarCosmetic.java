@@ -237,10 +237,10 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	@Override
 	public boolean drawCardBackground(GuiGraphics g, int x, int y, int w, int h) {
 		long time = System.currentTimeMillis() % 1_000_000L;
-		layer(g, FAR, x, y, w, h, 0);
+		drawCardLayer(g, FAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
 		// La niebla da una vuelta entera cada 40 segundos.
-		layer(g, FOG, x, y, w, h, (int) (time / 125L % CARD_WIDTH));
-		layer(g, NEAR, x, y, w, h, 0);
+		drawCardLayer(g, FOG, x, y, w, h, (int) (time / 125L % CARD_WIDTH), CARD_WIDTH, CARD_HEIGHT);
+		drawCardLayer(g, NEAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
 		// Lucecitas que suben despacio entre los árboles y se apagan arriba.
 		int count = Math.max(3, w / 40);
 		for (int i = 0; i < count; i++) {
@@ -265,21 +265,6 @@ public class HadesGuitarCosmetic extends MusicGuitarCosmetic {
 	@Override
 	public boolean showCardDescription() {
 		return false;
-	}
-
-	/** Una capa del fondo pegada abajo; {@code scroll} la desplaza (las capas se repiten en bucle a lo ancho). */
-	private static void layer(GuiGraphics g, Identifier texture, int x, int y, int w, int h, int scroll) {
-		int drawH = Math.min(h, CARD_HEIGHT);
-		int v = CARD_HEIGHT - drawH;
-		int top = y + h - drawH;
-		int done = 0;
-		int u = scroll;
-		while (done < w) {
-			int part = Math.min(CARD_WIDTH - u, w - done);
-			g.blit(RenderPipelines.GUI_TEXTURED, texture, x + done, top, u, v, part, drawH, part, drawH, CARD_WIDTH, CARD_HEIGHT);
-			done += part;
-			u = 0;
-		}
 	}
 
 	/**

@@ -4,11 +4,15 @@ import com.freedomclient.FreedomClient;
 import com.freedomclient.setting.BooleanSetting;
 import com.freedomclient.setting.ModeSetting;
 import com.freedomclient.setting.NumberSetting;
+import com.freedomclient.ui.theme.ThemeManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -43,6 +47,30 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 	private static final float CENTER_Y = -31.0F;
 	/** Origen del diseño (donde giran la guitarra y las flores) en el .vox: y = 60 del diseño, menos su base 107,5. */
 	private static final float PIVOT_Y = -47.5F;
+
+	/** Tarjeta del menú (scripts/textures/juliet_guitar/card.py): campo lejano, neblina, flores cercanas, flor morada. */
+	private static final Identifier CARD_FAR = FreedomClient.id("textures/cosmetic/juliet_card_far.png");
+	private static final Identifier CARD_HAZE = FreedomClient.id("textures/cosmetic/juliet_card_haze.png");
+	private static final Identifier CARD_NEAR = FreedomClient.id("textures/cosmetic/juliet_card_near.png");
+	private static final Identifier CARD_FLOWER = FreedomClient.id("textures/cosmetic/juliet_card_flower.png");
+	private static final Identifier TITLE = FreedomClient.id("textures/cosmetic/juliet_title.png");
+	private static final Identifier ROOT_TOP = FreedomClient.id("textures/cosmetic/juliet_root_top.png");
+	private static final Identifier ROOT_BOTTOM = FreedomClient.id("textures/cosmetic/juliet_root_bottom.png");
+	private static final Identifier ROOT_LEFT = FreedomClient.id("textures/cosmetic/juliet_root_left.png");
+	private static final Identifier ROOT_RIGHT = FreedomClient.id("textures/cosmetic/juliet_root_right.png");
+	private static final Identifier CORNER_PURPLE = FreedomClient.id("textures/cosmetic/juliet_corner_purple.png");
+	private static final Identifier CORNER_RED = FreedomClient.id("textures/cosmetic/juliet_corner_red.png");
+	private static final int CARD_WIDTH = 320;
+	private static final int CARD_HEIGHT = 64;
+	private static final int FLOWER_WIDTH = 17;
+	private static final int FLOWER_HEIGHT = 26;
+	private static final int TITLE_WIDTH = 45;
+	private static final int TITLE_HEIGHT = 12;
+	/** Grosor de las tiras de raíces del borde. */
+	private static final int ROOT = 6;
+	private static final int CORNER = 11;
+	/** Pétalos que lleva el viento por la tarjeta: rojo, blanco (con su sombra gris) y morado. */
+	private static final int[] PETAL_COLORS = {0xFFB1101C, 0xFFB9BAC2, 0xFF6D50C4, 0xFFE0566A};
 
 	/** Las 21 piezas de cada flor del diseño: x, y, z (y hacia arriba) y lado del cubo, en múltiplos de su tamaño. */
 	private static final float[][] FLOWER = flower();
@@ -256,5 +284,75 @@ public class JulietGuitarCosmetic extends MusicGuitarCosmetic {
 			poseStack.popPose();
 		}
 		poseStack.popPose();
+	}
+
+	/**
+	 * Fondo fijo de su tarjeta: un campo de flores rojas y blancas en un vacío blanco que se pierde a lo lejos, con una
+	 * neblina que pasa despacio por el horizonte, la flor morada plantada en el medio y unos pétalos que lleva el
+	 * viento. Cinco dibujos de textura y unos pocos píxeles por fotograma.
+	 */
+	@Override
+	public boolean drawCardBackground(GuiGraphics g, int x, int y, int w, int h) {
+		long time = System.currentTimeMillis() % 1_000_000L;
+		drawCardLayer(g, CARD_FAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
+		// La neblina da una vuelta entera cada 51 segundos.
+		drawCardLayer(g, CARD_HAZE, x, y, w, h, (int) (time / 160L % CARD_WIDTH), CARD_WIDTH, CARD_HEIGHT);
+		int flowerX = x + w / 2 + 6 - FLOWER_WIDTH / 2;
+		int flowerY = y + h - FLOWER_HEIGHT - 3;
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_FLOWER, flowerX, flowerY, 0.0F, 0.0F, FLOWER_WIDTH, FLOWER_HEIGHT, FLOWER_WIDTH, FLOWER_HEIGHT,
+				FLOWER_WIDTH, FLOWER_HEIGHT);
+		drawCardLayer(g, CARD_NEAR, x, y, w, h, 0, CARD_WIDTH, CARD_HEIGHT);
+		// Pétalos que cruzan la tarjeta con el viento, bajando poco a poco y meciéndose.
+		int count = Math.max(4, w / 30);
+		for (int i = 0; i < count; i++) {
+			float period = 7000.0F + i * 1300.0F;
+			float p = ((time + i * 2300L) % (long) period) / period;
+			int px = x + Math.round(p * (w + 20)) - 10;
+			int py = y + 6 + (i * 13) % Math.max(1, h - 20) + Math.round(p * 10.0F + Mth.sin(p * Mth.TWO_PI * 2.0F + i) * 3.0F);
+			if (px < x || px >= x + w - 1 || py < y || py >= y + h - 1) continue;
+			int color = PETAL_COLORS[i % PETAL_COLORS.length];
+			float alpha = Mth.sin(p * Mth.PI);
+			g.fill(px, py, px + 2, py + 1, ThemeManager.withAlpha(color, alpha));
+			if ((time / 300L + i) % 2 == 0) g.fill(px + 1, py + 1, px + 2, py + 2, ThemeManager.withAlpha(color, alpha * 0.7F));
+		}
+		return true;
+	}
+
+	/**
+	 * Borde propio: raíces blancas con espinas recorriendo los cuatro lados, una flor morada en la esquina de arriba a
+	 * la derecha y una roja en la de abajo a la izquierda. Con el cosmético puesto, el marco se tiñe de morado.
+	 */
+	@Override
+	public boolean drawCardBorder(GuiGraphics g, int x, int y, int w, int h, float on, float hover) {
+		int frame = ThemeManager.mix(0xFFB9BAC2, 0xFF8A6FD8, 0.7F * on + 0.3F * hover);
+		g.fill(x + 1, y, x + w - 1, y + 1, frame);
+		g.fill(x + 1, y + h - 1, x + w - 1, y + h, frame);
+		g.fill(x, y + 1, x + 1, y + h - 1, frame);
+		g.fill(x + w - 1, y + 1, x + w, y + h - 1, frame);
+		drawCardLayer(g, ROOT_TOP, x, y, w, ROOT, 0, CARD_WIDTH, ROOT);
+		drawCardLayer(g, ROOT_BOTTOM, x, y + h - ROOT, w, ROOT, 0, CARD_WIDTH, ROOT);
+		int side = Math.min(h, CARD_HEIGHT);
+		g.blit(RenderPipelines.GUI_TEXTURED, ROOT_LEFT, x, y, 0.0F, 0.0F, ROOT, side, ROOT, side, ROOT, CARD_HEIGHT);
+		g.blit(RenderPipelines.GUI_TEXTURED, ROOT_RIGHT, x + w - ROOT, y, 0.0F, 0.0F, ROOT, side, ROOT, side, ROOT, CARD_HEIGHT);
+		g.blit(RenderPipelines.GUI_TEXTURED, CORNER_PURPLE, x + w - CORNER + 5, y - 5, 0.0F, 0.0F, CORNER, CORNER, CORNER, CORNER, CORNER, CORNER);
+		g.blit(RenderPipelines.GUI_TEXTURED, CORNER_RED, x - 5, y + h - CORNER + 5, 0.0F, 0.0F, CORNER, CORNER, CORNER, CORNER, CORNER, CORNER);
+		return true;
+	}
+
+	/** Su nombre en la tarjeta: el rótulo pixel "JULIET" en morado, sin la línea de descripción. */
+	@Override
+	public boolean drawCardTitle(GuiGraphics g, int x, int y, float on) {
+		g.blit(RenderPipelines.GUI_TEXTURED, TITLE, x, y - 1, 0.0F, 0.0F, TITLE_WIDTH, TITLE_HEIGHT, TITLE_WIDTH, TITLE_HEIGHT, TITLE_WIDTH, TITLE_HEIGHT);
+		return true;
+	}
+
+	@Override
+	public boolean showCardDescription() {
+		return false;
+	}
+
+	@Override
+	public boolean lightCardBackground() {
+		return true;
 	}
 }
