@@ -43,6 +43,8 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 	/** Cajas del diseño (scripts/textures/hades_guitar): "color x y z ancho alto fondo", 1 vóxel = 1 px del modelo. */
 	private static final String MODEL = "/assets/freedomclient/vox/hades.vox";
 	private static final Identifier CARD = FreedomClient.id("textures/cosmetic/hades_card.png");
+	/** Cuánto más gruesa que el diseño (en profundidad). */
+	private static final float THICKNESS = 2.0F;
 	private static final int CARD_WIDTH = 320;
 	private static final int CARD_HEIGHT = 64;
 
@@ -87,12 +89,20 @@ public class HadesGuitarCosmetic extends VoxCosmetic {
 	public void render(PlayerModel parent, PoseStack poseStack, SubmitNodeCollector collector, int light, AvatarRenderState state) {
 		if (guitar == null) build();
 		poseStack.pushPose();
-		// El diseño mide unos 134 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras. La parte
-		// de atrás del cuerpo llega 5 vóxeles detrás de su plano central.
-		float scale = size.getFloat() * 0.22F;
-		onBackDiagonal(parent, poseStack, state, scale, side.is("Left"), 5.0F);
-		// El cuerpo (centrado unos 24 vóxeles por encima de su base) queda en el centro de la espalda.
-		poseStack.translate(0.0F, 24.0F / 16.0F, 0.0F);
+		// El diseño mide unos 134 vóxeles de alto: se escala para que quede del tamaño de las otras guitarras, y el
+		// doble de gruesa (su cuerpo solo tiene 9 vóxeles de fondo y de lado se veía como una tabla).
+		float scale = size.getFloat() * 0.24F;
+		float thickness = scale * THICKNESS;
+		parent.body.translateAndRotate(poseStack);
+		// La parte de atrás del cuerpo llega 5 vóxeles detrás de su plano central: así queda pegada a la espalda.
+		poseStack.translate(0.0F, 6.5F / 16.0F, (2.1F + backClearance(state) + 5.0F * thickness) / 16.0F);
+		poseStack.scale(scale, scale, thickness);
+		if (side.is("Left")) poseStack.scale(-1.0F, 1.0F, 1.0F);
+		// Menos inclinada que las otras guitarras: el cuerpo queda en el centro de la espalda y el mástil asoma por
+		// encima del hombro.
+		poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-20.0F));
+		// El centro del cuerpo (x -0.4, 21.6 vóxeles por encima de la base) cae justo en el centro de la espalda.
+		poseStack.translate(0.44F / 16.0F, 21.6F / 16.0F, 0.0F);
 		guitar.draw(poseStack, collector, light);
 		poseStack.popPose();
 	}
