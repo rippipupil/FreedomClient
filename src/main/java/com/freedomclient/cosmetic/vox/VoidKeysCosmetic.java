@@ -3,14 +3,18 @@ package com.freedomclient.cosmetic.vox;
 import com.freedomclient.FreedomClient;
 import com.freedomclient.cosmetic.CosmeticPreview;
 import com.freedomclient.setting.BooleanSetting;
+import com.freedomclient.ui.theme.ThemeManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Avatar;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -436,5 +440,135 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 	private static double smooth(double u) {
 		u = Math.max(0, Math.min(1, u));
 		return u * u * (3 - 2 * u);
+	}
+
+	// ------------------------------------------------------------------------------------------------
+	// Tarjeta del menú: "Pilar" (versión 3 de scripts/textures/void_keys/card_versions.html). Lo que no cambia son
+	// texturas de scripts/textures/void_keys/card.py; las esquirlas, el vaivén del haz y el destello van en vivo.
+	// Las coordenadas son las de la propuesta: desde la esquina de la tarjeta (con su borde), 58 de alto.
+	// ------------------------------------------------------------------------------------------------
+
+	private static final Identifier CARD_GLOW = FreedomClient.id("textures/cosmetic/void_keys_card_glow.png");
+	private static final Identifier CARD_BEAM = FreedomClient.id("textures/cosmetic/void_keys_card_beam.png");
+	private static final Identifier CARD_ORB = FreedomClient.id("textures/cosmetic/void_keys_card_orb.png");
+	private static final Identifier CARD_SPIKES = FreedomClient.id("textures/cosmetic/void_keys_card_spikes.png");
+	private static final Identifier CARD_TITLE = FreedomClient.id("textures/cosmetic/void_keys_card_title.png");
+	private static final Identifier CARD_EDGE = FreedomClient.id("textures/cosmetic/void_keys_card_edge.png");
+	private static final int SPIKE_FRAMES = 16, SPIKES_W = 330, SPIKES_H = 26;
+	private static final int TITLE_W = 61, TITLE_H = 10;
+	/** Esquirlas que salen de la esfera: ángulo, velocidad de giro, fase y tamaño (la semilla 9 de la propuesta). */
+	private static final double[][] CARD_SHARDS = cardShards();
+
+	private static double[][] cardShards() {
+		long[] seed = {9L};
+		java.util.function.DoubleSupplier r = () -> (seed[0] = seed[0] * 16807L % 2147483647L) / 2147483647.0;
+		// Primero salen las púas de la propuesta (de x = 46 a 184), como allí.
+		for (double x = 46; x < 178 + 6; x += 3 + r.getAsDouble() * 4) {
+			r.getAsDouble();
+			r.getAsDouble();
+			r.getAsDouble();
+		}
+		double[][] shards = new double[12][];
+		for (int i = 0; i < shards.length; i++) {
+			shards[i] = new double[] {r.getAsDouble() * 6.28, 0.5 + r.getAsDouble(), r.getAsDouble() * 3, 2 + r.getAsDouble() * 3};
+		}
+		return shards;
+	}
+
+	/**
+	 * Fondo fijo: el vacío azul noche con un haz de luz blanca que cae sobre una esfera brillante medio tapada por
+	 * púas que se mecen, y esquirlas oscuras que salen de la esfera. Unos 20 dibujos de textura y unas 60 franjas.
+	 */
+	@Override
+	public boolean drawCardBackground(GuiGraphics g, int x, int y, int w, int h) {
+		double t = (System.currentTimeMillis() % 10_000_000L) / 1000.0;
+		int ox = x - 1, oy = y - 1, cardW = w + 2, cardH = h + 2;
+		int bx = ox + cardW - 58;
+		g.fill(x, y, x + w, y + h, 0xFF161B2E);
+		// Resplandor del haz, recortado a la tarjeta.
+		int g0 = Math.max(x, bx - 70), g1 = Math.min(x + w, bx + 70);
+		if (g1 > g0) g.blit(RenderPipelines.GUI_TEXTURED, CARD_GLOW, g0, y, g0 - (bx - 70), 1, g1 - g0, h, g1 - g0, h, 140, 64);
+		// El haz, en franjas de 4 filas que se mecen más arriba que abajo.
+		double sway = Math.sin(t * 0.8) * 1.5;
+		for (int row = 0; row < 48; row += 4) {
+			int dx = (int) Math.round(sway * (1 - (row + 2) / 48.0));
+			g.blit(RenderPipelines.GUI_TEXTURED, CARD_BEAM, bx - 6 + dx, oy + row, 0, row, 12, 4, 12, 4, 12, 48);
+		}
+		// La esfera y sus halos (el centro en y = 50).
+		int orbH = Math.min(34, oy + cardH - 1 - (oy + 24));
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_ORB, bx - 26, oy + 24, 0, 0, 52, orbH, 52, orbH, 52, 34);
+		// Esquirlas oscuras que salen despedidas de la esfera y se van encogiendo.
+		for (double[] s : CARD_SHARDS) {
+			double life = (t * 0.35 + s[2]) % 1, a = s[0], dist = 6 + life * 40;
+			double sx = bx + Math.cos(a) * dist, sy = oy + 46 - Math.abs(Math.sin(a)) * dist * 0.7 - life * 6;
+			double r = s[3] * (1 - life * 0.6), rot = a + t * s[1] * 3;
+			cardTri(g, x, y, x + w, y + h, sx + Math.cos(rot) * r, sy + Math.sin(rot) * r, sx + Math.cos(rot + 2.4) * r * 0.5,
+					sy + Math.sin(rot + 2.4) * r * 0.5, sx + Math.cos(rot - 2.4) * r * 0.5, sy + Math.sin(rot - 2.4) * r * 0.5, 0xFF1E2336);
+		}
+		// Púas de abajo meciéndose (16 fotogramas en bucle).
+		int frame = (int) (t / (2 * Math.PI / 1.3 / SPIKE_FRAMES)) % SPIKE_FRAMES;
+		int spikesW = Math.min(SPIKES_W, cardW - 1) - 1;
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_SPIKES, x, oy + cardH - SPIKES_H, 1, frame * SPIKES_H, spikesW, SPIKES_H - 1, spikesW,
+				SPIKES_H - 1, SPIKES_W, SPIKES_H * SPIKE_FRAMES);
+		return true;
+	}
+
+	/** Triángulo relleno por filas, como tri() de la propuesta, recortado al rectángulo (x0, y0)-(x1, y1). */
+	private static void cardTri(GuiGraphics g, int x0, int y0, int x1, int y1, double ax, double ay, double bx, double by, double cx, double cy, int color) {
+		int minY = (int) Math.floor(Math.min(ay, Math.min(by, cy))), maxY = (int) Math.ceil(Math.max(ay, Math.max(by, cy)));
+		double[][] edges = {{ax, ay, bx, by}, {bx, by, cx, cy}, {cx, cy, ax, ay}};
+		for (int row = Math.max(minY, y0); row <= Math.min(maxY, y1 - 1); row++) {
+			double lo = Double.MAX_VALUE, hi = -Double.MAX_VALUE;
+			int found = 0;
+			for (double[] e : edges) {
+				if (row >= Math.min(e[1], e[3]) && row < Math.max(e[1], e[3]) && e[1] != e[3]) {
+					double ex = e[0] + (row - e[1]) * (e[2] - e[0]) / (e[3] - e[1]);
+					lo = Math.min(lo, ex);
+					hi = Math.max(hi, ex);
+					found++;
+				}
+			}
+			if (found < 2) continue;
+			int l = Math.max(x0, (int) Math.floor(lo + 0.5)), r = Math.min(x1, (int) Math.floor(hi + 0.5));
+			if (r > l) g.fill(l, row, r, row + 1, color);
+		}
+	}
+
+	/**
+	 * Borde propio: marco azul noche con púas que entran desde los cantos de arriba y abajo y un destello blanco que
+	 * los recorre; con el cosmético puesto o el ratón encima, el marco se aclara.
+	 */
+	@Override
+	public boolean drawCardBorder(GuiGraphics g, int x, int y, int w, int h, float on, float hover) {
+		int frame = ThemeManager.mix(0xFF2A3150, 0xFF9AA6D8, 0.6F * on + 0.35F * hover);
+		g.fill(x, y, x + w, y + 1, frame);
+		g.fill(x, y + h - 1, x + w, y + h, frame);
+		g.fill(x, y, x + 1, y + h, frame);
+		g.fill(x + w - 1, y, x + w, y + h, frame);
+		int edgeW = Math.min(SPIKES_W, w - 5);
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_EDGE, x, y, 0, 0, edgeW, 6, edgeW, 6, SPIKES_W, 12, frame);
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_EDGE, x, y + h - 6, 0, 6, edgeW, 6, edgeW, 6, SPIKES_W, 12, frame);
+		double t = (System.currentTimeMillis() % 10_000_000L) / 1000.0;
+		int glint = (int) Math.round(t * 70 % (w + 40) - 20);
+		float strength = 0.4F + 0.6F * Math.max(on, hover);
+		for (int k = 0; k < 6; k++) {
+			int color = ThemeManager.withAlpha(0xFFFFFFFF, (1 - k / 6.0F) * strength);
+			int top = glint - k, bottom = w - glint + k;
+			if (top >= 0 && top < w) g.fill(x + top, y, x + top + 1, y + 1, color);
+			if (bottom >= 0 && bottom < w) g.fill(x + bottom, y + h - 1, x + bottom + 1, y + h, color);
+		}
+		return true;
+	}
+
+	/** Su nombre en la tarjeta: el rótulo pixel "VOID KEYS" con brillo y sombra, sin la línea de descripción. */
+	@Override
+	public boolean drawCardTitle(GuiGraphics g, int x, int y, float on) {
+		g.blit(RenderPipelines.GUI_TEXTURED, CARD_TITLE, x - 1, y, 0.0F, 0.0F, TITLE_W, TITLE_H, TITLE_W, TITLE_H, TITLE_W, TITLE_H);
+		return true;
+	}
+
+	@Override
+	public boolean showCardDescription() {
+		return false;
 	}
 }
