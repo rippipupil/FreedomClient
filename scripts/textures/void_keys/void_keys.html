@@ -220,19 +220,89 @@ function chillPose(t) {
   };
 }
 
-// Pose completa del jugador. o: {t, floating, playing, speed (0-1.4), vy, hand (0/1), handHit (0-1)}.
+// ---- Tocar Flow: movimientos lentos y suaves, todo sacado de la partitura ----
+// El cuerpo mira hacia donde suenan las notas de alrededor (media de los ángulos de sus teclas en
+// una ventana de ±2 s, pesando más las cercanas y las fuertes), así gira despacio y sin tirones.
+// Cada mano baja con suavidad a las notas de su lado (izquierda o derecha de hacia donde mira),
+// tardando 1 s en bajar y subir, y como mucho una vez cada 0,55 s; las demás notas solo encienden
+// su tecla. Los tiempos son de la canción (segundos desde que empezó).
+const PLAY = { sigma: 1.5, turn: 0.6, faceStep: 0.1, press: 1.0, gap: 0.55, hover: -0.85, down: 0.3, reach: 0.3, lean: 0.12, blend: 1.5 };
+function noteAngle(note) { const k = noteKey(note); return k.white !== undefined ? whiteAngle(k.white) : blackAngle(k.black); }
+function wrapAngle(a) { return Math.atan2(Math.sin(a), Math.cos(a)); }
+// Primera nota con tiempo >= t (búsqueda binaria en la partitura, que va ordenada).
+function firstNote(t) { let lo = 0, hi = FLOW.length; while (lo < hi) { const m = (lo + hi) >> 1; if (FLOW[m][0] / 1000 < t) lo = m + 1; else hi = m; } return lo; }
+// Hacia dónde mira el cuerpo, en el anillo (sin su giro), en radianes. Se calcula una vez para toda la
+// canción cada 0,1 s: el objetivo es la media de las teclas de alrededor (±3,5 s, pesando más las
+// cercanas y las fuertes); si las notas están repartidas por todos lados no cambia de objetivo, y lo
+// sigue como un muelle suave que nunca gira más de 0,6 rad/s.
+let FACES = null;
+function facingTable() {
+  if (FACES) return FACES;
+  FACES = [];
+  let cur = 0, vel = 0;
+  for (let i = 0; i * PLAY.faceStep <= FLOW_LENGTH + PLAY.faceStep; i++) {
+    const t = i * PLAY.faceStep;
+    let sx = 0, cz = 0, wsum = 0;
+    for (let n = firstNote(t - 3.5); n < FLOW.length && FLOW[n][0] / 1000 < t + 3.5; n++) {
+      const d = (FLOW[n][0] / 1000 - t) / PLAY.sigma, w = Math.exp(-0.5 * d * d) * (0.4 + FLOW[n][2] / 100);
+      const a = noteAngle(FLOW[n][1]); sx += w * Math.sin(a); cz += w * Math.cos(a); wsum += w;
+    }
+    const target = Math.hypot(sx, cz) > 0.35 * wsum && wsum > 0.2 ? cur + wrapAngle(Math.atan2(sx, cz) - cur) : cur;
+    const want = Math.max(-PLAY.turn, Math.min(PLAY.turn, (target - cur) * 1.2));
+    vel += (want - vel) * 0.25;
+    cur += vel * PLAY.faceStep;
+    FACES.push(cur);
+  }
+  return FACES;
+}
+function facing(songT) {
+  const T = facingTable(), x = Math.max(0, songT / PLAY.faceStep), i = Math.min(T.length - 2, Math.floor(x));
+  return T[i] + (T[i + 1] - T[i]) * Math.min(1, x - i);
+}
+// Pulsaciones de las manos: [tiempo, mano (0 derecha, 1 izquierda), fuerza 0-1, ángulo de la tecla
+// respecto a donde mira (+ = a su izquierda)]. Se calculan una vez de la partitura.
+let PRESSES = null;
+function presses() {
+  if (PRESSES) return PRESSES;
+  PRESSES = [];
+  const last = [-9, -9];
+  for (const [ms, note, s] of FLOW) {
+    const t = ms / 1000, rel = wrapAngle(noteAngle(note) - facing(t)), hand = rel > 0 ? 1 : 0;
+    if (t - last[hand] < PLAY.gap) continue;
+    last[hand] = t;
+    PRESSES.push([t, hand, s / 100, rel]);
+  }
+  return PRESSES;
+}
+// Lo que hace cada mano en el instante songT: cuánto baja (0-1) y hacia qué lado apunta.
+function playPose(songT) {
+  const P = presses(), down = [0, 0], reach = [0, 0], wsum = [0.15, 0.15];
+  let lo = 0, hi = P.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (P[m][0] < songT - PLAY.press) lo = m + 1; else hi = m; }
+  for (let i = lo; i < P.length && P[i][0] <= songT; i++) {
+    const u = (songT - P[i][0]) / PLAY.press, b = Math.pow(Math.sin(Math.PI * u), 2) * (0.6 + 0.4 * P[i][2]), h = P[i][1];
+    down[h] = Math.max(down[h], b); reach[h] += b * Math.max(-1, Math.min(1, P[i][3])); wsum[h] += b;
+  }
+  return { facing: facing(songT), down, reach: [reach[0] / wsum[0], reach[1] / wsum[1]], look: (reach[0] + reach[1]) / (wsum[0] + wsum[1]) };
+}
+
+// Pose completa del jugador. o: {t, floating, playing, speed (0-1.4), vy, play (playPose), playIn (0-1)}.
 // Devuelve lo que sube y el giro de todo el cuerpo sobre su centro (16 px), y [x, z] de cada parte
 // (radianes; brazos y piernas: x negativo = hacia delante, z hacia fuera con el signo de su lado).
 function figurePose(o) {
   const mix = (v, to, k) => v + (to - v) * k;
   const fp = floatPose(o.t);
-  const p = { lift: 0, pitch: 0, yaw: 0, roll: 0, head: [0, 0], rArm: [0, -0.05], lArm: [0, 0.05], rLeg: [0, 0], lLeg: [0, 0] };
+  const p = { lift: 0, pitch: 0, yaw: 0, roll: 0, head: [0, 0], headYaw: 0, rArm: [0, -0.05], lArm: [0, 0.05], rLeg: [0, 0], lLeg: [0, 0] };
   if (o.playing) {
-    // Tocando: flota, las dos manos sobre las teclas de delante y una baja a cada nota.
+    // Tocando: flota inclinado un poco hacia las teclas, con las manos delante; cada una baja despacio
+    // a su nota y se abre hacia el lado de la tecla. playIn (0-1) funde la entrada a esta pose.
+    const q = o.play, k = o.playIn;
     p.lift = fp.lift;
-    p.rArm = [-1.0 + (o.hand === 0 ? 0.3 * o.handHit : 0), -0.3];
-    p.lArm = [-1.0 + (o.hand === 1 ? 0.3 * o.handHit : 0), 0.3];
-    p.head = [0.35, 0];
+    p.pitch = (PLAY.lean + 0.03 * Math.sin(2 * Math.PI * o.t / 4)) * k;
+    p.rArm = [mix(fp.armBack, PLAY.hover + PLAY.down * q.down[0], k), mix(-fp.armOut, -0.2 + PLAY.reach * Math.min(0, q.reach[0]), k)];
+    p.lArm = [mix(fp.leftArmForward, PLAY.hover + PLAY.down * q.down[1], k), mix(fp.leftArmUp, 0.2 + PLAY.reach * Math.max(0, q.reach[1]), k)];
+    p.head = [mix(fp.headNod, 0.3, k), mix(fp.headTilt, 0, k)];
+    p.headYaw = 0.4 * q.look * k;
     p.rLeg = [fp.rightLeg, -fp.rightLegOut]; p.lLeg = [fp.leftLeg, fp.leftLegOut];
     return p;
   }
@@ -342,7 +412,7 @@ const FLOW_LENGTH = 205.3;
 
   // Estado de la vista.
   let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, motion = 0, speed = 0;
-  let playStart = 0, nextNote = 0, yaw = 0, hand = 0, handHit = 0;
+  let playStart = 0, nextNote = 0, figYawStart = 0;
   const now = document.getElementById('now');
 
   function drawBackground() {
@@ -386,7 +456,7 @@ const FLOW_LENGTH = 205.3;
   toggle('bFloat', () => floating = !floating);
   const MOVES = ['quieto', 'avanzando', 'saltando'];
   document.getElementById('bMove').onclick = e => { motion = (motion + 1) % 3; e.currentTarget.textContent = 'Movimiento: ' + MOVES[motion]; e.currentTarget.setAttribute('aria-pressed', motion > 0); };
-  toggle('bPlay', () => { playing = !playing; playStart = performance.now(); nextNote = 0; now.textContent = playing ? '♪ Flow — Creo (sin sonido en la vista previa: las teclas siguen la partitura)' : ''; return playing; });
+  toggle('bPlay', () => { playing = !playing; playStart = performance.now(); nextNote = 0; figYawStart = fig.rotation.y; now.textContent = playing ? '♪ Flow — Creo (sin sonido en la vista previa: las teclas siguen la partitura)' : ''; return playing; });
 
   // Al tocar una tecla: unas líneas de luz salen hacia arriba y, en las notas fuertes, un trozo de terreno.
   function spawnBurst(k, t, strength) {
@@ -416,17 +486,17 @@ const FLOW_LENGTH = 205.3;
       while (nextNote < FLOW.length && FLOW[nextNote][0] / 1000 <= songT) {
         const [ms, note, s] = FLOW[nextNote++];
         const kk = noteKey(note), k = kk.white !== undefined ? keys[kk.white] : keys[RING.whites + kk.black];
-        k.light = 1; spawnBurst(k, t, s / 100);
-        hand ^= 1; handHit = 1;
-        yaw = k.angle + 2 * Math.PI * t / RING.spin; // el jugador se gira hacia la tecla que toca
+        k.hit = t; spawnBurst(k, t, s / 100);
       }
     }
     for (const k of keys) {
       const p = keyPose(k.angle, t);
       k.pivot.rotation.y = p.angle;
-      k.pivot.position.y = p.y - k.light * 0.5;
+      // Se enciende en 0,08 s y se apaga suave en 0,9 s, bajando un poco mientras está encendida.
+      const age = k.hit === undefined ? 9 : t - k.hit;
+      k.light = age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0;
+      k.pivot.position.y = p.y - k.light * 0.4;
       k.pivot.rotation.x = p.tilt;
-      k.light = Math.max(0, k.light - dt / 0.35);
       for (const c of k.caps) c.material.emissive.setRGB(k.light, k.light, k.light);
     }
 
@@ -437,15 +507,21 @@ const FLOW_LENGTH = 205.3;
       const j = (t % 1.8) / 1.8;
       if (j < 0.8) { const u = j / 0.8; jumpY = 9 * Math.sin(Math.PI * u); vy = 0.35 * Math.cos(Math.PI * u); }
     }
-    handHit = Math.max(0, handHit - dt / 0.25);
-    const fpose = figurePose({ t, floating, playing, speed, vy, hand, handHit });
+    const songT = ((nowMs - playStart) / 1000) % FLOW_LENGTH;
+    const playIn = playing ? Math.min(1, ((nowMs - playStart) / 1000) / PLAY.blend) : 0;
+    const play = playing ? playPose(songT) : null;
+    const fpose = figurePose({ t, floating, playing, speed, vy, play, playIn: playIn * playIn * (3 - 2 * playIn) });
     acro.position.y = 16 + fpose.lift + jumpY;
     acro.rotation.set(fpose.pitch, fpose.yaw, fpose.roll, 'YXZ');
     rArm.rotation.set(fpose.rArm[0], 0, fpose.rArm[1]); lArm.rotation.set(fpose.lArm[0], 0, fpose.lArm[1]);
     rLeg.rotation.set(fpose.rLeg[0], 0, fpose.rLeg[1]); lLeg.rotation.set(fpose.lLeg[0], 0, fpose.lLeg[1]);
-    head.rotation.set(fpose.head[0], 0, fpose.head[1]);
+    head.rotation.set(fpose.head[0], fpose.headYaw, fpose.head[1]);
     let figYaw = fig.rotation.y;
-    if (playing) { let d = yaw - figYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); figYaw += d * Math.min(1, dt * 6); }
+    if (playing) {
+      // Mira hacia donde suenan las notas (con el giro del anillo); al empezar se gira despacio.
+      const target = play.facing + 2 * Math.PI * t / RING.spin, k = playIn * playIn * (3 - 2 * playIn);
+      figYaw = figYawStart + wrapAngle(target - figYawStart) * k;
+    }
     else figYaw += Math.atan2(Math.sin(-figYaw), Math.cos(-figYaw)) * Math.min(1, dt * 2);
     fig.rotation.y = figYaw;
 
