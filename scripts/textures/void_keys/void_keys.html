@@ -33,13 +33,12 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 <canvas id="c"></canvas>
 <header>
   <h1>VOID KEYS</h1>
-  <p>Teclado flotante del vacío: 44 teclas en anillo alrededor del jugador, con olas suaves, líneas de luz que suben y trozos de terreno que suben en espiral; flotando se abalanza al avanzar y, quieto, hace acrobacias. Arrastra para girar, rueda para acercar.</p>
+  <p>Teclado flotante del vacío: 44 teclas en anillo alrededor del jugador, con olas suaves, líneas de luz que suben y trozos de terreno que suben en espiral; flotando se abalanza al avanzar y, quieto, se deja llevar tranquilo. Arrastra para girar, rueda para acercar.</p>
   <div id="now" aria-live="polite"></div>
 </header>
 <div id="bar">
   <button id="bPlay" aria-pressed="false">Tocar Flow</button>
   <button id="bFloat" aria-pressed="true">Flotar</button>
-  <button id="bAcro" aria-pressed="true">Acrobacias</button>
   <button id="bMove" aria-pressed="false">Movimiento: quieto</button>
   <button id="bPart" aria-pressed="true">Partículas</button>
   <button id="bPix" aria-pressed="true">Pixelado</button>
@@ -116,7 +115,7 @@ const STREAK = [[-0.125, 0, -0.125, 0.125, 2, 0.125, 'mote'], [-0.125, -1.5, -0.
 
 const RING = {
   whites: 26,          // 44 teclas: 26 blancas y 18 grises, de do3 a sol6
-  inner: 14,           // radio del borde de dentro: aro amplio, con las teclas algo separadas
+  inner: 16,           // radio del borde de dentro: aro amplio, con las teclas algo separadas
   height: 18.5,        // altura de las tapas sobre los pies: justo por debajo del pecho
   spin: 50,            // segundos por vuelta del anillo
   wave: 6,             // segundos por ola
@@ -183,8 +182,8 @@ function floatPose(t) {
   return { lift: FLOAT.lift + FLOAT.bob * b,
     rightLeg: 0.55 + 0.06 * b, rightLegOut: 0.06, leftLeg: -0.18 - 0.04 * b, leftLegOut: 0.04,
     armOut: 0.18 + 0.03 * b, armBack: 0.12, headTilt: 0.1, headNod: 0.08,
-    // el brazo izquierdo, un poco levantado hacia un lado y adelante
-    leftArmUp: 0.75 + 0.05 * b, leftArmForward: -0.35 };
+    // el brazo izquierdo, un poco levantado hacia un lado y adelante (sin llegar a las teclas)
+    leftArmUp: 0.5 + 0.04 * b, leftArmForward: -0.3 };
 }
 
 // Moverse flotando: se abalanza hacia delante (todo el cuerpo inclinado sobre su centro), el brazo
@@ -192,35 +191,88 @@ function floatPose(t) {
 // algo detrás; cuanto más rápido, más se inclina. speed: 0 quieto, 1 andando, 1.4 corriendo.
 function movePose(speed, t) {
   const k = Math.min(1.4, speed), sway = Math.sin(2 * Math.PI * t / 1.6) * Math.min(1, k);
-  return { k: Math.min(1, k), lean: 0.42 * k, rightArm: -2.45 - 0.1 * sway, rightArmOut: -0.12, leftArm: 0.55 + 0.1 * sway, leftArmOut: 0.18,
-    rightLeg: 0.35 + 0.1 * sway, leftLeg: 0.85 - 0.1 * sway };
+  // Corriendo se inclina un poco más, pero las piernas de atrás nunca llegan al aro.
+  return { k: Math.min(1, k), lean: 0.4 * Math.min(1, k) + 0.1 * Math.max(0, k - 1), rightArm: -2.45 - 0.1 * sway, rightArmOut: -0.12,
+    leftArm: 0.5 + 0.1 * sway, leftArmOut: 0.18, rightLeg: 0.3 + 0.08 * sway, leftLeg: 0.62 - 0.08 * sway };
 }
 
-// Saltar flotando: subiendo, los dos brazos arriba y las piernas recogidas; cayendo, brazos abiertos y
-// piernas colgando hacia atrás. vy: velocidad vertical (bloques por tick, + arriba).
+// Saltar flotando: subiendo, los dos brazos arriba y las piernas recogidas; cayendo, brazos un poco
+// abiertos y piernas colgando hacia atrás. vy: velocidad vertical (bloques por tick, + arriba).
 function jumpPose(vy) {
   const up = Math.max(0, Math.min(1, vy / 0.35)), down = Math.max(0, Math.min(1, -vy / 0.35));
-  return { up, down, arms: -2.7 * up + 0.1 * down, armsOut: 0.25 * up + 1.15 * down, legs: -0.7 * up + 0.3 * down };
+  return { up, down, arms: -2.7 * up + 0.1 * down, armsOut: 0.2 * up + 0.5 * down, legs: -0.6 * up + 0.3 * down };
 }
 
-// Acrobacias al estar quieto flotando: cada 32 s, una voltereta hacia atrás, un giro con los brazos
-// abiertos y una rueda de lado, muy despacio (5 s cada una), suaves y con descansos largos. Devuelve el giro de todo el cuerpo (sobre
-// su centro), lo que sube y cuánto encoge las piernas o abre los brazos.
-const ACRO = { cycle: 32, length: 5, lift: 1.5, tuck: 0.6, open: 0.6, moves: [{ at: 4, kind: 'flip' }, { at: 14, kind: 'spin' }, { at: 24, kind: 'wheel' }] };
-function acrobatics(idle) {
-  const out = { pitch: 0, yaw: 0, roll: 0, lift: 0, tuck: 0, open: 0 };
-  const c = idle % ACRO.cycle;
-  for (const m of ACRO.moves) {
-    const u = (c - m.at) / ACRO.length;
-    if (u < 0 || u > 1) continue;
-    // Arranque y frenada muy suaves (sin tirones).
-    const e = u * u * u * (u * (u * 6 - 15) + 10), arc = Math.sin(Math.PI * u);
-    out.lift = ACRO.lift * arc;
-    if (m.kind === 'flip') { out.pitch = -2 * Math.PI * e; out.tuck = ACRO.tuck * arc; }
-    if (m.kind === 'spin') { out.yaw = 2 * Math.PI * e; out.open = ACRO.open * arc; }
-    if (m.kind === 'wheel') { out.roll = 2 * Math.PI * e; out.open = ACRO.open * arc; }
+// Quieto flotando, ambiente chill: se deja llevar despacio (mira a los lados, se mece) y de vez en
+// cuando se echa hacia atrás como tumbado en el aire o se estira con los brazos hacia arriba. Nada
+// sale del hueco del aro: las manos y los pies no llegan a las teclas.
+const CHILL = { cycle: 36, ramp: 3, recline: [5, 16], stretch: [22, 30] };
+function chillPose(t) {
+  const c = t % CHILL.cycle;
+  const win = ([a, b]) => {
+    const s = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+    return s((c - a) / CHILL.ramp) * s((b - c) / CHILL.ramp);
+  };
+  return {
+    drift: { yaw: 0.35 * Math.sin(2 * Math.PI * t / 14), roll: 0.06 * Math.sin(2 * Math.PI * t / 9), pitch: 0.04 * Math.sin(2 * Math.PI * t / 11) },
+    recline: win(CHILL.recline),  // tumbado hacia atrás: cuerpo -0,45, piernas adelante, brazos sueltos abiertos
+    stretch: win(CHILL.stretch)   // estirándose: brazos arriba, la cabeza mirando arriba, sube un poco
+  };
+}
+
+// Pose completa del jugador. o: {t, floating, playing, speed (0-1.4), vy, hand (0/1), handHit (0-1)}.
+// Devuelve lo que sube y el giro de todo el cuerpo sobre su centro (16 px), y [x, z] de cada parte
+// (radianes; brazos y piernas: x negativo = hacia delante, z hacia fuera con el signo de su lado).
+function figurePose(o) {
+  const mix = (v, to, k) => v + (to - v) * k;
+  const fp = floatPose(o.t);
+  const p = { lift: 0, pitch: 0, yaw: 0, roll: 0, head: [0, 0], rArm: [0, -0.05], lArm: [0, 0.05], rLeg: [0, 0], lLeg: [0, 0] };
+  if (o.playing) {
+    // Tocando: flota, las dos manos sobre las teclas de delante y una baja a cada nota.
+    p.lift = fp.lift;
+    p.rArm = [-1.0 + (o.hand === 0 ? 0.3 * o.handHit : 0), -0.3];
+    p.lArm = [-1.0 + (o.hand === 1 ? 0.3 * o.handHit : 0), 0.3];
+    p.head = [0.35, 0];
+    p.rLeg = [fp.rightLeg, -fp.rightLegOut]; p.lLeg = [fp.leftLeg, fp.leftLegOut];
+    return p;
   }
-  return out;
+  if (!o.floating) {
+    const s = Math.sin(o.t * 6) * 0.5 * Math.min(1, o.speed + Math.abs(o.vy) * 3);
+    p.rLeg = [s, 0]; p.lLeg = [-s, 0]; p.rArm = [-s, -0.05]; p.lArm = [s, 0.05];
+    return p;
+  }
+  p.lift = fp.lift;
+  p.rArm = [fp.armBack, -fp.armOut]; p.lArm = [fp.leftArmForward, fp.leftArmUp];
+  p.rLeg = [fp.rightLeg, -fp.rightLegOut]; p.lLeg = [fp.leftLeg, fp.leftLegOut];
+  p.head = [fp.headNod, fp.headTilt];
+  // Quieto: chill (se apaga en cuanto se mueve o salta).
+  const idle = Math.max(0, 1 - o.speed * 4) * (1 - Math.min(1, Math.abs(o.vy) * 6));
+  if (idle > 0) {
+    const c = chillPose(o.t), r = c.recline * idle, st = c.stretch * idle;
+    p.yaw += c.drift.yaw * idle; p.roll += c.drift.roll * idle; p.pitch += c.drift.pitch * idle;
+    p.pitch -= 0.45 * r;
+    p.rLeg = [mix(p.rLeg[0], -0.3, r), p.rLeg[1]]; p.lLeg = [mix(p.lLeg[0], -0.15, r), p.lLeg[1]];
+    p.rArm = [mix(p.rArm[0], 0.3, r), mix(p.rArm[1], -0.4, r)]; p.lArm = [mix(p.lArm[0], 0.3, r), mix(p.lArm[1], 0.4, r)];
+    p.head[0] = mix(p.head[0], -0.2, r);
+    p.rArm = [mix(p.rArm[0], -2.9, st), mix(p.rArm[1], -0.12, st)]; p.lArm = [mix(p.lArm[0], -2.9, st), mix(p.lArm[1], 0.12, st)];
+    p.head[0] = mix(p.head[0], -0.3, st);
+    // al estirarse se echa un poco hacia atrás, así los brazos suben lejos de las teclas
+    p.pitch -= 0.25 * st;
+    p.lift += 1 * st;
+  }
+  // Avanzando: se abalanza con el brazo derecho por delante y las piernas atrás.
+  const mp = movePose(o.speed, o.t);
+  p.pitch += mp.lean;
+  p.rArm = [mix(p.rArm[0], mp.rightArm, mp.k), mix(p.rArm[1], mp.rightArmOut, mp.k)];
+  p.lArm = [mix(p.lArm[0], mp.leftArm, mp.k), mix(p.lArm[1], mp.leftArmOut, mp.k)];
+  p.rLeg = [mix(p.rLeg[0], mp.rightLeg, mp.k), p.rLeg[1]]; p.lLeg = [mix(p.lLeg[0], mp.leftLeg, mp.k), p.lLeg[1]];
+  p.head[0] -= mp.lean * 0.6;
+  // Saltando: brazos arriba y piernas recogidas al subir; brazos algo abiertos al caer.
+  const jp = jumpPose(o.vy), jw = Math.max(jp.up, jp.down);
+  p.rArm = [mix(p.rArm[0], jp.arms, jw), mix(p.rArm[1], -jp.armsOut, jw)];
+  p.lArm = [mix(p.lArm[0], jp.arms, jw), mix(p.lArm[1], jp.armsOut, jw)];
+  p.rLeg = [mix(p.rLeg[0], jp.legs, jw), p.rLeg[1]]; p.lLeg = [mix(p.lLeg[0], jp.legs + 0.15, jw), p.lLeg[1]];
+  return p;
 }
 
 // Partitura de "Flow" (timeline.py): [milisegundo, nota, fuerza], 710 notas.
@@ -266,7 +318,7 @@ const FLOW_LENGTH = 205.3;
   for (let j = 0; j < RING.blacks.length; j++) addKey(BLACK_KEY, blackAngle(j), false);
 
   // Jugador de referencia (silueta azulada, sin skin): cabeza, cuerpo, brazos y piernas como en Minecraft.
-  // El cuerpo gira en las acrobacias sobre su centro (16 px sobre los pies).
+  // El cuerpo se inclina y se mece sobre su centro (16 px sobre los pies).
   const acro = new THREE.Group(); world.add(acro);
   const fig = new THREE.Group(); fig.position.y = -16; acro.add(fig);
   const figMat = new THREE.MeshLambertMaterial({ color: 0x4a5170 }), headMat = new THREE.MeshLambertMaterial({ color: 0x69718f });
@@ -289,7 +341,7 @@ const FLOW_LENGTH = 205.3;
   const rockPool = Array.from({ length: 12 }, (_, i) => { const g = build(ROCKS[i % ROCKS.length]); g.visible = false; world.add(g); return g; });
 
   // Estado de la vista.
-  let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, acroOn = true, motion = 0, speed = 0;
+  let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, motion = 0, speed = 0;
   let playStart = 0, nextNote = 0, yaw = 0, hand = 0, handHit = 0;
   const now = document.getElementById('now');
 
@@ -332,7 +384,6 @@ const FLOW_LENGTH = 205.3;
   toggle('bPix', () => { pix = !pix; size(); return pix; });
   toggle('bPart', () => parts = !parts);
   toggle('bFloat', () => floating = !floating);
-  toggle('bAcro', () => acroOn = !acroOn);
   const MOVES = ['quieto', 'avanzando', 'saltando'];
   document.getElementById('bMove').onclick = e => { motion = (motion + 1) % 3; e.currentTarget.textContent = 'Movimiento: ' + MOVES[motion]; e.currentTarget.setAttribute('aria-pressed', motion > 0); };
   toggle('bPlay', () => { playing = !playing; playStart = performance.now(); nextNote = 0; now.textContent = playing ? '♪ Flow — Creo (sin sonido en la vista previa: las teclas siguen la partitura)' : ''; return playing; });
@@ -379,57 +430,24 @@ const FLOW_LENGTH = 205.3;
       for (const c of k.caps) c.material.emissive.setRGB(k.light, k.light, k.light);
     }
 
-    // Jugador: flota (o anda en el sitio) y, tocando, gira hacia la tecla y baja una mano.
-    const mix = (v, to, k) => v + (to - v) * k;
-    const fp = floatPose(t);
-    // Movimiento de la vista previa: quieto, avanzando o saltando (salto de 1,8 s en bucle).
+    // Jugador: la pose sale de figurePose; tocando, además gira hacia la tecla que suena.
     speed += ((motion === 1 ? 1 : 0) - speed) * Math.min(1, dt * 4);
     let jumpY = 0, vy = 0;
     if (motion === 2) {
       const j = (t % 1.8) / 1.8;
       if (j < 0.8) { const u = j / 0.8; jumpY = 9 * Math.sin(Math.PI * u); vy = 0.35 * Math.cos(Math.PI * u); }
     }
-    const mp = movePose(speed, t), jp = jumpPose(vy), jw = Math.max(jp.up, jp.down);
-    let lift = 0, rl = 0, ll = 0, rlo = 0, llo = 0, armOut = 0.05, armBack = 0, tilt = 0, nod = 0;
-    if (floating || playing) {
-      lift = fp.lift; rl = fp.rightLeg; ll = fp.leftLeg; rlo = fp.rightLegOut; llo = fp.leftLegOut;
-      armOut = fp.armOut; armBack = fp.armBack; tilt = fp.headTilt; nod = fp.headNod;
-    }
-    else { const s = Math.sin(t * 6) * 0.5 * Math.max(speed, motion === 2 ? 1 : 0); rl = s; ll = -s; }
-    // Quieto y flotando (sin tocar ni moverse): acrobacias.
-    const idle = floating && acroOn && !playing && motion === 0 && speed < 0.05;
-    const ac = idle ? acrobatics(t) : acrobatics(-1);
-    const lean = floating && !playing ? mp.lean : 0;
-    acro.position.y = 16 + lift + ac.lift + jumpY;
-    acro.rotation.set(ac.pitch + lean, ac.yaw, ac.roll, 'YXZ');
+    handHit = Math.max(0, handHit - dt / 0.25);
+    const fpose = figurePose({ t, floating, playing, speed, vy, hand, handHit });
+    acro.position.y = 16 + fpose.lift + jumpY;
+    acro.rotation.set(fpose.pitch, fpose.yaw, fpose.roll, 'YXZ');
+    rArm.rotation.set(fpose.rArm[0], 0, fpose.rArm[1]); lArm.rotation.set(fpose.lArm[0], 0, fpose.lArm[1]);
+    rLeg.rotation.set(fpose.rLeg[0], 0, fpose.rLeg[1]); lLeg.rotation.set(fpose.lLeg[0], 0, fpose.lLeg[1]);
+    head.rotation.set(fpose.head[0], 0, fpose.head[1]);
     let figYaw = fig.rotation.y;
-    if (playing) {
-      let d = yaw - figYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); figYaw += d * Math.min(1, dt * 6);
-      handHit = Math.max(0, handHit - dt / 0.25);
-      rArm.rotation.set(-1.1 + (hand === 0 ? 0.35 * handHit : 0), 0, -0.35);
-      lArm.rotation.set(-1.1 + (hand === 1 ? 0.35 * handHit : 0), 0, 0.35);
-      head.rotation.set(0.35, 0, 0);
-    } else {
-      figYaw += Math.atan2(Math.sin(-figYaw), Math.cos(-figYaw)) * Math.min(1, dt * 2);
-      // El brazo derecho está en -x: abrirlo es girarlo en -z (y el izquierdo en +z).
-      let rx = armBack, rz = -armOut, lx = floating ? fp.leftArmForward : armBack, lz = floating ? fp.leftArmUp : armOut;
-      if (floating) {
-        // Avanzando: se abalanza con el brazo derecho por delante y las piernas atrás.
-        rx = mix(rx, mp.rightArm, mp.k); rz = mix(rz, mp.rightArmOut, mp.k);
-        lx = mix(lx, mp.leftArm, mp.k); lz = mix(lz, mp.leftArmOut, mp.k);
-        rl = mix(rl, mp.rightLeg, mp.k); ll = mix(ll, mp.leftLeg, mp.k);
-        // Saltando: brazos arriba y piernas recogidas al subir; brazos abiertos al caer.
-        rx = mix(rx, jp.arms, jw); lx = mix(lx, jp.arms, jw); rz = mix(rz, -jp.armsOut, jw); lz = mix(lz, jp.armsOut, jw);
-        rl = mix(rl, jp.legs, jw); ll = mix(ll, jp.legs + 0.15, jw);
-      }
-      // En los giros abre los dos brazos; en la voltereta encoge las piernas.
-      rArm.rotation.set(mix(rx, -0.2, ac.tuck), 0, mix(rz, -1.4, ac.open));
-      lArm.rotation.set(mix(lx, -0.2, ac.tuck), 0, mix(lz, 1.4, ac.open));
-      head.rotation.set(nod - lean * 0.6, 0, tilt);
-      rl = mix(rl, -1.3, ac.tuck); ll = mix(ll, -1.2, ac.tuck);
-    }
+    if (playing) { let d = yaw - figYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); figYaw += d * Math.min(1, dt * 6); }
+    else figYaw += Math.atan2(Math.sin(-figYaw), Math.cos(-figYaw)) * Math.min(1, dt * 2);
     fig.rotation.y = figYaw;
-    rLeg.rotation.set(rl, 0, -rlo); lLeg.rotation.set(ll, 0, llo);
 
     // Partículas de ambiente.
     streaks.forEach((p, i) => { const q = particle(p, t), m = streakMeshes[i]; m.visible = parts && q.s > 0.02; m.position.set(q.x, q.y, q.z); m.scale.set(1, q.s, 1); });
