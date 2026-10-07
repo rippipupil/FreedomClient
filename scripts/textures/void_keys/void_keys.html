@@ -494,10 +494,15 @@ const FLOW_LENGTH = 205.3;
 </script>
 
 <script>
+// Si algo falla, se dice en la página en vez de dejarla en blanco.
+addEventListener('error', e => { const n = document.getElementById('now'); if (n) n.textContent = 'Error en la vista previa: ' + e.message; });
 (function () {
+  if (typeof THREE === 'undefined') { document.getElementById('now').textContent = 'No se ha podido cargar la librería 3D (three.js). Recarga la página.'; return; }
   const canvas = document.getElementById('c');
   const bg = document.getElementById('bg');
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false }); }
+  catch (e) { document.getElementById('now').textContent = 'Tu navegador no ha podido abrir la vista 3D (WebGL). Prueba en otro navegador o en el ordenador.'; return; }
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(30, 1, 1, 2000);
   scene.add(new THREE.AmbientLight(0xb8c2e8, 0.55));
@@ -505,19 +510,44 @@ const FLOW_LENGTH = 205.3;
   const back = new THREE.DirectionalLight(0x8090ff, 0.35); back.position.set(-60, -10, -80); scene.add(back);
 
   const geo = new THREE.BoxGeometry(1, 1, 1);
-  const mats = {};
-  for (const k in PAL) mats[k] = GLOWING.includes(k) ? new THREE.MeshBasicMaterial(ALPHA[k] ? { color: PAL[k], transparent: true, opacity: ALPHA[k], depthWrite: false } : { color: PAL[k] })
-    : new THREE.MeshLambertMaterial({ color: PAL[k] });
-  function build(boxes, own) {
-    const g = new THREE.Group();
+  // Cada pieza se junta en muy pocas mallas (una por tipo de material, con el color en cada vértice): así se dibujan
+  // decenas de veces menos cosas y la vista previa va fluida también en el móvil.
+  const lambert = new THREE.MeshLambertMaterial({ vertexColors: true }), basic = new THREE.MeshBasicMaterial({ vertexColors: true });
+  const softMats = {};
+  const softMat = a => softMats[a] || (softMats[a] = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: a, depthWrite: false }));
+  function merge(boxes) {
+    const pos = [], nor = [], col = [], idx = [], c = new THREE.Color();
+    const gp = geo.attributes.position.array, gn = geo.attributes.normal.array, gi = geo.index.array;
     for (const b of boxes) {
-      const m = new THREE.Mesh(geo, own && (b[6] === 'cap' || b[6] === 'capHi') ? mats[b[6]].clone() : mats[b[6]]);
-      m.scale.set(b[3] - b[0], b[4] - b[1], b[5] - b[2]);
-      m.position.set((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2);
+      const base = pos.length / 3, sx = b[3] - b[0], sy = b[4] - b[1], sz = b[5] - b[2], cx = (b[0] + b[3]) / 2, cy = (b[1] + b[4]) / 2, cz = (b[2] + b[5]) / 2;
+      c.setHex(PAL[b[6]]);
+      for (let i = 0; i < gp.length; i += 3) { pos.push(gp[i] * sx + cx, gp[i + 1] * sy + cy, gp[i + 2] * sz + cz); nor.push(gn[i], gn[i + 1], gn[i + 2]); col.push(c.r, c.g, c.b); }
+      for (const i of gi) idx.push(base + i);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    g.setIndex(idx);
+    return g;
+  }
+  // own: las tapas de las teclas van en su propia malla con su material, para poder encenderlas.
+  function build(boxes, own) {
+    const g = new THREE.Group(), groups = new Map();
+    for (const b of boxes) {
+      const name = b[6], key = own && (name === 'cap' || name === 'capHi') ? 'cap' : ALPHA[name] ? 'soft' + ALPHA[name] : GLOWING.includes(name) ? 'glow' : 'lit';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(b);
+    }
+    for (const [key, list] of groups) {
+      const mat = key === 'cap' ? lambert.clone() : key === 'lit' ? lambert : key === 'glow' ? basic : softMat(ALPHA[list[0][6]]);
+      const m = new THREE.Mesh(merge(list), mat);
+      if (key === 'cap') m.userData.cap = true;
       g.add(m);
     }
     return g;
   }
+
 
   const world = new THREE.Group(); scene.add(world);
   // Teclas: cada una en su pivote (el centro del anillo), girada a su ángulo.
@@ -525,7 +555,7 @@ const FLOW_LENGTH = 205.3;
   function addKey(boxes, angle, white) {
     const pivot = new THREE.Group(); pivot.rotation.order = 'YXZ';
     const k = build(boxes, true); k.position.z = RING.inner; pivot.add(k); world.add(pivot);
-    const caps = k.children.filter(m => m.material.type === 'MeshLambertMaterial' && [PAL.cap, PAL.capHi].includes(m.material.color.getHex()));
+    const caps = k.children.filter(m => m.userData.cap);
     keys.push({ pivot, key: k, angle, white, light: 0, caps });
   }
   for (let i = 0; i < RING.whites; i++) addKey(WHITE_KEY, whiteAngle(i), true);
@@ -754,6 +784,7 @@ const FLOW_LENGTH = 205.3;
     const fit = cam.aspect < 0.8 ? 0.8 / cam.aspect : 1;
     cam.position.set(0, 0, dist * fit); cam.lookAt(0, 0, 0);
     renderer.render(scene, cam);
+    window.__drawCalls = renderer.info.render.calls;
     requestAnimationFrame(loop);
   })();
 })();
