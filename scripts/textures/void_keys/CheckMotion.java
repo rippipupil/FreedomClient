@@ -11,7 +11,7 @@ public class CheckMotion {
 		StringBuilder sb = new StringBuilder("{");
 		// Teclas.
 		sb.append("\"keys\":[");
-		double[] out = new double[5];
+		double[] out = new double[6];
 		boolean first = true;
 		for (int key = 0; key < VoidKeysMotion.KEYS; key++) for (double t : new double[] {0, 1.3, 17.77, 123.4}) {
 			VoidKeysMotion.keyPose(VoidKeysMotion.keyAngle(key), t, out);
@@ -25,7 +25,18 @@ public class CheckMotion {
 		first = true;
 		for (double[][] set : new double[][][] {VoidKeysMotion.STREAK_DATA, VoidKeysMotion.ROCK_DATA}) for (double[] p : set) for (double t : new double[] {0, 2.5, 33.3, 400}) {
 			VoidKeysMotion.particle(p, t, out);
-			sb.append(first ? "" : ",").append(arr(out[0], out[1], out[2], out[3], out[4]));
+			sb.append(first ? "" : ",").append(arr(out[0], out[1], out[2], out[3], out[4], out[5]));
+			first = false;
+		}
+		// Trozos de terreno: sus piezas (entero, partido, polvo).
+		sb.append("],\"rocks\":[");
+		first = true;
+		double[][] pieces = new double[5][];
+		for (double[] p : VoidKeysMotion.ROCK_DATA) for (double t = 0; t < 60; t += 0.7) {
+			int n = VoidKeysMotion.rockPieces(p, t, pieces);
+			sb.append(first ? "" : ",").append("[");
+			for (int i = 0; i < n; i++) sb.append(i > 0 ? "," : "").append(arr(pieces[i]));
+			sb.append("]");
 			first = false;
 		}
 		// Poses.

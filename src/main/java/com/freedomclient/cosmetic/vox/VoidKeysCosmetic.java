@@ -57,7 +57,7 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 	public final BooleanSetting particles = add(new BooleanSetting("Particles",
 			"White light streaks and dark chunks of ground rising in a spiral around you.", true));
 
-	private Vox.Shape whiteKey, whiteCap, whiteCapLit, whiteGlow, blackKey, blackGlow, streak;
+	private Vox.Shape whiteKey, whiteCap, whiteCapLit, whiteGlow, blackKey, blackGlow, streak, streakHalo, dust;
 	private final Vox.Shape[] rocks = new Vox.Shape[VoidKeysMotion.ROCK_SHAPES];
 	private static VoidKeysMotion.Score score;
 
@@ -253,6 +253,7 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		List<Object> palette = new ArrayList<>();
 		List<String> glowing = new ArrayList<>();
 		List<String> names = new ArrayList<>();
+		List<String> soft = new ArrayList<>();
 		InputStream stream = VoidKeysCosmetic.class.getResourceAsStream(MODEL);
 		if (stream == null) {
 			FreedomClient.LOGGER.warn("Missing Void Keys model {}", MODEL);
@@ -266,8 +267,11 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 				if (p[0].equals("palette")) {
 					names.add(p[1]);
 					palette.add((char) ('a' + names.size() - 1));
-					palette.add(0xFF000000 | Integer.parseInt(p[2], 16));
+					// Opacidad (los halos de luz son medio transparentes).
+					float alpha = p.length > 4 ? Float.parseFloat(p[4]) : 1.0F;
+					palette.add(Math.round(alpha * 255) << 24 | Integer.parseInt(p[2], 16));
 					if (p[3].equals("1")) glowing.add(p[1]);
+					if (alpha < 1.0F) soft.add(p[1]);
 				} else {
 					lines.add(p);
 				}
@@ -284,6 +288,8 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		blackKey = new Vox.Shape(pal);
 		blackGlow = new Vox.Shape(pal);
 		streak = new Vox.Shape(pal);
+		streakHalo = new Vox.Shape(pal);
+		dust = new Vox.Shape(pal);
 		for (int i = 0; i < rocks.length; i++) rocks[i] = new Vox.Shape(pal);
 		for (String[] p : lines) {
 			String piece = p[0], color = p[1];
@@ -294,7 +300,8 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 			Vox.Shape shape = switch (piece) {
 				case "white" -> color.equals("cap") || color.equals("capHi") ? whiteCap : glow ? whiteGlow : whiteKey;
 				case "black" -> glow ? blackGlow : blackKey;
-				case "streak" -> streak;
+				case "streak" -> soft.contains(color) ? streakHalo : streak;
+				case "dust" -> dust;
 				default -> rocks[piece.charAt(4) - '0'];
 			};
 			shape.box(c, x, y, z, w, h, d);
@@ -360,7 +367,8 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		}
 	}
 
-	private final double[] particle = new double[5];
+	private final double[] particle = new double[6];
+	private final double[][] pieces = new double[5][];
 
 	private void drawParticles(PoseStack poseStack, SubmitNodeCollector collector, int light, double t) {
 		for (double[] p : VoidKeysMotion.STREAK_DATA) {
@@ -369,21 +377,29 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 			poseStack.pushPose();
 			poseStack.translate((float) particle[0] / 16.0F, (float) particle[1] / 16.0F, (float) particle[2] / 16.0F);
 			poseStack.scale(1.0F, (float) particle[3], 1.0F);
-			streak.drawGlow(poseStack, collector);
+			drawStreak(poseStack, collector);
 			poseStack.popPose();
 		}
 		for (double[] p : VoidKeysMotion.ROCK_DATA) {
-			VoidKeysMotion.particle(p, t, particle);
-			if (particle[3] <= 0.02) continue;
-			poseStack.pushPose();
-			poseStack.translate((float) particle[0] / 16.0F, (float) particle[1] / 16.0F, (float) particle[2] / 16.0F);
-			poseStack.mulPose(new Quaternionf().rotationAxis((float) particle[4], new Vector3f((float) p[VoidKeysMotion.AX], (float) p[VoidKeysMotion.AY],
-					(float) p[VoidKeysMotion.AZ]).normalize()));
-			float s = (float) particle[3];
-			poseStack.scale(s, s, s);
-			rocks[(int) p[VoidKeysMotion.SHAPE]].draw(poseStack, collector, light);
-			poseStack.popPose();
+			int n = VoidKeysMotion.rockPieces(p, t, pieces);
+			Vector3f axis = new Vector3f((float) p[VoidKeysMotion.AX], (float) p[VoidKeysMotion.AY], (float) p[VoidKeysMotion.AZ]).normalize();
+			for (int i = 0; i < n; i++) {
+				double[] q = pieces[i];
+				poseStack.pushPose();
+				poseStack.translate((float) q[0] / 16.0F, (float) q[1] / 16.0F, (float) q[2] / 16.0F);
+				poseStack.mulPose(new Quaternionf().rotationAxis((float) q[4], axis));
+				float s = (float) q[3];
+				poseStack.scale(s, s, s);
+				(q[5] < 0 ? dust : rocks[(int) q[5]]).draw(poseStack, collector, light);
+				poseStack.popPose();
+			}
 		}
+	}
+
+	/** Una línea de luz: el hilo brillante y, encima, su halo medio transparente. */
+	private void drawStreak(PoseStack poseStack, SubmitNodeCollector collector) {
+		streak.drawGlow(poseStack, collector);
+		streakHalo.drawTranslucent(poseStack, collector, net.minecraft.client.renderer.LightTexture.FULL_BRIGHT);
 	}
 
 	/**
@@ -405,7 +421,7 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 				poseStack.pushPose();
 				poseStack.translate((float) (Math.sin(a) * rad) / 16.0F, (float) (pose[1] + 0.5 + rise) / 16.0F, (float) (Math.cos(a) * rad) / 16.0F);
 				poseStack.scale(1.0F, (float) (1.3 * (1 - age / life)), 1.0F);
-				streak.drawGlow(poseStack, collector);
+				drawStreak(poseStack, collector);
 				poseStack.popPose();
 			}
 			if (strength > 0.55 && age < 1.6) {

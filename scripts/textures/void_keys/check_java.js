@@ -6,13 +6,14 @@ const html = fs.readFileSync(process.argv[2], 'utf8');
 const flow = fs.readFileSync(process.argv[3], 'utf8').split('\n').filter(l => l.trim() && !l.startsWith('#')).map(l => l.trim().split(/\s+/).map(Number));
 const design = html.slice(html.indexOf('<script>\n') + 9, html.indexOf('</script>', html.indexOf('<script>\n'))).replace('%FLOW%', JSON.stringify(flow));
 const c = {}; vm.createContext(c);
-vm.runInContext(design + ';Object.assign(this,{RING,noteKey,whiteAngle,blackAngle,keyPose,particle,streaks,rocks,figurePose,playPose});', c);
+vm.runInContext(design + ';Object.assign(this,{RING,noteKey,whiteAngle,blackAngle,keyPose,particle,rockPieces,streaks,rocks,figurePose,playPose});', c);
 const J = JSON.parse(fs.readFileSync(process.argv[4], 'utf8'));
-const S = { keys: [], noteKeys: [], particles: [], poses: [], light: [] };
+const S = { keys: [], noteKeys: [], particles: [], rocks: [], poses: [], light: [] };
 const keyAngle = k => k < c.RING.whites ? c.whiteAngle(k) : c.blackAngle(k - c.RING.whites);
 for (let key = 0; key < 44; key++) for (const t of [0, 1.3, 17.77, 123.4]) { const p = c.keyPose(keyAngle(key), t); S.keys.push([p.angle, p.y, p.tilt]); }
 for (let n = 0; n < 44; n++) { const k = c.noteKey(n); S.noteKeys.push(k.white !== undefined ? k.white : c.RING.whites + k.black); }
-for (const set of [c.streaks, c.rocks]) for (const p of set) for (const t of [0, 2.5, 33.3, 400]) { const q = c.particle(p, t); S.particles.push([q.x, q.y, q.z, q.s, q.rot]); }
+for (const set of [c.streaks, c.rocks]) for (const p of set) for (const t of [0, 2.5, 33.3, 400]) { const q = c.particle(p, t); S.particles.push([q.x, q.y, q.z, q.s, q.rot, q.life]); }
+for (const p of c.rocks) for (let t = 0; t < 60; t += 0.7) S.rocks.push(c.rockPieces(p, t).map(q => [q.x, q.y, q.z, q.s, q.rot, q.shape]));
 const pose = p => [p.lift, p.pitch, p.yaw, p.roll, p.head[0], p.head[1], p.headYaw, p.rArm[0], p.rArm[1], p.lArm[0], p.lArm[1], p.rLeg[0], p.rLeg[1], p.lLeg[0], p.lLeg[1]];
 for (let t = 0; t < 40; t += 0.37) for (const k of [[1, 0, 0], [1, 0.6, 0], [1, 1.4, 0], [1, 0, 0.3], [1, 1, -0.2], [0, 1, 0], [0, 0, 0.1]])
   S.poses.push(pose(c.figurePose({ t, floating: k[0] === 1, playing: false, speed: k[1], vy: k[2] })));

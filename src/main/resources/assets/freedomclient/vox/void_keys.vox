@@ -1,21 +1,25 @@
 # Void Keys: piezas del diseño (scripts/textures/void_keys/export_shapes.js). y hacia arriba, píxeles del modelo.
-palette cap f2f3f5 0
-palette capHi fcfcfd 0
-palette edge ffffff 1
-palette side cfd0d5 0
-palette body a2a4ab 0
-palette under 6e7077 0
-palette shard 3c3d43 0
-palette shardHi 5c5e66 0
-palette black 55575f 0
-palette blackTop 7a7c84 0
-palette line e6e8ee 1
-palette mote f6f7fa 1
-palette trail b4b8c6 1
-palette rock 2b2d35 0
-palette rockTop 585b66 0
-palette rockDk 18191e 0
-palette lit ffffff 0
+palette cap f2f3f5 0 1
+palette capHi fcfcfd 0 1
+palette edge ffffff 1 1
+palette side cfd0d5 0 1
+palette body a2a4ab 0 1
+palette under 6e7077 0 1
+palette shard 3c3d43 0 1
+palette shardHi 5c5e66 0 1
+palette black 55575f 0 1
+palette blackTop 7a7c84 0 1
+palette line e6e8ee 1 1
+palette mote f6f7fa 1 1
+palette trail b4b8c6 1 1
+palette trailDim 7a7e8c 1 1
+palette halo ffffff 1 0.22
+palette haloDim dce4ff 1 0.1
+palette dust 3a3d48 0 1
+palette rock 2b2d35 0 1
+palette rockTop 585b66 0 1
+palette rockDk 18191e 0 1
+palette lit ffffff 0 1
 white body -1 -1 0.5 2 0.5 3.5
 white cap -1 -0.5 0.25 2 0.5 3.75
 white capHi -0.75 0 0.5 1.5 0.125 3.25
@@ -44,5 +48,10 @@ rock2 rock -1 -0.25 -0.5 1.5 0.5 1
 rock2 rockTop -0.75 0.25 -0.5 1 0.25 1
 rock2 rock 0.5 -0.25 -0.25 0.5 0.25 0.5
 rock2 rockDk -0.5 -0.5 -0.25 0.5 0.25 0.5
-streak mote -0.125 0 -0.125 0.25 2 0.25
-streak trail -0.125 -1.5 -0.125 0.25 1.5 0.25
+streak mote -0.125 0 -0.125 0.25 3.5 0.25
+streak mote -0.0625 3.5 -0.0625 0.125 0.75 0.125
+streak trail -0.125 -2.5 -0.125 0.25 2.5 0.25
+streak trailDim -0.0625 -5 -0.0625 0.125 2.5 0.125
+streak halo -0.375 -0.5 -0.375 0.75 4.25 0.75
+streak haloDim -0.625 0.5 -0.625 1.25 2.25 1.25
+dust dust -0.25 -0.25 -0.25 0.5 0.5 0.5

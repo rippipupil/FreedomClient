@@ -33,10 +33,10 @@ public final class VoidKeysMotion {
 	public static final double FLOAT_PERIOD = 3.2;
 
 	// ---- Partículas ----
-	public static final int STREAKS = 18;
-	public static final int ROCKS = 10;
+	public static final int STREAKS = 26;
+	public static final int ROCKS = 14;
 	public static final int ROCK_SHAPES = 3;
-	public static final double RISE = 32;
+	public static final double RISE = 60;
 
 	// ---- Chill ----
 	public static final double CHILL_CYCLE = 36;
@@ -70,16 +70,16 @@ public final class VoidKeysMotion {
 		long[] seed = {7L};
 		java.util.function.DoubleSupplier r = () -> (seed[0] = seed[0] * 16807L % 2147483647L) / 2147483647.0;
 		for (int i = 0; i < STREAKS; i++) {
-			double a = r.getAsDouble() * 6.283, rad = 6 + r.getAsDouble() * 16, y0 = r.getAsDouble() * RISE, v = 5 + r.getAsDouble() * 4;
-			double size = 0.7 + r.getAsDouble() * 0.6;
+			double a = r.getAsDouble() * 6.283, rad = 6 + r.getAsDouble() * 16, y0 = r.getAsDouble() * RISE, v = 9 + r.getAsDouble() * 6;
+			double size = 0.8 + r.getAsDouble() * 0.6;
 			STREAK_DATA[i] = new double[] {a, rad, y0, v, 0, 0, size, 0, 0, 0, 0, 0};
 		}
 		for (int i = 0; i < ROCKS; i++) {
-			double a = r.getAsDouble() * 6.283, rad = 12 + r.getAsDouble() * 8, y0 = r.getAsDouble() * RISE, v = 1.4 + r.getAsDouble() * 1.0;
+			double a = r.getAsDouble() * 6.283, rad = 13 + r.getAsDouble() * 9, y0 = r.getAsDouble() * RISE, v = 2.2 + r.getAsDouble() * 1.4;
 			double w = 0.25 + r.getAsDouble() * 0.15;
 			double ax = r.getAsDouble() - 0.5, ay = r.getAsDouble() - 0.5, az = r.getAsDouble() - 0.5;
-			double spin = 0.5 + r.getAsDouble() * 1.0, size = 0.8 + r.getAsDouble() * 0.6;
-			ROCK_DATA[i] = new double[] {a, rad, y0, v, w, 0.12, size, ax, ay, az, spin, i % ROCK_SHAPES};
+			double spin = 0.5 + r.getAsDouble() * 1.0, size = 1.2 + r.getAsDouble() * 0.8;
+			ROCK_DATA[i] = new double[] {a, rad, y0, v, w, 0.07, size, ax, ay, az, spin, i % ROCK_SHAPES};
 		}
 	}
 
@@ -105,19 +105,47 @@ public final class VoidKeysMotion {
 		out[2] = TILT * Math.cos(phase);
 	}
 
-	/** Estado de una partícula en t: {x, y, z, tamaño (0 al desaparecer), giro}. */
+	/** Estado de una partícula en t: {x, y, z, tamaño (0 al desaparecer), giro, vida (0 abajo, 1 arriba)}. */
 	public static void particle(double[] p, double t, double[] out) {
-		double h = (p[Y0] + p[V] * t) % RISE;
+		double h = ((p[Y0] + p[V] * t) % RISE + RISE) % RISE;
 		double life = h / RISE;
 		double grow = Math.min(1, h / 3);
 		double fade = 1 - Math.pow(life, 2.2);
 		double ang = p[A] + p[W] * t + p[TWIST] * h;
 		double rad = p[RAD] * (1 - 0.35 * life * (p[TWIST] != 0 ? 1 : 0));
 		out[0] = Math.sin(ang) * rad;
-		out[1] = HEIGHT - 12 + h;
+		out[1] = HEIGHT - 16 + h;
 		out[2] = Math.cos(ang) * rad;
 		out[3] = p[SIZE] * grow * fade;
 		out[4] = p[SPIN_SPEED] * t;
+		out[5] = life;
+	}
+
+	/**
+	 * Un trozo de terreno en t: entero mientras sube y, al llegar arriba, partido en tres que se separan dando
+	 * tumbos; detrás deja dos motas de polvo. Llena {@code out} con las piezas (x, y, z, tamaño, giro, forma; la forma
+	 * -1 es polvo) y devuelve cuántas hay (como mucho 5).
+	 */
+	public static int rockPieces(double[] p, double t, double[][] out) {
+		double[] q = new double[6], d = new double[6];
+		particle(p, t, q);
+		int n = 0;
+		if (q[3] <= 0.02) return 0;
+		if (q[5] < 0.72) {
+			out[n++] = new double[] {q[0], q[1], q[2], q[3], q[4], p[SHAPE]};
+		} else {
+			double f = (q[5] - 0.72) / 0.28;
+			for (int k = 0; k < 3; k++) {
+				double a = p[A] + k * 2.094;
+				out[n++] = new double[] {q[0] + Math.cos(a) * f * 5, q[1] + f * 2 - k * f, q[2] + Math.sin(a) * f * 5, q[3] * 0.55, q[4] * (1.5 + k * 0.4),
+						(p[SHAPE] + k) % ROCK_SHAPES};
+			}
+		}
+		for (int k = 1; k <= 2; k++) {
+			particle(p, t - 0.3 * k, d);
+			if (d[3] > 0.02 && d[5] < q[5]) out[n++] = new double[] {d[0], d[1], d[2], d[3] * 0.35 / k, d[4], -1};
+		}
+		return n;
 	}
 
 	/** Luz de una tecla {@code age} segundos después de tocarla: se enciende en 0,08 s y se apaga suave en 0,9 s. */
