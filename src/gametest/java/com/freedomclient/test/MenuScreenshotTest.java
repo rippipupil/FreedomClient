@@ -518,6 +518,18 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				});
 				context.waitTicks(4);
 				context.takeScreenshot("guitar_emote_" + name + "_back");
+				if (name.equals("voidkeys")) {
+					// El primer drop de Flow (49,2 s): el orbe cargándose sobre la cabeza y, justo después, el pilar.
+					context.runOnClient(client -> com.freedomclient.cosmetic.vox.GuitarEmote.seekForTest(48.6));
+					context.waitTicks(3);
+					context.takeScreenshot("guitar_emote_voidkeys_charge");
+					context.runOnClient(client -> com.freedomclient.cosmetic.vox.GuitarEmote.seekForTest(49.35));
+					context.waitTicks(3);
+					context.takeScreenshot("guitar_emote_voidkeys_drop");
+					context.runOnClient(client -> com.freedomclient.cosmetic.vox.GuitarEmote.seekForTest(49.9));
+					context.waitTicks(3);
+					context.takeScreenshot("guitar_emote_voidkeys_drop_late");
+				}
 				context.runOnClient(client -> {
 					com.freedomclient.cosmetic.vox.GuitarEmote.stop(client, "test");
 					cosmetic(guitarType).setEnabled(false);

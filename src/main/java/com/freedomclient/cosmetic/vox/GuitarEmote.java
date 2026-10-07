@@ -52,6 +52,11 @@ public final class GuitarEmote {
 		return playing ? (System.currentTimeMillis() - startedAt) / 1000.0 : 0.0;
 	}
 
+	/** Solo para las pruebas: adelanta la animación como si llevara {@code seconds} segundos tocando (la música no). */
+	public static void seekForTest(double seconds) {
+		if (playing) startedAt = System.currentTimeMillis() - Math.round(seconds * 1000);
+	}
+
 	/** Pulsos desde que empezó (con decimales). */
 	public static float beats() {
 		if (!playing) return 0.0F;

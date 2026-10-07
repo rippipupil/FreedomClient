@@ -34,6 +34,9 @@ import java.util.WeakHashMap;
  * girando despacio y haciendo olas suaves, con líneas de luz blancas y trozos de terreno oscuro que suben en espiral.
  * En tercera persona el jugador flota (se abalanza al avanzar, salta con los brazos arriba y, quieto, se deja llevar
  * tranquilo); con la tecla de tocar suena "Flow" (Creo) y el jugador la toca despacio: cada nota enciende su tecla.
+ * Además, cada 10 s una ola de luz da la vuelta al aro, sin tocar las teclas se pulsan solas (teclas fantasma), a los
+ * pies late un círculo de puntos de luz con púas oscuras y, tocando, en cada drop de Flow un orbe se carga sobre la
+ * cabeza y estalla en un pilar de luz con una onda y esquirlas.
  * <p>
  * Todo sale del diseño (scripts/textures/void_keys): las piezas de assets/freedomclient/vox/void_keys.vox, la
  * partitura de assets/freedomclient/music/flow_keys.txt y las cuentas de {@link VoidKeysMotion}, comprobadas número a
@@ -58,6 +61,7 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 			"White light streaks and dark chunks of ground rising in a spiral around you.", true));
 
 	private Vox.Shape whiteKey, whiteCap, whiteCapLit, whiteGlow, blackKey, blackGlow, streak, streakHalo, dust;
+	private Vox.Shape orb, orbHalo, pillar, pillarHalo, wave, sigilDot, spike;
 	private final Vox.Shape[] rocks = new Vox.Shape[VoidKeysMotion.ROCK_SHAPES];
 	private static VoidKeysMotion.Score score;
 
@@ -290,6 +294,13 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		streak = new Vox.Shape(pal);
 		streakHalo = new Vox.Shape(pal);
 		dust = new Vox.Shape(pal);
+		orb = new Vox.Shape(pal);
+		orbHalo = new Vox.Shape(pal);
+		pillar = new Vox.Shape(pal);
+		pillarHalo = new Vox.Shape(pal);
+		wave = new Vox.Shape(pal);
+		sigilDot = new Vox.Shape(pal);
+		spike = new Vox.Shape(pal);
 		for (int i = 0; i < rocks.length; i++) rocks[i] = new Vox.Shape(pal);
 		for (String[] p : lines) {
 			String piece = p[0], color = p[1];
@@ -302,6 +313,11 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 				case "black" -> glow ? blackGlow : blackKey;
 				case "streak" -> soft.contains(color) ? streakHalo : streak;
 				case "dust" -> dust;
+				case "orb" -> soft.contains(color) ? orbHalo : orb;
+				case "pillar" -> soft.contains(color) ? pillarHalo : pillar;
+				case "wave" -> wave;
+				case "sigil" -> sigilDot;
+				case "spike" -> spike;
 				default -> rocks[piece.charAt(4) - '0'];
 			};
 			shape.box(c, x, y, z, w, h, d);
@@ -330,10 +346,16 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 			// El aro no flota, ni se inclina, ni gira con el cuerpo: se deshace lo que hizo applyFloat y el giro.
 			ringFrame(frame != null ? frame.pose() : null, state.bodyRot, poseStack);
 		}
+		boolean playing = frame != null && frame.playing();
 		drawKeys(poseStack, collector, light, t, frame);
-		if (particles.get() && !preview) {
-			drawParticles(poseStack, collector, light, t);
-			if (frame != null && frame.playing()) drawBursts(poseStack, collector, light, t, frame.songT());
+		drawSigil(poseStack, collector, light, t);
+		if (!preview) {
+			if (playing) drawDrop(poseStack, collector, light, t, frame.songT());
+			if (particles.get()) {
+				drawParticles(poseStack, collector, light, t);
+				if (playing) drawBursts(poseStack, collector, light, t, frame.songT());
+				else drawGhostBursts(poseStack, collector, light, t);
+			}
 		}
 		poseStack.popPose();
 	}
@@ -344,10 +366,13 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		boolean playing = frame != null && frame.playing();
 		for (int key = 0; key < VoidKeysMotion.KEYS; key++) {
 			VoidKeysMotion.keyPose(VoidKeysMotion.keyAngle(key), t, pose);
-			double lit = 0;
+			// La luz de la nota que suena, la de la ola que da la vuelta y, sin tocar, la de las teclas fantasma.
+			double lit = VoidKeysMotion.chaseLight(VoidKeysMotion.keyAngle(key), t);
 			if (playing) {
 				double hit = score().lastHit(key, frame.songT());
-				if (!Double.isNaN(hit)) lit = VoidKeysMotion.keyLight(frame.songT() - hit);
+				if (!Double.isNaN(hit)) lit = Math.max(lit, VoidKeysMotion.keyLight(frame.songT() - hit));
+			} else {
+				lit = Math.max(lit, VoidKeysMotion.ghostLight(key, t));
 			}
 			poseStack.pushPose();
 			poseStack.mulPose(Axis.YP.rotation((float) pose[0]));
@@ -410,32 +435,136 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 	private void drawBursts(PoseStack poseStack, SubmitNodeCollector collector, int light, double t, double songT) {
 		VoidKeysMotion.Score s = score();
 		for (int i : s.notesBetween(songT - 1.6, songT + 1.0E-9)) {
-			double age = songT - s.time(i), strength = s.strength(i);
-			VoidKeysMotion.keyPose(VoidKeysMotion.keyAngle(s.key(i)), t - age, pose);
-			int n = 2 + (int) Math.round(strength * 3);
-			for (int j = 0; j < n; j++) {
-				double life = 0.6 + rand(i, j, 3) * 0.4;
-				if (age >= life) continue;
-				double a = pose[0] + (rand(i, j, 0) - 0.5) * 0.2, rad = VoidKeysMotion.INNER + 1 + rand(i, j, 1) * 3;
-				double rise = rising(10 + rand(i, j, 2) * 8, age);
+			double age = songT - s.time(i);
+			drawBurst(poseStack, collector, light, i, s.key(i), age, s.strength(i), t - age);
+		}
+	}
+
+	/** Las teclas fantasma sueltan un destello pequeño (fuerza 0,1: dos líneas de luz) en cada golpe, como al tocar. */
+	private void drawGhostBursts(PoseStack poseStack, SubmitNodeCollector collector, int light, double t) {
+		long i = (long) Math.floor(t / VoidKeysMotion.GHOST_EVERY);
+		for (long j = i; j >= Math.max(0, i - 1); j--) {
+			double hitT = j * VoidKeysMotion.GHOST_EVERY;
+			drawBurst(poseStack, collector, light, -1 - (int) j, VoidKeysMotion.ghostKey(j), t - hitT, 0.1, hitT);
+		}
+	}
+
+	/**
+	 * El destello de un golpe en la tecla {@code key}, {@code age} segundos después (en {@code hitT}): unas líneas de
+	 * luz que salen hacia arriba y, si es fuerte, un trozo de terreno. {@code seed} fija sus números al azar.
+	 */
+	private void drawBurst(PoseStack poseStack, SubmitNodeCollector collector, int light, int seed, int key, double age, double strength, double hitT) {
+		VoidKeysMotion.keyPose(VoidKeysMotion.keyAngle(key), hitT, pose);
+		int n = 2 + (int) Math.round(strength * 3);
+		for (int j = 0; j < n; j++) {
+			double life = 0.6 + rand(seed, j, 3) * 0.4;
+			if (age >= life) continue;
+			double a = pose[0] + (rand(seed, j, 0) - 0.5) * 0.2, rad = VoidKeysMotion.INNER + 1 + rand(seed, j, 1) * 3;
+			double rise = rising(10 + rand(seed, j, 2) * 8, age);
+			poseStack.pushPose();
+			poseStack.translate((float) (Math.sin(a) * rad) / 16.0F, (float) (pose[1] + 0.5 + rise) / 16.0F, (float) (Math.cos(a) * rad) / 16.0F);
+			poseStack.scale(1.0F, (float) (1.3 * (1 - age / life)), 1.0F);
+			drawStreak(poseStack, collector);
+			poseStack.popPose();
+		}
+		if (strength > 0.55 && age < 1.6) {
+			double rad = VoidKeysMotion.INNER + 2;
+			poseStack.pushPose();
+			poseStack.translate((float) (Math.sin(pose[0]) * rad) / 16.0F, (float) (pose[1] - 1 + rising(3.5, age)) / 16.0F,
+					(float) (Math.cos(pose[0]) * rad) / 16.0F);
+			poseStack.mulPose(Axis.YP.rotation((float) (age * 2)));
+			poseStack.mulPose(Axis.XP.rotation((float) (age * 1.3)));
+			float f = (float) (1 - age / 1.6);
+			poseStack.scale(f, f, f);
+			rocks[Math.floorMod(seed, rocks.length)].draw(poseStack, collector, light);
+			poseStack.popPose();
+		}
+	}
+
+	private final double[] sigil = new double[3];
+
+	/** El círculo del suelo: dos anillos de puntos de luz que giran al revés y laten, y 8 púas oscuras que suben y bajan. */
+	private void drawSigil(PoseStack poseStack, SubmitNodeCollector collector, int light, double t) {
+		VoidKeysMotion.sigil(t, sigil);
+		for (int ring = 0; ring < 2; ring++) {
+			int count = ring == 0 ? VoidKeysMotion.SIGIL_OUTER : VoidKeysMotion.SIGIL_INNER;
+			double r = ring == 0 ? VoidKeysMotion.SIGIL_OUTER_R : VoidKeysMotion.SIGIL_INNER_R;
+			float s = (float) (ring == 0 ? sigil[2] : 2 - sigil[2]);
+			for (int k = 0; k < count; k++) {
+				double a = k * 2 * Math.PI / count + sigil[ring];
 				poseStack.pushPose();
-				poseStack.translate((float) (Math.sin(a) * rad) / 16.0F, (float) (pose[1] + 0.5 + rise) / 16.0F, (float) (Math.cos(a) * rad) / 16.0F);
-				poseStack.scale(1.0F, (float) (1.3 * (1 - age / life)), 1.0F);
-				drawStreak(poseStack, collector);
+				poseStack.translate((float) (Math.sin(a) * r) / 16.0F, 0.05F / 16.0F, (float) (Math.cos(a) * r) / 16.0F);
+				poseStack.scale(s, 1.0F, s);
+				sigilDot.drawGlow(poseStack, collector);
 				poseStack.popPose();
 			}
-			if (strength > 0.55 && age < 1.6) {
-				double rad = VoidKeysMotion.INNER + 2;
+		}
+		for (int k = 0; k < VoidKeysMotion.SIGIL_SPIKES; k++) {
+			double a = VoidKeysMotion.spikeAngle(k);
+			poseStack.pushPose();
+			poseStack.translate((float) (Math.sin(a) * VoidKeysMotion.SIGIL_SPIKE_R) / 16.0F, 0.0F, (float) (Math.cos(a) * VoidKeysMotion.SIGIL_SPIKE_R) / 16.0F);
+			poseStack.scale(1.0F, (float) VoidKeysMotion.spikeHeight(k, t), 1.0F);
+			spike.draw(poseStack, collector, light);
+			poseStack.popPose();
+		}
+	}
+
+	private final double[] boom = new double[4];
+	private final double[][] shards = new double[10][];
+
+	/**
+	 * Tocando Flow, en cada drop: 1,2 s antes un orbe se carga sobre la cabeza (crece latiendo cada vez más deprisa) y
+	 * en el drop estalla en un pilar de luz enorme con una onda expansiva y esquirlas que salen despedidas.
+	 */
+	private void drawDrop(PoseStack poseStack, SubmitNodeCollector collector, int light, double t, double songT) {
+		double d = VoidKeysMotion.dropDelta(songT);
+		if (Double.isNaN(d)) return;
+		double y = VoidKeysMotion.orbY(t), size = VoidKeysMotion.orbScale(t, d);
+		int bright = net.minecraft.client.renderer.LightTexture.FULL_BRIGHT;
+		if (size > 0.02) {
+			double rot = VoidKeysMotion.orbRot(t);
+			poseStack.pushPose();
+			poseStack.translate(0.0F, (float) y / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.XP.rotation((float) (rot * 0.7)));
+			poseStack.mulPose(Axis.YP.rotation((float) rot));
+			poseStack.scale((float) size, (float) size, (float) size);
+			orb.drawGlow(poseStack, collector);
+			orbHalo.drawTranslucent(poseStack, collector, bright);
+			poseStack.popPose();
+		}
+		if (!VoidKeysMotion.drop(d, boom)) return;
+		if (boom[1] > 0.02) {
+			float w = (float) (3 * boom[1]);
+			poseStack.pushPose();
+			poseStack.translate(0.0F, (float) y / 16.0F, 0.0F);
+			poseStack.scale(w, (float) boom[0], w);
+			pillar.drawGlow(poseStack, collector);
+			pillarHalo.drawTranslucent(poseStack, collector, bright);
+			poseStack.popPose();
+		}
+		// La onda: 36 trozos en círculo, cada uno tan largo como su parte del círculo, cada vez más finos.
+		if (boom[3] > 0.02) {
+			for (int k = 0; k < 36; k++) {
+				double a = k * 2 * Math.PI / 36;
 				poseStack.pushPose();
-				poseStack.translate((float) (Math.sin(pose[0]) * rad) / 16.0F, (float) (pose[1] - 1 + rising(3.5, age)) / 16.0F,
-						(float) (Math.cos(pose[0]) * rad) / 16.0F);
-				poseStack.mulPose(Axis.YP.rotation((float) (age * 2)));
-				poseStack.mulPose(Axis.XP.rotation((float) (age * 1.3)));
-				float f = (float) (1 - age / 1.6);
-				poseStack.scale(f, f, f);
-				rocks[i % rocks.length].draw(poseStack, collector, light);
+				poseStack.translate((float) (Math.sin(a) * boom[2]) / 16.0F, (float) y / 16.0F, (float) (Math.cos(a) * boom[2]) / 16.0F);
+				poseStack.mulPose(Axis.YP.rotation((float) (a + Math.PI / 2)));
+				poseStack.scale((float) (2 * Math.PI * boom[2] / 36 / 1.5), (float) boom[3], (float) boom[3]);
+				wave.drawGlow(poseStack, collector);
 				poseStack.popPose();
 			}
+		}
+		int n = VoidKeysMotion.dropShards(d, y, shards);
+		for (int i = 0; i < n; i++) {
+			double[] q = shards[i];
+			poseStack.pushPose();
+			poseStack.translate((float) q[0] / 16.0F, (float) q[1] / 16.0F, (float) q[2] / 16.0F);
+			poseStack.mulPose(Axis.XP.rotation((float) q[4]));
+			poseStack.mulPose(Axis.YP.rotation((float) (q[4] * 0.7)));
+			float f = (float) q[3];
+			poseStack.scale(f, f, f);
+			rocks[(int) q[5]].draw(poseStack, collector, light);
+			poseStack.popPose();
 		}
 	}
 

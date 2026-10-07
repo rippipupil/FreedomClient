@@ -60,6 +60,47 @@ public class CheckMotion {
 			sb.append(first ? "" : ",").append(fmt(Double.isNaN(hit) ? 0 : VoidKeysMotion.keyLight(t - hit)));
 			first = false;
 		}
+		// Detalles: ola de luz, teclas fantasma, círculo del suelo y orbe / pilar en los drops.
+		sb.append("],\"chase\":[");
+		first = true;
+		for (int key = 0; key < VoidKeysMotion.KEYS; key++) for (double t = 0; t < 40; t += 0.13) {
+			sb.append(first ? "" : ",").append(fmt(VoidKeysMotion.chaseLight(VoidKeysMotion.keyAngle(key), t)));
+			first = false;
+		}
+		sb.append("],\"ghostKeys\":[");
+		for (int i = 0; i < 5000; i++) sb.append(i > 0 ? "," : "").append(VoidKeysMotion.ghostKey(i));
+		sb.append("],\"ghost\":[");
+		first = true;
+		for (int key = 0; key < VoidKeysMotion.KEYS; key++) for (double t = 0; t < 60; t += 0.11) {
+			sb.append(first ? "" : ",").append(fmt(VoidKeysMotion.ghostLight(key, t)));
+			first = false;
+		}
+		sb.append("],\"sigil\":[");
+		first = true;
+		for (double t = 0; t < 80; t += 0.29) {
+			double[] q = new double[3 + 2 * VoidKeysMotion.SIGIL_SPIKES];
+			VoidKeysMotion.sigil(t, q);
+			for (int k = 0; k < VoidKeysMotion.SIGIL_SPIKES; k++) {
+				q[3 + 2 * k] = VoidKeysMotion.spikeAngle(k);
+				q[4 + 2 * k] = VoidKeysMotion.spikeHeight(k, t);
+			}
+			sb.append(first ? "" : ",").append(arr(q));
+			first = false;
+		}
+		sb.append("],\"orb\":[");
+		first = true;
+		double[] boom = new double[4];
+		double[][] shards = new double[10][];
+		for (double songT = 0; songT < 205; songT += 0.047) {
+			double d = VoidKeysMotion.dropDelta(songT), t = songT * 1.37 + 3, y = VoidKeysMotion.orbY(t);
+			boolean on = VoidKeysMotion.drop(d, boom);
+			double[] row = {Double.isNaN(d) ? 0 : d, y, VoidKeysMotion.orbScale(t, d), VoidKeysMotion.orbRot(t)};
+			sb.append(first ? "" : ",").append(on ? arr(row[0], row[1], row[2], row[3], boom[0], boom[1], boom[2], boom[3]) : arr(row)).append(",[");
+			int n = VoidKeysMotion.dropShards(d, y, shards);
+			for (int i = 0; i < n; i++) sb.append(i > 0 ? "," : "").append(arr(shards[i]));
+			sb.append("]");
+			first = false;
+		}
 		System.out.println(sb.append("]}"));
 	}
 

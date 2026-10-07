@@ -153,6 +153,116 @@ public final class VoidKeysMotion {
 		return age >= 0 && age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0;
 	}
 
+	// ---- Detalles de ambiente (sin tocar la canción) ----
+	/** Ola de luz: cada 10 s una luz da una vuelta al aro en 2,2 s encendiendo las teclas con una estela. */
+	public static final double CHASE_EVERY = 10, CHASE_LAP = 2.2, CHASE_TRAIL = 0.7;
+
+	/** Luz de la ola en la tecla de ángulo {@code angle} (sin el giro del aro) en el tiempo t. */
+	public static double chaseLight(double angle, double t) {
+		double c = t % CHASE_EVERY;
+		if (c >= CHASE_LAP) return 0;
+		double head = 2 * Math.PI * c / CHASE_LAP, d = ((head - angle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+		return d < CHASE_TRAIL ? Math.pow(1 - d / CHASE_TRAIL, 2) : 0;
+	}
+
+	/** Teclas fantasma: cada 0,9 s una tecla se pulsa sola, en frases cortas de 8 notas. */
+	public static final double GHOST_EVERY = 0.9;
+	private static final int[] GHOST_PHRASE = {0, 2, 4, 7, 4, 2, 9, 7};
+
+	/** La tecla (0-43) del golpe fantasma i: cada frase empieza en una tecla distinta (mezcla de 32 bits sin signo). */
+	public static int ghostKey(long i) {
+		long phrase = Math.floorDiv(i, 8L);
+		long h = phrase * 2654435761L & 0xFFFFFFFFL;
+		h = (h ^ h >>> 15) & 0xFFFFFFFFL;
+		h = h * 2246822519L & 0xFFFFFFFFL;
+		h = (h ^ h >>> 13) & 0xFFFFFFFFL;
+		return (int) ((6 + h % 30 + GHOST_PHRASE[(int) Math.floorMod(i, 8L)]) % KEYS);
+	}
+
+	/** Luz de una tecla por las teclas fantasma en el tiempo t (los dos últimos golpes; algo menos que tocando). */
+	public static double ghostLight(int key, double t) {
+		long i = (long) Math.floor(t / GHOST_EVERY);
+		double light = 0;
+		for (long j = i; j >= i - 1; j--) {
+			if (j >= 0 && ghostKey(j) == key) {
+				double age = t - j * GHOST_EVERY;
+				light = Math.max(light, 0.8 * (age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0));
+			}
+		}
+		return light;
+	}
+
+	/** Círculo del suelo: dos anillos de puntos de luz (32 y 16) y 8 púas oscuras que suben y bajan del suelo. */
+	public static final int SIGIL_OUTER = 32, SIGIL_INNER = 16, SIGIL_SPIKES = 8;
+	public static final double SIGIL_OUTER_R = 10, SIGIL_INNER_R = 6.5, SIGIL_SPIKE_R = 13;
+
+	/** El círculo en t: {giro del anillo de fuera, giro del de dentro, latido}. */
+	public static void sigil(double t, double[] out) {
+		out[0] = -2 * Math.PI * t / 70;
+		out[1] = 2 * Math.PI * t / 45;
+		out[2] = 1 + 0.25 * Math.sin(2 * Math.PI * t / 3);
+	}
+
+	public static double spikeAngle(int k) {
+		return k * Math.PI / 4 + 0.2;
+	}
+
+	/** Alto de la púa k en t (de 0,3 a 1, cada una a su ritmo). */
+	public static double spikeHeight(int k, double t) {
+		return 0.3 + 0.7 * smooth(0.5 + 0.5 * Math.sin(2 * Math.PI * t / 7 + k * 0.9));
+	}
+
+	// ---- El orbe y el pilar (solo tocando Flow, en sus drops) ----
+	public static final double ORB_Y = 44, ORB_BOB = 0.6, ORB_PERIOD = 4, ORB_CHARGE = 1.2;
+	/** Los drops de Flow (segundos), sacados de la energía del audio. */
+	public static final double[] DROPS = {49.2, 93.48, 142.47};
+
+	/** Segundos desde el drop más cercano (negativo mientras se carga), o NaN si no hay ninguno cerca. */
+	public static double dropDelta(double songT) {
+		for (double d : DROPS) if (songT >= d - ORB_CHARGE && songT < d + 3) return songT - d;
+		return Double.NaN;
+	}
+
+	public static double orbY(double t) {
+		return ORB_Y + ORB_BOB * Math.sin(2 * Math.PI * t / ORB_PERIOD);
+	}
+
+	/** Tamaño del orbe (0 = no está): aparece al cargarse, crece hasta 1,8 latiendo cada vez más deprisa. */
+	public static double orbScale(double t, double d) {
+		if (!(d < 0)) return 0;
+		double k = smooth((d + ORB_CHARGE) / ORB_CHARGE);
+		return 1.8 * k * (1 + 0.15 * k * Math.sin(2 * Math.PI * t * 6));
+	}
+
+	public static double orbRot(double t) {
+		return t * 0.6;
+	}
+
+	/**
+	 * El estallido del drop, d segundos después: {alto del pilar, anchura del pilar (0-1), radio de la onda, grosor de
+	 * la onda}. Devuelve false fuera de los 3 s que dura.
+	 */
+	public static boolean drop(double d, double[] out) {
+		if (!(d >= 0 && d <= 3)) return false;
+		double rise = 1 - Math.pow(1 - Math.min(1, d / 0.25), 3);
+		out[0] = 160 * rise;
+		out[1] = Math.max(0, 1 - Math.pow(d / 3, 1.5));
+		out[2] = 4 + 38 * (1 - Math.pow(1 - Math.min(1, d / 0.8), 2));
+		out[3] = Math.max(0, 1 - d / 0.8);
+		return true;
+	}
+
+	/** Esquirlas del estallido: llena {@code out} con {x, y, z, tamaño, giro, forma} y devuelve cuántas hay (hasta 10). */
+	public static int dropShards(double d, double orbY, double[][] out) {
+		if (!(d >= 0 && d <= 3)) return 0;
+		int n = 0;
+		for (int k = 0; k < 10; k++) {
+			double a = k * 2 * Math.PI / 10 + 0.3, v = 22 + 8 * (k % 3), s = Math.max(0, 1 - d / 1.6) * 1.2;
+			if (s > 0.02) out[n++] = new double[] {Math.cos(a) * v * d, orbY + (14 - 9 * d) * d, Math.sin(a) * v * d, s, d * (3 + k), k % 3};
+		}
+		return n;
+	}
+
 	/** La pose completa del jugador (ver {@link #figurePose}). */
 	public static final class Pose {
 		public double lift, pitch, yaw, roll, headX, headZ, headYaw;

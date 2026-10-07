@@ -6,9 +6,9 @@ const html = fs.readFileSync(process.argv[2], 'utf8');
 const flow = fs.readFileSync(process.argv[3], 'utf8').split('\n').filter(l => l.trim() && !l.startsWith('#')).map(l => l.trim().split(/\s+/).map(Number));
 const design = html.slice(html.indexOf('<script>\n') + 9, html.indexOf('</script>', html.indexOf('<script>\n'))).replace('%FLOW%', JSON.stringify(flow));
 const c = {}; vm.createContext(c);
-vm.runInContext(design + ';Object.assign(this,{RING,noteKey,whiteAngle,blackAngle,keyPose,particle,rockPieces,streaks,rocks,figurePose,playPose});', c);
+vm.runInContext(design + ';Object.assign(this,{RING,noteKey,whiteAngle,blackAngle,keyPose,particle,rockPieces,streaks,rocks,figurePose,playPose,chaseLight,ghostKey,ghostLight,sigilState,dropDelta,orbState,dropState,SIGIL});', c);
 const J = JSON.parse(fs.readFileSync(process.argv[4], 'utf8'));
-const S = { keys: [], noteKeys: [], particles: [], rocks: [], poses: [], light: [] };
+const S = { keys: [], noteKeys: [], particles: [], rocks: [], poses: [], light: [], chase: [], ghostKeys: [], ghost: [], sigil: [], orb: [] };
 const keyAngle = k => k < c.RING.whites ? c.whiteAngle(k) : c.blackAngle(k - c.RING.whites);
 for (let key = 0; key < 44; key++) for (const t of [0, 1.3, 17.77, 123.4]) { const p = c.keyPose(keyAngle(key), t); S.keys.push([p.angle, p.y, p.tilt]); }
 for (let n = 0; n < 44; n++) { const k = c.noteKey(n); S.noteKeys.push(k.white !== undefined ? k.white : c.RING.whites + k.black); }
@@ -27,6 +27,16 @@ for (const [ms, note] of flow) { const k = c.noteKey(note); hits[k.white !== und
 for (let key = 0; key < 44; key++) for (let t = 0; t < 205; t += 1.7) {
   const past = hits[key].filter(h => h <= t), age = past.length ? t - past[past.length - 1] : 9;
   S.light.push(age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0);
+}
+// Detalles: ola de luz, teclas fantasma, círculo del suelo y orbe / pilar en los drops.
+for (let key = 0; key < 44; key++) for (let t = 0; t < 40; t += 0.13) S.chase.push(c.chaseLight(keyAngle(key), t));
+for (let i = 0; i < 5000; i++) S.ghostKeys.push(c.ghostKey(i));
+for (let key = 0; key < 44; key++) for (let t = 0; t < 60; t += 0.11) S.ghost.push(c.ghostLight(key, t));
+for (let t = 0; t < 80; t += 0.29) { const q = c.sigilState(t); S.sigil.push([q.outer, q.inner, q.pulse, ...q.spikes.flatMap(p => [p.a, p.h])]); }
+for (let songT = 0; songT < 205; songT += 0.047) {
+  const d = c.dropDelta(songT), t = songT * 1.37 + 3, o = c.orbState(t, d), b = c.dropState(d, o.y);
+  S.orb.push([d === null ? 0 : d, o.y, o.scale, o.rot, ...(b ? [b.pillarH, b.pillarW, b.waveR, b.waveS] : [])]);
+  S.orb.push(b ? b.shards.map(q => [q.x, q.y, q.z, q.s, q.rot, q.shape]) : []);
 }
 let worst = 0, where = '';
 const cmp = (a, b, path) => {
