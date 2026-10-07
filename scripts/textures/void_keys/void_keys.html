@@ -41,12 +41,12 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
   <button id="bFloat" aria-pressed="true">Flotar</button>
   <button id="bMove" aria-pressed="false">Movimiento: quieto</button>
   <button id="bPart" aria-pressed="true">Partículas</button>
-  <button id="bOrb" aria-pressed="true">Orbe</button>
   <button id="bDrop" aria-pressed="true">Explosión en el drop</button>
   <button id="bBoom" aria-pressed="false">Simular drop</button>
   <button id="bChase" aria-pressed="true">Ola en las teclas</button>
   <button id="bSigil" aria-pressed="true">Círculo del suelo</button>
-  <button id="bMini" aria-pressed="true">Mini estallido</button>
+  <button id="bGhost" aria-pressed="true">Teclas fantasma</button>
+  <button id="bRail" aria-pressed="true">Riel de luz</button>
   <button id="bPix" aria-pressed="true">Pixelado</button>
   <button id="bSpin" aria-pressed="true">Cámara periférica</button>
 </div>
@@ -146,6 +146,8 @@ const ORB_SHAPE = [
 ];
 const PILLAR = [[-0.5, 0, -0.5, 0.5, 1, 0.5, 'pillar'], [-1.25, 0, -1.25, 1.25, 1, 1.25, 'pillarHalo']];
 const WAVE = [[-0.75, -0.125, -0.25, 0.75, 0.125, 0.25, 'wave']];
+// Trozo del riel de luz (largo 1, se estira entre dos teclas).
+const RAIL_PIECE = [[-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 'line']];
 // Punto de luz del círculo del suelo y púa oscura que sale del suelo (alto 5,5, se estira).
 const SIGIL_DOT = [[-0.25, 0, -0.25, 0.25, 0.125, 0.25, 'sigil']];
 const SPIKE = [[-0.75, 0, -0.75, 0.75, 1.5, 0.75, 'shard'], [-0.5, 1.5, -0.5, 0.5, 3, 0.5, 'shard'], [-0.25, 3, -0.25, 0.25, 4.5, 0.25, 'shardHi'],
@@ -234,9 +236,9 @@ function rockPieces(p, t) {
 }
 
 // ---- El orbe y el pilar (de la referencia: en el drop el orbe estalla por arriba y sale un pilar de luz) ----
-// Un orbe pequeño flota sobre la cabeza, latiendo despacio; cada 24 s suelta por arriba un pilar fino que se apaga.
-// Tocando Flow, en cada drop se carga (crece y late deprisa), estalla hacia arriba en un pilar de luz enorme con una
-// onda expansiva y esquirlas, y vuelve a formarse. Todo se apaga encogiéndose (sin transparencias que cambien).
+// Solo tocando Flow: 1,2 s antes de cada drop aparece un orbe sobre la cabeza que se carga (crece y late deprisa) y
+// en el drop estalla hacia arriba en un pilar de luz enorme con una onda expansiva y esquirlas. Fuera de los drops no
+// hay orbe. Todo se apaga encogiéndose (sin transparencias que cambien).
 const ORB = { y: 44, bob: 0.6, period: 4, pulse: 0.06, every: 24, charge: 1.2 };
 // Los drops de Flow (segundos), sacados de la energía del audio: donde todo sube de golpe.
 const DROPS = [49.2, 93.48, 142.47];
@@ -246,33 +248,30 @@ function dropDelta(songT) {
   return null;
 }
 const ease = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
-// El orbe en el tiempo t: altura, tamaño, giro y su pilar pequeño (alto y anchura de 0 a 1). d: dropDelta o null.
-function orbState(t, d, charge = ORB.charge) {
-  let scale = 1 + ORB.pulse * Math.sin(2 * Math.PI * t / 1.6);
+// El orbe en el tiempo t: altura, tamaño (0 = no está) y giro. d: dropDelta o null. Aparece al empezar a cargarse,
+// crece hasta 1,8 latiendo cada vez más deprisa y desaparece al estallar.
+function orbState(t, d) {
   const y = ORB.y + ORB.bob * Math.sin(2 * Math.PI * t / ORB.period);
-  const a = t % ORB.every;
-  let beamH = 0, beamW = 0;
-  if (a < 2) { beamH = 28 * Math.min(1, a / 0.4); beamW = 1 - Math.max(0, (a - 0.4) / 1.6); }
-  if (d !== null) {
-    if (d < 0) { const k = ease((d + charge) / charge); scale = (1 + 0.8 * k) * (1 + 0.15 * k * Math.sin(2 * Math.PI * t * 6)); beamH = 0; }
-    else if (d < 1.5) { scale = 0; beamH = 0; }
-    else if (d < 2.5) scale *= ease(d - 1.5);
+  let scale = 0;
+  if (d !== null && d < 0) {
+    const k = ease((d + ORB.charge) / ORB.charge);
+    scale = 1.8 * k * (1 + 0.15 * k * Math.sin(2 * Math.PI * t * 6));
   }
-  return { y, scale, rot: t * 0.6, beamH, beamW };
+  return { y, scale, rot: t * 0.6 };
 }
 // El estallido del drop, d segundos después: el pilar (alto y anchura de 0 a 1), la onda (radio y grosor) y las
 // esquirlas que salen despedidas. null fuera de los 3 s que dura.
-function dropState(d, orbY, power = 1) {
+function dropState(d, orbY) {
   if (d === null || d < 0 || d > 3) return null;
   const rise = 1 - Math.pow(1 - Math.min(1, d / 0.25), 3);
   const shards = [];
-  for (let k = 0; k < (power >= 1 ? 10 : 0); k++) {
+  for (let k = 0; k < 10; k++) {
     const a = k * 2 * Math.PI / 10 + 0.3, v = 22 + 8 * (k % 3), s = Math.max(0, 1 - d / 1.6) * 1.2;
     if (s > 0.02) shards.push({ x: Math.cos(a) * v * d, y: orbY + (14 - 9 * d) * d, z: Math.sin(a) * v * d, s, rot: d * (3 + k), shape: k % 3 });
   }
   return {
-    pillarH: 160 * power * rise, pillarW: power * Math.max(0, 1 - Math.pow(d / 3, 1.5)),
-    waveR: 4 + 38 * power * (1 - Math.pow(1 - Math.min(1, d / 0.8), 2)), waveS: Math.max(0, 1 - d / 0.8),
+    pillarH: 160 * rise, pillarW: Math.max(0, 1 - Math.pow(d / 3, 1.5)),
+    waveR: 4 + 38 * (1 - Math.pow(1 - Math.min(1, d / 0.8), 2)), waveS: Math.max(0, 1 - d / 0.8),
     shards
   };
 }
@@ -286,13 +285,29 @@ function chaseLight(angle, t) {
   const head = 2 * Math.PI * c / CHASE.lap, d = ((head - angle) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
   return d < CHASE.trail ? Math.pow(1 - d / CHASE.trail, 2) : 0;
 }
-// Mini estallido: cada 45 s el orbe se carga 0,8 s y suelta un pilar más pequeño (45 %) con su onda, sin esquirlas.
-const MINI = { every: 45, charge: 0.8, power: 0.45 };
-function miniDelta(t) {
-  const c = t % MINI.every;
-  if (c >= MINI.every - MINI.charge) return c - MINI.every;
-  return c < 3 ? c : null;
+// Teclas fantasma: cada 0,9 s una tecla se pulsa sola y se enciende, siguiendo frases cortas de 8 notas (como si
+// alguien invisible tocara despacio). Cada frase empieza en una tecla distinta. Devuelve la tecla (0-43) del golpe i.
+const GHOST = { every: 0.9, phrase: [0, 2, 4, 7, 4, 2, 9, 7] };
+function ghostKey(i) {
+  const phrase = Math.floor(i / 8);
+  let h = (phrase * 2654435761) >>> 0; h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13;
+  return (6 + h % 30 + GHOST.phrase[((i % 8) + 8) % 8]) % 44;
 }
+// Luz de una tecla por las teclas fantasma en el tiempo t (los dos últimos golpes; brillan un poco menos que tocando).
+function ghostLight(key, t) {
+  const i = Math.floor(t / GHOST.every);
+  let light = 0;
+  for (const j of [i, i - 1]) if (j >= 0 && ghostKey(j) === key) {
+    const age = t - j * GHOST.every;
+    light = Math.max(light, 0.8 * (age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0));
+  }
+  return light;
+}
+// Riel de luz: un hilo fino que une las teclas blancas por debajo, en el borde de dentro, siguiendo la ola; donde
+// pasa la cresta se hace más grueso.
+const RAIL = { below: 1.3, radius: 0.6, thin: 0.12, thick: 0.3 };
+function railThickness(phase) { return RAIL.thin + (RAIL.thick - RAIL.thin) * Math.pow(Math.max(0, Math.sin(phase)), 4); }
+
 // Círculo del suelo: dos anillos de puntos de luz que giran despacio al revés que el teclado y laten, y 8 púas
 // oscuras alrededor que suben y bajan del suelo cada una a su ritmo.
 const SIGIL = { outer: 32, outerR: 10, inner: 16, innerR: 6.5, spikes: 8, spikeR: 13 };
@@ -542,16 +557,17 @@ const FLOW_LENGTH = 205.3;
   const rockPool = Array.from({ length: 12 }, (_, i) => { const g = build(ROCKS[i % ROCKS.length]); g.visible = false; world.add(g); return g; });
   // Orbe, su pilar pequeño, el pilar del drop, la onda (24 trozos) y las esquirlas del estallido.
   const orbMesh = build(ORB_SHAPE); world.add(orbMesh);
-  const beamMesh = build(PILLAR); world.add(beamMesh);
   const pillarMesh = build(PILLAR); world.add(pillarMesh);
   const waveMeshes = Array.from({ length: 36 }, () => { const g = build(WAVE); world.add(g); return g; });
   const boomShards = Array.from({ length: 10 }, (_, k) => { const g = build(ROCKS[k % 3]); world.add(g); return g; });
+  const railMeshes = Array.from({ length: RING.whites }, () => { const g = build(RAIL_PIECE); world.add(g); return g; });
+  let lastGhost = -1;
   const sigilOuter = Array.from({ length: SIGIL.outer }, () => { const g = build(SIGIL_DOT); world.add(g); return g; });
   const sigilInner = Array.from({ length: SIGIL.inner }, () => { const g = build(SIGIL_DOT); world.add(g); return g; });
   const spikeMeshes = Array.from({ length: SIGIL.spikes }, () => { const g = build(SPIKE); world.add(g); return g; });
 
   // Estado de la vista.
-  let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, motion = 0, speed = 0, orbOn = true, dropOn = true, boomAt = -99, chaseOn = true, sigilOn = true, miniOn = true;
+  let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, motion = 0, speed = 0, dropOn = true, boomAt = -99, chaseOn = true, sigilOn = true, ghostOn = true, railOn = true;
   let playStart = 0, nextNote = 0, figYawStart = 0;
   const now = document.getElementById('now');
 
@@ -593,12 +609,12 @@ const FLOW_LENGTH = 205.3;
   toggle('bSpin', () => spin = !spin);
   toggle('bPix', () => { pix = !pix; size(); return pix; });
   toggle('bPart', () => parts = !parts);
-  toggle('bOrb', () => orbOn = !orbOn);
   toggle('bDrop', () => dropOn = !dropOn);
   document.getElementById('bBoom').onclick = () => { boomAt = performance.now() / 1000 + ORB.charge; };
   toggle('bChase', () => chaseOn = !chaseOn);
   toggle('bSigil', () => sigilOn = !sigilOn);
-  toggle('bMini', () => miniOn = !miniOn);
+  toggle('bGhost', () => ghostOn = !ghostOn);
+  toggle('bRail', () => railOn = !railOn);
   toggle('bFloat', () => floating = !floating);
   const MOVES = ['quieto', 'avanzando', 'saltando'];
   document.getElementById('bMove').onclick = e => { motion = (motion + 1) % 3; e.currentTarget.textContent = 'Movimiento: ' + MOVES[motion]; e.currentTarget.setAttribute('aria-pressed', motion > 0); };
@@ -640,7 +656,8 @@ const FLOW_LENGTH = 205.3;
       k.pivot.rotation.y = p.angle;
       // Se enciende en 0,08 s y se apaga suave en 0,9 s, bajando un poco mientras está encendida.
       const age = k.hit === undefined ? 9 : t - k.hit;
-      k.light = Math.max(age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0, chaseOn ? chaseLight(k.angle, t) : 0);
+      k.light = Math.max(age < 0.9 ? Math.min(1, age / 0.08) * Math.pow(1 - age / 0.9, 2) : 0, chaseOn ? chaseLight(k.angle, t) : 0,
+        ghostOn && !playing ? ghostLight(keys.indexOf(k), t) : 0);
       k.pivot.position.y = p.y - k.light * 0.4;
       k.pivot.rotation.x = p.tilt;
       for (const c of k.caps) c.material.emissive.setRGB(k.light, k.light, k.light);
@@ -677,11 +694,8 @@ const FLOW_LENGTH = 205.3;
       if (playing && dropOn) d = dropDelta(((nowMs - playStart) / 1000) % FLOW_LENGTH);
       const sim = nowMs / 1000 - boomAt;
       if (sim >= -ORB.charge && sim < 3) d = sim;
-      let charge = ORB.charge, power = 1;
-      if (d === null && miniOn) { d = miniDelta(t); charge = MINI.charge; power = MINI.power; }
-      const o = orbState(t, d, charge), boom = dropState(d, o.y, power);
-      orbMesh.visible = orbOn && o.scale > 0.02; orbMesh.position.set(0, o.y, 0); orbMesh.scale.setScalar(o.scale); orbMesh.rotation.set(o.rot * 0.7, o.rot, 0);
-      beamMesh.visible = orbOn && o.beamH > 0.5 && o.beamW > 0.02; beamMesh.position.set(0, o.y + 2, 0); beamMesh.scale.set(0.6 * o.beamW, o.beamH, 0.6 * o.beamW);
+      const o = orbState(t, d), boom = dropState(d, o.y);
+      orbMesh.visible = o.scale > 0.02; orbMesh.position.set(0, o.y, 0); orbMesh.scale.setScalar(o.scale); orbMesh.rotation.set(o.rot * 0.7, o.rot, 0);
       pillarMesh.visible = !!boom && boom.pillarW > 0.02; waveMeshes.forEach(m => m.visible = false); boomShards.forEach(m => m.visible = false);
       if (boom) {
         pillarMesh.position.set(0, o.y, 0); pillarMesh.scale.set(3 * boom.pillarW, boom.pillarH, 3 * boom.pillarW);
@@ -689,6 +703,23 @@ const FLOW_LENGTH = 205.3;
         if (boom.waveS > 0.02) waveMeshes.forEach((m, k) => { const a = k * 2 * Math.PI / 36; m.visible = true; m.position.set(Math.sin(a) * boom.waveR, o.y, Math.cos(a) * boom.waveR); m.rotation.set(0, a + Math.PI / 2, 0); m.scale.set(2 * Math.PI * boom.waveR / 36 / 1.5, boom.waveS, boom.waveS); });
         boom.shards.forEach((q, k) => { const m = boomShards[k]; m.visible = true; m.position.set(q.x, q.y, q.z); m.scale.setScalar(q.s); m.rotation.set(q.rot, q.rot * 0.7, 0); });
       }
+    }
+    // Teclas fantasma: un destello pequeño en cada golpe.
+    {
+      const i = Math.floor(t / GHOST.every);
+      if (i !== lastGhost) { lastGhost = i; if (ghostOn && !playing) spawnBurst(keys[ghostKey(i)], t, 0.1); }
+    }
+    // Riel de luz: un trozo entre cada dos teclas blancas seguidas, por debajo del borde de dentro.
+    for (let i = 0; i < RING.whites; i++) {
+      const m = railMeshes[i]; m.visible = railOn;
+      if (!railOn) continue;
+      const a0 = whiteAngle(i), a1 = whiteAngle((i + 1) % RING.whites), p0 = keyPose(a0, t), p1 = keyPose(a1, t);
+      const r = RING.inner + RAIL.radius, x0 = Math.sin(p0.angle) * r, z0 = Math.cos(p0.angle) * r, x1 = Math.sin(p1.angle) * r, z1 = Math.cos(p1.angle) * r;
+      const y0 = p0.y - RAIL.below, y1 = p1.y - RAIL.below, len = Math.hypot(x1 - x0, y1 - y0, z1 - z0);
+      const th = railThickness(2 * Math.PI * t / RING.wave - RING.crests * (a0 + Math.PI / RING.whites));
+      m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(x1 - x0, y1 - y0, z1 - z0).normalize());
+      m.scale.set(th, th, len);
     }
     // Círculo del suelo.
     {
