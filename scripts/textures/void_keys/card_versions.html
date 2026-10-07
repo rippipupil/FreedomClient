@@ -1,0 +1,273 @@
+<title>Void Keys Card Versions</title>
+<style>
+/* Una sola escena oscura a propósito: el vacío del cosmético. Cada tarjeta se dibuja a su tamaño real del menú
+   (178x58 píxeles de interfaz) y se amplía x4 sin suavizar, como se ve en el juego con escala de interfaz 4. */
+:root {
+  --void: #10131f;
+  --panel: #171b2b;
+  --line: #3a4160;
+  --ice: #eef1fa;
+  --muted: #9aa3c4;
+  --accent: #c9d3ff;
+  --display: "Chakra Petch", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+body { margin: 0; background: var(--void); color: var(--ice); font-family: var(--body); padding-inline: 16px; padding-block: 24px 48px; }
+main { max-width: 760px; margin: 0 auto; display: grid; gap: 28px; }
+h1 { font-family: var(--display); font-weight: 600; letter-spacing: .3em; font-size: clamp(22px, 4vw, 30px); margin: 0; text-wrap: balance; }
+header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; max-width: 64ch; }
+.states { display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; font-size: 12px; padding: 7px 12px; background: var(--panel); color: var(--ice); border: 1px solid var(--line); cursor: pointer; }
+button[aria-pressed="true"] { background: var(--ice); color: var(--void); border-color: var(--ice); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+section { display: grid; gap: 10px; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 18px; letter-spacing: .12em; margin: 0; }
+h2 span { color: var(--muted); font-family: var(--body); font-weight: 400; font-size: 12px; letter-spacing: 0; margin-left: 8px; }
+canvas { width: 100%; max-width: 712px; aspect-ratio: 178 / 58; image-rendering: pixelated; display: block; background: #2a1418; }
+section p { margin: 0; color: var(--muted); font-size: 13px; max-width: 70ch; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600&family=IBM+Plex+Mono:wght@400&display=swap">
+
+<main>
+  <header>
+    <h1>VOID KEYS · TARJETAS</h1>
+    <p>Cuatro propuestas de tarjeta del menú para Void Keys: fondo animado, borde y rótulo. Tamaño real de la tarjeta (178×58) ampliado ×4. A la izquierda va la vista previa 3D del cosmético (aquí un muñeco de referencia).</p>
+  </header>
+  <div class="states" role="group" aria-label="Estado de la tarjeta">
+    <button id="sOff" aria-pressed="true">Apagado</button>
+    <button id="sOn" aria-pressed="false">Puesto</button>
+    <button id="sHover" aria-pressed="false">Ratón encima</button>
+  </div>
+  <section><h2>1 · LUNA<span>la luna blanca y la hierba de púas</span></h2><canvas id="c1" width="178" height="58"></canvas>
+    <p>Fondo azul noche con una luna blanca enorme a la derecha y su halo, dos capas de hierba de púas oscuras que se deslizan despacio y esquirlas negras y motas blancas subiendo. Borde fino con una fila de minúsculas teclas en el canto de abajo que se van encendiendo como si sonara Flow; esquirlas en las esquinas.</p></section>
+  <section><h2>2 · HORIZONTE<span>un teclado infinito hacia el vacío</span></h2><canvas id="c2" width="178" height="58"></canvas>
+    <p>Un suelo de teclas blancas y grises en perspectiva que se pierde en el horizonte negro, con una ola de luz que viaja hacia ti y líneas de luz que suben. Borde doble con un pulso blanco que recorre el contorno dejando estela.</p></section>
+  <section><h2>3 · PILAR<span>el haz de luz que cae sobre la esfera</span></h2><canvas id="c3" width="178" height="58"></canvas>
+    <p>Como la primera referencia: un haz de luz blanca cae sobre una esfera brillante medio tapada por púas, y de ella salen esquirlas oscuras. Borde azul noche con púas que entran desde los cantos y un destello que lo recorre.</p></section>
+  <section><h2>4 · ARO<span>el propio teclado tocando Flow</span></h2><canvas id="c4" width="178" height="58"></canvas>
+    <p>El aro de 44 teclas visto de lado, girando despacio detrás del rótulo, encendiendo sus teclas al ritmo real de la partitura de Flow y soltando líneas de luz. Borde limpio con teclas de piano en las cuatro esquinas.</p></section>
+</main>
+
+<script>
+(function () {
+  const W = 178, H = 58;
+  const FLOW = %FLOW%;
+  let on = 0, hover = 0, target = { on: 0, hover: 0 };
+  const states = { sOff: [0, 0], sOn: [1, 0], sHover: [0, 1] };
+  for (const id in states) document.getElementById(id).onclick = () => {
+    for (const k in states) document.getElementById(k).setAttribute('aria-pressed', k === id);
+    target = { on: states[id][0], hover: states[id][1] };
+  };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- utilidades de dibujo pixel ----
+  const hex = c => [c >> 16 & 255, c >> 8 & 255, c & 255];
+  const mix = (a, b, t) => { const A = hex(a), B = hex(b); return (Math.round(A[0] + (B[0] - A[0]) * t) << 16) | (Math.round(A[1] + (B[1] - A[1]) * t) << 8) | Math.round(A[2] + (B[2] - A[2]) * t); };
+  function ctxOf(id) { const c = document.getElementById(id); const g = c.getContext('2d'); g.imageSmoothingEnabled = false; return g; }
+  const css = (c, a = 1) => `rgba(${c >> 16 & 255},${c >> 8 & 255},${c & 255},${a})`;
+  const rect = (g, x, y, w, h, c, a = 1) => { g.fillStyle = css(c, a); g.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+  function rng(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+  // Triángulo relleno en píxeles (para púas y esquirlas).
+  function tri(g, ax, ay, bx, by, cx, cy, c, a = 1) {
+    g.fillStyle = css(c, a);
+    const minY = Math.floor(Math.min(ay, by, cy)), maxY = Math.ceil(Math.max(ay, by, cy));
+    for (let y = minY; y <= maxY; y++) {
+      const xs = [];
+      for (const [x0, y0, x1, y1] of [[ax, ay, bx, by], [bx, by, cx, cy], [cx, cy, ax, ay]]) {
+        if ((y >= Math.min(y0, y1)) && (y < Math.max(y0, y1)) && y0 !== y1) xs.push(x0 + (y - y0) * (x1 - x0) / (y1 - y0));
+      }
+      if (xs.length >= 2) { const l = Math.round(Math.min(...xs)), r = Math.round(Math.max(...xs)); if (r > l) g.fillRect(l, y, r - l, 1); }
+    }
+  }
+  // Letras pixel 5x7 para el rótulo.
+  const FONT = {
+    V: ['10001', '10001', '10001', '10001', '01010', '01010', '00100'], O: ['01110', '10001', '10001', '10001', '10001', '10001', '01110'],
+    I: ['111', '010', '010', '010', '010', '010', '111'], D: ['11110', '10001', '10001', '10001', '10001', '10001', '11110'],
+    K: ['10001', '10010', '10100', '11000', '10100', '10010', '10001'], E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+    Y: ['10001', '10001', '01010', '00100', '00100', '00100', '00100'], S: ['01111', '10000', '10000', '01110', '00001', '00001', '11110'], ' ': ['000', '000', '000', '000', '000', '000', '000']
+  };
+  function title(g, x, y, gap, fill, shadow, glow) {
+    let cx = x;
+    const cells = [];
+    for (const ch of 'VOID KEYS') { const rows = FONT[ch]; rows.forEach((r, j) => [...r].forEach((b, i) => { if (b === '1') cells.push([cx + i, y + j]); })); cx += rows[0].length + gap; }
+    if (glow) for (const [px, py] of cells) rect(g, px - 1, py - 1, 3, 3, glow[0], glow[1]);
+    if (shadow) for (const [px, py] of cells) rect(g, px + 1, py + 1, 1, 1, shadow);
+    for (const [px, py] of cells) rect(g, px, py, 1, 1, typeof fill === 'function' ? fill(px, py) : fill);
+    return cx;
+  }
+  // Recuadro de la vista previa con un muñeco de referencia y su aro.
+  function preview(g, frame, t) {
+    rect(g, 5, 5, 40, 48, 0x0e0e12, 0.62);
+    rect(g, 5, 5, 40, 1, frame); rect(g, 5, 52, 40, 1, frame); rect(g, 5, 5, 1, 48, frame); rect(g, 44, 5, 1, 48, frame);
+    const bob = Math.round(Math.sin(t * 2) * 1);
+    rect(g, 21, 11 + bob, 8, 8, 0x69718f); rect(g, 21, 19 + bob, 8, 12, 0x4a5170); rect(g, 17, 19 + bob, 4, 12, 0x4a5170); rect(g, 29, 19 + bob, 4, 12, 0x4a5170);
+    rect(g, 21, 31 + bob, 4, 12, 0x3c4260); rect(g, 25, 31 + bob, 4, 11, 0x3c4260);
+    for (let i = 0; i < 22; i++) { const a = i / 22 * Math.PI * 2 + t * 0.3; const x = 25 + Math.cos(a) * 17, y = 28 + Math.sin(a) * 3; if (Math.sin(a) < 0) continue; rect(g, x, y, 1, 1, i % 3 === 1 ? 0x7a7c84 : 0xf2f3f5); }
+  }
+  // Estado (OFF/ON) abajo y la rueda arriba a la derecha.
+  function status(g, light) {
+    const isOn = on > 0.5;
+    rect(g, 50, 47, 4, 4, isOn ? 0xb05868 : 0x6a6a78);
+    const pix = { O: ['111', '101', '101', '101', '111'], F: ['111', '100', '110', '100', '100'], N: ['101', '111', '111', '111', '101'] };
+    let x = 57; for (const ch of (isOn ? 'ON' : 'OFF')) { pix[ch].forEach((r, j) => [...r].forEach((b, i) => { if (b === '1') rect(g, x + i, 46 + j, 1, 1, light); })); x += 4; }
+    const gx = W - 13, gy = 4; // rueda de ajustes
+    [[3, 0, 3, 9], [0, 3, 9, 3], [1, 1, 7, 7]].forEach(([x0, y0, w, h]) => rect(g, gx + x0, gy + y0, w, h, light, 0.9));
+    rect(g, gx + 3, gy + 3, 3, 3, 0x10131f);
+  }
+
+  // ================= 1 · LUNA =================
+  const L = { r: rng(3), far: [], near: [], shards: [], motes: [] };
+  for (let x = -10; x < W + 40; x += 5 + L.r() * 6) L.far.push([x, 10 + L.r() * 14, 2 + L.r() * 3]);
+  for (let x = -10; x < W + 40; x += 4 + L.r() * 5) L.near.push([x, 6 + L.r() * 12, 2 + L.r() * 3]);
+  for (let i = 0; i < 7; i++) L.shards.push([50 + L.r() * 125, L.r() * 60, 3 + L.r() * 3, 3 + L.r() * 4, L.r() * 6]);
+  for (let i = 0; i < 10; i++) L.motes.push([50 + L.r() * 125, L.r() * 60, 4 + L.r() * 4]);
+  function luna(g, t) {
+    for (let y = 0; y < H; y++) rect(g, 0, y, W, 1, mix(0x1c2238, 0x0f1220, y / H));
+    const mx = W - 38, my = 24;
+    for (let r = 34; r > 22; r -= 3) { g.fillStyle = css(0xdce4ff, 0.05); g.beginPath(); g.arc(mx, my, r, 0, 7); g.fill(); }
+    g.fillStyle = css(0xeef1fa); g.beginPath(); g.arc(mx, my, 20, 0, 7); g.fill();
+    for (let i = 0; i < 5; i++) rect(g, mx - 30 + i * 13, my - 1, 1, 1, 0xffffff, 0.4); // brillos
+    const sf = (t * 2) % 30, sn = (t * 4) % 30;
+    for (const [x, h, w] of L.far) { const X = ((x - sf) % (W + 40) + W + 40) % (W + 40) - 20; tri(g, X - w, H, X + w * 0.2, H - h - 8, X + w, H, 0x2a3150); }
+    for (const s of L.shards) { const y = ((s[1] - t * s[2]) % 70 + 70) % 70 - 6, a = s[4] + t * 0.8; tri(g, s[0], y, s[0] + Math.cos(a) * s[3], y + Math.sin(a) * s[3], s[0] + Math.cos(a + 2) * 2, y + Math.sin(a + 2) * 2, 0x1c2032); }
+    for (const m of L.motes) { const y = ((m[1] - t * m[2]) % 64 + 64) % 64; rect(g, m[0], y, 1, 1, 0xf4f6ff, Math.min(1, y / 20)); }
+    for (const [x, h, w] of L.near) { const X = ((x - sn) % (W + 40) + W + 40) % (W + 40) - 20; tri(g, X - w, H, X + w * 0.4, H - h, X + w, H, 0x161a29); }
+    preview(g, mix(0x4a5170, 0xc9d3ff, 0.6 * on + 0.3 * hover), t);
+    title(g, 50, 8, 2, (x, y) => y < 11 ? 0xffffff : 0xc9d0e6, 0x3a4160, [0xdce4ff, 0.08]);
+    // Borde: marco fino y una fila de teclas diminutas en el canto de abajo que se encienden en ola.
+    const fr = mix(0x4a5170, 0xc9d3ff, 0.6 * on + 0.35 * hover);
+    rect(g, 1, 0, W - 2, 1, fr); rect(g, 0, 1, 1, H - 2, fr); rect(g, W - 1, 1, 1, H - 2, fr);
+    const PAT = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];
+    for (let i = 0, x = 2; x < W - 3; i++) {
+      const white = PAT[i % 12], lit = Math.max(0, Math.cos((i * 0.35 - t * 3)) ** 16) * (0.5 + 0.5 * Math.max(on, hover));
+      if (white) { rect(g, x, H - 3, 2, 3, mix(0xd8dbe4, 0xffffff, lit)); x += 3; } else { rect(g, x - 1, H - 3, 1, 2, mix(0x55575f, 0xe6e8ee, lit)); }
+    }
+    for (const [cx, cy, sx, sy] of [[0, 0, 1, 1], [W, 0, -1, 1]]) tri(g, cx, cy, cx + sx * 7, cy, cx, cy + sy * 7, mix(0x2a3150, 0xc9d3ff, 0.4 * on));
+    status(g, 0xc9d0e6);
+  }
+
+  // ================= 2 · HORIZONTE =================
+  const PAT12 = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];
+  const Hz = { r: rng(5), streaks: [] };
+  for (let i = 0; i < 9; i++) Hz.streaks.push([52 + Hz.r() * 122, Hz.r() * 60, 10 + Hz.r() * 8]);
+  const img2 = new ImageData(W, H);
+  function horizonte(g, t) {
+    const vx = 118, vy = 27, d = img2.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let c;
+      if (y <= vy) { const k = Math.max(0, 1 - Math.hypot((x - vx) / 60, (y - vy) / 14)); c = mix(0x0b0d16, 0x2a3150, k * 0.8); }
+      else {
+        // Teclas anchas en perspectiva: cada fila es una tecla (blanca o gris según el piano) y entre filas hay hueco.
+        const z = 30 / (y - vy + 0.5), u = (x - vx) / (y - vy + 0.5) * 2.2;
+        const key = Math.floor(u), fu = u - key, depth = Math.floor(z * 0.9), fz = z * 0.9 - depth;
+        const gap = fu < 0.1 || fz < 0.1;
+        const white = PAT12[(((key + depth * 5) % 12) + 12) % 12];
+        const fog = Math.min(1, z / 6);
+        const wave = Math.max(0, Math.sin(z * 0.9 + t * 2.0)) ** 8 * (0.55 + 0.45 * Math.max(on, hover));
+        let base = gap ? 0x0b0d16 : white ? 0xb9bdc8 : 0x45485a;
+        base = mix(base, 0xffffff, gap ? 0 : wave * 0.75);
+        c = mix(base, 0x0b0d16, fog * 0.92);
+      }
+      const i = (y * W + x) * 4; d[i] = c >> 16 & 255; d[i + 1] = c >> 8 & 255; d[i + 2] = c & 255; d[i + 3] = 255;
+    }
+    g.putImageData(img2, 0, 0);
+    rect(g, 0, vy, W, 1, 0x6a74a0, 0.5);
+    for (const s of Hz.streaks) { const y = ((s[1] - t * s[2]) % 70 + 70) % 70 - 6; rect(g, s[0], y, 1, 3, 0xf6f7fa, 0.9); rect(g, s[0], y + 3, 1, 3, 0xb4b8c6, 0.45); }
+    preview(g, mix(0x3a4160, 0xeef1fa, 0.6 * on + 0.3 * hover), t);
+    title(g, 50, 8, 2, 0xffffff, null, null);
+    title(g, 51, 8, 2, 0x8a93b2, null, null); title(g, 50, 8, 2, 0xffffff, null, null);
+    // Borde doble con un pulso que da la vuelta.
+    const fr = mix(0x2e3550, 0x9aa6d8, 0.6 * on + 0.35 * hover);
+    rect(g, 0, 0, W, 1, fr); rect(g, 0, H - 1, W, 1, fr); rect(g, 0, 0, 1, H, fr); rect(g, W - 1, 0, 1, H, fr);
+    rect(g, 2, 2, W - 4, 1, fr, 0.5); rect(g, 2, H - 3, W - 4, 1, fr, 0.5); rect(g, 2, 2, 1, H - 4, fr, 0.5); rect(g, W - 3, 2, 1, H - 4, fr, 0.5);
+    const per = 2 * (W + H), head = (t * 60) % per;
+    const at = s => { s = ((s % per) + per) % per; if (s < W) return [s, 0]; s -= W; if (s < H) return [W - 1, s]; s -= H; if (s < W) return [W - 1 - s, H - 1]; return [0, H - 1 - (s - W)]; };
+    for (let k = 0; k < 18; k++) { const [x, y] = at(head - k); rect(g, x, y, 1, 1, 0xffffff, (1 - k / 18) * (0.5 + 0.5 * Math.max(on, hover))); }
+    status(g, 0xb4bccf);
+  }
+
+  // ================= 3 · PILAR =================
+  const P = { r: rng(9), spikes: [], shards: [] };
+  for (let x = 46; x < W + 6; x += 3 + P.r() * 4) P.spikes.push([x, 8 + P.r() * 16, 2 + P.r() * 3, P.r() * 6]);
+  for (let i = 0; i < 12; i++) P.shards.push([P.r() * 6.28, 0.5 + P.r(), P.r() * 3, 2 + P.r() * 3]);
+  function pilar(g, t) {
+    const bx = 120;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x += 2) { const k = Math.max(0, 1 - Math.abs(x - bx) / 70); rect(g, x, y, 2, 1, mix(0x161b2e, 0x3a4468, k * k * 0.8)); }
+    const sway = Math.sin(t * 0.8) * 1.5;
+    for (let y = 0; y < 48; y++) { const w = 4 + y * 0.06; rect(g, bx - w / 2 + sway * (1 - y / 48), y, w, 1, 0xffffff, 0.9); rect(g, bx - w / 2 - 2 + sway * (1 - y / 48), y, w + 4, 1, 0xdce4ff, 0.25); }
+    for (let r = 26; r > 15; r -= 3) { g.fillStyle = css(0xdce4ff, 0.07); g.beginPath(); g.arc(bx, 50, r, 0, 7); g.fill(); }
+    g.fillStyle = css(0xf4f6ff); g.beginPath(); g.arc(bx, 50, 14, Math.PI, 0); g.fill();
+    for (const s of P.shards) {
+      const life = ((t * 0.35 + s[2]) % 1), a = s[0], dist = 6 + life * 40, x = bx + Math.cos(a) * dist, y = 46 - Math.abs(Math.sin(a)) * dist * 0.7 - life * 6;
+      const r = s[3] * (1 - life * 0.6), rot = a + t * s[1] * 3;
+      tri(g, x + Math.cos(rot) * r, y + Math.sin(rot) * r, x + Math.cos(rot + 2.4) * r * 0.5, y + Math.sin(rot + 2.4) * r * 0.5, x + Math.cos(rot - 2.4) * r * 0.5, y + Math.sin(rot - 2.4) * r * 0.5, 0x1e2336);
+    }
+    for (const [x, h, w, p] of P.spikes) { const lean = Math.sin(t * 1.3 + p) * 1.2; tri(g, x - w, H, x + lean, H - h, x + w, H, x % 2 ? 0x1b2034 : 0x141829); }
+    preview(g, mix(0x3a4468, 0xeef1fa, 0.6 * on + 0.3 * hover), t);
+    title(g, 50, 8, 2, 0xffffff, 0x1b2034, [0xffffff, 0.06]);
+    // Borde: marco azul noche y púas que entran desde los cantos; un destello lo recorre.
+    const fr = mix(0x2a3150, 0x9aa6d8, 0.6 * on + 0.35 * hover);
+    rect(g, 0, 0, W, 1, fr); rect(g, 0, H - 1, W, 1, fr); rect(g, 0, 0, 1, H, fr); rect(g, W - 1, 0, 1, H, fr);
+    for (let x = 6; x < W - 6; x += 9) { const h = 2 + (x * 7 % 5) * 0.6; tri(g, x - 1.5, 0, x, h + 1, x + 1.5, 0, fr); tri(g, x + 3, H, x + 4.5, H - h - 1, x + 6, H, fr); }
+    const gl = (t * 70) % (W + 40) - 20;
+    for (let k = 0; k < 6; k++) { rect(g, gl - k, 0, 1, 1, 0xffffff, (1 - k / 6) * (0.4 + 0.6 * Math.max(on, hover))); rect(g, W - gl + k, H - 1, 1, 1, 0xffffff, (1 - k / 6) * (0.4 + 0.6 * Math.max(on, hover))); }
+    status(g, 0xc9d0e6);
+  }
+
+  // ================= 4 · ARO =================
+  const KEYW = 26, BL = [0, 1, 3, 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24];
+  const WHITE_OF = [0, -1, 1, -1, 2, 3, -1, 4, -1, 5, -1, 6], BLACK_OF = [-1, 0, -1, 1, -1, -1, 2, -1, 3, -1, 4, -1];
+  const keyAngles = [];
+  for (let i = 0; i < KEYW; i++) keyAngles.push([i * 2 * Math.PI / KEYW, true]);
+  for (const b of BL) keyAngles.push([(b + 0.5) * 2 * Math.PI / KEYW, false]);
+  const noteKey = n => { const o = Math.floor(n / 12), s = n % 12; return WHITE_OF[s] >= 0 ? WHITE_OF[s] + o * 7 : KEYW + BLACK_OF[s] + o * 5; };
+  const lastHit = new Array(44).fill(-9);
+  const A = { r: rng(13), stars: [], streaks: [] };
+  for (let i = 0; i < 26; i++) A.stars.push([A.r() * W, A.r() * H, A.r()]);
+  let songStart = performance.now(), next = 0;
+  function aro(g, t) {
+    for (let y = 0; y < H; y++) rect(g, 0, y, W, 1, mix(0x141829, 0x0c0e18, y / H));
+    for (const s of A.stars) rect(g, s[0], s[1], 1, 1, 0xc9d3ff, 0.15 + 0.25 * Math.abs(Math.sin(t * 0.7 + s[2] * 9)));
+    const song = ((performance.now() - songStart) / 1000) % 205.3;
+    if (next < FLOW.length && FLOW[next][0] / 1000 > song + 1) next = 0;
+    while (next < FLOW.length && FLOW[next][0] / 1000 <= song) { const k = noteKey(FLOW[next][1]); lastHit[k] = song; A.streaks.push([k, song]); next++; }
+    const cx = 116, cy = 33, rx = 56, ry = 11, spin = t * 2 * Math.PI / 50;
+    const pts = keyAngles.map(([a, white], k) => { const ang = a + spin; return { k, white, x: cx + Math.sin(ang) * rx, y: cy + Math.cos(ang) * ry, front: Math.cos(ang) }; });
+    pts.sort((p, q) => p.front - q.front);
+    for (const p of pts) {
+      const age = song - lastHit[p.k], lit = age >= 0 && age < 0.9 ? Math.min(1, age / 0.08) * (1 - age / 0.9) ** 2 : 0;
+      const dim = 0.55 + 0.45 * (p.front + 1) / 2;
+      const c = mix(mix(p.white ? 0xf2f3f5 : 0x7a7c84, 0x10131f, 1 - dim), 0xffffff, lit);
+      // Tecla blanca: tapa de 3x2 con su cuerpo gris y la esquirla colgando; gris: un prisma de 2x2 más alto.
+      if (p.white) { rect(g, p.x - 1, p.y - lit, 3, 2, c); rect(g, p.x, p.y + 2 - lit, 1, 1, mix(0x6e7077, 0x10131f, 1 - dim)); rect(g, p.x, p.y + 3 - lit, 1, 1, mix(0x3c3d43, 0x10131f, 1 - dim)); }
+      else rect(g, p.x, p.y - 2 - lit, 2, 2, c);
+      if (lit > 0.5) rect(g, p.x - 2, p.y - 2, 4, 4, 0xffffff, 0.12 * lit);
+    }
+    A.streaks = A.streaks.filter(([k, at]) => song - at < 0.8 && song >= at);
+    for (const [k, at] of A.streaks) { const p = pts.find(q => q.k === k), age = song - at; rect(g, p.x, p.y - 3 - age * 30, 1, 3, 0xf6f7fa, 1 - age / 0.8); }
+    preview(g, mix(0x3a4160, 0xeef1fa, 0.6 * on + 0.3 * hover), t);
+    title(g, 50, 8, 2, 0xf2f3f5, 0x3a4160, null);
+    // Borde limpio con teclas de piano en las esquinas.
+    const fr = mix(0x3a4160, 0xc9d3ff, 0.6 * on + 0.35 * hover);
+    rect(g, 1, 0, W - 2, 1, fr); rect(g, 1, H - 1, W - 2, 1, fr); rect(g, 0, 1, 1, H - 2, fr); rect(g, W - 1, 1, 1, H - 2, fr);
+    // Esquina: tres teclas blancas de 2x5 con dos grises encima, mirando hacia dentro.
+    const corner = (x0, y0, sx, sy) => {
+      for (let i = 0; i < 3; i++) for (let j = 0; j < 5; j++) for (let k = 0; k < 2; k++) rect(g, x0 + sx * (i * 3 + k), y0 + sy * j, 1, 1, 0xeef1fa);
+      for (const i of [1, 4]) for (let j = 0; j < 3; j++) rect(g, x0 + sx * (i + 0.5), y0 + sy * j, 1, 1, 0x55575f);
+    };
+    corner(2, 2, 1, 1); corner(W - 3, 2, -1, 1); corner(2, H - 3, 1, -1); corner(W - 3, H - 3, -1, -1);
+    status(g, 0xc9d0e6);
+  }
+
+  const cards = [[ctxOf('c1'), luna], [ctxOf('c2'), horizonte], [ctxOf('c3'), pilar], [ctxOf('c4'), aro]];
+  const t0 = performance.now();
+  (function loop(now) {
+    const t = reduce ? 0 : ((now || t0) - t0) / 1000;
+    on += (target.on - on) * 0.15; hover += (target.hover - hover) * 0.2;
+    for (const [g, fn] of cards) { g.clearRect(0, 0, W, H); fn(g, t); }
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
