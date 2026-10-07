@@ -112,5 +112,14 @@
 			}
 		],
 		"subtitle": "freedomclient.subtitle.guitar"
+	},
+	"guitar.flow": {
+		"sounds": [
+			{
+				"name": "freedomclient:guitar/flow",
+				"stream": true
+			}
+		],
+		"subtitle": "freedomclient.subtitle.guitar"
 	}
 }

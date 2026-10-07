@@ -47,6 +47,11 @@ public final class GuitarEmote {
 		return client.player != null && state.id == client.player.getId();
 	}
 
+	/** Segundos desde que empezó a tocar (la canción empieza a la vez), o 0 si no está tocando. */
+	public static double seconds() {
+		return playing ? (System.currentTimeMillis() - startedAt) / 1000.0 : 0.0;
+	}
+
 	/** Pulsos desde que empezó (con decimales). */
 	public static float beats() {
 		if (!playing) return 0.0F;

@@ -17,8 +17,9 @@ function part(name, w, h, d, px, py, ox, oy) {
   parts[name] = { pivot, w, h, d, ox, oy };
 }
 part('head', 8, 8, 8, 0, 24, 0, 4); part('body', 8, 12, 4, 0, 18, 0, 0);
-part('rArm', 4, 12, 4, -6, 22, 0, -4); part('lArm', 4, 12, 4, 6, 22, 0, -4);
-part('rLeg', 4, 12, 4, -2, 12, 0, -6); part('lLeg', 4, 12, 4, 2, 12, 0, -6);
+// Pivotes como en Minecraft: brazos en x = ±5 con el cubo 1 px hacia fuera, piernas en ±1,9.
+part('rArm', 4, 12, 4, -5, 22, -1, -4); part('lArm', 4, 12, 4, 5, 22, 1, -4);
+part('rLeg', 4, 12, 4, -1.9, 12, 0, -6); part('lLeg', 4, 12, 4, 1.9, 12, 0, -6);
 
 const top = RING.height + RING.amp;            // tapas en lo más alto de la ola
 const band = [RING.height - RING.amp - 3.75 - 0.3, RING.height + RING.amp + 2.75 + 0.3];

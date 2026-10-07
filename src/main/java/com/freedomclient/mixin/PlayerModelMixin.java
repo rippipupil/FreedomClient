@@ -22,6 +22,12 @@ public class PlayerModelMixin {
 	 */
 	@Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;)V", at = @At("TAIL"))
 	private void freedomclient$guitarEmote(AvatarRenderState state, CallbackInfo ci) {
+		// Void Keys: flotando o tocando, la pose sale del diseño.
+		com.freedomclient.cosmetic.vox.VoidKeysCosmetic.Frame frame = com.freedomclient.cosmetic.vox.VoidKeysCosmetic.frameOf(state);
+		if (frame != null) {
+			com.freedomclient.cosmetic.vox.VoidKeysCosmetic.applyPose((PlayerModel) (Object) this, frame);
+			return;
+		}
 		if (!GuitarEmote.isPlaying() || CosmeticPreview.of(state) != null || !GuitarEmote.isLocal(state)) return;
 		PlayerModel model = (PlayerModel) (Object) this;
 		float motion = GuitarEmote.motion();

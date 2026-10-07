@@ -422,18 +422,27 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
 			shoot(context, "juliet_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
+			// Void Keys: el aro de teclas alrededor y tu jugador flotando, de espaldas, de frente y de lado.
+			shoot(context, "void_keys_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
+			shoot(context, "void_keys_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
+			shoot(context, "void_keys_side", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 90.0F));
 			// Emote de tocar la guitarra (tecla X): Hades en las manos, de frente y de espaldas, y la Electric Guitar.
 			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class,
-					com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
+					com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class, com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
 				String name = guitarType == com.freedomclient.cosmetic.vox.GuitarCosmetic.class ? "electric"
-						: guitarType == com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class ? "juliet" : "hades";
+						: guitarType == com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class ? "juliet"
+						: guitarType == com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class ? "voidkeys" : "hades";
 				context.runOnClient(client -> {
 					cosmetic(guitarType).setEnabled(true);
 					client.player.setYRot(client.player.getYRot() + 150.0F);
 					client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
 					com.freedomclient.cosmetic.vox.GuitarEmote.start(client);
 				});
-				context.waitTicks(16);
+				// Void Keys tarda 1,5 s en entrar en la pose de tocar: se le deja tocar un poco más.
+				context.waitTicks(name.equals("voidkeys") ? 70 : 16);
 				context.takeScreenshot("guitar_emote_" + name + "_front");
 				context.runOnClient(client -> {
 					FreedomClient.LOGGER.info("[guitar] test: playing {} volume {} song {}", com.freedomclient.cosmetic.vox.GuitarEmote.isPlaying(),

@@ -220,6 +220,7 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.StarGuitarCosmetic());
 		add(new com.freedomclient.cosmetic.vox.HadesGuitarCosmetic());
 		add(new com.freedomclient.cosmetic.vox.JulietGuitarCosmetic());
+		add(new com.freedomclient.cosmetic.vox.VoidKeysCosmetic());
 		// Halloween y rastros de flores
 		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
 		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());

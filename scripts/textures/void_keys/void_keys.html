@@ -398,10 +398,11 @@ const FLOW_LENGTH = 205.3;
   }
   const head = part(8, 8, 8, 0, 24, 0, 0, 4, headMat);
   const body = part(8, 12, 4, 0, 18, 0, 0, 0, figMat);
-  const rArm = part(4, 12, 4, -6, 22, 0, 0, -4, figMat);
-  const lArm = part(4, 12, 4, 6, 22, 0, 0, -4, figMat);
-  const rLeg = part(4, 12, 4, -2, 12, 0, 0, -6, figMat);
-  const lLeg = part(4, 12, 4, 2, 12, 0, 0, -6, figMat);
+  // Pivotes como en Minecraft: los brazos giran en x = ±5 con el cubo 1 px hacia fuera; las piernas en ±1,9.
+  const rArm = part(4, 12, 4, -5, 22, 0, -1, -4, figMat);
+  const lArm = part(4, 12, 4, 5, 22, 0, 1, -4, figMat);
+  const rLeg = part(4, 12, 4, -1.9, 12, 0, 0, -6, figMat);
+  const lLeg = part(4, 12, 4, 1.9, 12, 0, 0, -6, figMat);
 
   // Partículas.
   const streakMeshes = streaks.map(() => { const g = build(STREAK); world.add(g); return g; });
