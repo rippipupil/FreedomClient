@@ -51,17 +51,17 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 // bloque), y hacia arriba, el jugador en el origen con los pies en y = 0 mirando a +z.
 // ============================================================================================
 const PAL = {
-  cap: 0xeef1fa,      // tapa de la tecla blanca
+  cap: 0xf2f3f5,      // tapa de la tecla blanca
   edge: 0xffffff,     // filo de luz del extremo (brilla)
-  side: 0xb9c0d6,     // bisel
-  body: 0x7f88a8,     // cuerpo de acero azulado
-  under: 0x3a4163,    // placa de abajo
-  shard: 0x232842,    // esquirla azul noche
-  shardHi: 0x4a537a,  // cara clara de la esquirla
-  black: 0x1b1f33,    // tecla negra
-  blackTop: 0x2e3452, // cresta de la tecla negra
-  line: 0x9aa6d8,     // línea de luz de la tecla negra (brilla)
-  mote: 0xf4f6ff,     // partícula blanca (brilla)
+  side: 0xcfd0d5,     // bisel
+  body: 0xa2a4ab,     // cuerpo gris claro
+  under: 0x6e7077,    // placa de abajo
+  shard: 0x3c3d43,    // esquirla gris oscuro
+  shardHi: 0x5c5e66,  // cara clara de la esquirla
+  black: 0x55575f,    // tecla gris (las "negras")
+  blackTop: 0x7a7c84, // cresta de la tecla gris
+  line: 0xe6e8ee,     // línea de luz de la tecla gris (brilla)
+  mote: 0xf6f7fa,     // partícula blanca (brilla)
   lit: 0xffffff       // tecla encendida
 };
 const GLOWING = ['edge', 'line', 'mote'];
@@ -69,21 +69,21 @@ const GLOWING = ['edge', 'line', 'mote'];
 // Cajas [x0, y0, z0, x1, y1, z1, color]: x a lo ancho de la tecla (centrada), y arriba (la tapa
 // termina en y = 0), z hacia fuera desde el borde de dentro del anillo.
 const WHITE_KEY = [
-  [-1.5, -0.5, 0.5, 1.5, 0, 5, 'cap'],
-  [-1.5, -1, 0, 1.5, -0.5, 0.5, 'side'],
-  [-1, -1.5, 0.5, 1, -0.5, 4.5, 'body'],
-  [-1.5, -1, 5, 1.5, 0, 5.5, 'edge'],
-  [-0.5, -2, 1.5, 0.5, -1.5, 3.5, 'under'],
-  [-0.5, -3, 2, 0.5, -2, 3, 'shard'],
-  [-0.25, -4, 2.25, 0.25, -3, 2.75, 'shard'],
-  [-0.5, -2.5, 2, 0, -2, 2.5, 'shardHi']
+  [-1.25, -0.5, 0.5, 1.25, 0, 3.5, 'cap'],
+  [-1.25, -1, 0, 1.25, -0.5, 0.5, 'side'],
+  [-0.75, -1, 0.5, 0.75, -0.5, 3, 'body'],
+  [-1.25, -0.75, 3.5, 1.25, 0, 4, 'edge'],
+  [-0.5, -1.5, 1, 0.5, -1, 2.5, 'under'],
+  [-0.25, -2.5, 1.5, 0.25, -1.5, 2, 'shard'],
+  [-0.125, -3, 1.625, 0.125, -2.5, 1.875, 'shard'],
+  [-0.25, -2, 1.5, 0, -1.5, 1.75, 'shardHi']
 ];
 const BLACK_KEY = [
-  [-0.75, 0, 2.5, 0.75, 1, 5, 'black'],
-  [-0.5, 1, 3, 0.5, 1.5, 5, 'blackTop'],
-  [-0.25, 1.5, 3.5, 0.25, 1.75, 5, 'line'],
-  [-0.5, 1, 5, 0.5, 2, 5.5, 'black'],
-  [-0.25, 2, 5, 0.25, 3, 5.5, 'black']
+  [-0.5, 0, 1.5, 0.5, 0.75, 3.5, 'black'],
+  [-0.25, 0.75, 2, 0.25, 1, 3.5, 'blackTop'],
+  [-0.125, 1, 2.5, 0.125, 1.125, 3.5, 'line'],
+  [-0.25, 0.75, 3.5, 0.25, 1.5, 4, 'black'],
+  [-0.125, 1.5, 3.5, 0.125, 2.25, 4, 'black']
 ];
 // Esquirla negra: un triángulo en escalones, fino, como los trozos de las referencias.
 const SHARD = [
@@ -96,8 +96,8 @@ const MOTE = [[-0.25, -0.25, -0.25, 0.25, 0.25, 0.25, 'mote']];
 
 const RING = {
   whites: 14,          // teclas blancas: dos octavas de do a si
-  inner: 9.5,          // radio del borde de dentro (los brazos llegan a 8)
-  height: 11,          // altura de las tapas sobre los pies
+  inner: 10,           // radio del borde de dentro (los brazos, algo abiertos, llegan a 9)
+  height: 17,          // altura de las tapas sobre los pies: un poco por debajo del pecho
   spin: 30,            // segundos por vuelta del anillo
   wave: 4,             // segundos por ola
   crests: 2,           // crestas de ola alrededor del anillo
@@ -152,11 +152,14 @@ function particle(p, t) {
   return { x: Math.sin(ang) * p.rad, y: RING.height - 8 + h, z: Math.cos(ang) * p.rad, s: p.size * grow * fade, rot: (p.spin || 0) * t };
 }
 
-// Flotar en tercera persona: subido y meciéndose, piernas juntas colgando, brazos un poco abiertos.
+// Flotar en tercera persona (como la referencia): subido y meciéndose, la pierna derecha doblada hacia
+// atrás, la izquierda colgando un poco adelantada, los brazos abajo algo abiertos y hacia atrás, la
+// cabeza un poco ladeada. Ángulos en radianes: piernas y brazos positivos = hacia atrás.
 function floatPose(t) {
   const b = Math.sin(2 * Math.PI * t / FLOAT.period);
-  return { lift: FLOAT.lift + FLOAT.bob * b, rightLeg: 0.12 + 0.05 * b, leftLeg: -0.08 - 0.05 * b,
-    armOut: 0.22 + 0.04 * b, armForward: -0.1 };
+  return { lift: FLOAT.lift + FLOAT.bob * b,
+    rightLeg: 0.55 + 0.06 * b, rightLegOut: 0.06, leftLeg: -0.18 - 0.04 * b, leftLegOut: 0.04,
+    armOut: 0.18 + 0.03 * b, armBack: 0.12, headTilt: 0.1, headNod: 0.08 };
 }
 
 // Partitura de "Flow" (timeline.py): [milisegundo, nota, fuerza], 710 notas.
@@ -311,8 +314,11 @@ const FLOW_LENGTH = 205.3;
 
     // Jugador: flota (o anda en el sitio) y, tocando, gira hacia la tecla y baja una mano.
     const fp = floatPose(t);
-    let lift = 0, rl = 0, ll = 0, armOut = 0.05, armFwd = 0;
-    if (floating || playing) { lift = fp.lift; rl = fp.rightLeg; ll = fp.leftLeg; armOut = fp.armOut; armFwd = fp.armForward; }
+    let lift = 0, rl = 0, ll = 0, rlo = 0, llo = 0, armOut = 0.05, armBack = 0, tilt = 0, nod = 0;
+    if (floating || playing) {
+      lift = fp.lift; rl = fp.rightLeg; ll = fp.leftLeg; rlo = fp.rightLegOut; llo = fp.leftLegOut;
+      armOut = fp.armOut; armBack = fp.armBack; tilt = fp.headTilt; nod = fp.headNod;
+    }
     else { const s = Math.sin(t * 6) * 0.5; rl = s; ll = -s; }
     fig.position.y = lift;
     let figYaw = fig.rotation.y;
@@ -321,13 +327,14 @@ const FLOW_LENGTH = 205.3;
       handHit = Math.max(0, handHit - dt / 0.25);
       rArm.rotation.set(-1.1 + (hand === 0 ? 0.35 * handHit : 0), 0, -0.35);
       lArm.rotation.set(-1.1 + (hand === 1 ? 0.35 * handHit : 0), 0, 0.35);
-      head.rotation.x = 0.35;
+      head.rotation.set(0.35, 0, 0);
     } else {
       figYaw += Math.atan2(Math.sin(-figYaw), Math.cos(-figYaw)) * Math.min(1, dt * 2);
-      rArm.rotation.set(armFwd, 0, armOut); lArm.rotation.set(armFwd, 0, -armOut); head.rotation.x = 0;
+      // El brazo derecho está en -x: abrirlo es girarlo en -z (y el izquierdo en +z).
+      rArm.rotation.set(armBack, 0, -armOut); lArm.rotation.set(armBack, 0, armOut); head.rotation.set(nod, 0, tilt);
     }
     fig.rotation.y = figYaw;
-    rLeg.rotation.x = rl; lLeg.rotation.x = ll;
+    rLeg.rotation.set(rl, 0, -rlo); lLeg.rotation.set(ll, 0, llo);
 
     // Partículas de ambiente.
     motes.forEach((p, i) => { const s = particle(p, t), m = moteMeshes[i]; m.visible = parts && s.s > 0.02; m.position.set(s.x, s.y, s.z); m.scale.setScalar(s.s); });
