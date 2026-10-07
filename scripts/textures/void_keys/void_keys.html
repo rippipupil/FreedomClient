@@ -53,6 +53,7 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 // ============================================================================================
 const PAL = {
   cap: 0xf2f3f5,      // tapa de la tecla blanca
+  capHi: 0xfcfcfd,    // lomo de la tapa (le da forma redondeada)
   edge: 0xffffff,     // filo de luz del extremo (brilla)
   side: 0xcfd0d5,     // bisel
   body: 0xa2a4ab,     // cuerpo gris claro
@@ -70,21 +71,30 @@ const GLOWING = ['edge', 'line', 'mote'];
 // Cajas [x0, y0, z0, x1, y1, z1, color]: x a lo ancho de la tecla (centrada), y arriba (la tapa
 // termina en y = 0), z hacia fuera desde el borde de dentro del anillo.
 const WHITE_KEY = [
-  [-1, -0.5, 0.5, 1, 0, 3.5, 'cap'],
-  [-1, -1, 0, 1, -0.5, 0.5, 'side'],
-  [-0.5, -1, 0.5, 0.5, -0.5, 3, 'body'],
-  [-1, -0.75, 3.5, 1, 0, 4, 'edge'],
-  [-0.5, -1.5, 1, 0.5, -1, 2.5, 'under'],
-  [-0.25, -2.5, 1.5, 0.25, -1.5, 2, 'shard'],
-  [-0.125, -3, 1.625, 0.125, -2.5, 1.875, 'shard'],
-  [-0.25, -2, 1.5, 0, -1.5, 1.75, 'shardHi']
+  // cuerpo gris y tapa blanca con el canto de dentro biselado
+  [-1, -1, 0.5, 1, -0.5, 4, 'body'],
+  [-1, -0.5, 0.25, 1, 0, 4, 'cap'],
+  [-0.75, 0, 0.5, 0.75, 0.125, 3.75, 'capHi'],
+  [-1, -0.75, 0, 1, -0.25, 0.25, 'side'],
+  // costura de luz a lo largo de la tapa y cara del extremo encendida
+  [-0.125, 0.125, 1, 0.125, 0.1875, 3.25, 'edge'],
+  [-1, -0.5, 4, 1, 0, 4.25, 'edge'],
+  // cristal facetado colgando debajo, como las púas de las referencias
+  [-0.5, -1.5, 1.25, 0.5, -1, 2.75, 'under'],
+  [-0.375, -2.25, 1.5, 0.375, -1.5, 2.5, 'shard'],
+  [-0.25, -3, 1.75, 0.25, -2.25, 2.25, 'shard'],
+  [-0.125, -3.75, 1.875, 0.125, -3, 2.125, 'shard'],
+  [-0.375, -2.25, 1.5, 0, -1.5, 1.75, 'shardHi']
 ];
 const BLACK_KEY = [
-  [-0.5, 0, 1.5, 0.5, 0.75, 3.5, 'black'],
-  [-0.25, 0.75, 2, 0.25, 1, 3.5, 'blackTop'],
-  [-0.125, 1, 2.5, 0.125, 1.125, 3.5, 'line'],
-  [-0.25, 0.75, 3.5, 0.25, 1.5, 4, 'black'],
-  [-0.125, 1.5, 3.5, 0.125, 2.25, 4, 'black']
+  // prisma gris elevado con la cresta biselada y una línea de luz
+  [-0.625, 0, 1.5, 0.625, 0.625, 4, 'black'],
+  [-0.375, 0.625, 1.75, 0.375, 0.875, 4, 'blackTop'],
+  [-0.125, 0.875, 2.25, 0.125, 0.9375, 3.75, 'line'],
+  [-0.625, 0, 4, 0.625, 0.625, 4.125, 'line'],
+  // cristalito suelto flotando sobre el extremo
+  [-0.25, 1.5, 3.25, 0.25, 2.25, 3.75, 'blackTop'],
+  [-0.125, 2.25, 3.375, 0.125, 2.75, 3.625, 'line']
 ];
 // Esquirla negra: un triángulo en escalones, fino, como los trozos de las referencias.
 const SHARD = [
@@ -97,7 +107,7 @@ const MOTE = [[-0.25, -0.25, -0.25, 0.25, 0.25, 0.25, 'mote']];
 
 const RING = {
   whites: 26,          // 44 teclas: 26 blancas y 18 grises, de do3 a sol6
-  inner: 10.5,         // radio del borde de dentro (los brazos, algo abiertos, llegan a 9)
+  inner: 14,           // radio del borde de dentro: aro amplio, con las teclas algo separadas
   height: 18.5,        // altura de las tapas sobre los pies: justo por debajo del pecho
   spin: 50,            // segundos por vuelta del anillo
   wave: 6,             // segundos por ola
@@ -139,8 +149,8 @@ const MOTES = 16, SHARDS = 9, RISE = 30;
 const motes = [], shards = [];
 {
   const r = rng(7);
-  for (let i = 0; i < MOTES; i++) motes.push({ a: r() * 6.283, rad: 6 + r() * 11, y0: r() * RISE, v: 2 + r() * 1.5, w: 0.2 + r() * 0.3, size: 0.8 + r() * 0.6 });
-  for (let i = 0; i < SHARDS; i++) shards.push({ a: r() * 6.283, rad: 8 + r() * 9, y0: r() * RISE, v: 1.2 + r() * 1.0, w: -0.15 - r() * 0.2,
+  for (let i = 0; i < MOTES; i++) motes.push({ a: r() * 6.283, rad: 8 + r() * 14, y0: r() * RISE, v: 2 + r() * 1.5, w: 0.2 + r() * 0.3, size: 0.8 + r() * 0.6 });
+  for (let i = 0; i < SHARDS; i++) shards.push({ a: r() * 6.283, rad: 10 + r() * 12, y0: r() * RISE, v: 1.2 + r() * 1.0, w: -0.15 - r() * 0.2,
     ax: [r() - 0.5, r() - 0.5, r() - 0.5], spin: 0.6 + r() * 1.2, size: 0.8 + r() * 0.5 });
 }
 // Estado de una partícula en el tiempo t: posición, tamaño (0 cuando desaparece) y giro.
@@ -165,21 +175,22 @@ function floatPose(t) {
     leftArmUp: 0.75 + 0.05 * b, leftArmForward: -0.35 };
 }
 
-// Acrobacias al estar quieto flotando: cada 20 s, una voltereta hacia atrás, un giro con los brazos
-// abiertos y una rueda de lado, despacio y con descansos. Devuelve el giro de todo el cuerpo (sobre
+// Acrobacias al estar quieto flotando: cada 32 s, una voltereta hacia atrás, un giro con los brazos
+// abiertos y una rueda de lado, muy despacio (5 s cada una), suaves y con descansos largos. Devuelve el giro de todo el cuerpo (sobre
 // su centro), lo que sube y cuánto encoge las piernas o abre los brazos.
-const ACRO = { cycle: 20, length: 2.6, moves: [{ at: 3, kind: 'flip' }, { at: 9.5, kind: 'spin' }, { at: 15.5, kind: 'wheel' }] };
+const ACRO = { cycle: 32, length: 5, lift: 1.5, tuck: 0.6, open: 0.6, moves: [{ at: 4, kind: 'flip' }, { at: 14, kind: 'spin' }, { at: 24, kind: 'wheel' }] };
 function acrobatics(idle) {
   const out = { pitch: 0, yaw: 0, roll: 0, lift: 0, tuck: 0, open: 0 };
   const c = idle % ACRO.cycle;
   for (const m of ACRO.moves) {
     const u = (c - m.at) / ACRO.length;
     if (u < 0 || u > 1) continue;
-    const e = 0.5 - 0.5 * Math.cos(Math.PI * u), arc = Math.sin(Math.PI * u);
-    out.lift = 2.5 * arc;
-    if (m.kind === 'flip') { out.pitch = -2 * Math.PI * e; out.tuck = arc; }
-    if (m.kind === 'spin') { out.yaw = 2 * Math.PI * e; out.open = arc; }
-    if (m.kind === 'wheel') { out.roll = 2 * Math.PI * e; out.open = arc; }
+    // Arranque y frenada muy suaves (sin tirones).
+    const e = u * u * u * (u * (u * 6 - 15) + 10), arc = Math.sin(Math.PI * u);
+    out.lift = ACRO.lift * arc;
+    if (m.kind === 'flip') { out.pitch = -2 * Math.PI * e; out.tuck = ACRO.tuck * arc; }
+    if (m.kind === 'spin') { out.yaw = 2 * Math.PI * e; out.open = ACRO.open * arc; }
+    if (m.kind === 'wheel') { out.roll = 2 * Math.PI * e; out.open = ACRO.open * arc; }
   }
   return out;
 }
@@ -206,7 +217,7 @@ const FLOW_LENGTH = 205.3;
   function build(boxes, own) {
     const g = new THREE.Group();
     for (const b of boxes) {
-      const m = new THREE.Mesh(geo, own && b[6] === 'cap' ? mats.cap.clone() : mats[b[6]]);
+      const m = new THREE.Mesh(geo, own && (b[6] === 'cap' || b[6] === 'capHi') ? mats[b[6]].clone() : mats[b[6]]);
       m.scale.set(b[3] - b[0], b[4] - b[1], b[5] - b[2]);
       m.position.set((b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2);
       g.add(m);
@@ -220,8 +231,8 @@ const FLOW_LENGTH = 205.3;
   function addKey(boxes, angle, white) {
     const pivot = new THREE.Group(); pivot.rotation.order = 'YXZ';
     const k = build(boxes, true); k.position.z = RING.inner; pivot.add(k); world.add(pivot);
-    const cap = k.children.find(m => m.material.type === 'MeshLambertMaterial' && m.material.color.getHex() === PAL.cap);
-    keys.push({ pivot, key: k, angle, white, light: 0, cap });
+    const caps = k.children.filter(m => m.material.type === 'MeshLambertMaterial' && [PAL.cap, PAL.capHi].includes(m.material.color.getHex()));
+    keys.push({ pivot, key: k, angle, white, light: 0, caps });
   }
   for (let i = 0; i < RING.whites; i++) addKey(WHITE_KEY, whiteAngle(i), true);
   for (let j = 0; j < RING.blacks.length; j++) addKey(BLACK_KEY, blackAngle(j), false);
@@ -250,7 +261,7 @@ const FLOW_LENGTH = 205.3;
   const shardPool = Array.from({ length: 12 }, () => { const g = build(SHARD); g.visible = false; world.add(g); return g; });
 
   // Estado de la vista.
-  let ry = -0.6, rx = 0.5, dist = 135, spin = true, pix = true, parts = true, floating = true, playing = false, acroOn = true;
+  let ry = -0.6, rx = 0.5, dist = 150, spin = true, pix = true, parts = true, floating = true, playing = false, acroOn = true;
   let playStart = 0, nextNote = 0, yaw = 0, hand = 0, handHit = 0;
   const now = document.getElementById('now');
 
@@ -334,7 +345,7 @@ const FLOW_LENGTH = 205.3;
       k.pivot.position.y = p.y - k.light * 0.5;
       k.pivot.rotation.x = p.tilt;
       k.light = Math.max(0, k.light - dt / 0.35);
-      if (k.cap) { k.cap.material.emissive.setRGB(k.light, k.light, k.light); }
+      for (const c of k.caps) c.material.emissive.setRGB(k.light, k.light, k.light);
     }
 
     // Jugador: flota (o anda en el sitio) y, tocando, gira hacia la tecla y baja una mano.
