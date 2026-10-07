@@ -33,12 +33,13 @@ button:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 <canvas id="c"></canvas>
 <header>
   <h1>VOID KEYS</h1>
-  <p>Teclado flotante del vacío: 24 teclas (dos octavas) en anillo alrededor del jugador, con olas suaves, partículas blancas y esquirlas negras que suben. Arrastra para girar, rueda para acercar.</p>
+  <p>Teclado flotante del vacío: 44 teclas en anillo alrededor del jugador, con olas suaves, partículas blancas y esquirlas negras que suben; quieto, el jugador hace acrobacias flotando. Arrastra para girar, rueda para acercar.</p>
   <div id="now" aria-live="polite"></div>
 </header>
 <div id="bar">
   <button id="bPlay" aria-pressed="false">Tocar Flow</button>
   <button id="bFloat" aria-pressed="true">Flotar</button>
+  <button id="bAcro" aria-pressed="true">Acrobacias</button>
   <button id="bPart" aria-pressed="true">Partículas</button>
   <button id="bPix" aria-pressed="true">Pixelado</button>
   <button id="bSpin" aria-pressed="true">Cámara periférica</button>
@@ -69,10 +70,10 @@ const GLOWING = ['edge', 'line', 'mote'];
 // Cajas [x0, y0, z0, x1, y1, z1, color]: x a lo ancho de la tecla (centrada), y arriba (la tapa
 // termina en y = 0), z hacia fuera desde el borde de dentro del anillo.
 const WHITE_KEY = [
-  [-1.25, -0.5, 0.5, 1.25, 0, 3.5, 'cap'],
-  [-1.25, -1, 0, 1.25, -0.5, 0.5, 'side'],
-  [-0.75, -1, 0.5, 0.75, -0.5, 3, 'body'],
-  [-1.25, -0.75, 3.5, 1.25, 0, 4, 'edge'],
+  [-1, -0.5, 0.5, 1, 0, 3.5, 'cap'],
+  [-1, -1, 0, 1, -0.5, 0.5, 'side'],
+  [-0.5, -1, 0.5, 0.5, -0.5, 3, 'body'],
+  [-1, -0.75, 3.5, 1, 0, 4, 'edge'],
   [-0.5, -1.5, 1, 0.5, -1, 2.5, 'under'],
   [-0.25, -2.5, 1.5, 0.25, -1.5, 2, 'shard'],
   [-0.125, -3, 1.625, 0.125, -2.5, 1.875, 'shard'],
@@ -95,24 +96,24 @@ const SHARD = [
 const MOTE = [[-0.25, -0.25, -0.25, 0.25, 0.25, 0.25, 'mote']];
 
 const RING = {
-  whites: 14,          // teclas blancas: dos octavas de do a si
-  inner: 10,           // radio del borde de dentro (los brazos, algo abiertos, llegan a 9)
-  height: 17,          // altura de las tapas sobre los pies: un poco por debajo del pecho
-  spin: 30,            // segundos por vuelta del anillo
-  wave: 4,             // segundos por ola
+  whites: 26,          // 44 teclas: 26 blancas y 18 grises, de do3 a sol6
+  inner: 10.5,         // radio del borde de dentro (los brazos, algo abiertos, llegan a 9)
+  height: 18.5,        // altura de las tapas sobre los pies: justo por debajo del pecho
+  spin: 50,            // segundos por vuelta del anillo
+  wave: 6,             // segundos por ola
   crests: 2,           // crestas de ola alrededor del anillo
-  amp: 1.0,            // altura de la ola
-  tilt: 0.15,          // cabeceo de cada tecla con la ola (radianes)
-  // teclas negras entre las blancas (do#, re#, fa#, sol#, la# de cada octava)
-  blacks: [0, 1, 3, 4, 5, 7, 8, 10, 11, 12]
+  amp: 0.6,            // altura de la ola
+  tilt: 0.08,          // cabeceo de cada tecla con la ola (radianes)
+  // teclas grises entre las blancas (do#, re#, fa#, sol#, la# de cada octava; en la última, hasta fa#)
+  blacks: [0, 1, 3, 4, 5, 7, 8, 10, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24]
 };
 const FLOAT = { lift: 3, bob: 0.8, period: 3.2 };
 
-// Nota (0-23, de do a si en dos octavas) -> tecla del anillo: {white: índice} o {black: índice}.
+// Nota (0-43, de do3 a sol6) -> tecla del anillo: {white: índice} o {black: índice}.
 const WHITE_OF = [0, null, 1, null, 2, 3, null, 4, null, 5, null, 6];
 const BLACK_OF = [null, 0, null, 1, null, null, 2, null, 3, null, 4, null];
 function noteKey(note) {
-  const oct = note >= 12 ? 1 : 0, s = note % 12;
+  const oct = Math.floor(note / 12), s = note % 12;
   return WHITE_OF[s] !== null ? { white: WHITE_OF[s] + oct * 7 } : { black: BLACK_OF[s] + oct * 5 };
 }
 
@@ -159,7 +160,28 @@ function floatPose(t) {
   const b = Math.sin(2 * Math.PI * t / FLOAT.period);
   return { lift: FLOAT.lift + FLOAT.bob * b,
     rightLeg: 0.55 + 0.06 * b, rightLegOut: 0.06, leftLeg: -0.18 - 0.04 * b, leftLegOut: 0.04,
-    armOut: 0.18 + 0.03 * b, armBack: 0.12, headTilt: 0.1, headNod: 0.08 };
+    armOut: 0.18 + 0.03 * b, armBack: 0.12, headTilt: 0.1, headNod: 0.08,
+    // el brazo izquierdo, un poco levantado hacia un lado y adelante
+    leftArmUp: 0.75 + 0.05 * b, leftArmForward: -0.35 };
+}
+
+// Acrobacias al estar quieto flotando: cada 20 s, una voltereta hacia atrás, un giro con los brazos
+// abiertos y una rueda de lado, despacio y con descansos. Devuelve el giro de todo el cuerpo (sobre
+// su centro), lo que sube y cuánto encoge las piernas o abre los brazos.
+const ACRO = { cycle: 20, length: 2.6, moves: [{ at: 3, kind: 'flip' }, { at: 9.5, kind: 'spin' }, { at: 15.5, kind: 'wheel' }] };
+function acrobatics(idle) {
+  const out = { pitch: 0, yaw: 0, roll: 0, lift: 0, tuck: 0, open: 0 };
+  const c = idle % ACRO.cycle;
+  for (const m of ACRO.moves) {
+    const u = (c - m.at) / ACRO.length;
+    if (u < 0 || u > 1) continue;
+    const e = 0.5 - 0.5 * Math.cos(Math.PI * u), arc = Math.sin(Math.PI * u);
+    out.lift = 2.5 * arc;
+    if (m.kind === 'flip') { out.pitch = -2 * Math.PI * e; out.tuck = arc; }
+    if (m.kind === 'spin') { out.yaw = 2 * Math.PI * e; out.open = arc; }
+    if (m.kind === 'wheel') { out.roll = 2 * Math.PI * e; out.open = arc; }
+  }
+  return out;
 }
 
 // Partitura de "Flow" (timeline.py): [milisegundo, nota, fuerza], 710 notas.
@@ -205,7 +227,9 @@ const FLOW_LENGTH = 205.3;
   for (let j = 0; j < RING.blacks.length; j++) addKey(BLACK_KEY, blackAngle(j), false);
 
   // Jugador de referencia (silueta azulada, sin skin): cabeza, cuerpo, brazos y piernas como en Minecraft.
-  const fig = new THREE.Group(); world.add(fig);
+  // El cuerpo gira en las acrobacias sobre su centro (16 px sobre los pies).
+  const acro = new THREE.Group(); world.add(acro);
+  const fig = new THREE.Group(); fig.position.y = -16; acro.add(fig);
   const figMat = new THREE.MeshLambertMaterial({ color: 0x4a5170 }), headMat = new THREE.MeshLambertMaterial({ color: 0x69718f });
   function part(w, h, d, px, py, pz, ox, oy, mat) {
     const pivot = new THREE.Group(); pivot.position.set(px, py, pz);
@@ -226,7 +250,7 @@ const FLOW_LENGTH = 205.3;
   const shardPool = Array.from({ length: 12 }, () => { const g = build(SHARD); g.visible = false; world.add(g); return g; });
 
   // Estado de la vista.
-  let ry = -0.6, rx = 0.5, dist = 135, spin = true, pix = true, parts = true, floating = true, playing = false;
+  let ry = -0.6, rx = 0.5, dist = 135, spin = true, pix = true, parts = true, floating = true, playing = false, acroOn = true;
   let playStart = 0, nextNote = 0, yaw = 0, hand = 0, handHit = 0;
   const now = document.getElementById('now');
 
@@ -269,6 +293,7 @@ const FLOW_LENGTH = 205.3;
   toggle('bPix', () => { pix = !pix; size(); return pix; });
   toggle('bPart', () => parts = !parts);
   toggle('bFloat', () => floating = !floating);
+  toggle('bAcro', () => acroOn = !acroOn);
   toggle('bPlay', () => { playing = !playing; playStart = performance.now(); nextNote = 0; now.textContent = playing ? '♪ Flow — Creo (sin sonido en la vista previa: las teclas siguen la partitura)' : ''; return playing; });
 
   function spawnBurst(k, t, strength) {
@@ -320,7 +345,10 @@ const FLOW_LENGTH = 205.3;
       armOut = fp.armOut; armBack = fp.armBack; tilt = fp.headTilt; nod = fp.headNod;
     }
     else { const s = Math.sin(t * 6) * 0.5; rl = s; ll = -s; }
-    fig.position.y = lift;
+    // Quieto y flotando (sin tocar): acrobacias.
+    const ac = (floating && acroOn && !playing) ? acrobatics(t) : acrobatics(-1);
+    acro.position.y = 16 + lift + ac.lift;
+    acro.rotation.set(ac.pitch, ac.yaw, ac.roll, 'YXZ');
     let figYaw = fig.rotation.y;
     if (playing) {
       let d = yaw - figYaw; d = Math.atan2(Math.sin(d), Math.cos(d)); figYaw += d * Math.min(1, dt * 6);
@@ -331,7 +359,13 @@ const FLOW_LENGTH = 205.3;
     } else {
       figYaw += Math.atan2(Math.sin(-figYaw), Math.cos(-figYaw)) * Math.min(1, dt * 2);
       // El brazo derecho está en -x: abrirlo es girarlo en -z (y el izquierdo en +z).
-      rArm.rotation.set(armBack, 0, -armOut); lArm.rotation.set(armBack, 0, armOut); head.rotation.set(nod, 0, tilt);
+      const lUp = (floating ? fp.leftArmUp : armOut), lFwd = (floating ? fp.leftArmForward : armBack);
+      // En los giros abre los dos brazos; en la voltereta encoge las piernas.
+      const mix = (v, to, k) => v + (to - v) * k;
+      rArm.rotation.set(mix(armBack, -0.2, ac.tuck), 0, mix(-armOut, -1.4, ac.open));
+      lArm.rotation.set(mix(lFwd, -0.2, ac.tuck), 0, mix(lUp, 1.4, ac.open));
+      head.rotation.set(nod, 0, tilt);
+      rl = mix(rl, -1.3, ac.tuck); ll = mix(ll, -1.2, ac.tuck);
     }
     fig.rotation.y = figYaw;
     rLeg.rotation.set(rl, 0, -rlo); lLeg.rotation.set(ll, 0, llo);
