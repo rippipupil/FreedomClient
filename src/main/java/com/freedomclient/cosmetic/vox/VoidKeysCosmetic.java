@@ -177,13 +177,34 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 	 */
 	public static void applyFloat(AvatarRenderState state, PoseStack poseStack) {
 		Frame frame = frameOf(state);
-		if (frame == null) return;
-		VoidKeysMotion.Pose p = frame.pose();
+		if (frame != null) floatTransform(frame.pose(), poseStack);
+	}
+
+	/** Lo que hace {@link #applyFloat}: subir el cuerpo, inclinarlo y mecerlo sobre su centro. */
+	public static void floatTransform(VoidKeysMotion.Pose p, PoseStack poseStack) {
 		poseStack.translate(0.0F, (float) (CENTER + p.lift) * MODEL_PX, 0.0F);
 		poseStack.mulPose(Axis.YP.rotation((float) p.yaw));
 		poseStack.mulPose(Axis.XP.rotation((float) -p.pitch));
 		poseStack.mulPose(Axis.ZP.rotation((float) -p.roll));
 		poseStack.translate(0.0F, -CENTER * MODEL_PX, 0.0F);
+	}
+
+	/**
+	 * Del espacio del modelo (y hacia abajo, origen 1,501 bloques sobre los pies) al del aro en el diseño: los pies en
+	 * el origen, y hacia arriba, sin lo que flota e inclina el cuerpo ({@code p}, o null) ni el giro del cuerpo.
+	 */
+	public static void ringFrame(VoidKeysMotion.Pose p, float bodyRot, PoseStack poseStack) {
+		poseStack.translate(0.0F, MODEL_FEET, 0.0F);
+		poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+		if (p != null) {
+			poseStack.translate(0.0F, CENTER / 16.0F, 0.0F);
+			poseStack.mulPose(Axis.ZP.rotation((float) -p.roll));
+			poseStack.mulPose(Axis.XP.rotation((float) -p.pitch));
+			poseStack.mulPose(Axis.YP.rotation((float) -p.yaw));
+			poseStack.translate(0.0F, (float) -(CENTER + p.lift) / 16.0F, 0.0F);
+		}
+		// El mundo es Ry(-bodyRot) del diseño: se deshace para que el aro no gire con el cuerpo.
+		poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot));
 	}
 
 	private static final Quaternionf PART = new Quaternionf();
@@ -288,27 +309,16 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 		Frame frame = frameOf(state);
 		double t = preview || frame == null ? state.ageInTicks / 20.0 : frame.t();
 		poseStack.pushPose();
-		// Del espacio del modelo (y hacia abajo, origen 1,501 bloques sobre los pies) al del diseño: los pies en el
-		// origen, y hacia arriba y el jugador mirando a +z. Es medio giro sobre x.
-		poseStack.translate(0.0F, MODEL_FEET, 0.0F);
-		poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
 		if (preview) {
 			// En la tarjeta del menú, el aro más pequeño para que quepa.
+			ringFrame(null, 0.0F, poseStack);
 			poseStack.translate(0.0F, 12.0F / 16.0F, 0.0F);
 			poseStack.scale(0.55F, 0.55F, 0.55F);
 			poseStack.translate(0.0F, -12.0F / 16.0F, 0.0F);
+		} else {
+			// El aro no flota, ni se inclina, ni gira con el cuerpo: se deshace lo que hizo applyFloat y el giro.
+			ringFrame(frame != null ? frame.pose() : null, state.bodyRot, poseStack);
 		}
-		if (frame != null) {
-			// El aro no flota ni se inclina con el cuerpo: se deshace lo que hizo applyFloat.
-			VoidKeysMotion.Pose p = frame.pose();
-			poseStack.translate(0.0F, CENTER / 16.0F, 0.0F);
-			poseStack.mulPose(Axis.ZP.rotation((float) -p.roll));
-			poseStack.mulPose(Axis.XP.rotation((float) -p.pitch));
-			poseStack.mulPose(Axis.YP.rotation((float) -p.yaw));
-			poseStack.translate(0.0F, (float) -(CENTER + p.lift) / 16.0F, 0.0F);
-		}
-		// El aro y las partículas no giran con el cuerpo: se quita su giro (el mundo es Ry(-bodyRot) del diseño).
-		if (!preview) poseStack.mulPose(Axis.YP.rotationDegrees(state.bodyRot));
 		drawKeys(poseStack, collector, light, t, frame);
 		if (particles.get() && !preview) {
 			drawParticles(poseStack, collector, light, t);

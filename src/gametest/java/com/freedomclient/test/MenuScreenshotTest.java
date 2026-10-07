@@ -74,6 +74,55 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 	}
 
 	/** Activa esos cosméticos, pone la cámara, espera un poco, hace la captura y los vuelve a apagar. */
+	/**
+	 * Void Keys: dónde acaban la mano derecha, el pie derecho y una tecla con la pose de prueba, calculado como lo
+	 * dibuja el juego y como lo calcula el diseño (en píxeles del modelo, con los pies en el origen y el mundo sin
+	 * girar). Si coinciden, cada parte va hacia donde debe y el aro no se mueve con el cuerpo.
+	 */
+	private static void checkVoidKeysChain(net.minecraft.client.Minecraft client, float bodyRot) {
+		com.freedomclient.cosmetic.vox.VoidKeysMotion.Pose test = com.freedomclient.cosmetic.vox.VoidKeysCosmetic.testPose;
+		net.minecraft.client.model.player.PlayerModel model = (net.minecraft.client.model.player.PlayerModel)
+				((net.minecraft.client.renderer.entity.LivingEntityRenderer<?, ?, ?>) client.getEntityRenderDispatcher().getRenderer(client.player)).getModel();
+		com.freedomclient.cosmetic.vox.VoidKeysCosmetic.applyPose(model, new com.freedomclient.cosmetic.vox.VoidKeysCosmetic.Frame(test, 0, false, 0));
+		// Lo que hace el juego hasta el espacio del modelo.
+		java.util.function.Supplier<com.mojang.blaze3d.vertex.PoseStack> root = () -> {
+			com.mojang.blaze3d.vertex.PoseStack ps = new com.mojang.blaze3d.vertex.PoseStack();
+			ps.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F - bodyRot));
+			com.freedomclient.cosmetic.vox.VoidKeysCosmetic.floatTransform(test, ps);
+			ps.scale(-1.0F, -1.0F, 1.0F);
+			ps.scale(0.9375F, 0.9375F, 0.9375F);
+			ps.translate(0.0F, -1.501F, 0.0F);
+			return ps;
+		};
+		float px = 16.0F / 0.9375F;
+		com.mojang.blaze3d.vertex.PoseStack ps = root.get();
+		model.rightArm.translateAndRotate(ps);
+		org.joml.Vector3f hand = ps.last().pose().transformPosition(new org.joml.Vector3f(-1.0F / 16.0F, 10.0F / 16.0F, 0.0F)).mul(px);
+		ps = root.get();
+		model.rightLeg.translateAndRotate(ps);
+		org.joml.Vector3f foot = ps.last().pose().transformPosition(new org.joml.Vector3f(0.0F, 12.0F / 16.0F, 0.0F)).mul(px);
+		ps = root.get();
+		com.freedomclient.cosmetic.vox.VoidKeysCosmetic.ringFrame(test, bodyRot, ps);
+		double[] kp = new double[3];
+		com.freedomclient.cosmetic.vox.VoidKeysMotion.keyPose(com.freedomclient.cosmetic.vox.VoidKeysMotion.keyAngle(3), 0, kp);
+		ps.mulPose(com.mojang.math.Axis.YP.rotation((float) kp[0]));
+		ps.translate(0.0F, (float) kp[1] / 16.0F, 0.0F);
+		ps.mulPose(com.mojang.math.Axis.XP.rotation((float) kp[2]));
+		ps.translate(0.0F, 0.0F, (float) com.freedomclient.cosmetic.vox.VoidKeysMotion.INNER / 16.0F);
+		org.joml.Vector3f key = ps.last().pose().transformPosition(new org.joml.Vector3f()).mul(px);
+		// Lo que dice el diseño (y hacia arriba; el mundo es el diseño girado -bodyRot, y el aro no gira).
+		org.joml.Matrix4f body = new org.joml.Matrix4f().rotateY((float) Math.toRadians(-bodyRot)).translate(0, (float) (16 + test.lift), 0)
+				.rotateY((float) test.yaw).rotateX((float) test.pitch).rotateZ((float) test.roll).translate(0, -16, 0);
+		org.joml.Vector3f wantHand = new org.joml.Matrix4f(body).translate(-5, 22, 0).rotateX((float) test.rArmX).rotateZ((float) test.rArmZ)
+				.transformPosition(new org.joml.Vector3f(-1, -10, 0));
+		org.joml.Vector3f wantFoot = new org.joml.Matrix4f(body).translate(-1.9F, 12, 0).rotateX((float) test.rLegX).rotateZ((float) test.rLegZ)
+				.transformPosition(new org.joml.Vector3f(0, -12, 0));
+		org.joml.Vector3f wantKey = new org.joml.Matrix4f().translate(0, (float) kp[1], 0).rotateY((float) kp[0]).rotateX((float) kp[2])
+				.translate(0, 0, (float) com.freedomclient.cosmetic.vox.VoidKeysMotion.INNER).transformPosition(new org.joml.Vector3f());
+		FreedomClient.LOGGER.info("[voidkeys] check bodyRot {}: hand {} want {} (off {}), foot {} want {} (off {}), key {} want {} (off {})", bodyRot,
+				hand, wantHand, hand.distance(wantHand), foot, wantFoot, foot.distance(wantFoot), key, wantKey, key.distance(wantKey));
+	}
+
 	private static void shoot(ClientGameTestContext context, String name, net.minecraft.client.CameraType camera, Class<?>... types) {
 		context.runOnClient(client -> {
 			for (Class<?> type : types) cosmetic(type).setEnabled(true);
@@ -440,6 +489,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				test.lLegX = -0.4;
 				com.freedomclient.cosmetic.vox.VoidKeysCosmetic.testPose = test;
 			});
+			// Comprobación con números: la misma cadena de transformaciones que el juego (giro del cuerpo, flotar,
+			// volteo y escala del modelo, partes reales del PlayerModel) frente a las cuentas del diseño.
+			context.runOnClient(client -> checkVoidKeysChain(client, 0.0F));
+			context.runOnClient(client -> checkVoidKeysChain(client, 37.0F));
 			shoot(context, "void_keys_test_side", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 60.0F));
 			shoot(context, "void_keys_test_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
