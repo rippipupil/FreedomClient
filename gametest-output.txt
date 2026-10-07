@@ -1,0 +1,400 @@
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+[18:24:43] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+	at knot//net.minecraft.class_1255.method_16075(class_1255.java:143)
+	at knot//net.minecraft.class_1255.method_5383(class_1255.java:124)
+	at knot//net.minecraft.class_310.method_1523(class_310.java:1339)
+	at knot//net.minecraft.class_310.method_1514$mixinextras$wrapped$306(class_310.java:966)
+	at knot//net.minecraft.class_310.mixinextras$bridge$method_1514$mixinextras$wrapped$306$307(class_310.java)
+	at knot//net.minecraft.class_310.wrapMethod$zoh000$fabric-client-gametest-api-v1$onRun(class_310.java:5164)
+	at knot//net.minecraft.class_310.method_1514(class_310.java)
+	at knot//net.minecraft.client.main.Main.main(Main.java:250)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:514)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+[18:24:43] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 4096x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/beds.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/items.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/signs.png-atlas
+[18:24:43] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[18:24:44] [Render thread/INFO]: 29675 cache(s) were cleared!
+[18:24:47] [Render thread/INFO]: Loaded 1470 recipes
+[18:24:47] [Render thread/INFO]: Loaded 1584 advancements
+[18:24:47] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_424@1202da5c
+[18:24:47] [Render thread/INFO]: Applied 0 biome modifications to 0 of 65 new biomes in 1.490 ms
+[18:24:47] [Server thread/INFO]: Starting integrated minecraft server version 1.21.11
+[18:24:47] [Server thread/INFO]: Generating keypair
+[18:24:47] [Server thread/INFO]: Enforcing safe world random access
+[18:24:48] [Server thread/INFO]: [STDOUT]: Density function compilation finished in 73.89 ms
+[18:24:48] [Server thread/INFO]: Using TheSpeedyObjectFactory with Unsafe
+[18:24:48] [Server thread/INFO]: Selecting global world spawn...
+[18:24:49] [Server thread/INFO]: [STDOUT]: Density function compilation finished in 24.97 ms
+[18:24:49] [Server thread/INFO]: [STDOUT]: Density function compilation finished in 8.442 ms
+[18:24:49] [Server thread/INFO]: Loading 0 persistent chunks...
+[18:24:49] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:49] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:49] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:49] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:50] [Server thread/INFO]: Loading 0 chunks for player spawn...
+[18:24:50] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:50] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:50] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:50] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:50] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:51] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:51] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:51] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:51] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:51] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:51] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 2092ms or 41 ticks behind
+[18:24:51] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:51] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:51] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:52] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:52] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:52] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:52] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:52] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:52] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:53] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:53] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:53] [Server thread/INFO]: Preparing spawn area: 16%
+[18:24:53] [Server thread/INFO]: Time elapsed: 5121 ms
+[18:24:53] [Render thread/INFO]: World loading finished: null screen: net.minecraft.class_3928@74b00f4a
+[18:24:53] [Server thread/INFO]: Player291[local:E:dadb6be0] logged in with entity id 1 at (7.5, -60.0, 4.5)
+[18:24:53] [Server thread/INFO]: Player291 joined the game
+[18:24:54] [Server thread/INFO]: Changing view distance to 5, from 10
+[18:24:54] [Server thread/INFO]: Changing simulation distance to 12, from 0
+[18:24:54] [Render thread/INFO]: Started 1 worker threads
+[18:24:54] [Render thread/INFO]: Loaded 2 advancements
+[18:24:54] [Render thread/INFO]: World loading finished: ClientLevel screen: net.minecraft.class_3928@74b00f4a
+[18:24:54] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 2 reached during a single frame. New capacity will be 4.
+[18:24:54] [Render thread/INFO]: World loading finished: ClientLevel screen: null
+[18:24:54] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 4 reached during a single frame. New capacity will be 8.
+[18:24:57] [Server thread/INFO]: Set the time to 6000
+[18:24:57] [Server thread/INFO]: Set the weather to clear
+[18:24:57] [Server thread/INFO]: Player291 has made the advancement [Cover Me with Diamonds]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Diamond Helmet]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Diamond Chestplate]
+[18:24:57] [Server thread/INFO]: Player291 has made the advancement [Suit Up]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Iron Leggings]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Golden Boots]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Diamond Sword]
+[18:24:57] [Server thread/INFO]: Replaced a slot on Player291 with [Steak]
+[18:24:57] [Server thread/INFO]: Gave 16 [Ender Pearl] to Player291
+[18:24:57] [Server thread/INFO]: Gave 12 [Golden Apple] to Player291
+[18:24:57] [Server thread/INFO]: Gave 2 [Totem of Undying] to Player291
+[18:24:57] [Server thread/INFO]: Gave 5 [Splash Uncraftable Potion] to Player291
+[18:24:57] [Server thread/INFO]: Gave 64 [Arrow] to Player291
+[18:24:57] [Server thread/INFO]: Player291 has made the advancement [Stone Age]
+[18:24:57] [Server thread/INFO]: Gave 64 [Cobblestone] to Player291
+[18:24:57] [Server thread/INFO]: Created new objective [FreedomClient]
+[18:24:57] [Server thread/INFO]: Set display slot sidebar to show objective FreedomClient
+[18:24:57] [Server thread/INFO]: Set [FreedomClient] for Kills to 12
+[18:24:57] [Server thread/INFO]: Set [FreedomClient] for Deaths to 2
+[18:24:57] [Server thread/INFO]: Set [FreedomClient] for Streak to 5
+[18:24:57] [Server thread/INFO]: Applied effect Speed to Player291
+[18:24:57] [Server thread/INFO]: Applied effect Strength to Player291
+[18:24:57] [Server thread/INFO]: Applied effect Fire Resistance to Player291
+[18:24:57] [Server thread/INFO]: Successfully filled 32 block(s)
+[18:24:57] [Server thread/INFO]: Changed the block at 4, -60, 8
+[18:24:57] [Server thread/INFO]: Changed the block at 13, -60, 14
+[18:24:57] [Server thread/INFO]: Summoned new Diamond Sword
+[18:24:57] [Server thread/INFO]: Summoned new Golden Apple
+[18:24:57] [Server thread/INFO]: Summoned new Armor Stand
+[18:24:57] [Render thread/INFO]: [System] [CHAT] [Player291 head] Player291 has made the advancement [Cover Me with Diamonds]
+[18:24:57] [Render thread/INFO]: [System] [CHAT] [Player291 head] Player291 has made the advancement [Suit Up]
+[18:24:57] [Render thread/INFO]: [System] [CHAT] [Player291 head] Player291 has made the advancement [Stone Age]
+[18:24:57] [Render thread/INFO]: Loaded 31 advancements
+[18:24:58] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 8 reached during a single frame. New capacity will be 16.
+[18:25:19] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 13180ms or 263 ticks behind
+[18:25:26] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.580000
+[18:25:38] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 3987ms or 79 ticks behind
+[18:25:41] [Render thread/INFO]: [guitar] playing guitar.hades (target volume 0.25)
+[18:25:43] [Render thread/INFO]: [guitar] playing guitar.juliet (target volume 0.25)
+[18:25:45] [Render thread/INFO]: [guitar] playing guitar.flow (target volume 0.25)
+[18:25:47] [Render thread/INFO]: [voidkeys] check bodyRot 0.0: hand (-6.499E+0  2.180E+1  1.127E+1) want (-6.499E+0  2.179E+1  1.126E+1) (off 0.016013702), foot (-1.900E+0  7.735E+0 -1.058E+1) want (-1.900E+0  7.719E+0 -1.058E+1) (off 0.016004482), key ( 1.061E+1  2.075E+1  1.198E+1) want ( 1.061E+1  2.075E+1  1.198E+1) (off 2.861023E-6)
+[18:25:47] [Render thread/INFO]: [voidkeys] check bodyRot 37.0: hand (-1.197E+1  2.180E+1  5.089E+0) want (-1.197E+1  2.179E+1  5.085E+0) (off 0.016014269), foot ( 4.848E+0  7.735E+0 -9.591E+0) want ( 4.851E+0  7.719E+0 -9.595E+0) (off 0.016004572), key ( 1.061E+1  2.075E+1  1.198E+1) want ( 1.061E+1  2.075E+1  1.198E+1) (off 4.672031E-6)
+[18:25:47] [Render thread/INFO]: [guitar] emote start (Hades, 24.5 bpm)
+[18:25:47] [Render thread/INFO]: [guitar] playing guitar.hades (target volume 1.0)
+[18:25:48] [Render thread/INFO]: [guitar] test: playing true volume 0.68 song guitar.hades
+[18:25:49] [Render thread/INFO]: [guitar] emote stop (test)
+[18:25:49] [Render thread/INFO]: [guitar] emote start (Juliet, 70.0 bpm)
+[18:25:49] [Render thread/INFO]: [guitar] playing guitar.juliet (target volume 1.0)
+[18:25:50] [Render thread/INFO]: [guitar] test: playing true volume 0.68 song guitar.juliet
+[18:25:50] [Render thread/INFO]: [guitar] emote stop (test)
+[18:25:50] [Render thread/INFO]: [guitar] emote start (Void Keys, 110.0 bpm)
+[18:25:50] [Render thread/INFO]: [guitar] playing guitar.flow (target volume 1.0)
+[18:25:50] [Render thread/INFO]: [voidkeys] score loaded: 710 notes
+[18:25:54] [Render thread/INFO]: [guitar] test: playing true volume 1.0 song guitar.flow
+[18:25:56] [Render thread/INFO]: [guitar] emote stop (test)
+[18:25:56] [Render thread/INFO]: [guitar] emote start (Electric Guitar, 110.0 bpm)
+[18:25:57] [Render thread/INFO]: [guitar] test: playing true volume 0.0 song null
+[18:25:58] [Render thread/INFO]: [guitar] emote stop (test)
+[18:25:58] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 4970ms or 99 ticks behind
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.330000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.080000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.830000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.580000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.330000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.080000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.830000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.580000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.330000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.080000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.830000
+[18:26:04] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.580000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.330000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.080000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.330000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.580000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 7.830000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.080000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.330000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.580000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 8.830000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.080000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.330000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.580000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 9.830000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.080000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.330000
+[18:26:05] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 10.580000
+[18:26:07] [Server thread/INFO]: Player291 has reached the goal [Sky's the Limit]
+[18:26:07] [Server thread/INFO]: Replaced a slot on Player291 with [Elytra]
+[18:26:07] [Render thread/INFO]: [System] [CHAT] [Player291 head] Player291 has reached the goal [Sky's the Limit]
+[18:26:07] [Render thread/INFO]: Loaded 36 advancements
+[18:26:08] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 16 reached during a single frame. New capacity will be 32.
+[18:26:09] [Server thread/INFO]: Replaced a slot on Player291 with [Air]
+[18:26:13] [Server thread/INFO]: Replaced a slot on Player291 with [Iron Helmet]
+[18:26:13] [Server thread/INFO]: Replaced a slot on Player291 with [Diamond Chestplate]
+[18:26:13] [Server thread/INFO]: Replaced a slot on Player291 with [Air]
+[18:26:13] [Server thread/INFO]: Replaced a slot on Player291 with [Elytra]
+[18:26:14] [Server thread/INFO]: Replaced a slot on Player291 with [Air]
+[18:26:18] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 5010ms or 100 ticks behind
+[18:26:29] [Server thread/INFO]: Saving and pausing game...
+[18:26:29] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[18:26:29] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[18:26:29] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[18:26:31] [Render thread/INFO]: Changing view distance to 5 (play stage)
+[18:26:31] [Server thread/INFO]: Replaced a slot on Player291 with [Golden Apple]
+[18:26:32] [Render thread/INFO]: Reloading ResourceManager: vanilla, c2me, cloth-config, conditional-mixin, continuity, debugify, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, freedomclient, immediatelyfast, krypton, lithium, moreculling, sodium, sodium-extra, yet_another_config_lib_v3, freedomclient_pack
+[18:26:32] [Worker-Main-5/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+[18:26:32] [Server thread/INFO]: Saving and pausing game...
+[18:26:32] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[18:26:32] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[18:26:32] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[18:26:32] [Worker-Main-5/INFO]: Found unifont_jp_patch-17.0.01.hex, loading
+[18:26:32] [Worker-Main-5/INFO]: Found unifont_pua-17.0.01.hex, loading
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+[18:26:35] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+	at knot//net.minecraft.class_1255.method_16075(class_1255.java:143)
+	at knot//net.minecraft.class_1255.method_5383(class_1255.java:124)
+	at knot//net.minecraft.class_310.method_1523(class_310.java:1339)
+	at knot//net.minecraft.class_310.method_1514$mixinextras$wrapped$306(class_310.java:966)
+	at knot//net.minecraft.class_310.mixinextras$bridge$method_1514$mixinextras$wrapped$306$307(class_310.java)
+	at knot//net.minecraft.class_310.wrapMethod$zoh000$fabric-client-gametest-api-v1$onRun(class_310.java:5164)
+	at knot//net.minecraft.class_310.method_1514(class_310.java)
+	at knot//net.minecraft.client.main.Main.main(Main.java:250)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:514)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+[18:26:35] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 4096x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/beds.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/items.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/signs.png-atlas
+[18:26:35] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[18:26:35] [Render thread/INFO]: 29675 cache(s) were cleared!
+[18:26:35] [Render thread/INFO]: Stopping worker threads
+[18:26:35] [Render thread/INFO]: Started 1 worker threads
+[18:26:38] [Render thread/INFO]: Reloading ResourceManager: vanilla, c2me, cloth-config, conditional-mixin, continuity, debugify, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-client-gametest-api-v1, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, freedomclient, immediatelyfast, krypton, lithium, moreculling, sodium, sodium-extra, yet_another_config_lib_v3, freedomclient_pack
+[18:26:39] [Worker-Main-15/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+[18:26:39] [Server thread/INFO]: Saving and pausing game...
+[18:26:39] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[18:26:39] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[18:26:39] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[18:26:39] [Worker-Main-15/INFO]: Found unifont_jp_patch-17.0.01.hex, loading
+[18:26:39] [Worker-Main-15/INFO]: Found unifont_pua-17.0.01.hex, loading
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5208:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5731:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+[18:26:40] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+	at knot//net.minecraft.class_1255.method_16075(class_1255.java:143)
+	at knot//net.minecraft.class_1255.method_5383(class_1255.java:124)
+	at knot//net.minecraft.class_310.method_1523(class_310.java:1339)
+	at knot//net.minecraft.class_310.method_1514$mixinextras$wrapped$306(class_310.java:966)
+	at knot//net.minecraft.class_310.mixinextras$bridge$method_1514$mixinextras$wrapped$306$307(class_310.java)
+	at knot//net.minecraft.class_310.wrapMethod$zoh000$fabric-client-gametest-api-v1$onRun(class_310.java:5164)
+	at knot//net.minecraft.class_310.method_1514(class_310.java)
+	at knot//net.minecraft.client.main.Main.main(Main.java:250)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:514)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+[18:26:40] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 4096x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/beds.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/items.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/signs.png-atlas
+[18:26:40] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[18:26:40] [Render thread/INFO]: 29675 cache(s) were cleared!
+[18:26:40] [Render thread/INFO]: Stopping worker threads
+[18:26:40] [Render thread/INFO]: Started 1 worker threads
+[18:26:44] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 10709ms or 214 ticks behind
+[18:26:44] [Server thread/INFO]: Replaced a slot on Player291 with [Diamond Sword]
+[18:26:44] [Server thread/INFO]: Replaced a slot on Player291 with [Totem of Undying]
+[18:26:44] [Server thread/INFO]: Player291 has reached the goal [Postmortal]
+[18:26:44] [Server thread/INFO]: Applied 60.0 damage to Player291
+[18:26:44] [Render thread/INFO]: [System] [CHAT] [Player291 head] Player291 has reached the goal [Postmortal]
+[18:26:44] [Render thread/INFO]: Loaded 39 advancements
+[18:26:47] [Server thread/INFO]: Summoned new Iron Golem
+[18:26:48] [Server thread/INFO]: Killed Iron Golem
+[18:26:48] [Server thread/INFO]: Summoned new Slime
+[18:26:49] [Server thread/INFO]: Teleported Slime to 0.000000, -300.000000, 0.000000
+[18:26:54] [Server thread/INFO]: Saving and pausing game...
+[18:26:54] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[18:26:54] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[18:26:54] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[18:26:55] [Render thread/ERROR]: ########## GL ERROR ##########
+[18:26:55] [Render thread/ERROR]: @ Render
+[18:26:55] [Render thread/ERROR]: 65547: X11: Standard cursor shape unavailable
+[18:27:01] [Render thread/INFO]: [perf] menu mods fps 17
+[18:27:06] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 7587ms or 151 ticks behind
+[18:27:07] [Render thread/INFO]: [perf] menu cosmetics fps 13
+[18:27:12] [Render thread/INFO]: [perf] menu mods_red_devil fps 16
+[18:27:15] [Render thread/INFO]: Resizing Dynamic Transforms UBO, capacity limit of 32 reached during a single frame. New capacity will be 64.
+[18:27:29] [Server thread/WARN]: Can't keep up! Is the server overloaded? Running 8076ms or 161 ticks behind
+[18:27:34] [Server thread/INFO]: Teleported Player291 to 7.500000, -60.000000, 16.980000
+[18:27:34] [Server thread/INFO]: Successfully filled 9 block(s)
+[18:27:34] [Server thread/INFO]: Successfully filled 9 block(s)
+[18:27:36] [Server thread/INFO]: Successfully filled 18 block(s)
+[18:27:40] [Render thread/INFO]: Stopping worker threads
+[18:27:40] [Render thread/INFO]: Started 1 worker threads
+[18:27:40] [Render thread/INFO]: Stopping worker threads
+[18:27:40] [Render thread/INFO]: Started 1 worker threads
+[18:27:40] [Render thread/INFO]: Changing view distance to 5 (play stage)
+[18:27:40] [Render thread/INFO]: Ajustes de rendimiento aplicados
+[18:27:40] [Server thread/INFO]: Changing simulation distance to 8, from 12
+[18:27:41] [Server thread/INFO]: Player291 lost connection: Disconnected
+[18:27:41] [Server thread/INFO]: Player291 left the game
+[18:27:41] [Server thread/INFO]: Stopping singleplayer server as player logged out
+[18:27:41] [Server thread/INFO]: Stopping server
+[18:27:41] [Server thread/INFO]: Saving players
+[18:27:41] [Server thread/INFO]: Saving worlds
+[18:27:41] [Server thread/INFO]: ServerLevel[New World]/minecraft:overworld: waiting for 2023 chunks to unload
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+[18:27:41] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage (New World): All chunks are saved
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+[18:27:41] [Server thread/INFO]: ThreadedAnvilChunkStorage: All dimensions are saved
+[18:27:41] [C2ME Storage #3/INFO]: Storage thread Thread[#80,C2ME Storage #3,5,main] stopped
+[18:27:41] [C2ME Storage #2/INFO]: Storage thread Thread[#79,C2ME Storage #2,5,main] stopped
+[18:27:41] [C2ME Storage #1/INFO]: Storage thread Thread[#78,C2ME Storage #1,5,main] stopped
+[18:27:41] [C2ME Storage #7/INFO]: Storage thread Thread[#87,C2ME Storage #7,5,main] stopped
+[18:27:41] [C2ME Storage #8/INFO]: Storage thread Thread[#88,C2ME Storage #8,5,main] stopped
+[18:27:41] [C2ME Storage #9/INFO]: Storage thread Thread[#89,C2ME Storage #9,5,main] stopped
+[18:27:41] [C2ME Storage #4/INFO]: Storage thread Thread[#84,C2ME Storage #4,5,main] stopped
+[18:27:41] [C2ME Storage #6/INFO]: Storage thread Thread[#86,C2ME Storage #6,5,main] stopped
+[18:27:41] [C2ME Storage #5/INFO]: Storage thread Thread[#85,C2ME Storage #5,5,main] stopped
+[18:27:41] [Render thread/INFO]: Stopping worker threads
+[18:27:41] [Render thread/INFO]: Stopping!
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run_2-1791397354660.json
+
+BUILD SUCCESSFUL in 5m 16s
+11 actionable tasks: 11 executed
