@@ -15,7 +15,7 @@ public final class VoidKeysMotion {
 	/** Radio del borde de dentro. */
 	public static final double INNER = 16;
 	/** Altura de las tapas sobre los pies. */
-	public static final double HEIGHT = 18.5;
+	public static final double HEIGHT = 21.5;
 	/** Segundos por vuelta del aro. */
 	public static final double SPIN = 50;
 	/** Segundos por ola, crestas alrededor del aro, altura de la ola y cabeceo de cada tecla. */
@@ -222,7 +222,7 @@ public final class VoidKeysMotion {
 		double mk = Math.min(1.4, speed), sway = Math.sin(2 * Math.PI * t / 1.6) * Math.min(1, mk);
 		double k = Math.min(1, mk), lean = 0.4 * Math.min(1, mk) + 0.1 * Math.max(0, mk - 1);
 		p.pitch += lean;
-		p.rArmX = mix(p.rArmX, -2.45 - 0.1 * sway, k);
+		p.rArmX = mix(p.rArmX, -2.62 - 0.1 * sway, k);
 		p.rArmZ = mix(p.rArmZ, -0.12, k);
 		p.lArmX = mix(p.lArmX, 0.5 + 0.1 * sway, k);
 		p.lArmZ = mix(p.lArmZ, 0.18, k);
