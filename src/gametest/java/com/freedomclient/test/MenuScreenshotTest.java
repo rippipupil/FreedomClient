@@ -428,6 +428,25 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			shoot(context, "void_keys_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
 			shoot(context, "void_keys_side", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			// Pose fija de prueba: brazo derecho recto hacia delante, el izquierdo abierto a un lado, pierna derecha
+			// atrás, la izquierda adelante; el cuerpo inclinado hacia delante. De lado se ve hacia dónde va cada cosa.
+			context.runOnClient(client -> {
+				com.freedomclient.cosmetic.vox.VoidKeysMotion.Pose test = new com.freedomclient.cosmetic.vox.VoidKeysMotion.Pose();
+				test.lift = 3;
+				test.pitch = 0.3;
+				test.rArmX = -1.57;
+				test.lArmZ = 1.2;
+				test.rLegX = 0.6;
+				test.lLegX = -0.4;
+				com.freedomclient.cosmetic.vox.VoidKeysCosmetic.testPose = test;
+			});
+			shoot(context, "void_keys_test_side", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 60.0F));
+			shoot(context, "void_keys_test_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
+			context.runOnClient(client -> {
+				client.player.setYRot(client.player.getYRot() - 60.0F);
+				com.freedomclient.cosmetic.vox.VoidKeysCosmetic.testPose = null;
+			});
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 90.0F));
 			// Emote de tocar la guitarra (tecla X): Hades en las manos, de frente y de espaldas, y la Electric Guitar.
 			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class,

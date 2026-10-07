@@ -64,6 +64,9 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 	public record Frame(VoidKeysMotion.Pose pose, double t, boolean playing, double songT) {
 	}
 
+	/** Solo para las pruebas: una pose fija en vez de la animada (para comprobar en capturas hacia dónde va cada parte). */
+	public static VoidKeysMotion.Pose testPose;
+
 	// Estado entre fotogramas: hacia dónde miraba al empezar a tocar y la velocidad suavizada al moverse.
 	private static boolean wasPlaying;
 	private static double playYawStart;
@@ -157,7 +160,7 @@ public class VoidKeysCosmetic extends MusicGuitarCosmetic {
 			double moved = Math.hypot(player.getX() - player.xo, player.getZ() - player.zo) / 0.2158;
 			speed += (Math.min(1.4, moved) - speed) * Math.min(1, dt * 4);
 			double vy = player.onGround() ? 0 : player.getDeltaMovement().y;
-			pose = VoidKeysMotion.figurePose(t, true, speed, vy, null, 0);
+			pose = testPose != null ? testPose : VoidKeysMotion.figurePose(t, true, speed, vy, null, 0);
 		}
 		FRAMES.put(state, new Frame(pose, t, playing, songT));
 	}
