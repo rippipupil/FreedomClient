@@ -1,0 +1,735 @@
+<title>Fantasmitas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Una sola vista clara a propósito: el tema Pink Ghost (blanco rosado, neón rosa y tinta ciruela). Arriba los dos
+   temas lado a lado; debajo, la escena 3D de los cosméticos; al final, las ocho caras. */
+:root {
+  --paper: #fff6fa;
+  --blush: #ffe3f0;
+  --line: #f4a6cb;
+  --neon: #ff3fa4;
+  --plum: #3b1e36;
+  --mist: #8a6a85;
+  --night: #110c1b;
+  --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
+  --body: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+body { background: var(--paper); color: var(--plum); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .24em; color: var(--mist); }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5vw, 48px); margin: 0; line-height: 1; text-wrap: balance; }
+h1 span { color: var(--neon); }
+header p { margin: 4px 0 0; max-width: 68ch; color: var(--mist); }
+h2 { font-family: var(--display); font-weight: 600; font-size: 13px; letter-spacing: .24em; margin: 0; display: flex; align-items: center; gap: 10px; }
+h2 b { color: var(--neon); font-weight: 700; }
+h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+section { display: grid; gap: 16px; }
+.themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 20px; }
+.theme { display: grid; gap: 10px; min-width: 0; }
+.theme h3 { font-family: var(--display); font-size: 22px; margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.theme h3 small { font-family: var(--body); font-size: 13px; font-weight: 600; color: var(--mist); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mist); }
+.chip i { width: 18px; height: 18px; display: block; box-shadow: inset 0 0 0 1px rgba(59,30,54,.18); clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); }
+canvas.shot { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; display: block; image-rendering: pixelated; background: var(--night); }
+.cap { font-size: 13px; color: var(--mist); margin: -4px 0 0; }
+.stage { position: relative; width: 100%; height: min(72vh, 620px); min-height: 380px; overflow: hidden; background: var(--night); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#c3 { touch-action: none; cursor: grab; image-rendering: pixelated; }
+#mood { position: absolute; left: 12px; top: 10px; font-family: var(--display); font-size: 13px; letter-spacing: .08em; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.45); pointer-events: none; }
+.controls { display: grid; gap: 10px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row > span { font-family: var(--display); font-size: 12px; letter-spacing: .14em; color: var(--mist); min-width: 74px; }
+button { font: inherit; font-size: 13px; font-weight: 700; min-height: 36px; padding: 0 14px; background: var(--blush); color: var(--plum); border: 0; cursor: pointer; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+button[aria-pressed="true"] { background: var(--neon); color: #fff; }
+button:hover { filter: brightness(.97); }
+button:focus-visible { outline: 2px solid var(--neon); outline-offset: 2px; }
+.faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.face { display: grid; justify-items: center; gap: 4px; padding: 12px 6px 10px; background: var(--blush); }
+.face canvas { width: 96px; height: 96px; image-rendering: pixelated; }
+.face b { font-family: var(--display); font-size: 13px; letter-spacing: .08em; color: var(--neon); }
+.face small { font-size: 12px; color: var(--mist); text-align: center; line-height: 1.3; }
+#note { min-height: 1.4em; font-size: 13px; color: var(--mist); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Nunito:wght@400;600;700&family=Pixelify+Sans:wght@400;600&display=swap">
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">FREEDOMCLIENT · TEMA Y COSMÉTICOS</div>
+    <h1>Fantasmi<span>tas</span></h1>
+    <p>Los fantasmitas de FreedomPlayer en el cliente: dos temas (uno claro, rosa y blanco, y otro callejero de neón) y tres cosméticos en pixel 3D: la mascota fantasma que vuela a tu alrededor, el aura de fantasmas y la estela de flores.</p>
+  </header>
+
+  <section aria-labelledby="hThemes">
+    <h2 id="hThemes"><b>01</b>TEMAS</h2>
+    <div class="themes">
+      <div class="theme">
+        <h3>Pink Ghost <small>claro · rosa y blanco</small></h3>
+        <div class="chips" id="chipsPink"></div>
+        <canvas class="shot" id="titlePink" width="960" height="540" aria-label="Pantalla de título del tema Pink Ghost"></canvas>
+        <canvas class="shot" id="menuPink" width="960" height="540" aria-label="Menú de cosméticos con el tema Pink Ghost"></canvas>
+        <p class="cap">Cielo rosa con nubes blancas, fantasmitas paseando entre ellas, destellos y colinas con florecitas. En el menú, un fantasma cruza la cabecera de vez en cuando y otros asoman por abajo.</p>
+      </div>
+      <div class="theme">
+        <h3>Neon Alley <small>callejero · neón oscuro</small></h3>
+        <div class="chips" id="chipsAlley"></div>
+        <canvas class="shot" id="titleAlley" width="960" height="540" aria-label="Pantalla de título del tema Neon Alley"></canvas>
+        <canvas class="shot" id="menuAlley" width="960" height="540" aria-label="Menú de cosméticos con el tema Neon Alley"></canvas>
+        <p class="cap">Callejón de noche: edificios con ventanas, letrero de neón de fantasma que parpadea, farola, cables con bombillas, lluvia fina y charcos que reflejan el neón; un fantasma duerme en un tejado. En el menú, cables con bombillas en la cabecera y la ciudad con lluvia abajo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="hCos">
+    <h2 id="hCos"><b>02</b>COSMÉTICOS</h2>
+    <div class="stage">
+      <canvas id="bg3" aria-hidden="true"></canvas>
+      <canvas id="c3" aria-label="Vista 3D del jugador con la mascota fantasma, el aura y la estela de flores. Arrastra para girar."></canvas>
+      <div id="mood" aria-live="polite"></div>
+    </div>
+    <div class="controls">
+      <div class="row"><span>VER</span>
+        <button id="tPet" aria-pressed="true">Mascota</button>
+        <button id="tAura" aria-pressed="true">Aura de fantasmas</button>
+        <button id="tTrail" aria-pressed="true">Estela de flores</button>
+        <button id="tWalk" aria-pressed="false">Andar</button>
+      </div>
+      <div class="row" id="moods"><span>MASCOTA</span></div>
+      <div class="row" id="tints"><span>COLOR</span></div>
+      <div class="row" id="scenes"><span>ESCENA</span></div>
+      <div id="note"></div>
+    </div>
+    <p class="cap">Arrastra para girar la cámara y usa la rueda para acercarte. La mascota da vueltas a tu alrededor cambiando de cara; en cada estado hace lo suyo (saluda al entrar, celebra las kills, se duerme si estás AFK, se esconde detrás con poca vida, se asusta si te pegan y vuela detrás con élitros). Pon «Andar» para ver la estela.</p>
+  </section>
+
+  <section aria-labelledby="hFaces">
+    <h2 id="hFaces"><b>03</b>LAS 8 CARAS</h2>
+    <div class="faces" id="faces"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================================================
+// DISEÑO (lo que pasa al juego tal cual).
+// ============================================================================================
+// El fantasmita de FreedomPlayer (scripts/textures/ghost/ghost_art.py): cajas [x0, y0, z0, x1, y1, z1, papel] en
+// píxeles del modelo, y hacia arriba, las colas en y = 0, mirando a +z. Las caras van a 0,5 px pegadas delante.
+const GHOST = %GHOST%;
+const FACE_NAMES = { feliz: '>‿<', contento: '^‿^', owo: 'OwO', uwu: 'UwU', guino: '^_~', sorpresa: 'O_O', dormido: '-_- z', triste: 'T_T' };
+// Colores del fantasma por papel: rosa (lo bueno) y blanco (sorpresa, dormido y triste), como en FreedomPlayer.
+const GHOST_PAL = {
+  pink: { top: 0xf8bcd9, body: 0xf4a6cb, shade: 0xe58db8, w: 0xffe6f2, k: 0xc2326f, c: 0xff6fae, t: 0xff6fae },
+  white: { top: 0xffffff, body: 0xf3eef4, shade: 0xdcd2e4, w: 0xffffff, k: 0x1a1420, c: 0xf4a6cb, t: 0xff6fae }
+};
+const WHITE_FACES = ['sorpresa', 'dormido', 'triste'];
+const ease = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+const backOut = u => { const v = u - 1; return 1 + 2.70158 * v * v * v + 1.70158 * v * v; };
+
+// ---- La mascota: vuela a tu alrededor ----
+// Vuelta de 11 s a unos 20 px (algo más cerca y más lejos), a la altura de la cabeza, subiendo y bajando; mira hacia
+// donde va, girada un poco hacia ti. A tamaño 0,8: 11 px de ancho con los bracitos (la cabeza del jugador mide 8).
+const PET = { radius: 20, wobble: 3, height: 25, period: 11, bob: 1.2, bobPeriod: 2.4, blend: 0.8, faceEvery: 4, scale: 0.8, hurt: 1.4 };
+const IDLE_FACES = ['contento', 'feliz', 'owo', 'contento', 'uwu', 'guino'];
+function petOrbit(t) {
+  const a = 2 * Math.PI * t / PET.period;
+  const r = PET.radius + PET.wobble * Math.sin(2 * Math.PI * t / 7.3);
+  const y = PET.height + PET.bob * Math.sin(2 * Math.PI * t / PET.bobPeriod) + 2 * Math.sin(2 * Math.PI * t / 13);
+  return { x: Math.sin(a) * r, y, z: Math.cos(a) * r, yaw: a + Math.PI / 2 + 0.6, pitch: 0.06 * Math.sin(2 * Math.PI * t / PET.bobPeriod), roll: -0.2 };
+}
+// Sitio fijo de cada estado (relativo a ti: miras a +z), o null si sigue dando vueltas.
+function petAnchor(mood, t, s) {
+  const look = (x, z) => Math.atan2(-x, -z); // mirándote
+  switch (mood) {
+    case 'wave': return { x: -9, y: 27 + 0.8 * Math.sin(2 * Math.PI * t / 2), z: 17, yaw: look(-9, 17), pitch: 0, roll: 0 };
+    case 'celebrate': return { x: 0, y: 40 + Math.abs(Math.sin(Math.PI * s * 2.5)) * 3, z: 3, yaw: s * 2 * Math.PI * 1.5, pitch: 0, roll: 0 };
+    case 'sleep': return { x: 12, y: 21 + 0.5 * Math.sin(2 * Math.PI * t / 4), z: 3, yaw: 0.35, pitch: 0.1, roll: 0.25 };
+    case 'hide': return { x: 5, y: 19, z: -11, yaw: look(5, -11) + 0.15 * Math.sin(t * 40), pitch: 0, roll: 0.05 * Math.sin(t * 33) };
+    case 'fly': return { x: -7, y: 31 + 1.5 * Math.sin(2 * Math.PI * t / 1.6), z: -15, yaw: 0, pitch: 0.45, roll: 0.2 * Math.sin(2 * Math.PI * t / 2.2) };
+    default: return null;
+  }
+}
+// Golpe: se aparta de un salto (hacia fuera y arriba) y tiembla, 1,2 s.
+function petHurt(o, s) {
+  const k = Math.sin(Math.PI * Math.min(1, s / 1.2));
+  const d = Math.hypot(o.x, o.z) || 1;
+  return { ...o, x: o.x + o.x / d * 6 * k, y: o.y + 3 * k, z: o.z + o.z / d * 6 * k, roll: o.roll + 0.25 * k * Math.sin(s * 50) };
+}
+// Cara de la mascota: la del estado; tranquila, una distinta cada 4 s.
+function petFace(mood, emotion, t) {
+  switch (mood) {
+    case 'wave': return 'guino';
+    case 'celebrate': return 'feliz';
+    case 'sleep': return 'dormido';
+    case 'hide': return 'triste';
+    case 'hurt': return 'sorpresa';
+    case 'fly': return 'owo';
+  }
+  if (emotion === 'happy') return 'feliz';
+  if (emotion === 'blush') return 'uwu';
+  if (emotion === 'hearts') return 'guino';
+  return IDLE_FACES[Math.floor(t / PET.faceEvery) % IDLE_FACES.length];
+}
+// Bracitos (giro en z, + hacia arriba) y saltito; al cambiar de cara se estira un momento.
+function petLimbs(mood, emotion, t, s) {
+  const sway = 0.15 * Math.sin(2 * Math.PI * t / 2.4);
+  let left = sway, right = -sway, hop = 0;
+  if (mood === 'wave') right = 1.1 + 0.55 * Math.sin(2 * Math.PI * s * 2.2);
+  if (mood === 'celebrate') { left = 1.2 + 0.3 * Math.sin(s * 18); right = 1.2 + 0.3 * Math.sin(s * 18 + 1); }
+  if (mood === 'hide') { left = -0.5; right = -0.5; }
+  if (mood === 'fly') { left = -0.6; right = -0.6; }
+  if (emotion === 'happy' && s < 1.6) hop = Math.abs(Math.sin(s * Math.PI * 2.5)) * 2.2 * (1 - s / 1.6 * 0.4);
+  return { left, right, hop };
+}
+
+// ---- Aura de fantasmas: 6 fantasmitas pequeños que giran despacio a tu alrededor ----
+// Cada uno aparece, sube un poco dando vueltas y se desvanece (7,2 s), y vuelve con otra cara y otro color.
+const AURA = { count: 6, life: 7.2, size: 0.42, faces: ['contento', 'feliz', 'uwu', 'owo', 'guino', 'dormido'] };
+const AURA_LEVEL = [0, 3, 1, 4, 2, 5];
+function auraGhost(i, t) {
+  const ring = i % 3, tt = t + i * AURA.life / AURA.count;
+  const a = i * 2 * Math.PI / AURA.count + 2 * Math.PI * t / (16 + 4 * ring);
+  const r = 12 + 3.5 * ring;
+  const u = (tt % AURA.life) / AURA.life, cycle = Math.floor(tt / AURA.life);
+  const grow = ease(Math.min(1, u / 0.12)) * ease(Math.min(1, (1 - u) / 0.12));
+  return {
+    x: Math.sin(a) * r, y: 5 + AURA_LEVEL[i] * 4.5 + 6 * u + 1.2 * Math.sin(2 * Math.PI * t / 3.1 + i), z: Math.cos(a) * r,
+    yaw: a + Math.PI / 2 + 0.9, roll: 0.15 * Math.sin(2 * Math.PI * t / 2.7 + i), s: AURA.size * grow,
+    face: AURA.faces[(i * 3 + cycle) % AURA.faces.length], white: (i + cycle) % 2 === 0
+  };
+}
+// Destellos ✦ que suben despacio entre los fantasmas (los mismos números al azar que el juego: semilla 5).
+function rng(seed) { let s = seed; return () => (s = s * 16807 % 2147483647) / 2147483647; }
+const SPARKLES = (() => { const r = rng(5); return Array.from({ length: 10 }, () => ({ a: r() * 6.283, rad: 9 + r() * 10, y0: r() * 34, v: 3 + r() * 2.5, spin: 1 + r() * 2, pink: r() < 0.5 })); })();
+function sparkle(p, t) {
+  const h = ((p.y0 + p.v * t) % 34 + 34) % 34, life = h / 34;
+  return { x: Math.sin(p.a + t * 0.2) * p.rad, y: 2 + h, z: Math.cos(p.a + t * 0.2) * p.rad, s: 0.7 * Math.min(1, h / 3) * (1 - life * life) * (0.75 + 0.25 * Math.sin(t * 5 + p.a * 3)), rot: t * p.spin };
+}
+
+// ---- Estela de flores blancas y rosas ----
+// Al andar brota una flor cada 0,6 bloques (por la cantidad), a un lado u otro del pie: crece con un saltito,
+// se mece y al final se cierra y se encoge. Al brotar suelta dos pétalos que suben dando vueltas.
+const FLOWER = { size: 1.5, grow: 0.35, wilt: 0.6, life: 3, step: 0.6 };
+const FLOWER_KINDS = ['white', 'pink', 'sakura'];
+function flowerKind(r) { return r < 0.5 ? 'white' : r < 0.85 ? 'pink' : 'sakura'; }
+function flowerState(age, seed, life) {
+  if (age < 0 || age > life) return null;
+  const g = backOut(Math.min(1, age / FLOWER.grow)), w = age > life - FLOWER.wilt ? ease((life - age) / FLOWER.wilt) : 1;
+  return { s: FLOWER.size * g * w, sway: 0.12 * Math.sin(2 * Math.PI * age / 1.6 + seed * 6.283), close: 1 - w };
+}
+function petalState(age, dx, dz, spin) {
+  if (age < 0 || age > 1.2) return null;
+  return { x: dx * age, y: 2 + 5 * age - 2 * age * age, z: dz * age, rot: spin * age, s: 1 - age / 1.2 };
+}
+
+// Piezas de vóxel de los cosméticos (mismas unidades). Flor: tallo, dos hojas, botón y 8 pétalos (4 grandes y 4
+// pequeños en diagonal); pétalo suelto; destello ✦; corazón y "z" de dormir.
+const FLOWER_PAL = {
+  white: { petal: 0xffffff, petal2: 0xffe4f1, center: 0xff8cc6 },
+  pink: { petal: 0xf4a6cb, petal2: 0xffc9e0, center: 0xfff6fa },
+  sakura: { petal: 0xff6fae, petal2: 0xff9ccb, center: 0xffe3f1 },
+  stem: 0x2f9c82, leaf: 0x8fe3cb
+};
+const FLOWER_BOXES = [
+  [-0.15, 0, -0.15, 0.15, 1.4, 0.15, 'stem'],
+  [0.15, 0.4, -0.1, 0.75, 0.6, 0.1, 'leaf'], [-0.75, 0.7, -0.1, -0.15, 0.9, 0.1, 'leaf'],
+  [-0.3, 1.4, -0.3, 0.3, 1.7, 0.3, 'center'],
+  [-0.3, 1.45, 0.3, 0.3, 1.6, 0.95, 'petal'], [-0.3, 1.45, -0.95, 0.3, 1.6, -0.3, 'petal'],
+  [0.3, 1.45, -0.3, 0.95, 1.6, 0.3, 'petal'], [-0.95, 1.45, -0.3, -0.3, 1.6, 0.3, 'petal'],
+  [0.3, 1.47, 0.3, 0.7, 1.58, 0.7, 'petal2'], [-0.7, 1.47, 0.3, -0.3, 1.58, 0.7, 'petal2'],
+  [0.3, 1.47, -0.7, 0.7, 1.58, -0.3, 'petal2'], [-0.7, 1.47, -0.7, -0.3, 1.58, -0.3, 'petal2']
+];
+const PETAL_BOXES = [[-0.3, -0.05, -0.2, 0.3, 0.05, 0.2, 'petal']];
+const SPARKLE_BOXES = [[-0.15, -1, -0.15, 0.15, 1, 0.15, 'a'], [-1, -0.15, -0.15, 1, 0.15, 0.15, 'a'], [-0.15, -0.15, -1, 0.15, 0.15, 1, 'a'], [-0.35, -0.35, -0.35, 0.35, 0.35, 0.35, 'b']];
+const HEART_ART = ['.rr.rr.', 'rwrrrrr', 'rrrrrrr', '.rrrrR.', '..rrR..', '...R...'];
+const Z_ART = ['zzz', '..z', '.z.', 'z..', 'zzz'];
+
+// ============================================================================================
+// TEMAS (lo que pasa al juego tal cual): colores del menú, cielo pixel de la pantalla de título y adornos.
+// ============================================================================================
+// Colores del menú en el orden de ThemePreset: fondo, tarjetas, bordes, acento, resalte y texto.
+const THEMES = {
+  pink: { name: 'Pink Ghost', bg: 0xfff1f7, card: 0xffd9ea, border: 0xf48fc0, accent: 0xff3fa4, highlight: 0xff8cc6, text: 0x5a2a4e, emblem: 0xf4a6cb },
+  alley: { name: 'Neon Alley', bg: 0x110c1b, card: 0x1d152d, border: 0xff3fa4, accent: 0xff3fa4, highlight: 0x8fe3cb, text: 0xf3eef4, emblem: 0xff3fa4 }
+};
+// Cielos (como PixelSky.Style): franjas de arriba abajo, estrellas, nubes lejanas y cercanas (color y sombra) y suelo.
+const SKY = {
+  pink: { bands: [0xff7fbc, 0xff88c0, 0xff91c5, 0xff9aca, 0xffa3cf, 0xffacd4, 0xffb5d9, 0xffbede, 0xffc7e3, 0xffd0e8, 0xffd9ed, 0xffe2f1, 0xffebf5, 0xfff3f9],
+    stars: 0, starColor: 0xffffff, farCloud: 0xffe6f2, farShade: 0xffc4df, nearCloud: 0xffffff, nearShade: 0xffc4df, hills: 0xf49cc4, hillsTop: 0xfbc6de },
+  alley: { bands: [0x0b0714, 0x0e0918, 0x110b1d, 0x140d22, 0x170f28, 0x1b112e, 0x1f1334, 0x24153a, 0x2a1740, 0x311945, 0x3a1b4a, 0x441d4e, 0x501f51, 0x5c2153],
+    stars: 70, starColor: 0xf4a6cb, farCloud: 0x2a1a3e, farShade: 0x22142f, nearCloud: 0x34204a, nearShade: 0x2a1a3e, hills: 0x150f21, hillsTop: 0x1c1430 }
+};
+const CLOUD_BIG = ['......####..........', '....########...###..', '..##############.##.', '.##################.', '####################', '.##################.'];
+const CLOUD_SMALL = ['...###....', '.#######..', '##########', '.########.'];
+const SPARK_2D = ['..#..', '..#..', '##.##', '..#..', '..#..'];
+// Edificios del callejón (de FreedomPlayer, Fondo PC: 1280x260 pegado abajo), y sus ventanas: x, y, ancho, alto, color, opacidad.
+const BUILDINGS = [[0, 80, 120, 180, 0x1a1328], [110, 130, 90, 130, 0x160f22], [196, 50, 130, 210, 0x1c1430], [320, 110, 100, 150, 0x150f21],
+  [414, 70, 120, 190, 0x1a1328], [530, 140, 110, 120, 0x160f22], [636, 40, 140, 220, 0x1c1430], [770, 120, 96, 140, 0x150f21],
+  [860, 80, 124, 180, 0x1a1328], [980, 130, 110, 130, 0x160f22], [1086, 60, 120, 200, 0x1c1430], [1200, 110, 80, 150, 0x150f21]];
+const WINDOWS = [[20, 104, 9, 11, 0xff3fa4, .5], [44, 104, 9, 11, 0x5b57d9, .5], [216, 74, 9, 11, 0xff3fa4, .55], [240, 102, 9, 11, 0x2f9c82, .45],
+  [290, 74, 9, 11, 0xf4a6cb, .4], [436, 96, 9, 11, 0x5b57d9, .55], [476, 124, 9, 11, 0xff3fa4, .35], [660, 64, 9, 11, 0xff3fa4, .6],
+  [684, 64, 9, 11, 0xff3fa4, .25], [720, 92, 9, 11, 0x2f9c82, .5], [880, 104, 9, 11, 0xf4a6cb, .45], [930, 132, 9, 11, 0x5b57d9, .5],
+  [1106, 84, 9, 11, 0xff3fa4, .5], [1150, 112, 9, 11, 0x2f9c82, .45], [70, 150, 9, 11, 0xf4a6cb, .35], [560, 170, 9, 11, 0x5b57d9, .4],
+  [1010, 160, 9, 11, 0xff3fa4, .4], [1230, 140, 9, 11, 0xf4a6cb, .45]];
+// Parpadeo de la farola de FreedomPlayer (7 s): normal, un apagón corto a los 3,3 s y un bajón a los 5,8 s.
+function lampGlow(t) {
+  const k = [[0, 1], [3.22, 1], [3.36, 0.55], [3.5, 1], [5.81, 0.85], [7, 1]], c = t % 7;
+  for (let i = 1; i < k.length; i++) if (c <= k[i][0]) { const u = (c - k[i - 1][0]) / (k[i][0] - k[i - 1][0]); return k[i - 1][1] + (k[i][1] - k[i - 1][1]) * u; }
+  return 1;
+}
+// El letrero de neón: casi siempre encendido; cada 9 s tiembla y se apaga dos veces.
+function signOn(t) { const c = t % 9; return !(c > 6.1 && c < 6.25 || c > 6.4 && c < 6.5 || c > 6.6 && c < 6.9); }
+function hash(n) { const v = Math.sin(n * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); }
+
+// ============================================================================================
+// Dibujo 2D (como GuiGraphics: rectángulos y degradados verticales), a escala S sobre 480x270 de interfaz.
+// ============================================================================================
+const S = 2;
+const rgba = (rgb, a = 1) => `rgba(${rgb >> 16 & 255},${rgb >> 8 & 255},${rgb & 255},${Math.max(0, Math.min(1, a))})`;
+function fill(g, x1, y1, x2, y2, rgb, a = 1) { if (x2 <= x1 || y2 <= y1 || a <= 0) return; g.fillStyle = rgba(rgb, a); g.fillRect(x1 * S, y1 * S, (x2 - x1) * S, (y2 - y1) * S); }
+function grad(g, x1, y1, x2, y2, top, topA, bottom, bottomA) {
+  const gr = g.createLinearGradient(0, y1 * S, 0, y2 * S); gr.addColorStop(0, rgba(top, topA)); gr.addColorStop(1, rgba(bottom, bottomA));
+  g.fillStyle = gr; g.fillRect(x1 * S, y1 * S, (x2 - x1) * S, (y2 - y1) * S);
+}
+function shape(g, rows, x, y, p, color, shade, a = 1) {
+  rows.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] === '#') fill(g, x + c * p, y + r * p, x + (c + 1) * p, y + (r + 1) * p, r === rows.length - 1 ? shade : color, a); });
+}
+function disc(g, cx, cy, r, p, rgb, a) { for (let y = -r; y <= r; y += p) { const half = Math.floor(Math.sqrt(Math.max(0, r * r - y * y)) / p) * p; fill(g, cx - half, cy + y, cx + half, cy + y + p, rgb, a); } }
+function text(g, str, x, y, rgb, size = 8, align = 'left', a = 1) {
+  g.font = `${size * S}px "Pixelify Sans", monospace`; g.textAlign = align; g.textBaseline = 'top'; g.fillStyle = rgba(rgb, a); g.fillText(str, x * S, y * S);
+}
+// Sprite del fantasma (28x26 a 0,5 px de interfaz, con contorno): colores por papel; 'o' es el contorno.
+function ghost2d(g, face, white, x, y, scale = 0.5, a = 1, outline = 0x4a1d3f) {
+  const pal = white ? GHOST_PAL.white : GHOST_PAL.pink, col = { o: outline, b: pal.body, s: pal.shade, w: pal.w, k: pal.k, c: pal.c, t: pal.t };
+  GHOST.sprites[face].forEach((row, r) => {
+    let c = 0;
+    while (c < row.length) {
+      const ch = row[c]; let e = c + 1; while (e < row.length && row[e] === ch) e++;
+      if (ch !== '.') fill(g, x + c * scale, y + r * scale, x + e * scale, y + (r + 1) * scale, col[ch], a);
+      c = e;
+    }
+  });
+}
+function spark2d(g, x, y, rgb, a) { shape(g, SPARK_2D, x - 2, y - 2, 1, rgb, rgb, a); }
+
+// El emblema de FreedomClient (PixelSky.EMBLEM_*), con la sombra de las barras del color del tema.
+const EMBLEM_HALO = ['................ooooooo................', '..............oopgggggpoo..............', '.............opggoooooggpo.............', '.............oyoo.....ooygo............', '.............oggpooooopggo.............', '..............oogggggggoo..............', '................ooooooo................'];
+const EMBLEM_BODY = ['............ooooooooooooooo......oooo..', '...........owwwwwwwwwwwwwwwo....owwwwo.', '..........owwwwwwwwwwwwwwwwwo...owwwwo.', '..........owwwwwwwwwwwwwwwwwo..obwwwwbo', '..........obwwwwwwwwwwwwwwwbo...owwwwo.', '...........obbbbbbbbbbbbbbbo....obbbbo.', '............ooooooooooooooo......oooo..', '....ooooooooooooooooooooooooooo........', '...owwwwwwwwwwwwwwwwwwwwwwwwwwwo.......', '..owwwwwwwwwwwwwwwwwwwwwwwwwwwwwo......', '..owwwwwwwwwwwwwwwwwwwwwwwwwwwwwo......', '..obwwwwwwwwwwwwwwwwwwwwwwwwwwwbo......', '...obbbbbbbbbbbbbbbbbbbbbbbbbbbo.......', '....ooooooooooooooooooooooooooo........', '..ooo...ooooooooooooooooooooooooooo....', '.owwwo.owwwwwwwwwwwwwwwwwwwwwwwwwwwo...', 'owwwwwowwwwwwwwwwwwwwwwwwwwwwwwwwwwwo..', 'owwwwwowwwwwwwwwwwwwwwwwwwwwwwwwwwwwo..', 'obwwwbobwwwwwwwwwwwwwwwwwwwwwwwwwwwbo..', '.obbbo.obbbbbbbbbbbbbbbbbbbbbbbbbbbo...', '..ooo...ooooooooooooooooooooooooooo....'];
+function emblem(g, cx, cy, scale, shadeRgb, t) {
+  const col = { o: 0x16224a, w: 0xffffff, g: 0xe19623, p: 0xfff4be, y: 0xffd65c, b: shadeRgb };
+  const h = EMBLEM_HALO.length + 2 + EMBLEM_BODY.length, x0 = cx - 39 / 2 * scale, y0 = cy - h / 2 * scale, bob = Math.round(Math.sin(t / 0.4) * 1.2);
+  const art = (rows, ox, oy, shadow) => rows.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] !== '.') fill(g, x0 + (c + ox) * scale, y0 + (r + oy) * scale, x0 + (c + ox + 1) * scale, y0 + (r + oy + 1) * scale, shadow ? 0 : col[row[c]], shadow ? 0.35 : 1); });
+  const bodyY = EMBLEM_HALO.length + 2;
+  art(EMBLEM_BODY, 2, bodyY + 2, true); art(EMBLEM_BODY, 0, bodyY, false);
+  art(EMBLEM_HALO, 2, bob + 2, true); art(EMBLEM_HALO, 0, bob, false);
+}
+
+// ---- Cielo pixel (PixelSky.render con los dos estilos nuevos) ----
+const W2 = 480, H2 = 270;
+function sky(g, key, t) {
+  const st = SKY[key], p = Math.max(2, Math.floor(H2 / 100)), time = t * 1000, horizon = H2 * 3 / 4;
+  const bandH = Math.max(p, Math.floor(horizon / st.bands.length / p) * p);
+  st.bands.forEach((c, i) => {
+    const y1 = i * bandH, y2 = i === st.bands.length - 1 ? horizon + p * 20 : y1 + bandH;
+    fill(g, 0, y1, W2, y2, c);
+    if (i + 1 < st.bands.length) for (let x = (i % 2) * p; x < W2; x += p * 2) fill(g, x, y2 - p, x + p, y2, st.bands[i + 1]);
+  });
+  const starArea = horizon * 2 / 3;
+  for (let i = 0; i < st.stars; i++) {
+    const sx = (i * 7919 % Math.max(1, Math.floor(W2 / p))) * p, sy = (i * 104729 % Math.max(1, Math.floor(starArea / p))) * p;
+    if ((Math.floor(time / 400) + i * 13) % 7 !== 0) fill(g, sx, sy, sx + p, sy + p, st.starColor, i % 3 === 0 ? 0.9 : 0.5);
+  }
+  if (key === 'pink') {
+    // Sol blanco con halo rosa, alto.
+    const sunX = W2 * 2 / 3, sunY = horizon / 4, r = p * 9;
+    disc(g, sunX, sunY, r + p * 4, p, 0xffffff, 0.35); disc(g, sunX, sunY, r, p, 0xffffff, 1); disc(g, sunX, sunY, r - p * 3, p, 0xfff6fa, 1);
+  } else {
+    // Halo rosa de la ciudad arriba a la derecha (discos cada vez más tenues) y luna menguante.
+    for (let k = 6; k >= 1; k--) disc(g, W2 - 70, 10, p * 9 * k, p, 0xff3fa4, 0.05);
+    const mx = W2 * 2 / 3, my = horizon / 4;
+    disc(g, mx, my, p * 7, p, 0xffe3f1, 1); disc(g, mx + p * 3, my - p * 2, p * 6, p, SKY.alley.bands[3], 1);
+  }
+  // Nubes en dos capas (como PixelSky.clouds).
+  for (let i = 0; i < 4; i++) { const span = W2 + 40 * p, x = (i * span / 4 + time / 90) % span - 20 * p, y = horizon / 4 + (i % 2) * p * 10; shape(g, CLOUD_SMALL, Math.floor(x / p) * p, Math.floor(y / p) * p, p, st.farCloud, st.farShade, 0.8); }
+  if (key === 'pink') skyGhosts(g, p, t, horizon);
+  for (let i = 0; i < 3; i++) { const span = W2 + 60 * p, x = (i * span / 3 + time / 45) % span - 30 * p, y = horizon / 2 + (i % 2) * p * 12; shape(g, CLOUD_BIG, Math.floor(x / p) * p, Math.floor(y / p) * p, p, st.nearCloud, st.nearShade, key === 'pink' ? 1 : 0.9); }
+  if (key === 'pink') {
+    // Destellos que titilan.
+    for (let i = 0; i < 14; i++) { const tw = 0.5 + 0.5 * Math.sin(t * (1.3 + hash(i + 9) * 2) + i * 2); if (tw > 0.35) spark2d(g, Math.floor(hash(i) * W2), Math.floor(8 + hash(i + 40) * horizon * 0.7), i % 3 ? 0xffffff : 0xff8cc6, tw); }
+    // Colinas con florecitas blancas y rosas.
+    for (let x = -p * 12; x < W2 + p * 12; x += p) {
+      const wave = Math.sin(x / (p * 23)) * 3 + Math.sin(x / (p * 9)) * 1.5, top = horizon - Math.round(wave + 3) * p;
+      fill(g, x, top, x + p, H2, st.hills); fill(g, x, top, x + p, top + p, st.hillsTop);
+      if (hash(x) > 0.82) fill(g, x, top - p, x + p, top, hash(x + 1) > 0.5 ? 0xffffff : 0xff6fae);
+    }
+  } else alley(g, p, t, horizon);
+}
+// Fantasmitas que pasean despacio entre las nubes (rosas y blancos), meciéndose; cambian de cara cada 5 s.
+function skyGhosts(g, p, t, horizon) {
+  const faces = ['contento', 'uwu', 'feliz', 'owo', 'guino'];
+  for (let i = 0; i < 4; i++) {
+    const span = W2 + 60, x = (i * span / 4 + t * (6 + 2 * (i % 2))) % span - 30, y = horizon * (0.2 + 0.17 * i) + Math.sin(t * 1.6 + i * 2) * 3;
+    const face = faces[(i + Math.floor(t / 5)) % faces.length];
+    ghost2d(g, face, i % 2 === 1, Math.round(x), Math.round(y), i === 1 ? 1 : 0.75, 1, i % 2 ? 0xa48fb3 : 0xc2326f);
+  }
+}
+// El callejón: ciudad lejana, edificios cercanos con ventanas, letrero de neón, cables con bombillas, farola, lluvia y
+// charcos. Todo con rectángulos, sin texturas.
+function alley(g, p, t, horizon) {
+  // Ciudad lejana (más clara, recortada contra el halo).
+  for (let x = 0, i = 0; x < W2; i++) { const w = 18 + Math.floor(hash(i + 300) * 30), h = 20 + Math.floor(hash(i + 400) * 44); fill(g, x, horizon - h, x + w, horizon + 4, 0x24173a); x += w; }
+  // Edificios cercanos (los de FreedomPlayer, a escala: 1280 -> 480 de ancho, 260 -> 110 de alto).
+  const k = W2 / 1280, top = H2 - 110 * 260 / 260 - 18, sy = 110 / 260;
+  for (const b of BUILDINGS) fill(g, Math.round(b[0] * k), Math.round(top + b[1] * sy), Math.round((b[0] + b[2]) * k) + 1, H2, b[4]);
+  WINDOWS.forEach((w, i) => { const on = hash(i * 3 + Math.floor(t / (2 + hash(i) * 4))) > 0.15; if (on) fill(g, Math.round(w[0] * k), Math.round(top + w[1] * sy), Math.round(w[0] * k) + 3, Math.round(top + w[1] * sy) + 4, w[4], w[5] + 0.25); });
+  // Letrero de neón con un fantasma (el contorno del sprite) en el edificio alto.
+  const on = signOn(t), sx = 12, syy = Math.round(top + 80 * sy) - 26;
+  fill(g, sx - 3, syy - 3, sx + 19, syy + 18, 0x0d0915, 0.9);
+  GHOST.sprites.contento.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] === 'o' || row[c] === 'k') fill(g, sx + c * 0.5, syy + r * 0.5, sx + c * 0.5 + 0.5, syy + r * 0.5 + 0.5, row[c] === 'k' ? 0xfff6fa : 0xff3fa4, on ? 1 : 0.18); });
+  if (on) for (let r = 1; r <= 3; r++) fill(g, sx - 3 - r, syy - 3 - r, sx + 19 + r, syy + 18 + r, 0xff3fa4, 0.05);
+  text(g, 'BOO', sx + 8, syy + 14, 0x8fe3cb, 6, 'center', on ? 0.9 : 0.25);
+  // Cables entre edificios con bombillas que titilan.
+  for (let c = 0; c < 2; c++) {
+    const x1 = c ? 196 * k : 0, x2 = c ? 480 : 230 * k + 40, y = top + (c ? 30 : 46);
+    for (let x = x1; x < x2; x += 2) { const u = (x - x1) / (x2 - x1), sag = Math.sin(u * Math.PI) * 10; fill(g, x, y + sag, x + 2, y + sag + 1, 0x0b0812); }
+    for (let i = 1; i < 8; i++) { const u = i / 8, x = x1 + (x2 - x1) * u, sag = Math.sin(u * Math.PI) * 10, col = [0xff3fa4, 0x5b57d9, 0x8fe3cb, 0xf4a6cb][(i + c) % 4], tw = 0.55 + 0.45 * Math.sin(t * 2.3 + i * 1.7 + c); fill(g, x - 1, y + sag + 1, x + 1, y + sag + 3, col, tw); }
+  }
+  // Fantasma durmiendo en un tejado, medio transparente, con su "z z" subiendo.
+  const gx = Math.round(414 * k) + 12, gy = Math.round(top + 70 * sy) - 13 + Math.sin(t * 0.8) * 1;
+  ghost2d(g, 'dormido', true, gx, gy, 0.5, 0.45, 0x1a1420);
+  const zu = (t % 3) / 3; text(g, 'z', gx + 15 + zu * 4, gy - 4 - zu * 8, 0xf4a6cb, 6, 'left', 1 - zu);
+  // Farola con su cono de luz (filas cada vez más anchas y tenues) y el parpadeo de FreedomPlayer.
+  const glow = lampGlow(t), lx = W2 - 120, ly = 70;
+  for (let y = ly + 4; y < H2 - 8; y += 2) { const u = (y - ly) / (H2 - ly), half = 3 + u * 34; fill(g, lx - half, y, lx + half, y + 2, 0xff8cc6, 0.18 * (1 - u) * glow); }
+  fill(g, lx - 1, ly + 2, lx + 1, H2, 0x1b1428);
+  disc(g, lx, ly, 10, 1, 0xff3fa4, 0.12 * glow); disc(g, lx, ly, 5, 1, 0xffb4dc, 0.5 * glow); disc(g, lx, ly, 3, 1, 0xffe3f1, 0.6 + 0.4 * glow);
+  // Calle mojada y charcos que reflejan el neón (franjas que tiemblan).
+  fill(g, 0, H2 - 10, W2, H2, 0x0d0915);
+  for (let i = 0; i < 6; i++) { const cx = 40 + i * 80 + hash(i) * 30, w = 16 + hash(i + 7) * 20; for (let r = 0; r < 3; r++) fill(g, cx - w / 2 + Math.sin(t * 2 + i + r) * 1.5, H2 - 8 + r * 2, cx + w / 2 + Math.sin(t * 2 + i + r) * 1.5, H2 - 7 + r * 2, r === 1 ? 0x5b57d9 : 0xff3fa4, 0.35 - r * 0.08); }
+  rain(g, 0, 0, W2, H2 - 10, t, 60, 0.35);
+}
+// Lluvia fina: rayitas en diagonal que caen (posición fija por gota, sin estado).
+function rain(g, x, y, w, h, t, count, a) {
+  for (let i = 0; i < count; i++) {
+    const speed = 160 + hash(i + 50) * 80, len = 4 + Math.floor(hash(i + 70) * 4), u = (t * speed / h + hash(i + 90)) % 1;
+    const rx = x + (hash(i) * (w + 30) - u * 30), ry = y + u * h;
+    for (let k = 0; k < len; k++) fill(g, rx - k * 0.5, ry - k, rx - k * 0.5 + 1, ry - k + 1, 0xc9b8e8, a * (1 - k / len));
+  }
+}
+
+// ---- Pantalla de título: cielo, emblema, nombre y botones con el estilo del tema ----
+function titleScreen(g, key, t) {
+  sky(g, key, t);
+  const th = THEMES[key];
+  emblem(g, W2 / 2, 62, 1.6, th.emblem, t);
+  // Nombre con sombra: ciruela en el tema claro (sobre el rosa se lee mejor), negra en el callejón.
+  text(g, 'FreedomClient', W2 / 2 + 1, 97, key === 'pink' ? 0x7a2a5a : 0x000000, 16, 'center', key === 'pink' ? 0.9 : 0.35);
+  text(g, 'FreedomClient', W2 / 2, 96, key === 'pink' ? 0xffffff : 0xf3eef4, 16, 'center');
+  const btn = (x, y, w, label, hover) => {
+    fill(g, x, y, x + w, y + 18, hover ? th.highlight : th.border);
+    fill(g, x + 1, y + 1, x + w - 1, y + 17, th.card, 0.92);
+    text(g, label, x + w / 2, y + 5, th.text, 8, 'center');
+  };
+  btn(150, 135, 180, 'Singleplayer', false); btn(150, 159, 180, 'Multiplayer', false); btn(150, 183, 180, 'FreedomClient', Math.floor(t / 2) % 3 === 0);
+  btn(150, 207, 87, 'Options', false); btn(243, 207, 87, 'Quit', false);
+  text(g, 'FreedomClient v0.1.0 | Minecraft 1.21.11', 3, H2 - 10, key === 'pink' ? 0x5a2a4e : 0xf3eef4, 7);
+}
+
+// ---- Menú del cliente (pestaña Cosmetics) con el tema y sus adornos ----
+function menuScreen(g, key, t) {
+  // Fondo del juego (cielo, hierba) detrás de la ventana.
+  grad(g, 0, 0, W2, H2 * 0.6, 0x86b7f0, 1, 0xc4dcf5, 1); fill(g, 0, H2 * 0.6, W2, H2, 0x5d8f3a);
+  for (let x = 0; x < W2; x += 8) fill(g, x, H2 * 0.6, x + 8, H2 * 0.6 + 2, (x / 8) % 2 ? 0x6fa548 : 0x649a40);
+  const th = THEMES[key], X = 50, Y = 10, Wd = 380, Hd = 250, head = 28;
+  fill(g, X, Y, X + Wd, Y + Hd, th.border); fill(g, X + 1, Y + 1, X + Wd - 1, Y + Hd - 1, th.bg, 0.94);
+  decorBackground(g, key, X, Y, Wd, Hd, head, t);
+  // Cabecera.
+  decorHeader(g, key, X, Y, Wd, head, t);
+  fill(g, X + 1, Y + head, X + Wd - 1, Y + head + 1, th.border);
+  emblem(g, X + 22, Y + 14, 0.42, th.emblem, t);
+  text(g, 'Freedom', X + 38, Y + 9, th.text, 9); text(g, 'Client', X + 78, Y + 9, th.accent, 9);
+  [['Mods', 230], ['HUD', 262], ['Cosmetics', 290], ['Theme', 336], ['Packs', 368]].forEach(([l, x]) => {
+    const sel = l === 'Cosmetics'; text(g, l, X + x, Y + 9, sel ? th.accent : th.text, 8, 'left', sel ? 1 : 0.85);
+    if (sel) fill(g, X + x - 2, Y + 21, X + x + 46, Y + 23, th.accent);
+  });
+  // Aviso, filtros y buscador.
+  fill(g, X + 6, Y + 33, X + Wd - 6, Y + 47, th.card); fill(g, X + 6, Y + 33, X + 7, Y + 47, th.accent);
+  text(g, 'Only you can see your cosmetics for now (press F5 to look).', X + 11, Y + 36, th.text, 7);
+  let cx = X + 6;
+  ['All', 'Hats', 'Capes', 'Wings', 'Pets', 'Trails', 'Effects'].forEach((l, i) => {
+    const w = l.length * 5 + 8, sel = i === 0;
+    fill(g, cx, Y + 52, cx + w, Y + 63, sel ? th.accent : th.border); fill(g, cx + 1, Y + 53, cx + w - 1, Y + 62, sel ? th.accent : th.card);
+    text(g, l, cx + w / 2, Y + 54, sel ? (key === 'pink' ? 0xffffff : th.bg) : th.text, 7, 'center'); cx += w + 4;
+  });
+  fill(g, X + Wd - 96, Y + 52, X + Wd - 6, Y + 63, th.border); fill(g, X + Wd - 95, Y + 53, X + Wd - 7, Y + 62, key === 'pink' ? 0xffffff : 0x0d0915);
+  text(g, 'ghost', X + Wd - 91, Y + 54, th.text, 7);
+  // Sección y tarjetas de los tres cosméticos nuevos.
+  text(g, 'Ghosts', X + 6, Y + 70, th.text, 8); fill(g, X + 42, Y + 74, X + Wd - 6, Y + 75, th.border, 0.6);
+  const cards = [['Ghostie', 'Pet', 'A pink pixel ghost flying around you.'], ['Ghost Aura', 'Effect', 'Little white and pink ghosts circling you.'], ['Ghost Bloom', 'Trail', 'White and pink flowers bloom where you walk.']];
+  cards.forEach(([name, slot, desc], i) => {
+    const x = X + 6 + i * 124, y = Y + 82, w = 118, h = 62, on = i !== 2, hover = i === 1 && Math.floor(t / 1.5) % 2 === 0;
+    fill(g, x, y, x + w, y + h, on ? th.accent : hover ? th.highlight : th.border);
+    fill(g, x + 1, y + 1, x + w - 1, y + h - 1, hover ? mixRgb(th.card, th.highlight, 0.18) : th.card);
+    fill(g, x + 5, y + 5, x + 33, y + 33, key === 'pink' ? 0xfff6fa : 0x0d0915);
+    if (i === 0) ghost2d(g, IDLE_FACES[Math.floor(t / 2) % IDLE_FACES.length], false, x + 12, y + 6 + Math.sin(t * 2) * 1, 0.5, 1, 0x7a2a5a);
+    if (i === 1) for (let k = 0; k < 3; k++) { const a = t * 1.2 + k * 2.09; ghost2d(g, AURA.faces[k], k % 2 === 0, x + 15 + Math.cos(a) * 8, y + 13 + Math.sin(a) * 4, 0.28, 1, 0x7a2a5a); }
+    if (i === 2) for (let k = 0; k < 5; k++) { const fx = x + 8 + k * 5, fy = y + 26 - (k % 2) * 3, col = [0xffffff, 0xf4a6cb, 0xff6fae][k % 3]; fill(g, fx, fy + 1, fx + 1, fy + 5, 0x2f9c82); fill(g, fx - 1, fy, fx + 2, fy + 1, col); fill(g, fx, fy - 1, fx + 1, fy + 2, col); fill(g, fx, fy, fx + 1, fy + 1, col === 0xffffff ? 0xff8cc6 : 0xfff6fa); }
+    text(g, name, x + 38, y + 7, th.text, 8); text(g, slot, x + 38, y + 18, th.text, 6, 'left', 0.6);
+    fill(g, x + 38, y + 30, x + 40, y + 32, on ? th.accent : th.text, on ? 1 : 0.5); text(g, on ? 'ON' : 'OFF', x + 43, y + 28, on ? th.accent : th.text, 7, 'left', on ? 1 : 0.6);
+    text(g, desc.slice(0, 26), x + 6, y + 40, th.text, 6, 'left', 0.7); text(g, desc.slice(26), x + 6, y + 49, th.text, 6, 'left', 0.7);
+  });
+  text(g, 'Pets', X + 6, Y + 154, th.text, 8); fill(g, X + 30, Y + 158, X + Wd - 6, Y + 159, th.border, 0.6);
+  ['Verity', 'Madeline', 'Cloud Pet'].forEach((name, i) => {
+    const x = X + 6 + i * 124, y = Y + 166; fill(g, x, y, x + 118, y + 62, th.border); fill(g, x + 1, y + 1, x + 117, y + 61, th.card);
+    fill(g, x + 5, y + 5, x + 33, y + 33, key === 'pink' ? 0xfff6fa : 0x0d0915); text(g, name, x + 38, y + 7, th.text, 8); text(g, 'OFF', x + 43, y + 28, th.text, 7, 'left', 0.6);
+  });
+  decorForeground(g, key, X, Y, Wd, Hd, head, t);
+}
+function mixRgb(a, b, k) { const m = (s) => Math.round((a >> s & 255) + ((b >> s & 255) - (a >> s & 255)) * k); return m(16) << 16 | m(8) << 8 | m(0); }
+
+// Adornos de la ventana (ThemeDecor), detrás del contenido, en la cabecera y por encima.
+function decorBackground(g, key, x, y, w, h, head, t) {
+  if (key === 'pink') {
+    grad(g, x + 1, y + h - 40, x + w - 1, y + h - 1, 0xff8cc6, 0, 0xff8cc6, 0.22);
+    // Nubes bajas y dos fantasmas que asoman por abajo meciéndose.
+    for (let i = 0; i < 4; i++) { const cx = x + 20 + i * 100 + Math.sin(t * 0.3 + i) * 6; shape(g, CLOUD_BIG, cx, y + h - 13, 1.5, 0xffffff, 0xffdcec, 0.85); }
+    for (let i = 0; i < 2; i++) { const px = x + 70 + i * 230, peek = 8 + Math.sin(t * 1.2 + i * 2.5) * 3; ghost2d(g, i ? 'uwu' : 'owo', i === 1, px, y + h - 1 - peek, 0.5, 1, 0xe58db8); fill(g, px - 2, y + h - 1, px + 18, y + h + 12, 0xffffff, 0); }
+  } else {
+    grad(g, x + 1, y + h - 50, x + w - 1, y + h - 1, 0x5c2153, 0, 0x5c2153, 0.45);
+    // Ciudad abajo con ventanitas que se encienden y apagan.
+    for (let i = 0, bx = x + 1; bx < x + w - 1; i++) {
+      const bw = 16 + Math.floor(hash(i + 11) * 22), bh = 10 + Math.floor(hash(i + 31) * 26); fill(g, bx, y + h - 1 - bh, Math.min(x + w - 1, bx + bw), y + h - 1, [0x1a1328, 0x160f22, 0x1c1430][i % 3]);
+      for (let k = 0; k < 3; k++) if (hash(i * 7 + k + Math.floor(t / 3)) > 0.45) fill(g, bx + 3 + k * 5, y + h - bh + 3, bx + 5 + k * 5, y + h - bh + 6, [0xff3fa4, 0x5b57d9, 0x2f9c82, 0xf4a6cb][(i + k) % 4], 0.6);
+      bx += bw;
+    }
+  }
+}
+function decorHeader(g, key, x, y, w, h, t) {
+  if (key === 'pink') {
+    grad(g, x + 1, y + 1, x + w - 1, y + h, 0xffffff, 0, 0xff8cc6, 0.18);
+    for (let i = 0; i < 9; i++) { const tw = 0.5 + 0.5 * Math.sin(t * (1.1 + hash(i) * 1.6) + i); if (tw > 0.4) spark2d(g, x + 110 + Math.floor(hash(i + 3) * 110), y + 5 + Math.floor(hash(i + 5) * 18), i % 2 ? 0xff8cc6 : 0xffffff, tw); }
+    // Cada 8 s un fantasmita cruza la cabecera dejando destellos.
+    const c = t % 8; if (c < 3) { const u = c / 3, gx = x - 16 + (w + 32) * u, gy = y + 6 + Math.sin(u * Math.PI * 4) * 3; for (let k = 1; k < 6; k++) spark2d(g, gx - k * 9, gy + 7 + Math.sin((u * 3 - k * 0.1) * Math.PI * 4) * 3, 0xff8cc6, 0.8 - k * 0.14); ghost2d(g, 'feliz', false, gx, gy, 0.5, 1, 0xe58db8); }
+  } else {
+    grad(g, x + 1, y + 1, x + w - 1, y + h, 0x000000, 0, 0xff3fa4, 0.12);
+    // Cable con bombillas colgando de la cabecera.
+    for (let px = x + 100; px < x + w - 2; px += 2) { const u = (px - x - 100) / (w - 102), sag = Math.sin(u * Math.PI * 2) * 3 + 3; fill(g, px, y + 2 + sag, px + 2, y + 3 + sag, 0x05030a); }
+    for (let i = 0; i < 12; i++) { const u = (i + 0.5) / 12, px = x + 100 + (w - 102) * u, sag = Math.sin(u * Math.PI * 2) * 3 + 3, tw = 0.5 + 0.5 * Math.sin(t * 2.6 + i * 1.9); fill(g, px - 1, y + 3 + sag, px + 1, y + 5 + sag, [0xff3fa4, 0x5b57d9, 0x8fe3cb, 0xf4a6cb][i % 4], 0.4 + 0.6 * tw); }
+  }
+}
+function decorForeground(g, key, x, y, w, h, head, t) {
+  if (key === 'alley') rain(g, x + 1, y + head + 1, w - 2, h - head - 2, t, 26, 0.18);
+  else for (let i = 0; i < 8; i++) { const u = (t * 0.08 + hash(i)) % 1, px = x + 10 + hash(i + 20) * (w - 20) + Math.sin(t + i) * 4, py = y + h - 10 - u * (h - head - 20); spark2d(g, px, py, i % 2 ? 0xff8cc6 : 0xffffff, (1 - u) * 0.7); }
+}
+
+// ============================================================================================
+// Vista previa: los temas en sus lienzos, la escena 3D y la tabla de caras.
+// ============================================================================================
+(function themes() {
+  const chips = (id, th) => { const el = document.getElementById(id); [['Fondo', th.bg], ['Tarjetas', th.card], ['Bordes', th.border], ['Acento', th.accent], ['Resalte', th.highlight], ['Texto', th.text]].forEach(([n, c]) => { const s = document.createElement('span'); s.className = 'chip'; s.innerHTML = `<i style="background:#${c.toString(16).padStart(6, '0')}"></i>${n}`; el.append(s); }); };
+  chips('chipsPink', THEMES.pink); chips('chipsAlley', THEMES.alley);
+  const shots = [['titlePink', g => titleScreen(g, 'pink', T())], ['titleAlley', g => titleScreen(g, 'alley', T())], ['menuPink', g => menuScreen(g, 'pink', T())], ['menuAlley', g => menuScreen(g, 'alley', T())]]
+    .map(([id, fn]) => ({ g: document.getElementById(id).getContext('2d'), fn, el: document.getElementById(id) }));
+  const t0 = performance.now(), T = () => (performance.now() - t0) / 1000;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const visible = new Set(shots);
+  if ('IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => { const s = shots.find(s => s.el === e.target); if (e.isIntersecting) visible.add(s); else visible.delete(s); })); shots.forEach(s => io.observe(s.el)); }
+  let last = 0;
+  (function loop(now) {
+    if (!reduce || !last) if (now - last > 33) { last = now; for (const s of visible) { s.g.imageSmoothingEnabled = false; s.fn(s.g); } }
+    requestAnimationFrame(loop);
+  })(0);
+  // Tabla de las 8 caras.
+  const uses = { feliz: 'Kill y contento', contento: 'Tranquila', owo: 'Volando con élitros', uwu: 'Sonrojada', guino: 'Saluda al entrar, corazones', sorpresa: 'Te han pegado', dormido: 'Estás AFK', triste: 'Poca vida' };
+  const wrap = document.getElementById('faces');
+  GHOST.order.forEach(f => {
+    const d = document.createElement('div'); d.className = 'face';
+    const c = document.createElement('canvas'); c.width = 30 * 4; c.height = 30 * 4; c.setAttribute('aria-hidden', 'true');
+    const g = c.getContext('2d'), keep = S; g.scale(4 / S, 4 / S); ghost2d(g, f, WHITE_FACES.includes(f), 1, 1, 1, 1, WHITE_FACES.includes(f) ? 0x8a7a95 : 0xb04a85);
+    d.append(c); d.insertAdjacentHTML('beforeend', `<b>${FACE_NAMES[f]}</b><small>${uses[f]}</small>`); wrap.append(d);
+  });
+})();
+
+(function scene3d() {
+  const note = document.getElementById('note');
+  if (typeof THREE === 'undefined') { note.textContent = 'No se ha podido cargar la librería 3D (three.js). Recarga la página.'; return; }
+  const canvas = document.getElementById('c3'), bg = document.getElementById('bg3');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false }); }
+  catch (e) { note.textContent = 'Tu navegador no ha podido abrir la vista 3D (WebGL). Prueba en otro navegador o en el ordenador.'; return; }
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, 1, 2000);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.62));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(40, 80, 60); scene.add(sun);
+  const back = new THREE.DirectionalLight(0xffc0e0, 0.3); back.position.set(-60, 10, -80); scene.add(back);
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  const lambert = new THREE.MeshLambertMaterial({ vertexColors: true });
+  // Junta cajas en una geometría con el color en cada vértice (pocas mallas: va fluido también en el móvil).
+  const cache = new Map();
+  function merged(key, boxes, color) {
+    if (cache.has(key)) return cache.get(key);
+    const pos = [], nor = [], col = [], idx = [], c = new THREE.Color(), gp = geo.attributes.position.array, gn = geo.attributes.normal.array, gi = geo.index.array;
+    for (const b of boxes) {
+      const base = pos.length / 3, sx = b[3] - b[0], sy = b[4] - b[1], sz = b[5] - b[2], cx = (b[0] + b[3]) / 2, cy = (b[1] + b[4]) / 2, cz = (b[2] + b[5]) / 2;
+      c.setHex(color(b[6]));
+      for (let i = 0; i < gp.length; i += 3) { pos.push(gp[i] * sx + cx, gp[i + 1] * sy + cy, gp[i + 2] * sz + cz); nor.push(gn[i], gn[i + 1], gn[i + 2]); col.push(c.r, c.g, c.b); }
+      for (const i of gi) idx.push(base + i);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx);
+    cache.set(key, g); return g;
+  }
+  const mesh = (key, boxes, color) => new THREE.Mesh(merged(key, boxes, color), lambert);
+
+  // Un fantasma: cuerpo y bracitos (rosa y blanco) y las 8 caras de cada color; se enseña lo que toca.
+  function makeGhost() {
+    const root = new THREE.Group(), tilt = new THREE.Group(); root.add(tilt);
+    const v = {};
+    for (const tint of ['pink', 'white']) {
+      const pal = GHOST_PAL[tint], col = r => pal[r];
+      const g = new THREE.Group();
+      g.add(mesh('body' + tint, GHOST.body, col), mesh('shine' + tint, GHOST.shine, col));
+      const arms = ['armL', 'armR'].map(a => { const piv = new THREE.Group(), side = a === 'armL' ? -1 : 1; piv.position.set(5 * side, 6.5, 0); const m = mesh(a + tint, GHOST[a].map(b => [b[0] - 5 * side, b[1] - 6.5, b[2], b[3] - 5 * side, b[4] - 6.5, b[5], b[6]]), col); piv.add(m); g.add(piv); return piv; });
+      const faces = {};
+      for (const f of GHOST.order) { const m = mesh('face' + f + tint, GHOST.faces[f], col); m.visible = false; g.add(m); faces[f] = m; }
+      g.position.x = 0; tilt.add(g);
+      v[tint] = { g, arms, faces };
+    }
+    let shown = null;
+    return {
+      root, tilt,
+      set(face, white, left, right) {
+        const tint = white ? 'white' : 'pink';
+        v.pink.g.visible = !white; v.white.g.visible = white;
+        const cur = v[tint]; if (shown) shown.visible = false; shown = cur.faces[face]; shown.visible = true;
+        cur.arms[0].rotation.z = -left; cur.arms[1].rotation.z = right;
+      }
+    };
+  }
+
+  const world = new THREE.Group(); scene.add(world);
+  // Suelo de hierba (bloques de 16 px) que se desliza al andar.
+  const ground = new THREE.Group(); world.add(ground);
+  const tiles = [];
+  for (let i = -4; i < 4; i++) for (let j = -4; j < 4; j++) { const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color: (i + j) & 1 ? 0x7fbf6a : 0x76b562 })); m.scale.set(16, 2, 16); m.position.set(i * 16 + 8, -1, j * 16 + 8); ground.add(m); tiles.push(m); }
+
+  // Jugador de referencia (sin skin): cabeza, cuerpo, brazos y piernas como en Minecraft.
+  const fig = new THREE.Group(); world.add(fig);
+  const figMat = new THREE.MeshLambertMaterial({ color: 0x9b86ad }), headMat = new THREE.MeshLambertMaterial({ color: 0xc9b6d6 });
+  function part(w, h, d, px, py, pz, ox, oy, mat) { const pv = new THREE.Group(); pv.position.set(px, py, pz); const m = new THREE.Mesh(geo, mat); m.scale.set(w, h, d); m.position.set(ox, oy, 0); pv.add(m); fig.add(pv); return pv; }
+  part(8, 8, 8, 0, 24, 0, 0, 4, headMat); part(8, 12, 4, 0, 18, 0, 0, 0, figMat);
+  const rArm = part(4, 12, 4, -5, 22, 0, -1, -4, figMat), lArm = part(4, 12, 4, 5, 22, 0, 1, -4, figMat);
+  const rLeg = part(4, 12, 4, -1.9, 12, 0, 0, -6, figMat), lLeg = part(4, 12, 4, 1.9, 12, 0, 0, -6, figMat);
+
+  const pet = makeGhost(); world.add(pet.root);
+  const aura = Array.from({ length: AURA.count }, () => { const g = makeGhost(); world.add(g.root); return g; });
+  const sparkMeshes = SPARKLES.map(p => { const m = mesh(p.pink ? 'sparkP' : 'sparkW', SPARKLE_BOXES, r => r === 'a' ? (p.pink ? 0xff8cc6 : 0xffffff) : 0xffffff); m.material = new THREE.MeshBasicMaterial({ vertexColors: true }); world.add(m); return m; });
+  const heartBoxes = []; HEART_ART.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] !== '.') heartBoxes.push([c - 3.5, -r, -0.5, c - 2.5, 1 - r, 0.5, row[c]]); });
+  const hearts = [0, 1, 2].map(() => { const m = mesh('heart', heartBoxes, r => ({ r: 0xff4f7a, R: 0xd8325a, w: 0xffd0dc })[r]); m.scale.setScalar(0.35); world.add(m); return m; });
+  const zBoxes = []; Z_ART.forEach((row, r) => { for (let c = 0; c < row.length; c++) if (row[c] !== '.') zBoxes.push([c * 0.5, -r * 0.5, -0.1, c * 0.5 + 0.5, -r * 0.5 + 0.5, 0.1, 'z']); });
+  const zs = [0, 1].map(() => { const m = mesh('z', zBoxes, () => 0xf4a6cb); world.add(m); return m; });
+  // Flores y pétalos (una reserva que se reutiliza).
+  const flowerMesh = kind => mesh('flower' + kind, FLOWER_BOXES, r => r === 'stem' ? FLOWER_PAL.stem : r === 'leaf' ? FLOWER_PAL.leaf : FLOWER_PAL[kind][r]);
+  const flowerPool = Array.from({ length: 45 }, (_, i) => { const kind = FLOWER_KINDS[i % 3], m = flowerMesh(kind); m.visible = false; ground.add(m); return { m, kind }; });
+  const petalPool = Array.from({ length: 40 }, (_, i) => { const kind = FLOWER_KINDS[i % 3], m = mesh('petal' + kind, PETAL_BOXES, () => FLOWER_PAL[kind].petal); m.visible = false; ground.add(m); return { m, kind }; });
+  const flowers = [], petals = [];
+
+  // Estado de la vista.
+  let ry = -0.5, rx = 0.42, dist = 170, showPet = true, showAura = true, showTrail = true, walking = false, tint = 'auto', sceneKey = 'pink';
+  let mood = 'idle', emotion = 'none', moodAt = 0, from = null, prevPose = null;
+  const MOODS = [['idle', 'Tranquila'], ['wave', 'Saluda'], ['celebrate', 'Kill'], ['sleep', 'AFK'], ['hide', 'Poca vida'], ['hurt', 'Golpe'], ['fly', 'Élitros'], ['happy', 'Contenta'], ['blush', 'Sonrojada'], ['hearts', 'Corazones']];
+  const moodEl = document.getElementById('mood');
+  const group = (id, list, cur, set) => { const row = document.getElementById(id); list.forEach(([k, l]) => { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', k === cur); b.onclick = () => { row.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); set(k); }; row.append(b); }); };
+  group('moods', MOODS, 'idle', k => { from = prevPose; moodAt = T(); if (['happy', 'blush', 'hearts'].includes(k)) { mood = 'idle'; emotion = k; } else { mood = k; emotion = 'none'; } });
+  group('tints', [['auto', 'Automático'], ['pink', 'Rosa'], ['white', 'Blanco']], 'auto', k => tint = k);
+  group('scenes', [['pink', 'Pink Ghost'], ['alley', 'Neon Alley']], 'pink', k => { sceneKey = k; drawBg(); });
+  const toggle = (id, fn) => { const b = document.getElementById(id); b.onclick = () => b.setAttribute('aria-pressed', fn()); };
+  toggle('tPet', () => showPet = !showPet); toggle('tAura', () => showAura = !showAura); toggle('tTrail', () => showTrail = !showTrail); toggle('tWalk', () => walking = !walking);
+
+  function drawBg() {
+    const w = bg.width = Math.max(1, Math.floor(bg.clientWidth / 2)), h = bg.height = Math.max(1, Math.floor(bg.clientHeight / 2)), g = bg.getContext('2d');
+    const gr = g.createLinearGradient(0, 0, 0, h);
+    if (sceneKey === 'pink') { gr.addColorStop(0, '#ff9ccb'); gr.addColorStop(1, '#fff1f8'); } else { gr.addColorStop(0, '#0b0714'); gr.addColorStop(1, '#5c2153'); }
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    const r = rng(3);
+    if (sceneKey === 'pink') { g.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 6; i++) { const x = r() * w, y = r() * h * 0.5, s = 6 + r() * 10; g.fillRect(x, y, s * 3, s); g.fillRect(x + s * 0.6, y - s * 0.6, s * 1.6, s); } }
+    else { for (let i = 0, x = 0; x < w; i++) { const bw = 20 + r() * 40, bh = h * (0.15 + r() * 0.3); g.fillStyle = ['#1a1328', '#160f22', '#1c1430'][i % 3]; g.fillRect(x, h - bh, bw, bh); for (let k = 0; k < 4; k++) if (r() > 0.5) { g.fillStyle = ['#ff3fa4', '#5b57d9', '#2f9c82', '#f4a6cb'][k]; g.globalAlpha = 0.5; g.fillRect(x + 4 + k * 8, h - bh + 6 + (k % 2) * 8, 3, 4); g.globalAlpha = 1; } x += bw; } }
+  }
+  function size() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    renderer.setSize(Math.max(1, Math.floor(w / 2)), Math.max(1, Math.floor(h / 2)), false);
+    cam.aspect = w / h; cam.updateProjectionMatrix(); drawBg();
+  }
+  addEventListener('resize', size); size();
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => { if (!drag) return; ry += (e.clientX - drag.x) * 0.01; rx = Math.max(-0.1, Math.min(1.3, rx + (e.clientY - drag.y) * 0.01)); drag = { x: e.clientX, y: e.clientY }; });
+  const up = () => drag = null; canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('wheel', e => { e.preventDefault(); dist = Math.max(80, Math.min(320, dist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
+
+  const t0 = performance.now(), T = () => (performance.now() - t0) / 1000;
+  let last = t0, scroll = 0, walked = 0, seed = 1;
+  const rand = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+  function place(o, p) { o.position.set(p.x, p.y, p.z); o.rotation.set(0, 0, 0); }
+  (function loop() {
+    const now = performance.now(), t = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (!drag) ry += 0.0025;
+    const s = t - moodAt;
+    // Jugador: anda en el sitio (el suelo se desliza hacia atrás).
+    const sw = walking ? Math.sin(t * 9) * 0.7 : 0;
+    rArm.rotation.x = sw; lArm.rotation.x = -sw; rLeg.rotation.x = -sw; lLeg.rotation.x = sw;
+    const speed = walking ? 69 : 0; scroll += speed * dt;
+    for (const m of tiles) { m.position.z = ((m.position.z + 64 - speed * dt) % 128 + 128) % 128 - 64; }
+    // Mascota.
+    let pose = petOrbit(t);
+    const anchor = petAnchor(mood, t, s);
+    if (mood === 'hurt') pose = petHurt(pose, s);
+    if (anchor) pose = anchor;
+    if (from && s < PET.blend) { const k = ease(s / PET.blend); pose = { x: from.x + (pose.x - from.x) * k, y: from.y + (pose.y - from.y) * k, z: from.z + (pose.z - from.z) * k, yaw: from.yaw + Math.atan2(Math.sin(pose.yaw - from.yaw), Math.cos(pose.yaw - from.yaw)) * k, pitch: from.pitch + (pose.pitch - from.pitch) * k, roll: from.roll + (pose.roll - from.roll) * k }; }
+    prevPose = pose;
+    const face = petFace(mood === 'hurt' && s > PET.hurt ? 'idle' : mood, emotion, t), white = tint === 'auto' ? WHITE_FACES.includes(face) : tint === 'white';
+    const limbs = petLimbs(mood, emotion, t, s);
+    pet.root.visible = showPet;
+    pet.root.position.set(pose.x, pose.y + limbs.hop, pose.z); pet.root.rotation.set(0, pose.yaw, 0); pet.root.scale.setScalar(PET.scale);
+    pet.tilt.rotation.set(pose.pitch, 0, pose.roll);
+    pet.set(face, white, limbs.left, limbs.right);
+    // Corazones y "z z".
+    hearts.forEach((m, i) => { const u = ((s * 0.6 + i / 3) % 1); m.visible = showPet && emotion === 'hearts' && s < 3.5; m.position.set(pose.x + (i - 1) * 3, pose.y + 14 + u * 8, pose.z); m.scale.setScalar(0.35 * (1 - u * 0.5)); m.rotation.y = pose.yaw; });
+    zs.forEach((m, i) => { const u = ((t * 0.5 + i * 0.5) % 1); m.visible = showPet && mood === 'sleep'; m.position.set(pose.x + 4 + u * 3, pose.y + 12 + u * 6, pose.z); m.scale.setScalar(1 + u); m.rotation.y = pose.yaw; });
+    moodEl.textContent = `${FACE_NAMES[face]}  ·  ${MOODS.find(m => m[0] === (emotion !== 'none' ? emotion : mood))[1]}`;
+    // Aura.
+    aura.forEach((g, i) => { const q = auraGhost(i, t); g.root.visible = showAura && q.s > 0.01; g.root.position.set(q.x, q.y, q.z); g.root.rotation.set(0, q.yaw, 0); g.tilt.rotation.set(0, 0, q.roll); g.root.scale.setScalar(Math.max(0.001, q.s)); g.set(q.face, q.white, 0.15 * Math.sin(t * 2 + i), 0.15 * Math.sin(t * 2 + i + 1)); });
+    sparkMeshes.forEach((m, i) => { const q = sparkle(SPARKLES[i], t); m.visible = showAura && q.s > 0.02; m.position.set(q.x, q.y, q.z); m.scale.setScalar(Math.max(0.001, q.s)); m.rotation.set(q.rot, q.rot * 0.7, 0); });
+    // Estela: al andar, una flor cada 0,6 bloques (9,6 px), a un lado u otro del pie.
+    if (walking && showTrail) {
+      walked += speed * dt;
+      while (walked >= FLOWER.step * 16) {
+        walked -= FLOWER.step * 16;
+        const a = rand() * Math.PI * 2, rad = 1.6 + rand() * 4.8, kind = flowerKind(rand());
+        const f = flowerPool.find(f => !f.m.visible && f.kind === kind);
+        if (f) { f.m.visible = true; flowers.push({ f, x: Math.cos(a) * rad, z: Math.sin(a) * rad + scroll, born: t, seed: rand(), yaw: rand() * 6.283 }); }
+        for (let k = 0; k < 2; k++) { const pp = petalPool.find(p => !p.m.visible && p.kind === kind); if (pp) { pp.m.visible = true; petals.push({ p: pp, x: Math.cos(a) * rad, z: Math.sin(a) * rad + scroll, born: t, dx: (rand() - 0.5) * 6, dz: (rand() - 0.5) * 6, spin: 3 + rand() * 4 }); } }
+      }
+    }
+    for (let i = flowers.length - 1; i >= 0; i--) {
+      const o = flowers[i], q = flowerState(t - o.born, o.seed, FLOWER.life);
+      if (!q || !showTrail) { o.f.m.visible = false; flowers.splice(i, 1); continue; }
+      o.f.m.position.set(o.x, 0, o.z - scroll); o.f.m.scale.setScalar(Math.max(0.001, q.s)); o.f.m.rotation.set(0, o.yaw, q.sway + q.close * 0.5);
+    }
+    for (let i = petals.length - 1; i >= 0; i--) {
+      const o = petals[i], q = petalState(t - o.born, o.dx, o.dz, o.spin);
+      if (!q || !showTrail) { o.p.m.visible = false; petals.splice(i, 1); continue; }
+      o.p.m.position.set(o.x + q.x, q.y, o.z - scroll + q.z); o.p.m.scale.setScalar(Math.max(0.001, q.s) * FLOWER.size); o.p.m.rotation.set(q.rot, q.rot * 0.6, 0);
+    }
+
+    world.rotation.set(rx, ry, 0); world.position.y = -16;
+    const fit = cam.aspect < 0.9 ? 0.9 / cam.aspect : 1;
+    cam.position.set(0, 0, dist * fit); cam.lookAt(0, 0, 0);
+    renderer.render(scene, cam);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
