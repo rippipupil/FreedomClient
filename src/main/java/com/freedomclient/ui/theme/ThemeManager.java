@@ -39,6 +39,20 @@ public final class ThemeManager {
 		return preset == ThemePreset.MINT;
 	}
 
+	public static boolean isPinkGhost() {
+		return preset == ThemePreset.PINK_GHOST;
+	}
+
+	public static boolean isNeonAlley() {
+		return preset == ThemePreset.NEON_ALLEY;
+	}
+
+	/** Si el fondo de la ventana es claro (texto oscuro encima): lo que se dibuja con colores fijos lo tiene en cuenta. */
+	public static boolean isLight() {
+		int bg = get(ThemeColor.BACKGROUND);
+		return ((bg >> 16 & 0xFF) * 299 + (bg >> 8 & 0xFF) * 587 + (bg & 0xFF) * 114) / 1000 > 150;
+	}
+
 	/** Cambia de preset y descarta los colores personalizados. */
 	public static void setPreset(ThemePreset newPreset) {
 		preset = newPreset;

@@ -52,6 +52,10 @@ pub enum Theme {
     Purple,
     /// Mañana verde menta.
     Mint,
+    /// Pink Ghost: cielo rosa con nubes blancas y fantasmitas (claro).
+    PinkGhost,
+    /// Neon Alley: callejón de noche con neón rosa.
+    NeonAlley,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

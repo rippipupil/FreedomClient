@@ -189,6 +189,15 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		});
 		context.waitTicks(5);
 
+		// Temas fantasmita: cielo rosa con fantasmas y el callejón de neón, en el menú principal.
+		for (com.freedomclient.ui.theme.ThemePreset ghostTheme : new com.freedomclient.ui.theme.ThemePreset[] {
+				com.freedomclient.ui.theme.ThemePreset.PINK_GHOST, com.freedomclient.ui.theme.ThemePreset.NEON_ALLEY}) {
+			context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(ghostTheme));
+			context.waitTicks(3);
+			context.takeScreenshot("title_" + ghostTheme.name().toLowerCase(Locale.ROOT));
+		}
+		context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET));
+
 		// Abrir y cerrar Singleplayer y Multiplayer desde el menú principal (antes crasheaba al volver).
 		// Con Client Screens → Other menus llevan el cielo del tema y los botones del cliente.
 		context.runOnClient(client -> client.setScreen(new SelectWorldScreen(client.screen)));
@@ -454,6 +463,24 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 					com.freedomclient.cosmetic.vox.TabbyBeeCosmetic.class, com.freedomclient.cosmetic.NeonPetCosmetic.class);
 			context.runOnClient(client -> PetBehavior.forceFlying(false));
 			shoot(context, "madeline_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.MadelinePetCosmetic.class);
+			// Ghostie dando vueltas, con el aura de fantasmas; y en cada estado: corazones, dormido (AFK), con poca vida
+			// (escondido detrás) y volando con élitros.
+			shoot(context, "ghost_pet_aura", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GhostPetCosmetic.class,
+					com.freedomclient.cosmetic.vox.GhostAuraCosmetic.class);
+			shoot(context, "ghost_aura_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.GhostAuraCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceEmotion(PetBehavior.Emotion.HEARTS));
+			shoot(context, "ghost_pet_hearts", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GhostPetCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceEmotion(PetBehavior.Emotion.NONE));
+			context.runOnClient(client -> PetBehavior.forceMood(PetBehavior.Mood.SLEEP));
+			context.waitTicks(2);
+			shoot(context, "ghost_pet_sleep", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GhostPetCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceMood(PetBehavior.Mood.WAVE));
+			context.waitTicks(2);
+			shoot(context, "ghost_pet_wave", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GhostPetCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceMood(PetBehavior.Mood.IDLE));
+			context.runOnClient(client -> PetBehavior.forceFlying(true));
+			shoot(context, "ghost_pet_flying", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.GhostPetCosmetic.class);
+			context.runOnClient(client -> PetBehavior.forceFlying(false));
 			shoot(context, "black_hole_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK,
 					com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic.class);
 			context.runOnClient(client -> setMode((Module) cosmetic(com.freedomclient.cosmetic.vox.BlackHoleBackpackCosmetic.class), "Style", "Void"));
@@ -471,6 +498,11 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
 			shoot(context, "juliet_guitar_front", net.minecraft.client.CameraType.THIRD_PERSON_FRONT, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 150.0F));
+			// Blossom: la guitarra de flor de cerezo a la espalda, de espaldas y de lado.
+			shoot(context, "blossom_guitar_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.BlossomGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 60.0F));
+			shoot(context, "blossom_guitar_side", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.BlossomGuitarCosmetic.class);
+			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 60.0F));
 			// Void Keys: el aro de teclas alrededor y tu jugador flotando, de espaldas, de frente y de lado.
 			shoot(context, "void_keys_back", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class);
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() + 150.0F));
@@ -497,8 +529,10 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.runOnClient(client -> client.player.setYRot(client.player.getYRot() - 90.0F));
 			// Emote de tocar la guitarra (tecla X): Hades en las manos, de frente y de espaldas, y la Electric Guitar.
 			for (Class<?> guitarType : new Class<?>[] {com.freedomclient.cosmetic.vox.HadesGuitarCosmetic.class, com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class,
-					com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class, com.freedomclient.cosmetic.vox.GuitarCosmetic.class}) {
+					com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class, com.freedomclient.cosmetic.vox.GuitarCosmetic.class,
+					com.freedomclient.cosmetic.vox.BlossomGuitarCosmetic.class}) {
 				String name = guitarType == com.freedomclient.cosmetic.vox.GuitarCosmetic.class ? "electric"
+						: guitarType == com.freedomclient.cosmetic.vox.BlossomGuitarCosmetic.class ? "blossom"
 						: guitarType == com.freedomclient.cosmetic.vox.JulietGuitarCosmetic.class ? "juliet"
 						: guitarType == com.freedomclient.cosmetic.vox.VoidKeysCosmetic.class ? "voidkeys" : "hades";
 				context.runOnClient(client -> {
@@ -617,7 +651,8 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			shoot(context, "cape_angel_sky_mono", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.AngelSkyCapeCosmetic.class);
 			shoot(context, "cape_neon_card", net.minecraft.client.CameraType.THIRD_PERSON_BACK, com.freedomclient.cosmetic.NeonCardCapeCosmetic.class);
 			// Flores al andar.
-			for (Class<?> trail : new Class<?>[] {com.freedomclient.cosmetic.FlowerStepsCosmetic.class, com.freedomclient.cosmetic.AbyssFlowersCosmetic.class}) {
+			for (Class<?> trail : new Class<?>[] {com.freedomclient.cosmetic.FlowerStepsCosmetic.class, com.freedomclient.cosmetic.AbyssFlowersCosmetic.class,
+					com.freedomclient.cosmetic.GhostBloomCosmetic.class}) {
 				context.runOnClient(client -> {
 					for (var module : FreedomClient.getModuleManager().getModules()) {
 						if (module.getClass() == trail) module.setEnabled(true);
@@ -633,7 +668,8 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 					context.waitTicks(1);
 				}
 				context.waitTicks(4);
-				context.takeScreenshot(trail == com.freedomclient.cosmetic.FlowerStepsCosmetic.class ? "flower_steps" : "abyss_flowers");
+				context.takeScreenshot(trail == com.freedomclient.cosmetic.FlowerStepsCosmetic.class ? "flower_steps"
+						: trail == com.freedomclient.cosmetic.GhostBloomCosmetic.class ? "ghost_bloom" : "abyss_flowers");
 				context.runOnClient(client -> {
 					for (var module : FreedomClient.getModuleManager().getModules()) {
 						if (module.getClass() == trail) module.setEnabled(false);
@@ -947,6 +983,20 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			});
 			context.waitTicks(10);
 			context.takeScreenshot("menu_cosmetics_void_keys");
+			// Los cosméticos fantasmita en el menú, con los dos temas nuevos.
+			for (com.freedomclient.ui.theme.ThemePreset ghostTheme : new com.freedomclient.ui.theme.ThemePreset[] {
+					com.freedomclient.ui.theme.ThemePreset.PINK_GHOST, com.freedomclient.ui.theme.ThemePreset.NEON_ALLEY}) {
+				context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(ghostTheme));
+				context.setScreen(() -> {
+					FreedomMenuScreen screen = new FreedomMenuScreen();
+					screen.setTab(FreedomMenuScreen.Tab.COSMETICS);
+					screen.searchCosmetics("ghost");
+					return screen;
+				});
+				context.waitTicks(10);
+				context.takeScreenshot("menu_cosmetics_ghost_" + ghostTheme.name().toLowerCase(Locale.ROOT));
+			}
+			context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(com.freedomclient.ui.theme.ThemePreset.RED_SUNSET));
 
 			context.setScreen(() -> {
 				FreedomMenuScreen screen = new FreedomMenuScreen();

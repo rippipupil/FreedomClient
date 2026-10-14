@@ -120,6 +120,64 @@
   --shadow-rgb: 4, 20, 17;
 }
 
+/* Tema Pink Ghost (FreedomPlayer de día): blanco rosado, neón rosa y texto ciruela. Es el único claro. */
+:root[data-theme="pink_ghost"] {
+  --bg: #fff1f7;
+  --bg-2: #ffe3f0;
+  --panel: rgba(255, 241, 247, 0.88);
+  --panel-solid: #ffe3f0;
+  --card: #ffd9ea;
+  --card-2: #ffcde3;
+  --border: #f48fc0;
+  --border-rgb: 244, 143, 192;
+  --border-light: #ffc4df;
+  --accent: #ff3fa4;
+  --accent-rgb: 255, 63, 164;
+  --accent-dark: #c2326f;
+  --accent-light: #ff8cc6;
+  --accent-lighter: #ffd6ea;
+  --accent-hover: #ff6fae;
+  --on-accent: #ffffff;
+  --toggle-on: #f7a8c8;
+  --orange: #ff6fae;
+  --orange-light: #ff9ccb;
+  --red: #d8325a;
+  --sky: #ff8cc6;
+  --text: #5a2a4e;
+  --muted: #8a6474;
+  --shadow: #c88aa8;
+  --shadow-rgb: 200, 138, 168;
+}
+
+/* Tema Neon Alley (FreedomPlayer de noche): callejón morado con neón rosa, violeta y jade. */
+:root[data-theme="neon_alley"] {
+  --bg: #110c1b;
+  --bg-2: #161024;
+  --panel: rgba(17, 12, 27, 0.86);
+  --panel-solid: #1a1329;
+  --card: #1d152d;
+  --card-2: #241a38;
+  --border: #ff3fa4;
+  --border-rgb: 255, 63, 164;
+  --border-light: #ff8cc6;
+  --accent: #ff3fa4;
+  --accent-rgb: 255, 63, 164;
+  --accent-dark: #c2326f;
+  --accent-light: #ff8cc6;
+  --accent-lighter: #ffe3f1;
+  --accent-hover: #ff6fae;
+  --on-accent: #120e1c;
+  --toggle-on: #5b57d9;
+  --orange: #8fe3cb;
+  --orange-light: #b8f0df;
+  --red: #ff4f7a;
+  --sky: #5b57d9;
+  --text: #f3eef4;
+  --muted: #b7a9c9;
+  --shadow: #08050e;
+  --shadow-rgb: 8, 5, 14;
+}
+
 * {
   box-sizing: border-box;
 }

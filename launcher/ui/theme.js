@@ -1,8 +1,8 @@
-// Tema del launcher (Angel Devil, Neon, Morado o Menta). Se aplica antes de pintar nada para que no parpadee al abrir;
+// Tema del launcher (Angel Devil, Neon, Morado, Menta, Pink Ghost o Neon Alley). Se aplica antes de pintar nada para que no parpadee al abrir;
 // app.js lo cambia cuando cargan los ajustes o el usuario elige otro.
 (() => {
   // El logo (el icono con las letras FC) es el mismo en todos los temas.
-  const LOGOS = { angel: "img/logo.png", neon: "img/logo.png", purple: "img/logo.png", mint: "img/logo.png" };
+  const LOGOS = { angel: "img/logo.png", neon: "img/logo.png", purple: "img/logo.png", mint: "img/logo.png", pink_ghost: "img/logo.png", neon_alley: "img/logo.png" };
 
   function apply(name) {
     const theme = LOGOS[name] ? name : "angel";

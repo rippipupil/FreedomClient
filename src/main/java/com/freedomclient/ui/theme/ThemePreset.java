@@ -14,7 +14,11 @@ public enum ThemePreset {
 	/** Morado: violeta y lavanda con toques rosa. Cielo de anochecer morado con luna. */
 	PURPLE("Purple", 0x160A2A, 0x2E1650, 0x9B5CFF, 0xE6B8FF, 0xFF7AD9, 0xF3EAFF),
 	/** Menta: verde menta fresco sobre verde azulado oscuro. Cielo de mañana verde agua. */
-	MINT("Mint", 0x0B2622, 0x15433D, 0x3FE0B0, 0xB8FFE4, 0x7FD8FF, 0xEAFFF7);
+	MINT("Mint", 0x0B2622, 0x15433D, 0x3FE0B0, 0xB8FFE4, 0x7FD8FF, 0xEAFFF7),
+	/** Pink Ghost (FreedomPlayer, de día): blanco rosado, neón rosa y texto ciruela, con fantasmitas. Tema claro. */
+	PINK_GHOST("Pink Ghost", 0xFFF1F7, 0xFFD9EA, 0xF48FC0, 0xFF3FA4, 0xFF8CC6, 0x5A2A4E),
+	/** Neon Alley (FreedomPlayer, de noche): callejón morado con neón rosa, violeta y jade. */
+	NEON_ALLEY("Neon Alley", 0x110C1B, 0x1D152D, 0xFF3FA4, 0xFF3FA4, 0x8FE3CB, 0xF3EEF4);
 
 	private final String displayName;
 	private final Map<ThemeColor, Integer> colors = new EnumMap<>(ThemeColor.class);

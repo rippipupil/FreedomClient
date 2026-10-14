@@ -37,6 +37,12 @@ PALETTE = {
     "q": (0xC4, 0x80, 0x42),  # cobre
     "z": (0x1B, 0x23, 0x50),  # azul marino
     "O": (0xD0, 0x6E, 0x14),  # naranja oscuro (calabaza)
+    "i": (0xF4, 0xA6, 0xCB),  # rosa fantasma
+    "I": (0xC2, 0x32, 0x6F),  # tinta del fantasma rosa
+    "j": (0xFF, 0xE6, 0xF2),  # brillo rosa
+    "J": (0xFF, 0x6F, 0xAE),  # rosa fuerte (mofletes, flores)
+    "f": (0x2F, 0x9C, 0x82),  # jade (tallos)
+    "F": (0x8F, 0xE3, 0xCB),  # jade claro (hojas)
 }
 
 ICONS = {
@@ -1245,6 +1251,60 @@ ICONS = {
         "................",
         "................",
         "................",
+    ],
+    "ghostie": [
+        "................",
+        "......kkkk......",
+        "....kkiiiikk....",
+        "...kijjiiiiik...",
+        "..kijjiiiiiiik..",
+        "..kiiiiiiiiiik..",
+        "..kiiIiiiiIiik..",
+        "..kiIiIiiIiIik..",
+        ".kkJiiiIIiiiJkk.",
+        "kiiiiiiiiiiiiiik",
+        ".kkiiiiiiiiiikk.",
+        "..kiiiiiiiiiik..",
+        "..kiiiiiiiiiik..",
+        "..kiikiikiikik..",
+        "...kk.kk.kk.k...",
+        "................",
+    ],
+    "ghost_aura": [
+        "......kkk.......",
+        ".....kiiik...j..",
+        ".....kIiIk..jwj.",
+        ".....kiiik...j..",
+        "......kkk.......",
+        "..kkk......kkk..",
+        ".kwwwk....kiiik.",
+        ".kkwkk....kIiIk.",
+        ".kwwwk....kiiik.",
+        "..k.k......k.k..",
+        "....j...........",
+        "...jwj....kkk...",
+        "....j....kwwwk..",
+        "........kkkwkkk.",
+        "........kwwwwwk.",
+        ".........k.k.k..",
+    ],
+    "ghost_bloom": [
+        "................",
+        "...i.i..........",
+        "..iiiii....w.w..",
+        "..iiJii...wwwww.",
+        "..iiiii...wwJww.",
+        "...i.i....wwwww.",
+        "....f......w.w..",
+        "...Ff.......f...",
+        "....f......fF...",
+        "......J.J...f...",
+        ".....JJJJJ......",
+        ".....JJwJJ......",
+        ".....JJJJJ......",
+        "......J.J.......",
+        ".......f........",
+        "eeeeeeeeeeeeeeee",
     ],
     "flower_steps": [
         "................",

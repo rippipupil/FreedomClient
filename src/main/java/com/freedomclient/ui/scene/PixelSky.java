@@ -19,7 +19,11 @@ public final class PixelSky {
 		/** Tema morado: anochecer violeta que acaba en rosa en el horizonte, con luna y nubes lavanda. */
 		PURPLE(PURPLE_BANDS, 90, 0xF3E6FF, 0x7A4A9E, 0x5E3680, 0x9A63B8, 0x7A4A9E, 0x1E0B33, 0x4A2270),
 		/** Tema menta: mañana verde agua con nubes blancas y colinas verdes. */
-		MINT(MINT_BANDS, 0, 0xFFFFFF, 0xF2FFFB, 0xCDEFE6, 0xFFFFFF, 0xD4F2EA, 0x2F7A5E, 0x5FBF8C);
+		MINT(MINT_BANDS, 0, 0xFFFFFF, 0xF2FFFB, 0xCDEFE6, 0xFFFFFF, 0xD4F2EA, 0x2F7A5E, 0x5FBF8C),
+		/** Tema Pink Ghost: cielo rosa con nubes blancas, fantasmitas paseando, destellos y colinas con florecitas. */
+		PINK_GHOST(PINK_BANDS, 0, 0xFFFFFF, 0xFFE6F2, 0xFFC4DF, 0xFFFFFF, 0xFFC4DF, 0xF49CC4, 0xFBC6DE),
+		/** Tema Neon Alley: noche morada sobre un callejón de neón (ver {@link com.freedomclient.ui.ThemeArt#alley}). */
+		NEON_ALLEY(ALLEY_BANDS, 70, 0xF4A6CB, 0x2A1A3E, 0x22142F, 0x34204A, 0x2A1A3E, 0x150F21, 0x1C1430);
 
 		final int[] bands;
 		final int stars;
@@ -59,6 +63,14 @@ public final class PixelSky {
 	private static final int[] PURPLE_BANDS = {
 			0x120726, 0x1A0A33, 0x230D40, 0x2D114D, 0x38155A, 0x441A66, 0x511F72, 0x5F257D,
 			0x6E2C87, 0x7E3490, 0x8F3E98, 0xA04A9E, 0xB158A3, 0xC168A6, 0xD07BA8,
+	};
+	private static final int[] PINK_BANDS = {
+			0xFF7FBC, 0xFF88C0, 0xFF91C5, 0xFF9ACA, 0xFFA3CF, 0xFFACD4, 0xFFB5D9, 0xFFBEDE, 0xFFC7E3, 0xFFD0E8, 0xFFD9ED, 0xFFE2F1,
+			0xFFEBF5, 0xFFF3F9,
+	};
+	private static final int[] ALLEY_BANDS = {
+			0x0B0714, 0x0E0918, 0x110B1D, 0x140D22, 0x170F28, 0x1B112E, 0x1F1334, 0x24153A, 0x2A1740, 0x311945, 0x3A1B4A, 0x441D4E,
+			0x501F51, 0x5C2153,
 	};
 	private static final int[] MINT_BANDS = {
 			0x2E8C8A, 0x359692, 0x3DA09A, 0x46AAA2, 0x50B4AA, 0x5BBDB2, 0x67C6BA, 0x74CEC2,
@@ -144,6 +156,8 @@ public final class PixelSky {
 				if (ThemeManager.isNeon()) yield 0x3FD7FF;
 				if (ThemeManager.isPurple()) yield 0xC9A3FF;
 				if (ThemeManager.isMint()) yield 0x8AE6C9;
+				if (ThemeManager.isPinkGhost()) yield 0xF4A6CB;
+				if (ThemeManager.isNeonAlley()) yield 0xFF3FA4;
 				if (ThemeManager.getPreset() == com.freedomclient.ui.theme.ThemePreset.RED_DEVIL
 						|| ThemeManager.getPreset() == com.freedomclient.ui.theme.ThemePreset.RED_SUNSET) yield 0xF5B8A8;
 				yield 0x96BEF0;
@@ -188,7 +202,7 @@ public final class PixelSky {
 		// Estrellas en la parte alta que parpadean (la capa más lejana: casi no se mueve).
 		int starsX = layerShift(parallaxX, 2, p);
 		int starsY = layerShift(parallaxY, 1, p);
-		int starArea = style == Style.NIGHT || style == Style.PURPLE ? horizon * 2 / 3 : horizon / 3;
+		int starArea = style == Style.NIGHT || style == Style.PURPLE || style == Style.NEON_ALLEY ? horizon * 2 / 3 : horizon / 3;
 		for (int i = 0; i < style.stars; i++) {
 			int sx = (int) ((i * 7919L) % Math.max(1, width / p)) * p + starsX;
 			int sy = (int) ((i * 104729L) % Math.max(1, starArea / p)) * p + starsY;
@@ -199,8 +213,24 @@ public final class PixelSky {
 		// Sol (atardecer y día) o luna (noche).
 		int sunX = width * 2 / 3 + layerShift(parallaxX, 4, p);
 		int shiftY = layerShift(parallaxY, 2, p);
+		// Pantalla del diseño de los temas fantasmita (480x270): sus capas se dibujan a esa escala, en medias unidades.
+		float u = height / (float) com.freedomclient.ui.ThemeArt.H;
+		double t = time / 1000.0;
 		if (style == Style.STORM) {
 			// Sin sol ni luna: la luz la ponen los rayos.
+		} else if (style == Style.PINK_GHOST) {
+			// Sol blanco con halo rosa, alto.
+			int sunR = p * 9;
+			int sunY = horizon / 4 + shiftY;
+			disc(g, sunX, sunY, sunR + p * 4, p, color(0xFFFFFF, alpha * 0.35F));
+			disc(g, sunX, sunY, sunR, p, color(0xFFFFFF, alpha));
+			disc(g, sunX, sunY, sunR - p * 3, p, color(0xFFF6FA, alpha));
+		} else if (style == Style.NEON_ALLEY) {
+			// Halo rosa de la ciudad arriba a la derecha y luna menguante (tapada por el color del cielo).
+			for (int k = 6; k >= 1; k--) disc(g, width - Math.round(70 * u), Math.round(10 * u), p * 9 * k, p, color(0xFF3FA4, alpha * 0.05F));
+			int moonY = horizon / 4 + shiftY;
+			disc(g, sunX, moonY, p * 7, p, color(0xFFE3F1, alpha));
+			disc(g, sunX + p * 3, moonY - p * 2, p * 6, p, color(ALLEY_BANDS[3], alpha));
 		} else if (style == Style.NIGHT || style == Style.PURPLE) {
 			int moonR = p * 7;
 			int moonY = horizon / 4 + shiftY;
@@ -218,11 +248,25 @@ public final class PixelSky {
 		}
 
 		// Nubes en dos capas que se mueven a distinta velocidad y con distinto paralaje.
-		clouds(g, width, horizon, p, time, alpha, style, parallaxX, parallaxY);
+		clouds(g, width, horizon, p, time, alpha, style, parallaxX, parallaxY, u);
 		if (style == Style.STORM) {
 			lightning(g, width, horizon, p, time, alpha, parallaxX);
 		}
 
+		if (style == Style.NEON_ALLEY) {
+			// El callejón en lugar de las colinas.
+			g.pose().pushMatrix();
+			g.pose().scale(u / 2.0F, u / 2.0F);
+			com.freedomclient.ui.ThemeArt.alley(g, width / u, com.freedomclient.ui.ThemeArt.H, horizon / u, t);
+			g.pose().popMatrix();
+			return;
+		}
+		if (style == Style.PINK_GHOST) {
+			g.pose().pushMatrix();
+			g.pose().scale(u / 2.0F, u / 2.0F);
+			com.freedomclient.ui.ThemeArt.skySparkles(g, width / u, horizon / u, t);
+			g.pose().popMatrix();
+		}
 		// Colinas en el horizonte: la capa más cercana, la que más se mueve.
 		int hillsX = layerShift(parallaxX, 10, p);
 		int hillsY = layerShift(parallaxY, 3, p);
@@ -232,6 +276,10 @@ public final class PixelSky {
 			int top = horizon - (int) Math.round(wave + 3) * p + hillsY;
 			g.fill(x, top, x + p, height, color(style.hills, alpha));
 			g.fill(x, top, x + p, top + p, color(style.hillsTop, alpha));
+			// Pink Ghost: florecitas blancas y rosas sobre las colinas.
+			if (style == Style.PINK_GHOST && com.freedomclient.ui.ThemeArt.hash(wx) > 0.82) {
+				g.fill(x, top - p, x + p, top, color(com.freedomclient.ui.ThemeArt.hash(wx + 1) > 0.5 ? 0xFFFFFF : 0xFF6FAE, alpha));
+			}
 		}
 	}
 
@@ -286,10 +334,10 @@ public final class PixelSky {
 	}
 
 	private static void clouds(GuiGraphics g, int width, int horizon, int p, long time, float alpha, Style style,
-			float parallaxX, float parallaxY) {
+			float parallaxX, float parallaxY, float u) {
 		int far = color(style.farCloud, alpha * 0.8F);
 		int farShade = color(style.farCloudShade, alpha * 0.8F);
-		int near = color(style.nearCloud, alpha);
+		int near = color(style.nearCloud, alpha * (style == Style.NEON_ALLEY ? 0.9F : 1.0F));
 		int nearShade = color(style.nearCloudShade, alpha);
 		int farX = layerShift(parallaxX, 3, p);
 		int nearX = layerShift(parallaxX, 6, p);
@@ -300,6 +348,13 @@ public final class PixelSky {
 			int x = (int) ((i * span / 4 + time / 90) % span) - 20 * p;
 			int y = horizon / 4 + (i % 2) * p * 10;
 			shape(g, CLOUD_SMALL, x / p * p + farX, y / p * p, p, far, farShade);
+		}
+		if (style == Style.PINK_GHOST) {
+			// Fantasmitas entre las dos capas de nubes.
+			g.pose().pushMatrix();
+			g.pose().scale(u / 2.0F, u / 2.0F);
+			com.freedomclient.ui.ThemeArt.skyGhosts(g, width / u, horizon / u, time / 1000.0);
+			g.pose().popMatrix();
 		}
 		for (int i = 0; i < 3; i++) {
 			int span = width + 60 * p;

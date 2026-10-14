@@ -19,6 +19,25 @@
     0x2e8c8a, 0x359692, 0x3da09a, 0x46aaa2, 0x50b4aa, 0x5bbdb2, 0x67c6ba, 0x74cec2,
     0x82d6ca, 0x91ddd1, 0xa1e4d9, 0xb2eae0, 0xc4f0e8,
   ];
+  const PINK = [
+    0xff7fbc, 0xff88c0, 0xff91c5, 0xff9aca, 0xffa3cf, 0xffacd4, 0xffb5d9, 0xffbede,
+    0xffc7e3, 0xffd0e8, 0xffd9ed, 0xffe2f1, 0xffebf5, 0xfff3f9,
+  ];
+  const ALLEY = [
+    0x0b0714, 0x0e0918, 0x110b1d, 0x140d22, 0x170f28, 0x1b112e, 0x1f1334, 0x24153a,
+    0x2a1740, 0x311945, 0x3a1b4a, 0x441d4e, 0x501f51, 0x5c2153,
+  ];
+  // Fantasmita de FreedomPlayer en pequeño (para el cielo rosa): b cuerpo, k ojos y boca.
+  const GHOST = [
+    "...bbbb...",
+    "..bbbbbb..",
+    ".bbbbbbbb.",
+    ".bbkbbkbb.",
+    "bbbbkkbbbb",
+    ".bbbbbbbb.",
+    ".bbbbbbbb.",
+    ".b.bb.bb.b",
+  ];
   // Colores de los rayos de arriba abajo: se mezclan como la energía de Neon.
   const BOLT = [0xffe14a, 0xe6f055, 0xc6f25a, 0x8ef07a, 0x5ef0c8, 0x3fd7ff, 0x3fa8ff, 0x3a7bff, 0x6b5bff];
   const THEMES = {
@@ -37,6 +56,14 @@
     mint: {
       bands: MINT, star: 0xffffff, sun: true,
       clouds: [0xffffff, 0xd4f2ea, 0xf2fffb, 0xcdefe6], hills: [0x5fbf8c, 0x2f7a5e], rim: 0,
+    },
+    pink_ghost: {
+      bands: PINK, star: 0xffffff, sun: true, noStars: true, ghosts: true,
+      clouds: [0xffffff, 0xffc4df, 0xffe6f2, 0xffc4df], hills: [0xfbc6de, 0xf49cc4], rim: 0,
+    },
+    neon_alley: {
+      bands: ALLEY, star: 0xf4a6cb, sun: false, city: true,
+      clouds: [0x34204a, 0x2a1a3e, 0x2a1a3e, 0x22142f], hills: [0x1c1430, 0x150f21], rim: 0xff3fa4,
     },
   };
   const CLOUD = [
@@ -165,7 +192,7 @@
     }
 
     // Estrellas que parpadean en la parte alta (la capa más lejana).
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < (theme.noStars ? 0 : 70); i++) {
       const sx = ((i * 7919) % w) + Math.round(px * 0.3);
       const sy = ((i * 104729) % Math.max(1, Math.floor(horizon / 3))) + Math.round(py * 0.3);
       if ((Math.floor(t * 2.5) + i * 13) % 7 === 0) continue;
@@ -176,10 +203,13 @@
     // Sol que se pone (solo en el atardecer).
     if (theme.sun) {
       const sunX = Math.floor(w * 0.68 + px * 0.5);
-      const sunY = (theme === THEMES.mint ? Math.floor(horizon / 4) : horizon - 2) + Math.round(py * 0.5);
-      disc(sunX, sunY, 17, hex(0xffd27a, 0.3));
-      disc(sunX, sunY, 13, hex(0xffe08a));
-      disc(sunX, sunY, 9, hex(0xfff1c2));
+      const high = theme === THEMES.mint || theme === THEMES.pink_ghost;
+      const sunY = (high ? Math.floor(horizon / 4) : horizon - 2) + Math.round(py * 0.5);
+      // Pink Ghost: sol blanco con halo rosa.
+      const pink = theme === THEMES.pink_ghost;
+      disc(sunX, sunY, 17, hex(pink ? 0xffffff : 0xffd27a, pink ? 0.35 : 0.3));
+      disc(sunX, sunY, 13, hex(pink ? 0xffffff : 0xffe08a));
+      disc(sunX, sunY, 9, hex(pink ? 0xfff6fa : 0xfff1c2));
     }
 
     // Luna en el tema morado.
@@ -199,6 +229,46 @@
     shape(CLOUD_SMALL, ((w * 0.62 + drift * 0.7) % (w + 30)) - 15 + px, h * 0.3 + py, hex(theme.clouds[2]));
     shape(CLOUD_SMALL, ((w * 0.35 + drift * 1.2) % (w + 30)) - 15 + px, h * 0.46 + py, hex(theme.clouds[3]));
     storm = theme === THEMES.neon && lightning(now, horizon, px);
+
+    // Pink Ghost: fantasmitas rosas y blancos paseando entre las nubes.
+    if (theme.ghosts) {
+      for (let i = 0; i < 4; i++) {
+        const gx = ((w * 0.2 * i + t * (4 + (i % 2) * 2)) % (w + 20)) - 10 + px;
+        const gy = horizon * (0.2 + 0.15 * i) + Math.sin(t * 1.6 + i * 2) * 2 + py;
+        GHOST.forEach((row, ry) => {
+          for (let rx = 0; rx < row.length; rx++) {
+            if (row[rx] === ".") continue;
+            ctx.fillStyle = hex(row[rx] === "k" ? (i % 2 ? 0x1a1420 : 0xc2326f) : i % 2 ? 0xf3eef4 : 0xf4a6cb);
+            ctx.fillRect(Math.round(gx) + rx, Math.round(gy) + ry, 1, 1);
+          }
+        });
+      }
+    }
+
+    // Neon Alley: la ciudad con ventanas de neón que se encienden y apagan, en lugar de las colinas.
+    if (theme.city) {
+      let s = 7;
+      const r = () => (s = (s * 16807) % 2147483647) / 2147483647;
+      for (let x = 0, i = 0; x < w; i++) {
+        const bw = 6 + Math.floor(r() * 12);
+        const bh = Math.floor(h * (0.12 + r() * 0.22));
+        const top = h - bh;
+        ctx.fillStyle = hex([0x1a1328, 0x160f22, 0x1c1430][i % 3]);
+        ctx.fillRect(x + Math.round(px * 0.8), top, bw, bh);
+        for (let k = 0; k < 6; k++) {
+          const wx = x + 1 + Math.floor(r() * (bw - 2)), wy = top + 2 + Math.floor(r() * (bh - 4));
+          const on = (Math.floor(t / (2 + (k % 3))) + i * 7 + k) % 5 !== 0;
+          if (on && r() < 0.7) {
+            ctx.fillStyle = hex([0xff3fa4, 0x5b57d9, 0x2f9c82, 0xf4a6cb][(i + k) % 4], 0.6);
+            ctx.fillRect(wx + Math.round(px * 0.8), wy, 1, 1);
+          }
+        }
+        x += bw;
+      }
+      ctx.fillStyle = hex(0x0d0915);
+      ctx.fillRect(0, h - 2, w, 2);
+      return;
+    }
 
     // Colinas en primer plano (la capa más cercana es la que más se mueve).
     // En el tema Neon las cimas tienen un borde de luz azul que brilla más con cada rayo.

@@ -43,6 +43,8 @@ public class CustomScreensModule extends Module {
 		if (com.freedomclient.ui.theme.ThemeManager.isNeon()) return PixelSky.Style.STORM;
 		if (com.freedomclient.ui.theme.ThemeManager.isPurple()) return PixelSky.Style.PURPLE;
 		if (com.freedomclient.ui.theme.ThemeManager.isMint()) return PixelSky.Style.MINT;
+		if (com.freedomclient.ui.theme.ThemeManager.isPinkGhost()) return PixelSky.Style.PINK_GHOST;
+		if (com.freedomclient.ui.theme.ThemeManager.isNeonAlley()) return PixelSky.Style.NEON_ALLEY;
 		CustomScreensModule module = instance();
 		String mode = module == null ? "Sunset" : module.sky.get();
 		if (mode.equals("Real time")) {

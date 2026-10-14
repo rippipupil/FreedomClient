@@ -7,7 +7,8 @@ import net.minecraft.client.gui.GuiGraphics;
 /**
  * Detalles propios de cada tema en la ventana del menú, en pixel art y animados con calma: sol poniéndose y pájaros
  * en Red Sunset, nubes que pasan en Day Sky, estrellas que titilan, luna y estrellas fugaces en Starry Night, y
- * llamas con brasas que suben en Red Devil (Neon ya tiene su energía). Son pocos rectángulos por fotograma.
+ * llamas con brasas que suben en Red Devil (Neon ya tiene su energía); fantasmitas, nubes y destellos en Pink Ghost y
+ * ciudad, cables con bombillas y lluvia en Neon Alley ({@link ThemeArt}). Son pocos rectángulos por fotograma.
  */
 public final class ThemeDecor {
 	private ThemeDecor() {
@@ -38,9 +39,23 @@ public final class ThemeDecor {
 			}
 			case STARRY_NIGHT -> stars(g, x + 2, y + header + 2, w - 4, h - header - 4, 26, 0.55F);
 			case RED_DEVIL -> g.fillGradient(x + 1, y + h - 44, x + w - 1, y + h - 1, 0x00D7263D, 0x40D7263D);
+			case PINK_GHOST -> half(g, () -> ThemeArt.pinkBackground(g, x, y, w, h, seconds()));
+			case NEON_ALLEY -> half(g, () -> ThemeArt.alleyBackground(g, x, y, w, h, seconds()));
 			default -> {
 			}
 		}
+	}
+
+	private static double seconds() {
+		return now() % 10_000_000L / 1000.0;
+	}
+
+	/** Los adornos de Pink Ghost y Neon Alley se dibujan en medias unidades (ver {@link ThemeArt}). */
+	private static void half(GuiGraphics g, Runnable draw) {
+		g.pose().pushMatrix();
+		g.pose().scale(0.5F, 0.5F);
+		draw.run();
+		g.pose().popMatrix();
 	}
 
 	/** Por encima del contenido (medio transparente): las llamas y las brasas de Red Devil suben sobre las tarjetas. */
@@ -49,6 +64,8 @@ public final class ThemeDecor {
 			flames(g, x + 1, y + h - 1, w - 2);
 			embers(g, x + 1, y + header, w - 2, h - header - 2, 16);
 		}
+		if (ThemeManager.isPinkGhost()) half(g, () -> ThemeArt.pinkForeground(g, x, y, w, h, header, seconds()));
+		if (ThemeManager.isNeonAlley()) half(g, () -> ThemeArt.alleyForeground(g, x, y, w, h, header, seconds()));
 	}
 
 	/** En la cabecera, después de su fondo y antes del logo y las pestañas. */
@@ -66,6 +83,8 @@ public final class ThemeDecor {
 				g.fillGradient(x + 1, y + 1, x + w - 1, y + h, 0x00000000, 0x30FF4B4B);
 				embers(g, x + 1, y + 1, w - 2, h - 1, 6);
 			}
+			case PINK_GHOST -> half(g, () -> ThemeArt.pinkHeader(g, x, y, w, h, seconds()));
+			case NEON_ALLEY -> half(g, () -> ThemeArt.alleyHeader(g, x, y, w, h, seconds()));
 			default -> {
 			}
 		}

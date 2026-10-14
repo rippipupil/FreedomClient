@@ -66,7 +66,8 @@ public class FreedomTitleScreen extends TitleScreen {
 		PixelSky.logo(graphics, centerX, logoY - p * 2, p, appear);
 		Component name = UiText.logo(FreedomClient.NAME);
 		int nameY = logoY + p * 10;
-		graphics.drawString(font, name, centerX - font.width(name) / 2 + 1, nameY + 1, 0xFF1A0508, false);
+		// En el cielo rosa de Pink Ghost la sombra es ciruela (se lee mejor que la negra).
+		graphics.drawString(font, name, centerX - font.width(name) / 2 + 1, nameY + 1, ThemeManager.isPinkGhost() ? 0xFF7A2A5A : 0xFF1A0508, false);
 		graphics.drawString(font, name, centerX - font.width(name) / 2, nameY, 0xFFF5F1E8, false);
 
 		// Botones.
@@ -81,10 +82,13 @@ public class FreedomTitleScreen extends TitleScreen {
 		button("Quit", x + half + BUTTON_GAP, y, half, minecraft::stop);
 
 		// Textos de las esquinas.
+		// Sobre las colinas rosas de Pink Ghost, en ciruela y sin sombra.
+		int corner = ThemeManager.isPinkGhost() ? 0xFF5A2A4E : 0xCCF5F1E8;
+		boolean shadow = !ThemeManager.isPinkGhost();
 		graphics.drawString(font, FreedomClient.NAME + " v" + version + " | Minecraft " + minecraftVersion,
-				4, height - 12, 0xCCF5F1E8, true);
+				4, height - 12, corner, shadow);
 		String copyright = "Copyright Mojang AB. Do not distribute!";
-		graphics.drawString(font, copyright, width - font.width(copyright) - 4, height - 12, 0xCCF5F1E8, true);
+		graphics.drawString(font, copyright, width - font.width(copyright) - 4, height - 12, corner, shadow);
 
 		renderUpdateBanner(graphics);
 		ui.end();

@@ -221,6 +221,11 @@ public class ModuleManager {
 		add(new com.freedomclient.cosmetic.vox.HadesGuitarCosmetic());
 		add(new com.freedomclient.cosmetic.vox.JulietGuitarCosmetic());
 		add(new com.freedomclient.cosmetic.vox.VoidKeysCosmetic());
+		add(new com.freedomclient.cosmetic.vox.BlossomGuitarCosmetic());
+		// Fantasmitas (FreedomPlayer)
+		add(new com.freedomclient.cosmetic.vox.GhostPetCosmetic());
+		add(new com.freedomclient.cosmetic.vox.GhostAuraCosmetic());
+		add(new com.freedomclient.cosmetic.GhostBloomCosmetic());
 		// Halloween y rastros de flores
 		add(new com.freedomclient.cosmetic.vox.JackOLanternCosmetic());
 		add(new com.freedomclient.cosmetic.FlowerStepsCosmetic());

@@ -27,7 +27,11 @@ public class CustomSkyModule extends Module implements com.freedomclient.module.
 		DAY(0x3F8FD8, 0xBDE8FA, 0xFFFFFF, 0x060822, 0x1F2759, 0x3A3F6B, 0xFFD27A, 0.0F),
 		STORM(0x0E1842, 0x2C86BF, 0x26307A, 0x04061A, 0x162358, 0x121840, 0x3FD7FF, 0.6F),
 		PURPLE(0x441A66, 0xD07BA8, 0x9A63B8, 0x120726, 0x5F257D, 0x5E3680, 0xFF7AD9, 0.5F),
-		MINT(0x46AAA2, 0xC4F0E8, 0xF2FFFB, 0x0B2622, 0x1B534B, 0x2F6A60, 0xB8FFE4, 0.1F);
+		MINT(0x46AAA2, 0xC4F0E8, 0xF2FFFB, 0x0B2622, 0x1B534B, 0x2F6A60, 0xB8FFE4, 0.1F),
+		/** Pink Ghost: de día rosa con nubes blancas; de noche morado rosado. */
+		PINK(0xFF91C5, 0xFFEBF5, 0xFFFFFF, 0x2A1740, 0x6E2C67, 0x5C3A62, 0xFF8CC6, 0.3F),
+		/** Neon Alley: noche morada con el horizonte rosa neón; de día, un atardecer morado. */
+		ALLEY(0x3A1B4A, 0xC2326F, 0x8A5A9E, 0x0B0714, 0x5C2153, 0x34204A, 0xFF3FA4, 0.8F);
 
 		final int daySky;
 		final int dayFog;
@@ -51,7 +55,7 @@ public class CustomSkyModule extends Module implements com.freedomclient.module.
 	}
 
 	private final ModeSetting sky = add(new ModeSetting("Sky", "Look of the sky. Menu theme uses the colors of the theme you picked in the Theme tab.",
-			"Menu theme", "Menu theme", "Sunset", "Starry night", "Day", "Storm", "Purple", "Mint"));
+			"Menu theme", "Menu theme", "Sunset", "Starry night", "Day", "Storm", "Purple", "Mint", "Pink Ghost", "Neon Alley"));
 	private final BooleanSetting dayCycle = add(new BooleanSetting("Day and night",
 			"The sky gets dark at night with the theme's night colors. Off: the theme's look all day long.", true));
 	private final BooleanSetting clouds = add(new BooleanSetting("Tint clouds", "Clouds take the colors of the sky.", true));
@@ -61,7 +65,7 @@ public class CustomSkyModule extends Module implements com.freedomclient.module.
 	private float daylight = 1.0F;
 
 	public CustomSkyModule() {
-		super("Custom Sky", "Themed skies: Angel Devil sunset, starry night, day, Neon storm, purple or mint. Follows day and night.",
+		super("Custom Sky", "Themed skies: Angel Devil sunset, starry night, day, Neon storm, purple, mint, Pink Ghost or Neon Alley. Follows day and night.",
 				Category.VISUAL, false);
 		instance = this;
 	}
@@ -79,6 +83,8 @@ public class CustomSkyModule extends Module implements com.freedomclient.module.
 			case "Storm" -> Sky.STORM;
 			case "Purple" -> Sky.PURPLE;
 			case "Mint" -> Sky.MINT;
+			case "Pink Ghost" -> Sky.PINK;
+			case "Neon Alley" -> Sky.ALLEY;
 			default -> fromTheme(ThemeManager.getPreset());
 		};
 	}
@@ -90,6 +96,8 @@ public class CustomSkyModule extends Module implements com.freedomclient.module.
 			case NEON -> Sky.STORM;
 			case PURPLE -> Sky.PURPLE;
 			case MINT -> Sky.MINT;
+			case PINK_GHOST -> Sky.PINK;
+			case NEON_ALLEY -> Sky.ALLEY;
 			default -> Sky.SUNSET;
 		};
 	}
