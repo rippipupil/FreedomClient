@@ -1,0 +1,137 @@
+<title>Guitarra Blossom</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Una sola escena a propósito: noche de cerezos (ciruela oscuro con pétalos cayendo) para que la guitarra rosa destaque. */
+:root {
+  --sky: #2a1820;
+  --ink: #fff4f8;
+  --mist: #d9b3c4;
+  --petal: #f7a8c8;
+  --cherry: #c2326f;
+  --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
+  --body: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--sky); color: var(--ink); font-family: var(--body); overflow: hidden; }
+#bg, #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#c { touch-action: none; cursor: grab; image-rendering: pixelated; }
+header { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); pointer-events: none; display: grid; gap: 6px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 38px); letter-spacing: .2em; margin: 0; }
+h1 span { color: var(--cherry); }
+header p { margin: 0; font-size: 13px; color: var(--mist); max-width: 56ch; }
+.pal { display: flex; flex-wrap: wrap; gap: 6px 10px; max-width: 520px; }
+.pal span { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--mist); }
+.pal i { width: 14px; height: 14px; display: block; box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+#bar { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: inherit; font-size: 13px; font-weight: 700; min-height: 36px; padding: 0 14px; background: #fff4f8; color: #3d2430; border: 0; cursor: pointer; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+button[aria-pressed="true"] { background: var(--cherry); color: #fff; }
+button:focus-visible { outline: 2px solid var(--cherry); outline-offset: 2px; }
+#note { position: fixed; left: 16px; bottom: 64px; font-size: 13px; color: var(--petal); }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&family=Nunito:wght@400;700&display=swap">
+
+<canvas id="bg" aria-hidden="true"></canvas>
+<canvas id="c" aria-label="Guitarra Blossom en 3D. Arrastra para girarla."></canvas>
+<header>
+  <h1>BLOSSOM<span>.</span></h1>
+  <p>La forma de tu Jackson (pala puntiaguda, aletas de tiburón, dos humbuckers, Floyd Rose y cuerpo de puntas) con la paleta Blossom: nácar y rosas en degradado, ramas de cerezo con flores en relieve, pétalos posados, diapasón ciruela y herrajes de oro rosa. Arrastra para girarla, rueda para acercar.</p>
+  <div class="pal" id="pal"></div>
+</header>
+<div id="note" role="status"></div>
+<div id="bar">
+  <button id="bSpin" aria-pressed="true">Girar</button>
+  <button id="bFront" aria-pressed="false">De frente</button>
+  <button id="bBack" aria-pressed="false">De espaldas</button>
+  <button id="bPix" aria-pressed="true">Pixelado</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+%DESIGN%
+</script>
+<script>
+(function () {
+  const NAMES = { pearl: 'Nácar', blush: 'Rubor', petal: 'Pétalo', rose: 'Rosa', cherry: 'Cereza', bark: 'Corteza', barkHi: 'Corteza clara', board: 'Ciruela', inlay: 'Aleta', fret: 'Traste', gold: 'Oro rosa', goldDk: 'Oro rosa oscuro', white: 'Filete', pole: 'Polos', string: 'Cuerdas', back: 'Trasera', neck: 'Mástil' };
+  const pal = document.getElementById('pal');
+  PAL_NAMES.forEach((n, i) => { const s = document.createElement('span'); s.innerHTML = `<i style="background:#${PAL[i].toString(16).padStart(6, '0')}"></i>${NAMES[n]}`; pal.append(s); });
+
+  // Fondo: cielo rosa con ramas y pétalos que caen (2D, detrás).
+  const bg = document.getElementById('bg'), bgc = bg.getContext('2d');
+  let petals = [];
+  function sizeBg() {
+    bg.width = Math.ceil(innerWidth / 3); bg.height = Math.ceil(innerHeight / 3);
+    let s = 5; const r = () => (s = s * 16807 % 2147483647) / 2147483647;
+    petals = Array.from({ length: 50 }, () => ({ x: r(), y: r(), v: 0.03 + r() * 0.05, w: 1 + r() * 2, ph: r() * 6.28, c: r() < 0.6 ? '#f7a8c8' : '#ffffff' }));
+  }
+  function drawBg(t) {
+    const w = bg.width, h = bg.height, g = bgc;
+    const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#2a1820'); gr.addColorStop(1, '#5a3440');
+    g.fillStyle = gr; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(194,50,111,.35)'; for (let x = 0; x < w; x += 2) { const y = h * 0.82 + Math.sin(x / 9) * 3 + Math.sin(x / 23) * 5; g.fillRect(x, y, 2, h - y); }
+    for (const p of petals) {
+      const y = ((p.y + p.v * t) % 1.1) * h - 4, x = (p.x * w + Math.sin(t * 0.8 + p.ph) * 6) % w;
+      g.fillStyle = p.c; g.fillRect(Math.round(x), Math.round(y), Math.round(p.w + 1), Math.round(p.w));
+    }
+  }
+
+  const note = document.getElementById('note');
+  if (typeof THREE === 'undefined') { note.textContent = 'No se ha podido cargar la librería 3D (three.js). Recarga la página.'; return; }
+  const canvas = document.getElementById('c');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false }); }
+  catch (e) { note.textContent = 'Tu navegador no ha podido abrir la vista 3D (WebGL). Prueba en otro navegador o en el ordenador.'; return; }
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(30, 1, 1, 2000);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(40, 60, 90); scene.add(sun);
+  const back = new THREE.DirectionalLight(0xffc0dc, 0.35); back.position.set(-60, -20, -80); scene.add(back);
+
+  // Todas las cajas del diseño en una sola geometría (el color en cada vértice). Como en Juliet: el centro de cada
+  // caja es (x + 0,5, -y, z) y la guitarra se centra en su largo.
+  const V = gen(), geo = new THREE.BoxGeometry(1, 1, 1), gp = geo.attributes.position.array, gn = geo.attributes.normal.array, gi = geo.index.array;
+  const pos = [], nor = [], col = [], idx = [], c = new THREE.Color();
+  const minY = Math.min(...V.map(v => v.y)), maxY = Math.max(...V.map(v => v.y)), midY = (minY + maxY) / 2;
+  for (const v of V) {
+    const base = pos.length / 3; c.setHex(PAL[v.c]);
+    for (let i = 0; i < gp.length; i += 3) { pos.push(gp[i] * v.sx + v.x + 0.5, gp[i + 1] * v.sy - (v.y - midY), gp[i + 2] * v.sz + v.z - 2); nor.push(gn[i], gn[i + 1], gn[i + 2]); col.push(c.r, c.g, c.b); }
+    for (const i of gi) idx.push(base + i);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3)); g.setIndex(idx);
+  const guitar = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true }));
+  const holder = new THREE.Group(); holder.add(guitar); scene.add(holder);
+  guitar.rotation.z = -0.12;
+
+  let ry = 0.5, rx = 0.1, dist = 230, spin = true, pix = true, target = null;
+  function size() {
+    const w = canvas.clientWidth, h = canvas.clientHeight, k = pix ? 2 : 1 / Math.min(devicePixelRatio || 1, 2);
+    renderer.setSize(Math.max(1, Math.floor(w / k)), Math.max(1, Math.floor(h / k)), false);
+    cam.aspect = w / h; cam.updateProjectionMatrix(); sizeBg();
+  }
+  addEventListener('resize', size); size();
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); target = null; });
+  canvas.addEventListener('pointermove', e => { if (!drag) return; ry += (e.clientX - drag.x) * 0.01; rx = Math.max(-1.2, Math.min(1.2, rx + (e.clientY - drag.y) * 0.01)); drag = { x: e.clientX, y: e.clientY }; });
+  const up = () => drag = null; canvas.addEventListener('pointerup', up); canvas.addEventListener('pointercancel', up);
+  canvas.addEventListener('wheel', e => { e.preventDefault(); dist = Math.max(90, Math.min(420, dist * (1 + Math.sign(e.deltaY) * 0.08))); }, { passive: false });
+  const press = (id, v) => document.getElementById(id).setAttribute('aria-pressed', v);
+  document.getElementById('bSpin').onclick = () => { spin = !spin; press('bSpin', spin); };
+  document.getElementById('bPix').onclick = () => { pix = !pix; press('bPix', pix); size(); };
+  document.getElementById('bFront').onclick = () => { spin = false; press('bSpin', false); target = 0; };
+  document.getElementById('bBack').onclick = () => { spin = false; press('bSpin', false); target = Math.PI; };
+
+  const t0 = performance.now();
+  (function loop() {
+    const t = (performance.now() - t0) / 1000;
+    if (spin && !drag) ry += 0.006;
+    if (target !== null) { const d = Math.atan2(Math.sin(target - ry), Math.cos(target - ry)); ry += d * 0.12; rx += (0.05 - rx) * 0.12; }
+    holder.rotation.set(rx, ry, 0);
+    const fit = cam.aspect < 0.75 ? 0.75 / cam.aspect : 1;
+    cam.position.set(0, 0, dist * fit); cam.lookAt(0, 0, 0);
+    renderer.render(scene, cam);
+    drawBg(t);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
