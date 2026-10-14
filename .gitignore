@@ -46,3 +46,4 @@ launcher/app/gen/
 
 # Builds del launcher descargados para pasarlos (no van al repositorio).
 launcher-builds/
+__pycache__/
