@@ -135,11 +135,16 @@ def main():
     out_json = sys.argv[1]
     body_fine = fine_grid(lambda x, y: inside(BODY, x, y), 0.5)
     # ---- Cuerpo en vóxeles de 0,5 px ----
-    # Visto de frente es la silueta del SVG; de lado, cada fila es una elipse: grosor D en el centro que baja hacia los
-    # bordes (redondo por los lados y, como las filas de arriba son más estrechas, también por arriba). El grosor va en
-    # pasos de 0,5 px y cada fila se hace con cajas metidas unas en otras (una por paso): pocas cajas.
+    # Visto de frente es la silueta del SVG. El grosor es el de un huevo: en cada fila, una elipse (D en el centro y
+    # nada en los bordes) y, de arriba abajo, más grueso en la barriga (y = BELLY), en cúpula hacia la cabeza y algo
+    # recogido en el faldón. Va en pasos de 0,5 px y cada fila se hace con cajas metidas unas en otras (una por paso).
     W, H = FW * 0.5, FH * 0.5  # 14 x 13,5 px
-    D, LEVELS = 3.25, [0.75, 1.25, 1.75, 2.25, 2.75, 3.25]
+    D, BELLY, DOME = 4.0, 6.5, 7.5
+    LEVELS = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+
+    def row_depth(y):
+        if y >= BELLY: return D * math.sqrt(max(0.0, 1 - ((y - BELLY) / DOME) ** 2))
+        return D * (0.75 + 0.25 * math.sqrt(max(0.0, 1 - ((BELLY - y) / DOME) ** 2)))
 
     def is_arm(c):
         sx = FX0 + (c + 0.5) * F
@@ -153,10 +158,10 @@ def main():
         return max(abs(px_x(min(cols))), abs(px_x(max(cols)) + 0.5)) if cols else 0
 
     def half_depth(r, c):
-        if is_arm(c): return 0.75
+        if is_arm(c): return 1.0 if abs(px_x(c) + 0.25) < 6 else 0.5
         hw = half_width(r)
         u = min(1.0, abs(px_x(c) + 0.25) / hw) if hw else 1.0
-        d = D * math.sqrt(max(0.0, 1 - u * u))
+        d = row_depth(px_y(r) + 0.25) * math.sqrt(max(0.0, 1 - u * u))
         return max([l for l in LEVELS if l <= d + 1e-9] or [LEVELS[0]])
 
     def role(r):
