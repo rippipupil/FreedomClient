@@ -77,7 +77,7 @@ public class ModGridPage implements MenuPage {
 		if (NeonStyle.on() && !selected) {
 			NeonStyle.frame(ui.g, x, y, width, BAR_HEIGHT, x / 500.0, 0.2, hovered ? 1.0F : 0.6F);
 		}
-		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
+		ui.g.drawString(ui.font, label, x + 5, y + 2, selected ? ThemeManager.onAccent() : ThemeManager.text(), false);
 		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
 			if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
 				if (onRightClick == null) return false;
@@ -174,7 +174,7 @@ public class ModGridPage implements MenuPage {
 		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
 		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
 		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
-		ui.g.drawString(ui.font, label, x + 4, y + 2, selected ? ThemeManager.shade() : ThemeManager.text(), false);
+		ui.g.drawString(ui.font, label, x + 4, y + 2, selected ? ThemeManager.onAccent() : ThemeManager.text(), false);
 		ui.click(x, y, width, BAR_HEIGHT, (mx, my, button) -> {
 			slotFilter = slot;
 			scroll.reset();
@@ -247,7 +247,7 @@ public class ModGridPage implements MenuPage {
 		boolean selected = filter == category;
 		boolean hovered = ui.hovered(x, y, width, BAR_HEIGHT);
 		int fill = selected ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
-		int textColor = selected ? ThemeManager.shade() : ThemeManager.text();
+		int textColor = selected ? ThemeManager.onAccent() : ThemeManager.text();
 		Draw.panel(ui.g, x, y, width, BAR_HEIGHT, fill, selected ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
 		ui.g.drawString(ui.font, label, x + 5, y + 2, textColor, false);
 
@@ -521,7 +521,10 @@ public class ModGridPage implements MenuPage {
 		// A la derecha quedan la rueda de ajustes y la estrella.
 		int textWidth = x + w - textX - 24;
 		// Sobre un fondo propio (siempre oscuro) el texto va claro, sea cual sea el tema.
-		int nameColor = lightCard ? 0xFF35206E : customBackground ? 0xFFF2F2F0 : ThemeManager.mix(ThemeManager.text(), 0xFFFFFFFF, 0.3F * on);
+		// En un tema claro (Pink Ghost) el texto del tema es oscuro: al encender la tarjeta se oscurece en vez de aclararse.
+		boolean lightTheme = ThemeManager.isLight() && !customBackground;
+		int nameColor = lightCard ? 0xFF35206E : customBackground ? 0xFFF2F2F0
+				: ThemeManager.mix(ThemeManager.text(), lightTheme ? 0xFF000000 : 0xFFFFFFFF, (lightTheme ? 0.2F : 0.3F) * on);
 		int nameY = y + (isCosmetics() ? 7 : 5);
 		// Algunos cosméticos traen su propio rótulo en vez del nombre en texto.
 		boolean customTitle = module instanceof CosmeticModule titled && titled.drawCardTitle(ui.g, textX, nameY, on);
@@ -548,7 +551,7 @@ public class ModGridPage implements MenuPage {
 			// Sobre un fondo claro con dibujos, una plaquita blanca deja leer el estado.
 			if (lightCard) ui.g.fill(textX - 2, statusY - 1, textX + 9 + ui.font.width(label), statusY + 9, ThemeManager.withAlpha(0xFFFFFFFF, 0.8F));
 			ui.g.fill(textX, statusY + 2, textX + 4, statusY + 6, dot);
-			int onColor = lightCard ? ThemeManager.mix(category, 0xFF000000, 0.25F) : ThemeManager.mix(category, 0xFFFFFFFF, 0.35F);
+			int onColor = lightCard || lightTheme ? ThemeManager.mix(category, 0xFF000000, 0.25F) : ThemeManager.mix(category, 0xFFFFFFFF, 0.35F);
 			ui.g.drawString(ui.font, label, textX + 7, statusY, module.isEnabled() || alwaysOn ? onColor : muted, false);
 		}
 		if (isCosmetics() && !twoLines && (!(module instanceof CosmeticModule described) || described.showCardDescription())) {

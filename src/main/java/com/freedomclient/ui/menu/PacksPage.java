@@ -156,7 +156,7 @@ public class PacksPage implements MenuPage {
 		boolean hovered = enabled && ui.hovered(bx, y, width, BAR_HEIGHT);
 		int fill = primary ? (hovered ? ThemeManager.highlight() : ThemeManager.accent()) : hovered ? ThemeManager.cardHover() : ThemeManager.card();
 		Draw.bevelPanel(ui.g, bx, y, width, BAR_HEIGHT, fill, primary ? ThemeManager.accent() : ThemeManager.border());
-		int text = primary ? ThemeManager.shade() : enabled ? ThemeManager.text() : ThemeManager.textMuted();
+		int text = primary ? ThemeManager.onAccent() : enabled ? ThemeManager.text() : ThemeManager.textMuted();
 		ui.g.drawString(ui.font, label, bx + 6, y + 3, text, false);
 		if (enabled) {
 			ui.click(bx, y, width, BAR_HEIGHT, (mx, my, b) -> {

@@ -99,7 +99,7 @@ public class ModuleSettingsPage implements MenuPage {
 			boolean hovered = ui.hovered(cx, rowY, width, 12);
 			int fill = inside ? ThemeManager.accent() : hovered ? ThemeManager.cardHover() : ThemeManager.card();
 			Draw.panel(ui.g, cx, rowY, width, 12, fill, inside ? ThemeManager.accent() : ThemeManager.mix(ThemeManager.border(), ThemeManager.card(), 0.4F));
-			ui.g.drawString(ui.font, label, cx + 5, rowY + 2, inside ? ThemeManager.shade() : ThemeManager.text(), false);
+			ui.g.drawString(ui.font, label, cx + 5, rowY + 2, inside ? ThemeManager.onAccent() : ThemeManager.text(), false);
 			ui.click(cx, rowY, width, 12, (mx, my, button) -> {
 				ModFolders.toggle(folder, module.getId());
 				ui.playClick();

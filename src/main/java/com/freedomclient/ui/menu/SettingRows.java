@@ -333,7 +333,7 @@ public class SettingRows {
 			int border = selected ? ThemeManager.mix(ThemeManager.accent(), 0xFF000000, 0.35F)
 					: hovered ? ThemeManager.highlight() : ThemeManager.mix(ThemeManager.border(), 0xFF000000, 0.35F);
 			Draw.panel(ui.g, cx, cy, cw, chipHeight, fill, border);
-			int textColor = selected ? ThemeManager.shade() : hovered ? ThemeManager.highlight() : ThemeManager.text();
+			int textColor = selected ? ThemeManager.onAccent() : hovered ? ThemeManager.highlight() : ThemeManager.text();
 			ui.g.drawString(ui.font, mode, cx + (cw - ui.font.width(mode)) / 2, cy + 2, textColor, false);
 			ui.click(cx, cy, cw, chipHeight, (mx, my, button) -> {
 				if (!setting.is(mode)) {

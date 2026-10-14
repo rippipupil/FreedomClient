@@ -113,9 +113,18 @@ public final class ThemeManager {
 		return mix(get(ThemeColor.TEXT), get(ThemeColor.CARD), 0.4F);
 	}
 
-	/** Color oscuro para sombras y huecos (fondo del interruptor apagado, sombra de la ventana). */
+	/**
+	 * Color de sombras y huecos (fondo del interruptor apagado, buscadores, sombra de la ventana): oscuro en los temas
+	 * oscuros y, en los claros (Pink Ghost), un tono algo más fuerte del fondo, para que el texto del tema se lea encima.
+	 */
 	public static int shade() {
+		if (isLight()) return mix(get(ThemeColor.BACKGROUND), get(ThemeColor.BORDER), 0.22F);
 		return mix(get(ThemeColor.BACKGROUND), 0xFF000000, 0.5F);
+	}
+
+	/** Texto encima del color de acento (pestañas y filtros elegidos): blanco en los temas claros. */
+	public static int onAccent() {
+		return isLight() ? 0xFFFFFFFF : shade();
 	}
 
 	public static int withAlpha(int argb, float alpha) {
