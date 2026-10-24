@@ -50,6 +50,11 @@ dependencies {
 
 	// Decodificador de MP3 en Java puro (LGPL) para el reproductor de música local.
 	include(implementation("javazoom:jlayer:1.0.1"))
+	// NeoLyrics y la biblioteca de FreedomPlayer: leer su base de datos (SQLite) y tocar su audio, que guarda como
+	// Opus en WebM (calidad máxima) o AAC en M4A (normal). Todo en Java puro salvo el SQLite (lleva sus nativos).
+	include(implementation("org.xerial:sqlite-jdbc:3.46.1.3"))
+	include(implementation("io.github.jaredmdobson:concentus:1.0.2"))
+	include(implementation("org.jcodec:jcodec:0.2.5"))
 
 	// El paquete de Fabric API no incluye la API de tests de cliente; solo se añade al ejecutar los tests.
 	productionRuntimeMods fabricApi.module("fabric-client-gametest-api-v1", project.fabric_api_version)

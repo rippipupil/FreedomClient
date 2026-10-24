@@ -1,17 +1,20 @@
 # Clases a inspeccionar (ver probe.sh). "%jar:texto" busca clases en jars de dependencias.
-net.minecraft.client.model.player.PlayerModel
-net.minecraft.client.model.HumanoidModel
-net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
-net.minecraft.client.resources.sounds.AbstractSoundInstance
-net.minecraft.client.resources.sounds.SoundInstance
-net.minecraft.client.player.ClientInput
-net.minecraft.world.entity.player.Input
-net.minecraft.client.renderer.entity.state.HumanoidRenderState
-net.minecraft.client.renderer.entity.state.ArmedEntityRenderState
-net.minecraft.client.renderer.entity.state.AvatarRenderState
-net.minecraft.client.sounds.SoundManager
-net.minecraft.client.renderer.entity.player.AvatarRenderer
-net.minecraft.client.renderer.entity.LivingEntityRenderer
-net.minecraft.client.renderer.entity.state.LivingEntityRenderState
-net.minecraft.client.renderer.entity.state.EntityRenderState
-net.minecraft.client.model.geom.ModelPart
+# NeoLyrics: decodificadores y SQLite.
+%concentus:Decoder
+%jcodec:aac/
+%jcodec:jaad
+%jcodec:mp4/demuxer
+io.github.jaredmdobson.concentus.OpusDecoder
+org.jcodec.containers.mp4.demuxer.MP4Demuxer
+org.jcodec.common.DemuxerTrack
+org.jcodec.common.model.Packet
+org.jcodec.common.DemuxerTrackMeta
+org.jcodec.common.AudioCodecMeta
+org.jcodec.codecs.aac.AACDecoder
+org.jcodec.common.io.NIOUtils
+org.jcodec.common.io.SeekableByteChannel
+org.jcodec.common.model.AudioBuffer
+org.jcodec.common.AudioFormat
+# Cámara y FOV para proyectar la letra en el cielo.
+net.minecraft.client.Camera
+net.minecraft.client.renderer.GameRenderer
