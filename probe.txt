@@ -1,0 +1,583 @@
+Jar: .gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-6c1f373ab1/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-6c1f373ab1-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
+
+==================== %concentus:Decoder
+-- /home/runner/.gradle/caches/modules-2/files-2.1/io.github.jaredmdobson/concentus/1.0.2/3658ef53df76c1fb635617c03320cd56dfdd49f3/concentus-1.0.2.jar
+io/github/jaredmdobson/concentus/SilkDecoderControl.class
+io/github/jaredmdobson/concentus/SilkDecoder.class
+io/github/jaredmdobson/concentus/OpusMSDecoder.class
+io/github/jaredmdobson/concentus/SilkChannelDecoder.class
+io/github/jaredmdobson/concentus/DecoderAPIFlag.class
+io/github/jaredmdobson/concentus/OpusDecoder.class
+io/github/jaredmdobson/concentus/OpusDecoder$1.class
+io/github/jaredmdobson/concentus/CeltDecoder.class
+
+==================== %jcodec:aac/
+-- /home/runner/.gradle/caches/modules-2/files-2.1/org.jcodec/jcodec/0.2.5/b1968a3dbf46aa5ac9630ce9e3cbf67c4940d08/jcodec-0.2.5.jar
+net/sourceforge/jaad/aac/
+net/sourceforge/jaad/aac/error/
+net/sourceforge/jaad/aac/filterbank/
+net/sourceforge/jaad/aac/gain/
+net/sourceforge/jaad/aac/huffman/
+net/sourceforge/jaad/aac/ps/
+net/sourceforge/jaad/aac/sbr/
+net/sourceforge/jaad/aac/syntax/
+net/sourceforge/jaad/aac/tools/
+net/sourceforge/jaad/aac/transport/
+org/jcodec/codecs/aac/
+org/jcodec/codecs/aac/blocks/
+net/sourceforge/jaad/aac/AACDecoderConfig.class
+net/sourceforge/jaad/aac/AACException.class
+net/sourceforge/jaad/aac/ChannelConfiguration.class
+net/sourceforge/jaad/aac/Decoder.class
+net/sourceforge/jaad/aac/error/BitsBuffer.class
+net/sourceforge/jaad/aac/error/HCR$Codeword.class
+net/sourceforge/jaad/aac/error/HCR.class
+net/sourceforge/jaad/aac/error/RVLC.class
+net/sourceforge/jaad/aac/error/RVLCTables.class
+net/sourceforge/jaad/aac/filterbank/FFT.class
+net/sourceforge/jaad/aac/filterbank/FFTTables.class
+net/sourceforge/jaad/aac/filterbank/FilterBank$1.class
+net/sourceforge/jaad/aac/filterbank/FilterBank.class
+net/sourceforge/jaad/aac/filterbank/KBDWindows.class
+net/sourceforge/jaad/aac/filterbank/MDCT.class
+net/sourceforge/jaad/aac/filterbank/MDCTTables.class
+net/sourceforge/jaad/aac/filterbank/SineWindows.class
+net/sourceforge/jaad/aac/gain/FFT.class
+net/sourceforge/jaad/aac/gain/GainControl$1.class
+net/sourceforge/jaad/aac/gain/GainControl.class
+net/sourceforge/jaad/aac/gain/GCConstants.class
+net/sourceforge/jaad/aac/gain/IMDCT$1.class
+net/sourceforge/jaad/aac/gain/IMDCT.class
+net/sourceforge/jaad/aac/gain/IMDCTTables.class
+net/sourceforge/jaad/aac/gain/IPQF.class
+net/sourceforge/jaad/aac/gain/PQFTables.class
+net/sourceforge/jaad/aac/gain/Windows.class
+net/sourceforge/jaad/aac/huffman/Codebooks.class
+
+==================== %jcodec:jaad
+-- /home/runner/.gradle/caches/modules-2/files-2.1/org.jcodec/jcodec/0.2.5/b1968a3dbf46aa5ac9630ce9e3cbf67c4940d08/jcodec-0.2.5.jar
+net/sourceforge/jaad/
+net/sourceforge/jaad/aac/
+net/sourceforge/jaad/aac/error/
+net/sourceforge/jaad/aac/filterbank/
+net/sourceforge/jaad/aac/gain/
+net/sourceforge/jaad/aac/huffman/
+net/sourceforge/jaad/aac/ps/
+net/sourceforge/jaad/aac/sbr/
+net/sourceforge/jaad/aac/syntax/
+net/sourceforge/jaad/aac/tools/
+net/sourceforge/jaad/aac/transport/
+net/sourceforge/jaad/aac/AACDecoderConfig.class
+net/sourceforge/jaad/aac/AACException.class
+net/sourceforge/jaad/aac/ChannelConfiguration.class
+net/sourceforge/jaad/aac/Decoder.class
+net/sourceforge/jaad/aac/error/BitsBuffer.class
+net/sourceforge/jaad/aac/error/HCR$Codeword.class
+net/sourceforge/jaad/aac/error/HCR.class
+net/sourceforge/jaad/aac/error/RVLC.class
+net/sourceforge/jaad/aac/error/RVLCTables.class
+net/sourceforge/jaad/aac/filterbank/FFT.class
+net/sourceforge/jaad/aac/filterbank/FFTTables.class
+net/sourceforge/jaad/aac/filterbank/FilterBank$1.class
+net/sourceforge/jaad/aac/filterbank/FilterBank.class
+net/sourceforge/jaad/aac/filterbank/KBDWindows.class
+net/sourceforge/jaad/aac/filterbank/MDCT.class
+net/sourceforge/jaad/aac/filterbank/MDCTTables.class
+net/sourceforge/jaad/aac/filterbank/SineWindows.class
+net/sourceforge/jaad/aac/gain/FFT.class
+net/sourceforge/jaad/aac/gain/GainControl$1.class
+net/sourceforge/jaad/aac/gain/GainControl.class
+net/sourceforge/jaad/aac/gain/GCConstants.class
+net/sourceforge/jaad/aac/gain/IMDCT$1.class
+net/sourceforge/jaad/aac/gain/IMDCT.class
+net/sourceforge/jaad/aac/gain/IMDCTTables.class
+net/sourceforge/jaad/aac/gain/IPQF.class
+net/sourceforge/jaad/aac/gain/PQFTables.class
+net/sourceforge/jaad/aac/gain/Windows.class
+net/sourceforge/jaad/aac/huffman/Codebooks.class
+net/sourceforge/jaad/aac/huffman/HCB.class
+
+==================== %jcodec:mp4/demuxer
+-- /home/runner/.gradle/caches/modules-2/files-2.1/org.jcodec/jcodec/0.2.5/b1968a3dbf46aa5ac9630ce9e3cbf67c4940d08/jcodec-0.2.5.jar
+org/jcodec/containers/mp4/demuxer/
+org/jcodec/containers/mp4/demuxer/AbstractMP4DemuxerTrack.class
+org/jcodec/containers/mp4/demuxer/CodecMP4DemuxerTrack.class
+org/jcodec/containers/mp4/demuxer/MP4Demuxer$1.class
+org/jcodec/containers/mp4/demuxer/MP4Demuxer.class
+org/jcodec/containers/mp4/demuxer/MP4DemuxerTrack.class
+org/jcodec/containers/mp4/demuxer/MP4DemuxerTrackMeta.class
+org/jcodec/containers/mp4/demuxer/PCMMP4DemuxerTrack.class
+org/jcodec/containers/mp4/demuxer/TimecodeMP4DemuxerTrack.class
+
+==================== io.github.jaredmdobson.concentus.OpusDecoder
+Compiled from "OpusDecoder.java"
+public class io.github.jaredmdobson.concentus.OpusDecoder {
+  int channels;
+  int Fs;
+  final io.github.jaredmdobson.concentus.DecControlState DecControl;
+  int decode_gain;
+  int stream_channels;
+  io.github.jaredmdobson.concentus.OpusBandwidth bandwidth;
+  io.github.jaredmdobson.concentus.OpusMode mode;
+  io.github.jaredmdobson.concentus.OpusMode prev_mode;
+  int frame_size;
+  int prev_redundancy;
+  int last_packet_duration;
+  int rangeFinal;
+  io.github.jaredmdobson.concentus.SilkDecoder SilkDecoder;
+  io.github.jaredmdobson.concentus.CeltDecoder Celt_Decoder;
+  private static final byte[] SILENCE;
+  io.github.jaredmdobson.concentus.OpusDecoder();
+  void reset();
+  void partialReset();
+  int opus_decoder_init(int, int);
+  public io.github.jaredmdobson.concentus.OpusDecoder(int, int) throws io.github.jaredmdobson.concentus.OpusException;
+  int opus_decode_frame(byte[], int, int, short[], int, int, int);
+  int opus_decode_native(byte[], int, int, short[], int, int, int, int, io.github.jaredmdobson.concentus.BoxedValueInt, int);
+  public int decode(byte[], int, int, short[], int, int, boolean) throws io.github.jaredmdobson.concentus.OpusException;
+  public int decode(byte[], int, int, byte[], int, int, boolean) throws io.github.jaredmdobson.concentus.OpusException;
+  public io.github.jaredmdobson.concentus.OpusBandwidth getBandwidth();
+  public int getFinalRange();
+  public int getSampleRate();
+  public int getPitch();
+  public int getGain();
+  public void setGain(int);
+  public int getLastPacketDuration();
+  public void resetState();
+  static {};
+}
+
+==================== org.jcodec.containers.mp4.demuxer.MP4Demuxer
+Compiled from "MP4Demuxer.java"
+public class org.jcodec.containers.mp4.demuxer.MP4Demuxer implements org.jcodec.common.Demuxer {
+  private java.util.List<org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack> tracks;
+  private org.jcodec.containers.mp4.demuxer.TimecodeMP4DemuxerTrack timecodeTrack;
+  org.jcodec.containers.mp4.boxes.MovieBox movie;
+  protected org.jcodec.common.io.SeekableByteChannel input;
+  public static org.jcodec.containers.mp4.demuxer.MP4Demuxer createMP4Demuxer(org.jcodec.common.io.SeekableByteChannel) throws java.io.IOException;
+  public static org.jcodec.containers.mp4.demuxer.MP4Demuxer createRawMP4Demuxer(org.jcodec.common.io.SeekableByteChannel) throws java.io.IOException;
+  private org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack fromTrakBox(org.jcodec.containers.mp4.boxes.TrakBox);
+  protected org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack newTrack(org.jcodec.containers.mp4.boxes.TrakBox);
+  org.jcodec.containers.mp4.demuxer.MP4Demuxer(org.jcodec.common.io.SeekableByteChannel) throws java.io.IOException;
+  private void findMovieBox(org.jcodec.common.io.SeekableByteChannel) throws java.io.IOException;
+  private void processHeader(org.jcodec.containers.mp4.boxes.NodeBox) throws java.io.IOException;
+  public static org.jcodec.containers.mp4.MP4TrackType getTrackType(org.jcodec.containers.mp4.boxes.TrakBox);
+  public org.jcodec.common.DemuxerTrack getVideoTrack();
+  public org.jcodec.containers.mp4.boxes.MovieBox getMovie();
+  public org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack getTrack(int);
+  public java.util.List<org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack> getTracks();
+  public java.util.List<org.jcodec.common.DemuxerTrack> getVideoTracks();
+  public java.util.List<org.jcodec.common.DemuxerTrack> getAudioTracks();
+  public org.jcodec.containers.mp4.demuxer.TimecodeMP4DemuxerTrack getTimecodeTrack();
+  public static int probe(java.nio.ByteBuffer);
+  public void close() throws java.io.IOException;
+}
+
+==================== org.jcodec.common.DemuxerTrack
+Compiled from "DemuxerTrack.java"
+public interface org.jcodec.common.DemuxerTrack {
+  public abstract org.jcodec.common.model.Packet nextFrame() throws java.io.IOException;
+  public abstract org.jcodec.common.DemuxerTrackMeta getMeta();
+}
+
+==================== org.jcodec.common.model.Packet
+Compiled from "Packet.java"
+public class org.jcodec.common.model.Packet {
+  public java.nio.ByteBuffer data;
+  public long pts;
+  public int timescale;
+  public long duration;
+  public long frameNo;
+  public org.jcodec.common.model.Packet$FrameType frameType;
+  public org.jcodec.common.model.TapeTimecode tapeTimecode;
+  public int displayOrder;
+  public static final java.util.Comparator<org.jcodec.common.model.Packet> FRAME_ASC;
+  public static org.jcodec.common.model.Packet createPacket(java.nio.ByteBuffer, long, int, long, long, org.jcodec.common.model.Packet$FrameType, org.jcodec.common.model.TapeTimecode);
+  public static org.jcodec.common.model.Packet createPacketWithData(org.jcodec.common.model.Packet, java.nio.ByteBuffer);
+  public org.jcodec.common.model.Packet(java.nio.ByteBuffer, long, int, long, long, org.jcodec.common.model.Packet$FrameType, org.jcodec.common.model.TapeTimecode, int);
+  public java.nio.ByteBuffer getData();
+  public long getPts();
+  public int getTimescale();
+  public long getDuration();
+  public long getFrameNo();
+  public void setTimescale(int);
+  public org.jcodec.common.model.TapeTimecode getTapeTimecode();
+  public void setTapeTimecode(org.jcodec.common.model.TapeTimecode);
+  public int getDisplayOrder();
+  public void setDisplayOrder(int);
+  public org.jcodec.common.model.Packet$FrameType getFrameType();
+  public void setFrameType(org.jcodec.common.model.Packet$FrameType);
+  public org.jcodec.common.model.RationalLarge getPtsR();
+  public double getPtsD();
+  public double getDurationD();
+  public void setData(java.nio.ByteBuffer);
+  public void setPts(long);
+  public void setDuration(long);
+  public boolean isKeyFrame();
+  static {};
+}
+
+==================== org.jcodec.common.DemuxerTrackMeta
+Compiled from "DemuxerTrackMeta.java"
+public class org.jcodec.common.DemuxerTrackMeta {
+  private org.jcodec.common.TrackType type;
+  private org.jcodec.common.Codec codec;
+  private double totalDuration;
+  private int[] seekFrames;
+  private int totalFrames;
+  private java.nio.ByteBuffer codecPrivate;
+  private org.jcodec.common.VideoCodecMeta videoCodecMeta;
+  private org.jcodec.common.AudioCodecMeta audioCodecMeta;
+  private int index;
+  private org.jcodec.common.DemuxerTrackMeta$Orientation orientation;
+  public org.jcodec.common.DemuxerTrackMeta(org.jcodec.common.TrackType, org.jcodec.common.Codec, double, int[], int, java.nio.ByteBuffer, org.jcodec.common.VideoCodecMeta, org.jcodec.common.AudioCodecMeta);
+  public org.jcodec.common.TrackType getType();
+  public org.jcodec.common.Codec getCodec();
+  public double getTotalDuration();
+  public int[] getSeekFrames();
+  public int getTotalFrames();
+  public int getIndex();
+  public java.nio.ByteBuffer getCodecPrivate();
+  public org.jcodec.common.VideoCodecMeta getVideoCodecMeta();
+  public org.jcodec.common.AudioCodecMeta getAudioCodecMeta();
+  public void setOrientation(org.jcodec.common.DemuxerTrackMeta$Orientation);
+  public org.jcodec.common.DemuxerTrackMeta$Orientation getOrientation();
+}
+
+==================== org.jcodec.common.AudioCodecMeta
+Compiled from "AudioCodecMeta.java"
+public class org.jcodec.common.AudioCodecMeta extends org.jcodec.common.CodecMeta {
+  private int sampleSize;
+  private int channelCount;
+  private int sampleRate;
+  private java.nio.ByteOrder endian;
+  private int samplesPerPacket;
+  private int bytesPerPacket;
+  private int bytesPerFrame;
+  private boolean pcm;
+  private org.jcodec.common.model.Label[] labels;
+  public static org.jcodec.common.AudioCodecMeta createAudioCodecMeta(java.lang.String, int, int, int, java.nio.ByteOrder, boolean, org.jcodec.common.model.Label[], java.nio.ByteBuffer);
+  public static org.jcodec.common.AudioCodecMeta createAudioCodecMeta2(java.lang.String, int, int, int, java.nio.ByteOrder, boolean, org.jcodec.common.model.Label[], int, int, int, java.nio.ByteBuffer);
+  public static org.jcodec.common.AudioCodecMeta createAudioCodecMeta3(java.lang.String, java.nio.ByteBuffer, org.jcodec.common.AudioFormat, boolean, org.jcodec.common.model.Label[]);
+  public org.jcodec.common.AudioCodecMeta(java.lang.String, java.nio.ByteBuffer);
+  public int getFrameSize();
+  public int getSampleRate();
+  public int getSampleSize();
+  public int getChannelCount();
+  public int getSamplesPerPacket();
+  public int getBytesPerPacket();
+  public int getBytesPerFrame();
+  public java.nio.ByteOrder getEndian();
+  public boolean isPCM();
+  public org.jcodec.common.AudioFormat getFormat();
+  public org.jcodec.common.model.Label[] getChannelLabels();
+  public static org.jcodec.common.AudioCodecMeta fromAudioFormat(org.jcodec.common.AudioFormat);
+}
+
+==================== org.jcodec.codecs.aac.AACDecoder
+Compiled from "AACDecoder.java"
+public class org.jcodec.codecs.aac.AACDecoder implements org.jcodec.common.AudioDecoder {
+  private net.sourceforge.jaad.aac.Decoder decoder;
+  public org.jcodec.codecs.aac.AACDecoder(java.nio.ByteBuffer) throws net.sourceforge.jaad.aac.AACException;
+  public org.jcodec.common.model.AudioBuffer decodeFrame(java.nio.ByteBuffer, java.nio.ByteBuffer) throws java.io.IOException;
+  private org.jcodec.common.AudioFormat toAudioFormat(net.sourceforge.jaad.aac.SampleBuffer);
+  public org.jcodec.common.AudioCodecMeta getCodecMeta(java.nio.ByteBuffer) throws java.io.IOException;
+  public static int probe(java.nio.ByteBuffer);
+}
+
+==================== org.jcodec.common.io.NIOUtils
+Compiled from "NIOUtils.java"
+public class org.jcodec.common.io.NIOUtils {
+  public org.jcodec.common.io.NIOUtils();
+  public static java.nio.ByteBuffer search(java.nio.ByteBuffer, int, byte[]);
+  public static final java.nio.ByteBuffer read(java.nio.ByteBuffer, int);
+  public static java.nio.ByteBuffer fetchFromFile(java.io.File) throws java.io.IOException;
+  public static java.nio.ByteBuffer fetchFromChannel(java.nio.channels.ReadableByteChannel, int) throws java.io.IOException;
+  public static java.nio.ByteBuffer fetchAllFromChannel(org.jcodec.common.io.SeekableByteChannel) throws java.io.IOException;
+  public static java.nio.ByteBuffer fetchFrom(java.nio.ByteBuffer, java.nio.channels.ReadableByteChannel, int) throws java.io.IOException;
+  public static java.nio.ByteBuffer fetchFromFileL(java.io.File, int) throws java.io.IOException;
+  public static void writeTo(java.nio.ByteBuffer, java.io.File) throws java.io.IOException;
+  public static byte[] toArray(java.nio.ByteBuffer);
+  public static byte[] toArrayL(java.nio.ByteBuffer, int);
+  public static int readL(java.nio.channels.ReadableByteChannel, java.nio.ByteBuffer, int) throws java.io.IOException;
+  public static int readFromChannel(java.nio.channels.ReadableByteChannel, java.nio.ByteBuffer) throws java.io.IOException;
+  public static void write(java.nio.ByteBuffer, java.nio.ByteBuffer);
+  public static void writeL(java.nio.ByteBuffer, java.nio.ByteBuffer, int);
+  public static void fill(java.nio.ByteBuffer, byte);
+  public static final java.nio.MappedByteBuffer map(java.lang.String) throws java.io.IOException;
+  public static final java.nio.MappedByteBuffer mapFile(java.io.File) throws java.io.IOException;
+  public static int skip(java.nio.ByteBuffer, int);
+  public static java.nio.ByteBuffer from(java.nio.ByteBuffer, int);
+  public static java.nio.ByteBuffer combineBuffers(java.lang.Iterable<java.nio.ByteBuffer>);
+  public static boolean combineBuffersInto(java.nio.ByteBuffer, java.util.List<java.nio.ByteBuffer>);
+  public static java.lang.String readString(java.nio.ByteBuffer, int);
+  public static java.lang.String readPascalStringL(java.nio.ByteBuffer, int);
+  public static void writePascalStringL(java.nio.ByteBuffer, java.lang.String, int);
+  public static byte[] asciiString(java.lang.String);
+  public static void writePascalString(java.nio.ByteBuffer, java.lang.String);
+  public static java.lang.String readPascalString(java.nio.ByteBuffer);
+  public static java.lang.String readNullTermString(java.nio.ByteBuffer);
+  public static java.lang.String readNullTermStringCharset(java.nio.ByteBuffer, java.lang.String);
+  public static java.nio.ByteBuffer readBuf(java.nio.ByteBuffer);
+  public static void copy(java.nio.channels.ReadableByteChannel, java.nio.channels.WritableByteChannel, long) throws java.io.IOException;
+  public static void closeQuietly(java.io.Closeable);
+  public static byte readByte(java.nio.channels.ReadableByteChannel) throws java.io.IOException;
+  public static byte[] readNByte(java.nio.channels.ReadableByteChannel, int) throws java.io.IOException;
+  public static int readInt(java.nio.channels.ReadableByteChannel) throws java.io.IOException;
+  public static int readIntOrder(java.nio.channels.ReadableByteChannel, java.nio.ByteOrder) throws java.io.IOException;
+  public static void writeByte(java.nio.channels.WritableByteChannel, byte) throws java.io.IOException;
+  public static void writeIntOrder(java.nio.channels.WritableByteChannel, int, java.nio.ByteOrder) throws java.io.IOException;
+  public static void writeIntLE(java.nio.channels.WritableByteChannel, int) throws java.io.IOException;
+  public static void writeInt(java.nio.channels.WritableByteChannel, int) throws java.io.IOException;
+  public static void writeLong(java.nio.channels.WritableByteChannel, long) throws java.io.IOException;
+  public static org.jcodec.common.io.FileChannelWrapper readableChannel(java.io.File) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.io.FileChannelWrapper writableChannel(java.io.File) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.io.FileChannelWrapper rwChannel(java.io.File) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.io.FileChannelWrapper readableFileChannel(java.lang.String) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.io.FileChannelWrapper writableFileChannel(java.lang.String) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.io.FileChannelWrapper rwFileChannel(java.lang.String) throws java.io.FileNotFoundException;
+  public static org.jcodec.common.AutoFileChannelWrapper autoChannel(java.io.File) throws java.io.IOException;
+  public static java.nio.ByteBuffer duplicate(java.nio.ByteBuffer);
+  public static int find(java.util.List<java.nio.ByteBuffer>, java.nio.ByteBuffer);
+  public static byte getRel(java.nio.ByteBuffer, int);
+  public static java.nio.ByteBuffer cloneBuffer(java.nio.ByteBuffer);
+  public static java.nio.ByteBuffer clone(java.nio.ByteBuffer);
+  public static java.nio.ByteBuffer asByteBuffer(byte[]);
+  public static java.nio.ByteBuffer asByteBufferInt(int[]);
+  public static void relocateLeftover(java.nio.ByteBuffer);
+}
+
+==================== org.jcodec.common.io.SeekableByteChannel
+Compiled from "SeekableByteChannel.java"
+public interface org.jcodec.common.io.SeekableByteChannel extends java.nio.channels.ByteChannel,java.nio.channels.Channel,java.io.Closeable,java.nio.channels.ReadableByteChannel,java.nio.channels.WritableByteChannel {
+  public abstract long position() throws java.io.IOException;
+  public abstract org.jcodec.common.io.SeekableByteChannel setPosition(long) throws java.io.IOException;
+  public abstract long size() throws java.io.IOException;
+  public abstract org.jcodec.common.io.SeekableByteChannel truncate(long) throws java.io.IOException;
+}
+
+==================== org.jcodec.common.model.AudioBuffer
+Compiled from "AudioBuffer.java"
+public class org.jcodec.common.model.AudioBuffer {
+  protected java.nio.ByteBuffer data;
+  protected org.jcodec.common.AudioFormat format;
+  protected int nFrames;
+  public org.jcodec.common.model.AudioBuffer(java.nio.ByteBuffer, org.jcodec.common.AudioFormat, int);
+  public java.nio.ByteBuffer getData();
+  public org.jcodec.common.AudioFormat getFormat();
+  public int getNFrames();
+}
+
+==================== org.jcodec.common.AudioFormat
+Compiled from "AudioFormat.java"
+public class org.jcodec.common.AudioFormat {
+  private int sampleRate;
+  private int sampleSizeInBits;
+  private int channelCount;
+  private boolean signed;
+  private boolean bigEndian;
+  public static org.jcodec.common.AudioFormat STEREO_48K_S16_BE;
+  public static org.jcodec.common.AudioFormat STEREO_48K_S16_LE;
+  public static org.jcodec.common.AudioFormat STEREO_48K_S24_BE;
+  public static org.jcodec.common.AudioFormat STEREO_48K_S24_LE;
+  public static org.jcodec.common.AudioFormat MONO_48K_S16_BE;
+  public static org.jcodec.common.AudioFormat MONO_48K_S16_LE;
+  public static org.jcodec.common.AudioFormat MONO_48K_S24_BE;
+  public static org.jcodec.common.AudioFormat MONO_48K_S24_LE;
+  public static org.jcodec.common.AudioFormat STEREO_44K_S16_BE;
+  public static org.jcodec.common.AudioFormat STEREO_44K_S16_LE;
+  public static org.jcodec.common.AudioFormat STEREO_44K_S24_BE;
+  public static org.jcodec.common.AudioFormat STEREO_44K_S24_LE;
+  public static org.jcodec.common.AudioFormat MONO_44K_S16_BE;
+  public static org.jcodec.common.AudioFormat MONO_44K_S16_LE;
+  public static org.jcodec.common.AudioFormat MONO_44K_S24_BE;
+  public static org.jcodec.common.AudioFormat MONO_44K_S24_LE;
+  public static org.jcodec.common.AudioFormat STEREO_S16_BE(int);
+  public static org.jcodec.common.AudioFormat STEREO_S16_LE(int);
+  public static org.jcodec.common.AudioFormat STEREO_S24_BE(int);
+  public static org.jcodec.common.AudioFormat STEREO_S24_LE(int);
+  public static org.jcodec.common.AudioFormat MONO_S16_BE(int);
+  public static org.jcodec.common.AudioFormat MONO_S16_LE(int);
+  public static org.jcodec.common.AudioFormat MONO_S24_BE(int);
+  public static org.jcodec.common.AudioFormat MONO_S24_LE(int);
+  public static org.jcodec.common.AudioFormat NCH_48K_S16_BE(int);
+  public static org.jcodec.common.AudioFormat NCH_48K_S16_LE(int);
+  public static org.jcodec.common.AudioFormat NCH_48K_S24_BE(int);
+  public static org.jcodec.common.AudioFormat NCH_48K_S24_LE(int);
+  public static org.jcodec.common.AudioFormat NCH_44K_S16_BE(int);
+  public static org.jcodec.common.AudioFormat NCH_44K_S16_LE(int);
+  public static org.jcodec.common.AudioFormat NCH_44K_S24_BE(int);
+  public static org.jcodec.common.AudioFormat NCH_44K_S24_LE(int);
+  public static org.jcodec.common.AudioFormat createAudioFormat(org.jcodec.common.AudioFormat);
+  public static org.jcodec.common.AudioFormat createAudioFormat2(org.jcodec.common.AudioFormat, int);
+  public org.jcodec.common.AudioFormat(int, int, int, boolean, boolean);
+  public int getChannels();
+  public int getSampleSizeInBits();
+  public int getSampleRate();
+  public short getFrameSize();
+  public int getFrameRate();
+  public boolean isBigEndian();
+  public boolean isSigned();
+  public int bytesToFrames(int);
+  public int framesToBytes(int);
+  public int bytesToSamples(int);
+  public int samplesToBytes(int);
+  static {};
+}
+
+==================== net.minecraft.client.Camera
+Compiled from "Camera.java"
+public class net.minecraft.client.Camera implements net.minecraft.world.waypoints.TrackedWaypoint$Camera {
+  private static final float DEFAULT_CAMERA_DISTANCE;
+  private static final org.joml.Vector3f FORWARDS;
+  private static final org.joml.Vector3f UP;
+  private static final org.joml.Vector3f LEFT;
+  private boolean initialized;
+  private net.minecraft.world.level.Level level;
+  private net.minecraft.world.entity.Entity entity;
+  private net.minecraft.world.phys.Vec3 position;
+  private final net.minecraft.core.BlockPos$MutableBlockPos blockPosition;
+  private final org.joml.Vector3f forwards;
+  private final org.joml.Vector3f up;
+  private final org.joml.Vector3f left;
+  private float xRot;
+  private float yRot;
+  private final org.joml.Quaternionf rotation;
+  private boolean detached;
+  private float eyeHeight;
+  private float eyeHeightOld;
+  private float partialTickTime;
+  private final net.minecraft.world.attribute.EnvironmentAttributeProbe attributeProbe;
+  public net.minecraft.client.Camera();
+  public void setup(net.minecraft.world.level.Level, net.minecraft.world.entity.Entity, boolean, boolean, float);
+  public void tick();
+  private float getMaxZoom(float);
+  protected void move(float, float, float);
+  protected void setRotation(float, float);
+  protected void setPosition(double, double, double);
+  protected void setPosition(net.minecraft.world.phys.Vec3);
+  public net.minecraft.world.phys.Vec3 position();
+  public net.minecraft.core.BlockPos blockPosition();
+  public float xRot();
+  public float yRot();
+  public float yaw();
+  public org.joml.Quaternionf rotation();
+  public net.minecraft.world.entity.Entity entity();
+  public boolean isInitialized();
+  public boolean isDetached();
+  public net.minecraft.world.attribute.EnvironmentAttributeProbe attributeProbe();
+  public net.minecraft.client.Camera$NearPlane getNearPlane();
+  public net.minecraft.world.level.material.FogType getFluidInCamera();
+  public org.joml.Vector3fc forwardVector();
+  public org.joml.Vector3fc upVector();
+  public org.joml.Vector3fc leftVector();
+  public void reset();
+  public float getPartialTickTime();
+  static {};
+}
+
+==================== net.minecraft.client.renderer.GameRenderer
+Compiled from "GameRenderer.java"
+public class net.minecraft.client.renderer.GameRenderer implements net.minecraft.world.waypoints.TrackedWaypoint$Projector,java.lang.AutoCloseable {
+  private static final net.minecraft.resources.Identifier BLUR_POST_CHAIN_ID;
+  public static final int MAX_BLUR_RADIUS;
+  private static final org.slf4j.Logger LOGGER;
+  public static final float PROJECTION_Z_NEAR;
+  public static final float PROJECTION_3D_HUD_Z_FAR;
+  private static final float PORTAL_SPINNING_SPEED;
+  private static final float NAUSEA_SPINNING_SPEED;
+  private final net.minecraft.client.Minecraft minecraft;
+  private final net.minecraft.util.RandomSource random;
+  private float renderDistance;
+  public final net.minecraft.client.renderer.ItemInHandRenderer itemInHandRenderer;
+  private final net.minecraft.client.renderer.ScreenEffectRenderer screenEffectRenderer;
+  private final net.minecraft.client.renderer.RenderBuffers renderBuffers;
+  private float spinningEffectTime;
+  private float spinningEffectSpeed;
+  private float fovModifier;
+  private float oldFovModifier;
+  private float darkenWorldAmount;
+  private float darkenWorldAmountO;
+  private boolean renderBlockOutline;
+  private long lastScreenshotAttempt;
+  private boolean hasWorldScreenshot;
+  private long lastActiveTime;
+  private final net.minecraft.client.renderer.LightTexture lightTexture;
+  private final net.minecraft.client.renderer.texture.OverlayTexture overlayTexture;
+  private net.minecraft.client.renderer.PanoramicScreenshotParameters panoramicScreenshotParameters;
+  protected final net.minecraft.client.renderer.CubeMap cubeMap;
+  protected final net.minecraft.client.renderer.PanoramaRenderer panorama;
+  private final com.mojang.blaze3d.resource.CrossFrameResourcePool resourcePool;
+  private final net.minecraft.client.renderer.fog.FogRenderer fogRenderer;
+  private final net.minecraft.client.gui.render.GuiRenderer guiRenderer;
+  final net.minecraft.client.gui.render.state.GuiRenderState guiRenderState;
+  private final net.minecraft.client.renderer.state.LevelRenderState levelRenderState;
+  private final net.minecraft.client.renderer.SubmitNodeStorage submitNodeStorage;
+  private final net.minecraft.client.renderer.feature.FeatureRenderDispatcher featureRenderDispatcher;
+  private net.minecraft.resources.Identifier postEffectId;
+  private boolean effectActive;
+  private final net.minecraft.client.Camera mainCamera;
+  private final com.mojang.blaze3d.platform.Lighting lighting;
+  private final net.minecraft.client.renderer.GlobalSettingsUniform globalSettingsUniform;
+  private final net.minecraft.client.renderer.PerspectiveProjectionMatrixBuffer levelProjectionMatrixBuffer;
+  private final net.minecraft.client.renderer.CachedPerspectiveProjectionMatrixBuffer hud3dProjectionMatrixBuffer;
+  public net.minecraft.client.renderer.GameRenderer(net.minecraft.client.Minecraft, net.minecraft.client.renderer.ItemInHandRenderer, net.minecraft.client.renderer.RenderBuffers, net.minecraft.client.renderer.block.BlockRenderDispatcher);
+  public void close();
+  public net.minecraft.client.renderer.SubmitNodeStorage getSubmitNodeStorage();
+  public net.minecraft.client.renderer.feature.FeatureRenderDispatcher getFeatureRenderDispatcher();
+  public net.minecraft.client.renderer.state.LevelRenderState getLevelRenderState();
+  public void setRenderBlockOutline(boolean);
+  public void setPanoramicScreenshotParameters(net.minecraft.client.renderer.PanoramicScreenshotParameters);
+  public net.minecraft.client.renderer.PanoramicScreenshotParameters getPanoramicScreenshotParameters();
+  public boolean isPanoramicMode();
+  public void clearPostEffect();
+  public void togglePostEffect();
+  public void checkEntityPostEffect(net.minecraft.world.entity.Entity);
+  private void setPostEffect(net.minecraft.resources.Identifier);
+  public void processBlurEffect();
+  public void preloadUiShader(net.minecraft.server.packs.resources.ResourceProvider);
+  public void tick();
+  public net.minecraft.resources.Identifier currentPostEffect();
+  public void resize(int, int);
+  public void pick(float);
+  private void tickFov();
+  private float getFov(net.minecraft.client.Camera, float, boolean);
+  private void bobHurt(com.mojang.blaze3d.vertex.PoseStack, float);
+  private void bobView(com.mojang.blaze3d.vertex.PoseStack, float);
+  private void renderItemInHand(float, boolean, org.joml.Matrix4f);
+  public org.joml.Matrix4f getProjectionMatrix(float);
+  public float getDepthFar();
+  public static float getNightVisionScale(net.minecraft.world.entity.LivingEntity, float);
+  public void render(net.minecraft.client.DeltaTracker, boolean);
+  private void renderActiveTextDebug();
+  private void tryTakeScreenshotIfNeeded();
+  private void takeAutoScreenshot(java.nio.file.Path);
+  private boolean shouldRenderBlockOutline();
+  public void updateCamera(net.minecraft.client.DeltaTracker);
+  public void renderLevel(net.minecraft.client.DeltaTracker);
+  private void extractCamera(float);
+  private org.joml.Matrix4f getProjectionMatrixForCulling(float);
+  public void resetData();
+  public void displayItemActivation(net.minecraft.world.item.ItemStack);
+  public net.minecraft.client.Minecraft getMinecraft();
+  public float getDarkenWorldAmount(float);
+  public float getRenderDistance();
+  public net.minecraft.client.Camera getMainCamera();
+  public net.minecraft.client.renderer.LightTexture lightTexture();
+  public net.minecraft.client.renderer.texture.OverlayTexture overlayTexture();
+  public net.minecraft.world.phys.Vec3 projectPointToScreen(net.minecraft.world.phys.Vec3);
+  public double projectHorizonToScreen();
+  public net.minecraft.client.renderer.GlobalSettingsUniform getGlobalSettingsUniform();
+  public com.mojang.blaze3d.platform.Lighting getLighting();
+  public void setLevel(net.minecraft.client.multiplayer.ClientLevel);
+  public net.minecraft.client.renderer.PanoramaRenderer getPanorama();
+  private static void method_68164(java.nio.file.Path, com.mojang.blaze3d.platform.NativeImage);
+  private static void method_3181(com.mojang.blaze3d.platform.NativeImage, java.nio.file.Path);
+  private void method_37474(java.nio.file.Path);
+  private void method_75836(net.minecraft.client.gui.render.state.GuiTextRenderState);
+  private java.lang.String method_37103() throws java.lang.Exception;
+  private java.lang.String method_3205() throws java.lang.Exception;
+  private java.lang.String method_18655() throws java.lang.Exception;
+  private static java.lang.String method_68479(net.minecraft.server.packs.resources.ResourceProvider, net.minecraft.resources.Identifier, com.mojang.blaze3d.shaders.ShaderType);
+  static {};
+}
