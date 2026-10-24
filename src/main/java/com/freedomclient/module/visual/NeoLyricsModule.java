@@ -171,7 +171,9 @@ public class NeoLyricsModule extends Module {
 	}
 
 	private static int argb(float alpha, int rgb) {
-		return Math.round(Math.max(0, Math.min(1, alpha)) * 255) << 24 | rgb;
+		int a = Math.round(Math.max(0, Math.min(1, alpha)) * 255);
+		// La fuente pinta opaco el texto con alfa de 1 a 3: tan transparente ya no se dibuja (si no, parpadea al irse).
+		return a < 4 ? 0 : a << 24 | rgb;
 	}
 
 	private static int mix(int a, int b, double t) {
