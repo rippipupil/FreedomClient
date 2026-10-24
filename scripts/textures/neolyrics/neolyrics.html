@@ -1,0 +1,209 @@
+<title>NeoLyrics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Una sola vista a propósito: la pantalla del juego (cielo de Minecraft) ocupa casi todo; los controles van abajo. */
+:root {
+  --ink: #f4f1ff;
+  --mist: #b9b3d6;
+  --panel: #171428;
+  --accent: #ff8cc6;
+  --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
+  --body: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: dark;
+}
+body { background: #0e0c1a; color: var(--ink); font-family: var(--body); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 20px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 14px; }
+header { display: grid; gap: 4px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 38px); margin: 0; letter-spacing: .08em; }
+h1 span { color: var(--accent); }
+header p { margin: 0; color: var(--mist); font-size: 14px; max-width: 70ch; }
+.screen { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 72vh; background: #6fa8ff; overflow: hidden; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; cursor: grab; touch-action: none; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.row > span { font-family: var(--display); font-size: 12px; letter-spacing: .14em; color: var(--mist); min-width: 92px; }
+button { font: inherit; font-size: 13px; font-weight: 700; min-height: 36px; padding: 0 14px; border: 0; background: var(--panel); color: var(--ink); cursor: pointer; clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
+button[aria-pressed="true"] { background: var(--accent); color: #1a0f1c; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#bar { flex: 1; min-width: 160px; accent-color: var(--accent); }
+#time { font-variant-numeric: tabular-nums; color: var(--mist); font-size: 13px; min-width: 90px; }
+.cap { color: var(--mist); font-size: 13px; margin: 0; max-width: 90ch; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&family=Nunito:wght@400;700&family=Pixelify+Sans:wght@500&display=swap">
+
+<div class="wrap">
+  <header>
+    <h1>NEO<span>LYRICS</span></h1>
+    <p>Mientras suena una canción en el Music Player, su letra aparece en el cielo, delante de hacia donde miras: palabra a palabra al ritmo, en letras pixel grandes que brillan y se animan una a una. Arrastra sobre la pantalla para mirar alrededor (cada línea se queda en el cielo donde apareció).</p>
+  </header>
+  <div class="screen"><canvas id="game" aria-label="Vista del juego con la letra de la canción en el cielo. Arrastra para mirar alrededor."></canvas></div>
+  <div class="row">
+    <button id="bPlay" aria-pressed="true">Pausa</button>
+    <input id="bar" type="range" min="0" max="1000" value="0" aria-label="Posición de la canción">
+    <span id="time">0:00 / 0:00</span>
+  </div>
+  <div class="row" id="anims"><span>LETRAS</span></div>
+  <div class="row" id="glows"><span>COLOR</span></div>
+  <div class="row" id="skies"><span>CIELO</span></div>
+  <p class="cap">La letra de prueba es inventada (con sus tiempos en formato LRC, como las que guarda FreedomPlayer). Las letras sincronizadas de LRCLIB van por líneas: el tiempo de cada palabra se reparte según su largo, igual que hará el cliente.</p>
+</div>
+
+<script>
+// ============================================================================================
+// DISEÑO (lo que pasa al juego tal cual). Tiempos en segundos; ángulos en grados.
+// ============================================================================================
+// Letra de prueba en LRC (inventada): [mm:ss.xx] texto.
+const LRC = `[00:01.00] Bajo un cielo de cubos
+[00:05.20] guardo tu canción
+[00:09.00] cada bloque que pongo
+[00:13.10] late con tu voz
+[00:17.40] y cuando cae la noche
+[00:21.50] la luna se enciende
+[00:25.40] escribo tu nombre
+[00:29.00] en las estrellas de siempre
+[00:33.60] `;
+function parseLrc(text) {
+  const lines = [];
+  for (const raw of text.split('\n')) {
+    const m = raw.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);
+    if (m) lines.push({ t: +m[1] * 60 + +m[2], text: m[3].trim() });
+  }
+  return lines;
+}
+const NEO = {
+  maxLine: 6,       // una línea dura como mucho 6 s aunque la siguiente tarde más
+  sing: 0.72,       // las palabras van saliendo en el 72 % primero de la línea
+  letterGap: 0.035, // cada letra sale 35 ms después de la anterior
+  appear: 0.38,     // lo que tarda una letra en aparecer
+  leave: 0.9,       // lo que tardan en irse al acabar la línea
+  elevation: 24,    // grados sobre el horizonte
+  size: 3.2,        // alto de una letra en grados
+  spacing: 0.62     // ancho de una letra en altos de letra (fuente de 5x7 con su hueco)
+};
+const backOut = u => { const v = u - 1; return 1 + 2.70158 * v * v * v + 1.70158 * v * v; };
+const ease = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+// Tiempos de cada palabra de una línea: se reparten según su largo (más un poco por palabra).
+function wordTimes(line, next) {
+  const words = line.text.split(/\s+/).filter(Boolean);
+  const dur = Math.min(NEO.maxLine, (next ? next.t : line.t + NEO.maxLine) - line.t);
+  const weights = words.map(w => w.length + 2), total = weights.reduce((a, b) => a + b, 0);
+  let acc = 0;
+  return { dur, words: words.map((w, i) => { const start = line.t + dur * NEO.sing * acc / total; acc += weights[i]; return { text: w, start, end: line.t + dur * NEO.sing * acc / total }; }) };
+}
+// Estado de una letra en t: {y (px de letra, hacia arriba), escala, alfa, destello, cantando}.
+// k = índice de la letra en su palabra; li = índice de la letra en toda la línea (para la onda y para irse en orden).
+function letterState(style, t, word, k, lineEnd, li) {
+  const born = word.start + k * NEO.letterGap, a = t - born;
+  if (a < 0) return null;
+  const u = Math.min(1, a / NEO.appear);
+  let y = 0, s = 1, rot = 0;
+  if (style === 'salto') { y = (1 - backOut(u)) * -1.4; s = 0.55 + 0.45 * backOut(u); }
+  else if (style === 'onda') { y = Math.sin(t * 4 - li * 0.55) * 0.12 + (1 - ease(u)) * -0.8; s = 0.8 + 0.2 * ease(u); }
+  else if (style === 'giro') { rot = (1 - backOut(u)) * 1.6; s = backOut(u); }
+  let alpha = ease(u), flash = Math.max(0, 1 - a / 0.45);
+  const singing = t >= word.start && t < word.end + 0.15;
+  if (singing) y += Math.sin((t - word.start) * 9 + k * 0.7) * 0.06;
+  // Al acabar la línea cada letra sube y se desvanece, una detrás de otra.
+  const out = t - lineEnd - li * 0.02;
+  if (out > 0) { const v = Math.min(1, out / NEO.leave); y += ease(v) * 2.2; alpha *= 1 - ease(v); s *= 1 - 0.3 * v; }
+  return alpha > 0.01 ? { y, s, rot, alpha, flash, singing } : null;
+}
+
+// ============================================================================================
+// Vista previa: cámara en primera persona sobre un mundo de cubos, el cielo y la letra.
+// ============================================================================================
+(function () {
+  const canvas = document.getElementById('game'), g = canvas.getContext('2d');
+  const LINES = parseLrc(LRC), SONG = LINES[LINES.length - 1].t + 2;
+  const TIMED = LINES.map((l, i) => ({ ...l, ...wordTimes(l, LINES[i + 1]) })).filter(l => l.text);
+  let yaw = 0, pitch = 8, playing = true, songT = 0, last = performance.now(), anim = 'salto', glow = 'blanco', skyKind = 'dia';
+  const anchors = new Map(); // dónde quedó cada línea en el cielo (el yaw al aparecer)
+  const W = 480, H = 270, FOV = 70;
+  canvas.width = W * 2; canvas.height = H * 2;
+  const GLOWS = { blanco: ['#ffffff', 'rgba(220,235,255,'], tema: ['#ffe3f1', 'rgba(255,63,164,'], cian: ['#eafcff', 'rgba(63,215,255,'] };
+  const SKIES = { dia: ['#4f8fe0', '#9fd0ff', '#86c55a'], atardecer: ['#2a1640', '#f2915c', '#4b6d34'], noche: ['#05071a', '#1d2a5c', '#1d3818'] };
+
+  const group = (id, list, cur, set) => { const row = document.getElementById(id); list.forEach(([k, l]) => { const b = document.createElement('button'); b.textContent = l; b.setAttribute('aria-pressed', k === cur); b.onclick = () => { row.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); set(k); }; row.append(b); }); };
+  group('anims', [['salto', 'Saltito'], ['onda', 'Onda'], ['giro', 'Giro']], anim, k => anim = k);
+  group('glows', [['blanco', 'Blanco'], ['tema', 'Rosa (tema)'], ['cian', 'Cian']], glow, k => glow = k);
+  group('skies', [['dia', 'Día'], ['atardecer', 'Atardecer'], ['noche', 'Noche']], skyKind, k => skyKind = k);
+  const bPlay = document.getElementById('bPlay'), bar = document.getElementById('bar'), time = document.getElementById('time');
+  bPlay.onclick = () => { playing = !playing; bPlay.textContent = playing ? 'Pausa' : 'Reproducir'; bPlay.setAttribute('aria-pressed', playing); };
+  bar.oninput = () => { songT = bar.value / 1000 * SONG; anchors.clear(); };
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener('pointermove', e => { if (!drag) return; const k = FOV / canvas.clientWidth; yaw += (e.clientX - drag.x) * k; pitch = Math.max(-30, Math.min(70, pitch - (e.clientY - drag.y) * k)); drag = { x: e.clientX, y: e.clientY }; });
+  canvas.addEventListener('pointerup', () => drag = null); canvas.addEventListener('pointercancel', () => drag = null);
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+
+  // Proyección: dirección (yaw, pitch del cielo) -> píxel en pantalla (perspectiva simple).
+  const focal = (W / 2) / Math.tan(FOV / 2 * Math.PI / 180);
+  function project(a, e) {
+    const da = (((a - yaw) % 360) + 540) % 360 - 180, de = e - pitch;
+    if (Math.abs(da) > 100) return null;
+    return { x: W / 2 + Math.tan(da * Math.PI / 180) * focal, y: H / 2 - Math.tan(de * Math.PI / 180) * focal };
+  }
+  function world(t) {
+    const [top, hor, grass] = SKIES[skyKind];
+    const horizon = H / 2 + Math.tan(pitch * Math.PI / 180) * focal;
+    const gr = g.createLinearGradient(0, 0, 0, horizon * 2); gr.addColorStop(0, top); gr.addColorStop(0.5, hor);
+    g.fillStyle = gr; g.fillRect(0, 0, W * 2, H * 2);
+    if (skyKind === 'noche') { for (let i = 0; i < 90; i++) { const a = (i * 137.5) % 360, e = 5 + (i * 53) % 70, p = project(a, e); if (p && (Math.floor(t * 2) + i) % 9) { g.fillStyle = '#fff'; g.fillRect(p.x * 2, p.y * 2, 2, 2); } } }
+    // Nubes de bloque.
+    g.fillStyle = skyKind === 'noche' ? 'rgba(80,90,140,.5)' : 'rgba(255,255,255,.9)';
+    for (let i = 0; i < 9; i++) { const a = i * 40 + t * 0.4, p = project(a, 12 + (i % 3) * 5); if (p) g.fillRect(p.x * 2 - 40, p.y * 2, 80 + (i % 2) * 40, 14); }
+    // Colinas y suelo de bloques.
+    for (let x = 0; x < W; x += 4) {
+      const a = yaw + (x - W / 2) / focal * 57.3, hgt = 6 + Math.round((Math.sin(a / 9) + Math.sin(a / 3.7) * 0.5) * 4);
+      g.fillStyle = grass; g.fillRect(x * 2, (horizon - hgt) * 2, 8, (H - horizon + hgt) * 2 + 4);
+      g.fillStyle = skyKind === 'noche' ? '#14260f' : '#5a8a3a'; g.fillRect(x * 2, (horizon - hgt) * 2, 8, 6);
+    }
+  }
+  // La letra: cada línea en el cielo donde mirabas al empezar, centrada, letra a letra.
+  function lyrics(t) {
+    const [fill, halo] = GLOWS[glow];
+    g.textBaseline = 'middle'; g.textAlign = 'center';
+    TIMED.forEach((line, li) => {
+      const end = line.t + line.dur;
+      if (t < line.t || t > end + NEO.leave + 1) return;
+      if (!anchors.has(li)) anchors.set(li, yaw);
+      const a0 = anchors.get(li), p = project(a0, NEO.elevation);
+      if (!p) return;
+      const px = Math.tan(NEO.size * Math.PI / 180) * focal; // alto de letra en píxeles
+      const chars = line.words.map(w => w.text).join(' ').length;
+      let x = p.x - chars * px * NEO.spacing / 2 + px * NEO.spacing / 2, n = 0;
+      g.font = `500 ${Math.round(px * 2)}px "Pixelify Sans", monospace`;
+      line.words.forEach(w => {
+        for (let k = 0; k < w.text.length; k++) {
+          const st = letterState(anim, t, w, k, end, n++);
+          if (st) {
+            const cx = x * 2, cy = (p.y - st.y * px) * 2;
+            g.save(); g.translate(cx, cy); g.rotate(st.rot); g.scale(st.s, st.s);
+            // Halo: la letra varias veces alrededor, muy transparente (así se hará en el juego).
+            const glowA = (0.3 + 0.3 * st.flash + (st.singing ? 0.25 : 0)) * st.alpha;
+            g.fillStyle = halo + glowA + ')';
+            for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3], [-2, -2], [2, 2], [-2, 2], [2, -2]]) g.fillText(w.text[k], dx, dy);
+            g.fillStyle = `rgba(20,16,40,${0.5 * st.alpha})`; g.fillText(w.text[k], 3, 3);
+            g.globalAlpha = st.alpha; g.fillStyle = st.flash > 0.5 ? '#ffffff' : st.singing ? '#ffffff' : fill; g.fillText(w.text[k], 0, 0);
+            g.restore();
+          }
+          x += px * NEO.spacing;
+        }
+        x += px * NEO.spacing;
+      });
+    });
+  }
+  (function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (playing) { songT += dt; if (songT > SONG) { songT = 0; anchors.clear(); } }
+    world(now / 1000); lyrics(songT);
+    // Cruz del centro y la barra del Music Player abajo a la izquierda, como en el juego.
+    g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(W - 1, H - 8, 2, 16); g.fillRect(W - 8, H - 1, 16, 2);
+    g.fillStyle = 'rgba(15,12,30,.7)'; g.fillRect(16, H * 2 - 70, 300, 52);
+    g.textAlign = 'left'; g.font = '500 22px "Pixelify Sans", monospace'; g.fillStyle = '#fff'; g.fillText('♪ Canción de prueba', 28, H * 2 - 54);
+    g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(28, H * 2 - 34, 276, 6); g.fillStyle = '#ff8cc6'; g.fillRect(28, H * 2 - 34, 276 * songT / SONG, 6);
+    bar.value = Math.round(songT / SONG * 1000); time.textContent = `${fmt(songT)} / ${fmt(SONG)}`;
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
