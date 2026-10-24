@@ -23,12 +23,18 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 /**
- * Reproductor de música local: toca los MP3 y WAV de la carpeta .minecraft/freedomclient/music
- * en un hilo aparte (MP3 con JLayer, WAV con Java Sound), con pausa, siguiente, anterior y volumen.
+ * Reproductor de música local: toca las canciones de la carpeta .minecraft/freedomclient/music y las de la biblioteca
+ * de FreedomPlayer en un hilo aparte (MP3 con JLayer, WAV con Java Sound, m4a/AAC con jcodec y webm/Opus con
+ * Concentus), con pausa, siguiente, anterior y volumen. De cada canción guarda su letra sincronizada si la tiene (la de
+ * FreedomPlayer o un .lrc al lado del archivo) para NeoLyrics.
  */
 public final class LocalMusicPlayer {
+	/** Una canción de la lista: su archivo, el nombre que se enseña y, si es de FreedomPlayer, su id allí. */
+	private record Track(Path file, String title, String songId, long durationMs) {
+	}
+
 	private final Path folder = FabricLoader.getInstance().getGameDir().resolve(FreedomClient.MOD_ID).resolve("music");
-	private final List<Path> playlist = new ArrayList<>();
+	private final List<Track> playlist = new ArrayList<>();
 	private int index = -1;
 	private Thread thread;
 	private volatile boolean paused;
@@ -38,28 +44,54 @@ public final class LocalMusicPlayer {
 	private volatile long positionMs;
 	private volatile long durationMs;
 	private volatile String title;
+	private volatile LyricsTimeline lyrics;
+	/** Sube con cada canción que empieza (NeoLyrics lo usa para saber que ha cambiado). */
+	private volatile int songNumber;
+	/** La salida de audio que suena ahora: su posición es lo que de verdad se ha oído (sin lo que hay en el búfer). */
+	private volatile SourceDataLine line;
 	private boolean shuffle;
+	private boolean freedomPlayer = true;
+
+	/** Si el Music Player sabe tocar ese archivo. */
+	public static boolean canPlay(String name) {
+		String lower = name.toLowerCase(Locale.ROOT);
+		return lower.endsWith(".mp3") || lower.endsWith(".wav") || PcmSource.supports(lower);
+	}
 
 	public Path folder() {
 		return folder;
 	}
 
-	/** Vuelve a leer la carpeta de música. Devuelve cuántas canciones hay. */
+	/** Vuelve a leer la carpeta de música y la biblioteca de FreedomPlayer. Devuelve cuántas canciones hay. */
 	public synchronized int reload() {
 		playlist.clear();
 		try {
 			Files.createDirectories(folder);
 			try (Stream<Path> files = Files.list(folder)) {
-				files.filter(file -> {
-					String name = file.getFileName().toString().toLowerCase(Locale.ROOT);
-					return name.endsWith(".mp3") || name.endsWith(".wav");
-				}).sorted().forEach(playlist::add);
+				files.filter(file -> canPlay(file.getFileName().toString())).sorted().forEach(file -> {
+					String name = file.getFileName().toString();
+					playlist.add(new Track(file, name.substring(0, name.lastIndexOf('.')), null, 0));
+				});
 			}
 		} catch (IOException e) {
 			FreedomClient.LOGGER.warn("Could not read the music folder {}", folder, e);
 		}
+		if (freedomPlayer) {
+			for (FreedomPlayerLibrary.Song song : FreedomPlayerLibrary.songs()) {
+				String name = song.artist() == null || song.artist().isBlank() ? song.title() : song.artist() + " - " + song.title();
+				playlist.add(new Track(song.file(), name, song.id(), song.durationMs()));
+			}
+		}
 		if (shuffle) Collections.shuffle(playlist);
 		return playlist.size();
+	}
+
+	/** Si se tocan también las canciones bajadas en FreedomPlayer. */
+	public synchronized void setFreedomPlayer(boolean freedomPlayer) {
+		if (this.freedomPlayer != freedomPlayer) {
+			this.freedomPlayer = freedomPlayer;
+			reload();
+		}
 	}
 
 	public synchronized void setShuffle(boolean shuffle) {
@@ -95,6 +127,26 @@ public final class LocalMusicPlayer {
 
 	public long durationMs() {
 		return durationMs;
+	}
+
+	/** Lo que se ha oído de la canción, en ms: como positionMs pero sin contar lo que espera en el búfer de audio. */
+	public long playedMs() {
+		SourceDataLine current = line;
+		if (current == null) return positionMs;
+		try {
+			return Math.min(positionMs, current.getMicrosecondPosition() / 1000L);
+		} catch (RuntimeException e) {
+			return positionMs;
+		}
+	}
+
+	/** La letra sincronizada de la canción que suena, o null si no tiene. */
+	public LyricsTimeline lyrics() {
+		return lyrics;
+	}
+
+	public int songNumber() {
+		return songNumber;
 	}
 
 	public synchronized void play() {
@@ -204,24 +256,30 @@ public final class LocalMusicPlayer {
 	/** Hilo de música: toca la canción actual y pasa a la siguiente al acabar. */
 	private void run() {
 		while (!stopped) {
-			Path song;
+			Track track;
 			synchronized (this) {
 				if (playlist.isEmpty()) break;
 				index = Math.floorMod(index, playlist.size());
-				song = playlist.get(index);
+				track = playlist.get(index);
 			}
 			skip = false;
-			String name = song.getFileName().toString();
-			title = name.substring(0, name.lastIndexOf('.'));
+			Path song = track.file();
+			String name = song.getFileName().toString().toLowerCase(Locale.ROOT);
 			positionMs = 0;
-			durationMs = 0;
+			durationMs = track.durationMs();
+			lyrics = loadLyrics(track);
+			title = track.title();
+			songNumber++;
 			try {
-				if (name.toLowerCase(Locale.ROOT).endsWith(".mp3")) playMp3(song);
-				else playWav(song);
+				if (name.endsWith(".mp3")) playMp3(song);
+				else if (name.endsWith(".wav")) playWav(song);
+				else playPcm(song);
 			} catch (Exception e) {
 				FreedomClient.LOGGER.warn("Could not play {}", song, e);
 				sleep(500);
 			}
+			line = null;
+			lyrics = null;
 			synchronized (this) {
 				// Al acabar sola (no con siguiente/anterior), pasa a la siguiente canción.
 				if (!skip && !playlist.isEmpty()) index = (index + 1) % playlist.size();
@@ -249,6 +307,7 @@ public final class LocalMusicPlayer {
 					if (line == null) {
 						durationMs = (long) header.total_ms((int) Math.min(Integer.MAX_VALUE, size));
 						line = openLine(new AudioFormat(samples.getSampleFrequency(), 16, samples.getChannelCount(), true, false));
+						this.line = line;
 					}
 					if (!line.isRunning()) line.start();
 					write(line, samples.getBuffer(), samples.getBufferLength());
@@ -271,6 +330,7 @@ public final class LocalMusicPlayer {
 			try (AudioInputStream stream = AudioSystem.getAudioInputStream(pcm, source)) {
 				durationMs = (long) (source.getFrameLength() / base.getFrameRate() * 1000.0);
 				SourceDataLine line = openLine(pcm);
+				this.line = line;
 				try {
 					line.start();
 					byte[] bytes = new byte[4096];
@@ -292,6 +352,70 @@ public final class LocalMusicPlayer {
 					line.close();
 				}
 			}
+		}
+	}
+
+	/** m4a y webm: los descodifica {@link PcmSource} y se tocan igual que el MP3. */
+	private void playPcm(Path song) throws Exception {
+		try (PcmSource source = PcmSource.open(song)) {
+			if (source.durationMs() > 0) durationMs = source.durationMs();
+			SourceDataLine line = null;
+			long frames = 0;
+			try {
+				while (!skip && !stopped) {
+					if (paused) {
+						if (line != null) line.stop();
+						sleep(50);
+						continue;
+					}
+					PcmSource.Pcm pcm = source.next();
+					if (pcm == null) break;
+					if (line == null) {
+						line = openLine(new AudioFormat(pcm.sampleRate(), 16, pcm.channels(), true, false));
+						this.line = line;
+					}
+					if (!line.isRunning()) line.start();
+					write(line, pcm.samples(), pcm.length());
+					frames += pcm.length() / pcm.channels();
+					positionMs = frames * 1000L / pcm.sampleRate();
+				}
+				if (line != null && !skip) line.drain();
+			} finally {
+				if (line != null) line.close();
+			}
+		}
+	}
+
+	/**
+	 * Descodifica entera una canción m4a o webm y dice cómo ha salido ("48000 Hz, 2 ch, 240000 frames, 99% audible"):
+	 * para comprobar los descodificadores en las pruebas.
+	 */
+	public static String describe(Path song) throws Exception {
+		try (PcmSource source = PcmSource.open(song)) {
+			long samples = 0, audible = 0;
+			int rate = 0, channels = 0;
+			PcmSource.Pcm pcm;
+			while ((pcm = source.next()) != null) {
+				rate = pcm.sampleRate();
+				channels = pcm.channels();
+				samples += pcm.length();
+				for (int i = 0; i < pcm.length(); i++) if (Math.abs(pcm.samples()[i]) > 8) audible++;
+			}
+			return rate + " Hz, " + channels + " ch, " + samples / Math.max(1, channels) + " frames, "
+					+ (samples == 0 ? 0 : audible * 100 / samples) + "% audible, " + source.durationMs() + " ms";
+		}
+	}
+
+	/** La letra de la canción: la que guardó FreedomPlayer o, si es de la carpeta, un .lrc con el mismo nombre. */
+	private static LyricsTimeline loadLyrics(Track track) {
+		try {
+			if (track.songId() != null) return LyricsTimeline.parse(FreedomPlayerLibrary.syncedLyrics(track.songId()));
+			String name = track.file().getFileName().toString();
+			Path lrc = track.file().resolveSibling(name.substring(0, name.lastIndexOf('.')) + ".lrc");
+			return Files.isRegularFile(lrc) ? LyricsTimeline.parse(Files.readString(lrc)) : null;
+		} catch (Exception e) {
+			FreedomClient.LOGGER.warn("Could not read the lyrics of {}", track.file(), e);
+			return null;
 		}
 	}
 

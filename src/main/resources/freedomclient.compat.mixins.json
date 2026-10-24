@@ -3,7 +3,8 @@
 	"package": "com.freedomclient.mixin.compat",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"MouseTweaksMainMixin"
+		"MouseTweaksMainMixin",
+		"JaadNoiseMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

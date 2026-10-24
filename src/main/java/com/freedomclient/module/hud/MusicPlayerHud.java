@@ -19,7 +19,10 @@ import net.minecraft.util.Util;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Music Player: reproductor de tus MP3 y WAV locales, con su HUD (canción, barra de progreso y tiempo). */
+/**
+ * Music Player: reproductor de tus canciones (MP3, WAV, m4a y webm de la carpeta de música y las bajadas en
+ * FreedomPlayer), con su HUD (canción, barra de progreso y tiempo). NeoLyrics pinta en el cielo la letra de lo que suena.
+ */
 public class MusicPlayerHud extends HudModule {
 	private static final int WIDTH = 150;
 	private static final int HEIGHT = 26;
@@ -27,6 +30,8 @@ public class MusicPlayerHud extends HudModule {
 	private final LocalMusicPlayer player = new LocalMusicPlayer();
 	private final NumberSetting volume = add(new NumberSetting("Volume", "Music volume (also follows the game's master volume).", 60, 0, 100, 5, "%"));
 	private final BooleanSetting shuffle = add(new BooleanSetting("Shuffle", "Play the songs in random order.", false));
+	private final BooleanSetting freedomPlayer = add(new BooleanSetting("FreedomPlayer songs",
+			"Also play the songs downloaded in FreedomPlayer on this PC (with their synced lyrics for NeoLyrics).", true));
 	private final BooleanSetting autoplay = add(new BooleanSetting("Autoplay", "Start playing when the game opens.", false));
 	private final BooleanSetting stopGameMusic = add(new BooleanSetting("Stop game music", "Pause Minecraft's own music while yours plays.", true));
 	private final KeybindSetting playKey = add(new KeybindSetting("Play / pause key", "Key to play or pause the music.", KeybindSetting.NONE));
@@ -46,7 +51,8 @@ public class MusicPlayerHud extends HudModule {
 	private final ActionSetting previousButton = add(new ActionSetting("Previous song", "Go back to the previous song.", "Back", player::previous));
 	private final ActionSetting reloadButton = add(new ActionSetting("Reload songs", "Read the music folder again after adding songs.", "Reload",
 			player::reload));
-	private final ActionSetting folderButton = add(new ActionSetting("Music folder", "Put your MP3 and WAV files in .minecraft/freedomclient/music.",
+	private final ActionSetting folderButton = add(new ActionSetting("Music folder",
+			"Put your MP3, WAV, M4A or WEBM files in .minecraft/freedomclient/music (a .lrc with the same name adds synced lyrics).",
 			"Open", () -> {
 				player.reload();
 				Util.getPlatform().openPath(player.folder());
@@ -57,12 +63,18 @@ public class MusicPlayerHud extends HudModule {
 	private volatile String pendingStatus;
 
 	public MusicPlayerHud() {
-		super("Music Player", "Plays your own MP3 and WAV songs from the music folder (or from a direct link), with a HUD and hotkeys.", false,
+		super("Music Player", "Plays your own songs from the music folder and your FreedomPlayer library (or from a direct link), with a HUD and hotkeys.", false,
 				new HudPosition(HudPosition.Anchor.CENTER, 0, HudPosition.Anchor.START, 34));
+	}
+
+	/** El reproductor (NeoLyrics lee de él la canción y su letra). */
+	public LocalMusicPlayer player() {
+		return player;
 	}
 
 	@Override
 	protected void onEnable(Minecraft client) {
+		player.setFreedomPlayer(freedomPlayer.get());
 		player.reload();
 		if (autoplay.get()) player.play();
 	}
@@ -81,10 +93,12 @@ public class MusicPlayerHud extends HudModule {
 	public void onTick(Minecraft client) {
 		if (!started) {
 			started = true;
+			player.setFreedomPlayer(freedomPlayer.get());
 			player.reload();
 			if (autoplay.get()) player.play();
 		}
 		player.setShuffle(shuffle.get());
+		player.setFreedomPlayer(freedomPlayer.get());
 		float master = client.options.getSoundSourceVolume(SoundSource.MASTER);
 		player.setVolume(volume.getFloat() / 100.0F * master);
 		if (stopGameMusic.get() && player.isPlaying()) client.getMusicManager().stopPlaying();

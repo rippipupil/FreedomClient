@@ -169,6 +169,9 @@ public class FreedomClient implements ClientModInitializer {
 		// Los waypoints van primero para quedar por debajo del resto del HUD.
 		HudElementRegistry.addFirst(id("waypoints"), (graphics, deltaTracker) ->
 				moduleManager.get(WaypointsModule.class).render(graphics, Minecraft.getInstance()));
+		// NeoLyrics: la letra en el cielo, también por debajo del HUD.
+		HudElementRegistry.addFirst(id("neolyrics"), (graphics, deltaTracker) ->
+				moduleManager.get(com.freedomclient.module.visual.NeoLyricsModule.class).render(graphics, Minecraft.getInstance()));
 		HudElementRegistry.addLast(id("hud"), (graphics, deltaTracker) -> HudRenderer.render(graphics));
 		// El aviso de poca vida va por debajo de todo el HUD (tiñe solo el mundo y los bordes).
 		HudElementRegistry.addFirst(id("low_health"), (graphics, deltaTracker) -> {

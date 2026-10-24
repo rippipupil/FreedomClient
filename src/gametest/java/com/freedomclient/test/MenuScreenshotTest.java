@@ -123,6 +123,11 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				hand, wantHand, hand.distance(wantHand), foot, wantFoot, foot.distance(wantFoot), key, wantKey, key.distance(wantKey));
 	}
 
+	/** La letra de prueba del diseño de NeoLyrics. */
+	private static final String NEO_LRC = String.join("\n", "[00:01.00] Bajo un cielo de cubos", "[00:05.20] guardo tu canción",
+			"[00:09.00] cada bloque que pongo", "[00:13.10] late con tu voz", "[00:17.40] y cuando cae la noche", "[00:21.50] la luna se enciende",
+			"[00:25.40] escribo tu nombre", "[00:29.00] en las estrellas de siempre", "[00:33.60] ");
+
 	private static void shoot(ClientGameTestContext context, String name, net.minecraft.client.CameraType camera, Class<?>... types) {
 		context.runOnClient(client -> {
 			for (Class<?> type : types) cosmetic(type).setEnabled(true);
@@ -686,6 +691,39 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			context.waitTicks(10);
 			context.takeScreenshot("visuals_sunset");
 			context.runOnClient(client -> setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "Server"));
+
+			// NeoLyrics: la letra de prueba del diseño en el cielo, a mitad de la primera línea y al pasar a la segunda.
+			context.runOnClient(client -> {
+				for (String name : new String[]{"test.m4a", "test.webm"}) {
+					try (java.io.InputStream in = MenuScreenshotTest.class.getResourceAsStream("/neolyrics/" + name)) {
+						java.nio.file.Path file = java.nio.file.Files.createTempFile("neolyrics", name);
+						java.nio.file.Files.copy(in, file, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+						FreedomClient.LOGGER.info("[neolyrics] decode {}: {}", name, com.freedomclient.music.LocalMusicPlayer.describe(file));
+					} catch (Exception e) {
+						FreedomClient.LOGGER.error("[neolyrics] decode {} failed", name, e);
+					}
+				}
+				setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "FC Sunset");
+				client.player.setXRot(-12.0F);
+				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class).setEnabled(true);
+			});
+			for (double[] shot : new double[][]{{2.6}, {3.9}, {5.75}}) {
+				context.runOnClient(client -> com.freedomclient.module.visual.NeoLyricsModule.forceForTest(NEO_LRC, shot[0]));
+				context.waitTicks(4);
+				context.takeScreenshot("neolyrics_" + String.valueOf(shot[0]).replace('.', '_'));
+			}
+			context.runOnClient(client -> {
+				setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class), "Color", "Theme");
+				com.freedomclient.module.visual.NeoLyricsModule.forceForTest(NEO_LRC, 9.9);
+			});
+			context.waitTicks(4);
+			context.takeScreenshot("neolyrics_theme");
+			context.runOnClient(client -> {
+				com.freedomclient.module.visual.NeoLyricsModule.forceForTest(null, 0);
+				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class).setEnabled(false);
+				setMode(FreedomClient.getModuleManager().get(VisualsModule.class), "Time", "Server");
+				client.player.setXRot(0.0F);
+			});
 
 			// Hit Particles: plumas al golpear el soporte de armadura.
 			context.runOnClient(client -> {
