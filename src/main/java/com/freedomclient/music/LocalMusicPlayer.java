@@ -30,7 +30,11 @@ import java.util.stream.Stream;
  */
 public final class LocalMusicPlayer {
 	/** Una canción de la lista: su archivo, el nombre que se enseña y, si es de FreedomPlayer, su id allí. */
-	private record Track(Path file, String title, String songId, long durationMs) {
+	private record Track(Path file, String title, String songId, long durationMs, String name, String artist, String album, boolean synced) {
+		static Track of(com.freedomclient.freedomplayer.LibraryData.Song song, boolean synced) {
+			String display = song.artist() == null || song.artist().isBlank() ? song.title() : song.artist() + " - " + song.title();
+			return new Track(Path.of(song.audioPath()), display, song.id(), song.durationSec() * 1000L, song.title(), song.artist(), song.album(), synced);
+		}
 	}
 
 	private final Path folder = FabricLoader.getInstance().getGameDir().resolve(FreedomClient.MOD_ID).resolve("music");
@@ -49,6 +53,7 @@ public final class LocalMusicPlayer {
 	private volatile int songNumber;
 	/** La salida de audio que suena ahora: su posición es lo que de verdad se ha oído (sin lo que hay en el búfer). */
 	private volatile SourceDataLine line;
+	private volatile Track current;
 	private boolean shuffle;
 	private boolean freedomPlayer = true;
 
@@ -70,20 +75,42 @@ public final class LocalMusicPlayer {
 			try (Stream<Path> files = Files.list(folder)) {
 				files.filter(file -> canPlay(file.getFileName().toString())).sorted().forEach(file -> {
 					String name = file.getFileName().toString();
-					playlist.add(new Track(file, name.substring(0, name.lastIndexOf('.')), null, 0));
+					playlist.add(new Track(file, name.substring(0, name.lastIndexOf('.')), null, 0, null, null, null, false));
 				});
 			}
 		} catch (IOException e) {
 			FreedomClient.LOGGER.warn("Could not read the music folder {}", folder, e);
 		}
 		if (freedomPlayer) {
-			for (FreedomPlayerLibrary.Song song : FreedomPlayerLibrary.songs()) {
-				String name = song.artist() == null || song.artist().isBlank() ? song.title() : song.artist() + " - " + song.title();
-				playlist.add(new Track(song.file(), name, song.id(), song.durationMs()));
+			// Las del móvil (sincronizadas) y las de FreedomPlayer del PC, sin repetir.
+			for (com.freedomclient.freedomplayer.ClientLibrary.Entry entry : com.freedomclient.freedomplayer.FreedomPlayerHub.library().songs()) {
+				if (entry.song().audioPath() != null && canPlay(entry.song().audioPath())) playlist.add(Track.of(entry.song(), entry.synced()));
 			}
 		}
 		if (shuffle) Collections.shuffle(playlist);
 		return playlist.size();
+	}
+
+	/**
+	 * Toca estas canciones de la biblioteca de FreedomPlayer (una playlist, un ranking o la lista que se ve en la
+	 * pantalla), empezando por {@code start}. Siguen hasta que se vuelva a cargar la lista.
+	 */
+	public synchronized void playSongs(java.util.List<com.freedomclient.freedomplayer.ClientLibrary.Entry> songs, int start) {
+		playlist.clear();
+		for (com.freedomclient.freedomplayer.ClientLibrary.Entry entry : songs) {
+			if (entry.song().audioPath() != null && canPlay(entry.song().audioPath())) playlist.add(Track.of(entry.song(), entry.synced()));
+		}
+		if (playlist.isEmpty()) return;
+		index = Math.max(0, Math.min(start, playlist.size() - 1));
+		skip = true;
+		paused = false;
+		if (stopped) play();
+	}
+
+	/** El id en FreedomPlayer de la canción que suena, o null. */
+	public String songId() {
+		Track track = current;
+		return track != null && title != null ? track.songId() : null;
 	}
 
 	/** Si se tocan también las canciones bajadas en FreedomPlayer. */
@@ -267,9 +294,19 @@ public final class LocalMusicPlayer {
 			String name = song.getFileName().toString().toLowerCase(Locale.ROOT);
 			positionMs = 0;
 			durationMs = track.durationMs();
-			lyrics = loadLyrics(track);
+			current = track;
 			title = track.title();
 			songNumber++;
+			if (track.synced()) com.freedomclient.freedomplayer.FreedomPlayerHub.library().recordPlay(track.songId());
+			// La letra puede tardar (LRCLIB): se busca aparte y la canción empieza ya.
+			lyrics = null;
+			int number = songNumber;
+			Thread lyricsThread = new Thread(() -> {
+				LyricsTimeline found = loadLyrics(track);
+				if (songNumber == number) lyrics = found;
+			}, "FreedomClient Lyrics");
+			lyricsThread.setDaemon(true);
+			lyricsThread.start();
 			try {
 				if (name.endsWith(".mp3")) playMp3(song);
 				else if (name.endsWith(".wav")) playWav(song);
@@ -409,7 +446,13 @@ public final class LocalMusicPlayer {
 	/** La letra de la canción: la que guardó FreedomPlayer o, si es de la carpeta, un .lrc con el mismo nombre. */
 	private static LyricsTimeline loadLyrics(Track track) {
 		try {
-			if (track.songId() != null) return LyricsTimeline.parse(FreedomPlayerLibrary.syncedLyrics(track.songId()));
+			if (track.songId() != null) {
+				// La que guardó FreedomPlayer del PC; si no, la de LRCLIB (la letra no viaja con la sincronización).
+				LyricsTimeline saved = LyricsTimeline.parse(FreedomPlayerLibrary.syncedLyrics(track.songId()));
+				if (saved != null) return saved;
+				return LyricsTimeline.parse(com.freedomclient.freedomplayer.FreedomPlayerHub.lrclib().synced(track.songId(), track.name(), track.artist(),
+						track.album(), (int) (track.durationMs() / 1000)));
+			}
 			String name = track.file().getFileName().toString();
 			Path lrc = track.file().resolveSibling(name.substring(0, name.lastIndexOf('.')) + ".lrc");
 			return Files.isRegularFile(lrc) ? LyricsTimeline.parse(Files.readString(lrc)) : null;

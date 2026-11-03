@@ -25,7 +25,8 @@ public class FreedomMenuScreen extends Screen {
 		HUD("HUD"),
 		COSMETICS("Cosmetics"),
 		THEME("Theme"),
-		PACKS("Packs");
+		PACKS("Packs"),
+		MUSIC("Music");
 
 		private final String label;
 
@@ -49,6 +50,7 @@ public class FreedomMenuScreen extends Screen {
 	private final CosmeticsPage cosmeticsPage = new CosmeticsPage(this);
 	private final ThemePage themePage = new ThemePage();
 	private final PacksPage packsPage = new PacksPage();
+	private final MusicPage musicPage = new MusicPage();
 	private Tab tab = lastTab;
 	private ModuleSettingsPage modulePage;
 	/** Pantalla a la que volver al cerrar (por ejemplo, el editor de HUD), o null para volver al juego. */
@@ -82,6 +84,11 @@ public class FreedomMenuScreen extends Screen {
 		} else {
 			modulePage = null;
 		}
+	}
+
+	/** La pestaña Music (FreedomPlayer), para los tests. */
+	public MusicPage musicPage() {
+		return musicPage;
 	}
 
 	/** Busca en la pestaña Cosmetics (lo usan los tests para enseñar una tarjeta concreta). */
@@ -215,6 +222,7 @@ public class FreedomMenuScreen extends Screen {
 			case COSMETICS -> cosmeticsPage;
 			case THEME -> themePage;
 			case PACKS -> packsPage;
+			case MUSIC -> musicPage;
 		};
 	}
 

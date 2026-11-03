@@ -128,6 +128,74 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			"[00:09.00] cada bloque que pongo", "[00:13.10] late con tu voz", "[00:17.40] y cuando cae la noche", "[00:21.50] la luna se enciende",
 			"[00:25.40] escribo tu nombre", "[00:29.00] en las estrellas de siempre", "[00:33.60] ");
 
+	/**
+	 * Pestaña Music (FreedomPlayer): vincular de verdad (descarga Syncthing oficial, lo comprueba, lo arranca y enseña el
+	 * QR) y luego una biblioteca de prueba como la que llega del móvil (canciones, una playlist y notas).
+	 */
+	private static void musicTab(ClientGameTestContext context) {
+		var sync = com.freedomclient.freedomplayer.FreedomPlayerHub.sync();
+		FreedomMenuScreen[] menu = new FreedomMenuScreen[1];
+		context.setScreen(() -> {
+			menu[0] = FreedomMenuScreen.forTab(FreedomMenuScreen.Tab.MUSIC);
+			return menu[0];
+		});
+		context.waitTicks(2);
+		context.runOnClient(client -> menu[0].musicPage().openLinking());
+		for (int i = 0; i < 120 && sync.phase() != com.freedomclient.freedomplayer.FreedomSync.Phase.WAITING
+				&& sync.phase() != com.freedomclient.freedomplayer.FreedomSync.Phase.FAILED; i++) {
+			context.waitTicks(20);
+		}
+		FreedomClient.LOGGER.info("[freedomplayer] link phase {} error {} id {}", sync.phase(), sync.error(), sync.myId());
+		context.waitTicks(4);
+		context.takeScreenshot("music_link");
+
+		// Lo que llegaría del móvil: su JSON en la carpeta de la biblioteca y el audio en la de música.
+		context.runOnClient(client -> {
+			try {
+				java.nio.file.Path root = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir().resolve("freedomclient/freedomplayer");
+				java.nio.file.Files.createDirectories(root.resolve("musica"));
+				java.nio.file.Files.createDirectories(root.resolve("biblioteca"));
+				String[][] songs = {{"yt:a1", "Midnight Blocks", "Ghostline", "4282068879", "9"}, {"yt:a2", "Sakura Drop", "Pink Ghost", "4294930350", "7"},
+						{"yt:a3", "Neon Alley Run", "Valence", "4282373119", "10"}, {"yt:a4", "Creeper Lullaby", "Ghostline", "4286193493", ""},
+						{"yt:a5", "Diamonds in the Light", "Aurora Pixel", "4294949951", "6"}};
+				StringBuilder json = new StringBuilder("{\"formato\":1,\"dispositivo\":\"MOVIL-PRUEBA\",\"exportado\":1,\"canciones\":[");
+				StringBuilder notes = new StringBuilder();
+				for (int i = 0; i < songs.length; i++) {
+					String file = songs[i][0].replace(':', '_') + ".m4a";
+					java.nio.file.Files.write(root.resolve("musica").resolve(file), new byte[64]);
+					if (i > 0) json.append(',');
+					json.append("{\"id\":\"").append(songs[i][0]).append("\",\"titulo\":\"").append(songs[i][1]).append("\",\"artista\":\"")
+							.append(songs[i][2]).append("\",\"duracion\":200,\"color\":").append(songs[i][3]).append(",\"anadida\":").append(i)
+							.append(",\"audio\":\"").append(file).append("\",\"cambio\":1}");
+					if (!songs[i][4].isEmpty()) {
+						if (notes.length() > 0) notes.append(',');
+						notes.append("{\"cancion\":\"").append(songs[i][0]).append("\",\"nota\":").append(songs[i][4]).append(",\"cambio\":1}");
+					}
+				}
+				json.append("],\"notas\":[").append(notes).append("],\"playlists\":[{\"id\":\"p1\",\"nombre\":\"Para jugar\",\"canciones\":[\"yt:a3\",\"yt:a1\",\"yt:a5\"],\"color\":4286193493,\"cambio\":1}],")
+						.append("\"rankings\":[{\"id\":\"r1\",\"nombre\":\"Top del verano\",\"canciones\":[\"yt:a3\",\"yt:a2\",\"yt:a1\",\"yt:a4\"],\"cambio\":1}],")
+						.append("\"escuchas\":[],\"borradas\":[],\"playlistsBorradas\":[],\"rankingsBorrados\":[]}");
+				java.nio.file.Files.writeString(root.resolve("biblioteca").resolve("biblioteca-MOVIL-PRUEBA.json"), json.toString());
+				com.freedomclient.freedomplayer.FreedomPlayerHub.library().exchange();
+				FreedomClient.LOGGER.info("[freedomplayer] library {} songs, {} playlists, {} rankings",
+						com.freedomclient.freedomplayer.FreedomPlayerHub.library().data().songs().size(),
+						com.freedomclient.freedomplayer.FreedomPlayerHub.library().data().playlists().size(),
+						com.freedomclient.freedomplayer.FreedomPlayerHub.library().data().rankings().size());
+			} catch (Exception e) {
+				FreedomClient.LOGGER.error("[freedomplayer] test library failed", e);
+			}
+			sync.stopLinking();
+			menu[0].musicPage().showSongs();
+		});
+		context.waitTicks(6);
+		context.takeScreenshot("music_songs");
+		context.runOnClient(client -> menu[0].musicPage().openFirstPlaylist());
+		context.waitTicks(6);
+		context.takeScreenshot("music_playlist");
+		context.runOnClient(client -> FreedomClient.LOGGER.info("[freedomplayer] lyrics test {}",
+				com.freedomclient.freedomplayer.FreedomPlayerHub.lrclib().synced("yt:test", "Yellow", "Coldplay", null, 269) != null));
+	}
+
 	private static void shoot(ClientGameTestContext context, String name, net.minecraft.client.CameraType camera, Class<?>... types) {
 		context.runOnClient(client -> {
 			for (Class<?> type : types) cosmetic(type).setEnabled(true);
@@ -970,6 +1038,7 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				context.waitTicks(10);
 				context.takeScreenshot("menu_" + tab.name().toLowerCase(Locale.ROOT));
 			}
+			musicTab(context);
 			// Cada tema con sus detalles (sol, nubes, estrellas, fuego, energía).
 			for (com.freedomclient.ui.theme.ThemePreset preset : com.freedomclient.ui.theme.ThemePreset.values()) {
 				context.runOnClient(client -> com.freedomclient.ui.theme.ThemeManager.setPreset(preset));

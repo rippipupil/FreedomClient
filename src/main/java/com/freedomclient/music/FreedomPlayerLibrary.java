@@ -20,8 +20,8 @@ import java.util.Locale;
  * solo lectura, así que no molesta a la app si está abierta).
  */
 public final class FreedomPlayerLibrary {
-	/** Una canción de la biblioteca con su archivo de audio. */
-	public record Song(String id, String title, String artist, Path file, long durationMs) {
+	/** Una canción de la biblioteca con su archivo de audio, su color de carátula y su nota (1-10, o null). */
+	public record Song(String id, String title, String artist, Path file, long durationMs, long coverColor, Integer score) {
 	}
 
 	private FreedomPlayerLibrary() {
@@ -57,7 +57,7 @@ public final class FreedomPlayerLibrary {
 		List<Song> songs = new ArrayList<>();
 		if (!exists()) return songs;
 		try (Connection connection = open(); Statement statement = connection.createStatement();
-			 ResultSet rows = statement.executeQuery("SELECT id, title, artist, audio_path, duration_sec FROM song "
+			 ResultSet rows = statement.executeQuery("SELECT id, title, artist, audio_path, duration_sec, cover_color, score FROM song "
 					 + "WHERE audio_path IS NOT NULL ORDER BY added_at DESC")) {
 			while (rows.next()) {
 				String path = rows.getString(4);
@@ -69,12 +69,37 @@ public final class FreedomPlayerLibrary {
 					continue;
 				}
 				if (!LocalMusicPlayer.canPlay(file.getFileName().toString()) || !Files.isRegularFile(file)) continue;
-				songs.add(new Song(rows.getString(1), rows.getString(2), rows.getString(3), file, rows.getLong(5) * 1000L));
+				int score = rows.getInt(7);
+				Integer maybeScore = rows.wasNull() || score < 1 || score > 10 ? null : score;
+				songs.add(new Song(rows.getString(1), rows.getString(2), rows.getString(3), file, rows.getLong(5) * 1000L, rows.getLong(6), maybeScore));
 			}
 		} catch (Exception e) {
 			FreedomClient.LOGGER.warn("Could not read the FreedomPlayer library {}", database(), e);
 		}
 		return songs;
+	}
+
+	/** Las playlists de FreedomPlayer del PC, en su orden, con sus canciones en orden. */
+	public static List<com.freedomclient.freedomplayer.LibraryData.Playlist> playlists() {
+		List<com.freedomclient.freedomplayer.LibraryData.Playlist> out = new ArrayList<>();
+		if (!exists()) return out;
+		try (Connection connection = open(); Statement statement = connection.createStatement();
+			 ResultSet rows = statement.executeQuery("SELECT id, name, cover_color FROM playlist ORDER BY position")) {
+			while (rows.next()) {
+				String id = rows.getString(1);
+				List<String> ids = new ArrayList<>();
+				try (PreparedStatement songs = connection.prepareStatement("SELECT song_id FROM playlist_song WHERE playlist_id = ? ORDER BY position")) {
+					songs.setString(1, id);
+					try (ResultSet list = songs.executeQuery()) {
+						while (list.next()) ids.add(list.getString(1));
+					}
+				}
+				out.add(new com.freedomclient.freedomplayer.LibraryData.Playlist(id, rows.getString(2), ids, rows.getLong(3)));
+			}
+		} catch (Exception e) {
+			FreedomClient.LOGGER.warn("Could not read the FreedomPlayer playlists {}", database(), e);
+		}
+		return out;
 	}
 
 	/** La letra sincronizada (LRC) que FreedomPlayer guardó para esa canción, o null si no tiene. */

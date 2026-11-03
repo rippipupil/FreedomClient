@@ -103,6 +103,7 @@ public class FreedomClient implements ClientModInitializer {
 
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
 			moduleManager.onShutdown(client);
+			com.freedomclient.freedomplayer.FreedomPlayerHub.sync().shutdown();
 			// Guarda todo al cerrar, también lo que se cambió sin pasar por el menú (teclas, HUD, música...).
 			Config.save();
 		});
@@ -128,6 +129,8 @@ public class FreedomClient implements ClientModInitializer {
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			com.freedomclient.module.qol.GlassModule.removeLegacyPack(client);
 			if (moduleManager.get(UpdatesModule.class).isEnabled()) UpdateChecker.checkAsync();
+			// Ya vinculado con FreedomPlayer del móvil: se sigue sincronizando mientras el juego está abierto.
+			com.freedomclient.freedomplayer.FreedomPlayerHub.sync().startIfLinked();
 		});
 
 		registerHud();
