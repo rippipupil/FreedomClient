@@ -1,0 +1,486 @@
+<title>NeoLyrics Estilos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Una sola vista: la pantalla del juego arriba, ocupando casi todo; debajo, las opciones en filas de botones. */
+:root {
+  --ink: #f4f1ff;
+  --mist: #b9b3d6;
+  --panel: #1d1934;
+  --line: #2c2650;
+  --accent: #c9a6ff;
+  --ground: #0e0c1a;
+  --display: "Chakra Petch", "Eurostile", "Arial Narrow", sans-serif;
+  --body: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: dark;
+}
+body { background: var(--ground); color: var(--ink); font-family: var(--body); }
+.wrap { max-width: 1200px; margin: 0 auto; padding-block: 18px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 12px; }
+header { display: grid; gap: 4px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 4vw, 36px); margin: 0; letter-spacing: .08em; text-wrap: balance; }
+h1 span { color: var(--accent); }
+header p { margin: 0; color: var(--mist); font-size: 14px; max-width: 72ch; }
+.screen { position: relative; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; background: #2a1640; overflow: hidden; }
+#game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+.opts { display: grid; gap: 8px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.row > span { font-family: var(--display); font-size: 12px; letter-spacing: .14em; color: var(--mist); min-width: 104px; }
+button { font: inherit; font-size: 13px; font-weight: 700; min-height: 34px; padding: 0 12px; border: 0; background: var(--panel); color: var(--ink); cursor: pointer; clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px); }
+button[aria-pressed="true"] { background: var(--accent); color: #1a1030; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#bar { flex: 1; min-width: 140px; accent-color: var(--accent); }
+#time { font-variant-numeric: tabular-nums; color: var(--mist); font-size: 13px; min-width: 86px; }
+.cap { color: var(--mist); font-size: 13px; margin: 0; max-width: 90ch; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2px 0; width: 100%; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&family=Fredoka:wght@700&family=Kalam:wght@700&family=Nunito:wght@400;700;800&family=Pacifico&family=Pixelify+Sans:wght@500&display=swap">
+
+<div class="wrap">
+  <header>
+    <h1>NEO<span>LYRICS</span> · ESTILOS</h1>
+    <p>La letra de la canción que suena (las letras sincronizadas de FreedomPlayer) en el cielo de Minecraft, con las tres formas de tus referencias y opciones de fuente, color, relieve, brillo, aparición y desaparición. Arrastra sobre la pantalla para mirar alrededor y pulsa «Caminar» para ver la perspectiva.</p>
+  </header>
+  <div class="screen"><canvas id="game" width="960" height="540" aria-label="Vista del juego con la letra de la canción en el cielo. Arrastra para mirar alrededor."></canvas></div>
+  <div class="row">
+    <button id="bPlay" aria-pressed="true">Pausa</button>
+    <button id="bWalk" aria-pressed="false">Caminar</button>
+    <input id="bar" type="range" min="0" max="1000" value="0" aria-label="Posición de la canción">
+    <span id="time">0:00 / 0:00</span>
+  </div>
+  <div class="opts">
+    <div class="row" id="oLayout"><span>COLOCACIÓN</span></div>
+    <div class="row" id="oFont"><span>FUENTE</span></div>
+    <div class="row" id="oColor"><span>COLOR</span></div>
+    <div class="row" id="oAppear"><span>APARICIÓN</span></div>
+    <div class="row" id="oLeave"><span>DESAPARICIÓN</span></div>
+    <hr>
+    <div class="row" id="oDepth"><span>RELIEVE 3D</span></div>
+    <div class="row" id="oGlow"><span>BRILLO</span></div>
+    <div class="row" id="oSize"><span>TAMAÑO</span></div>
+    <div class="row" id="oPill"><span>PÍLDORA</span></div>
+    <div class="row" id="oIntro"><span>TÍTULO</span></div>
+    <div class="row" id="oSky"><span>CIELO</span></div>
+  </div>
+  <p class="cap">Cartel 3D es la primera referencia (la frase puesta en el mundo, con relieve, que se ve en perspectiva al moverte), Flotante la segunda (palabras inclinadas y de tamaños distintos, en filas) y Disperso la tercera (cada palabra en un sitio del cielo). Recta es la versión de antes. La píldora de arriba enseña la línea que suena con la palabra cantada resaltada. La letra de prueba es inventada, en formato LRC como las de FreedomPlayer.</p>
+</div>
+
+<script>
+// ============================================================================================
+// DISEÑO (lo que pasa al juego tal cual). Tiempos en segundos; ángulos en grados; tamaños de letra en «em»
+// (1 = alto de una letra).
+// ============================================================================================
+const SONG_TITLE = 'Cielo de cubos', SONG_ARTIST = 'Demo FreedomPlayer';
+const LRC = `[00:04.00] Bajo un cielo de cubos guardo tu canción
+[00:09.20] cada bloque que pongo late con tu voz
+[00:14.40] y cuando cae la noche
+[00:18.30] la luna se enciende
+[00:22.20] escribo tu nombre en las estrellas
+[00:27.60] y brillan para ti
+[00:32.00] `;
+function parseLrc(text) {
+  const lines = [];
+  for (const raw of text.split('\n')) {
+    const m = raw.match(/^\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);
+    if (m) lines.push({ t: +m[1] * 60 + +m[2], text: m[3].trim() });
+  }
+  return lines;
+}
+const NEO = {
+  maxLine: 6, sing: 0.72, letterGap: 0.035, appear: 0.38, leave: 0.9,  // tiempos (como antes)
+  elevation: 16,  // grados sobre el horizonte
+  size: 5,        // alto de letra en grados
+  distance: 30,   // bloques hasta el cartel 3D
+  tracking: 0.03, // espacio extra entre letras (em)
+  rowMax: 8,      // ancho máximo de una fila en Flotante (em)
+  rowGap: 1.4,    // entre filas (em)
+  depth: 0.16,    // grosor del relieve (em)
+  layers: 5,      // capas del relieve
+  intro: 6        // el título sale como mucho estos segundos al empezar
+};
+const backOut = u => { const v = u - 1; return 1 + 2.70158 * v * v * v + 1.70158 * v * v; };
+const ease = u => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+// Número pseudoaleatorio fijo en [0, 1) (mismas cuentas enteras en Java).
+function hash(n) { let h = Math.imul((n | 0) ^ 0x5bd1e995, 0x2c1b3c6d); h ^= h >>> 15; h = Math.imul(h, 0x297a2d39); h ^= h >>> 13; return (h >>> 0) / 4294967296; }
+function wordTimes(line, next) {
+  const words = line.text.split(/\s+/).filter(Boolean);
+  const dur = Math.min(NEO.maxLine, (next ? next.t : line.t + NEO.maxLine) - line.t);
+  const weights = words.map(w => w.length + 2), total = weights.reduce((a, b) => a + b, 0);
+  let acc = 0;
+  return { dur, words: words.map((w, i) => { const start = line.t + dur * NEO.sing * acc / total; acc += weights[i]; return { text: w, start, end: line.t + dur * NEO.sing * acc / total }; }) };
+}
+// Estado de una letra en t: desplazamiento (x, y en em), escala, giro (rad), alfa, destello, si se canta y «burst»
+// (0..1, lo que lleva rota con «Romperse»). k = letra en su palabra; n = letra en toda la línea.
+function letterState(ap, lv, t, word, k, lineEnd, n) {
+  const born = word.start + k * NEO.letterGap, a = t - born;
+  if (a < 0) return null;
+  const u = Math.min(1, a / NEO.appear);
+  let x = 0, y = 0, s = 1, rot = 0, alpha = ease(u), flash = Math.max(0, 1 - a / 0.45), burst = 0;
+  if (ap === 'salto') { y = (1 - backOut(u)) * -1.4; s = 0.55 + 0.45 * backOut(u); }
+  else if (ap === 'fundido') { y = (1 - ease(u)) * -0.25; flash *= 0.5; }
+  else if (ap === 'maquina') { alpha = 1; s = 1 + 0.3 * Math.max(0, 1 - a / 0.12); }
+  else if (ap === 'zoom') { s = 1.9 - 0.9 * ease(u); rot = (1 - ease(u)) * -0.35; }
+  const singing = t >= word.start && t < word.end + 0.15;
+  if (singing) y += Math.sin((t - word.start) * 9 + k * 0.7) * 0.06;
+  const stagger = lv === 'desvanecer' ? 0 : lv === 'caer' ? 0.03 : 0.02;
+  const out = t - lineEnd - n * stagger;
+  if (out > 0) {
+    const v = Math.min(1, out / NEO.leave), e = ease(v), r = hash(n) - 0.5;
+    if (lv === 'subir') { y += e * 2.2; alpha *= 1 - e; s *= 1 - 0.3 * v; }
+    else if (lv === 'desvanecer') { alpha *= 1 - e; }
+    else if (lv === 'caer') { y -= 5 * v * v; x += r * 1.2 * v; rot += r * 2.4 * v; alpha *= 1 - ease((v - 0.4) / 0.6); }
+    else if (lv === 'viento') { x += e * 5; y += Math.sin(v * 5 + n * 0.6) * 0.35 * v; rot += (0.4 + r) * 1.4 * e; alpha *= 1 - e; }
+    else if (lv === 'romper') { burst = v; alpha *= 1 - e; }
+    else if (lv === 'encoger') { s *= 1 - e; rot += r * 1.6 * v; alpha *= 1 - e * e; }
+  }
+  return alpha > 0.01 ? { x, y, s, rot, alpha, flash, singing, burst } : null;
+}
+// Disperso: los sitios del cielo donde caen las palabras (yaw y altura relativos, en grados, y tamaño).
+const SLOTS = [[-28, 14, 1.5], [22, -6, 1.7], [-30, -10, 0.8], [-10, 0, 0.7], [30, 12, 1.0], [6, 16, 1.2], [-6, -12, 1.0], [16, 4, 0.9]];
+// Dónde va cada letra de una línea. group: -1 = toda la línea comparte sitio; si no, la palabra (Disperso).
+// x, y: centro de la letra en em (y hacia arriba); rot y scale: los de su palabra.
+function layoutLine(line, li, mode, width) {
+  const adv = ch => width(ch) + NEO.tracking, space = width(' ') + NEO.tracking;
+  const items = [], words = line.words;
+  const wordWidth = w => [...w.text].reduce((a, ch) => a + adv(ch), 0) - NEO.tracking;
+  // Letras de una palabra centradas en (cx, cy), giradas y escaladas como la palabra.
+  const place = (wi, cx, cy, rot, scale, group) => {
+    const w = words[wi], ww = wordWidth(w);
+    let lx = -ww / 2;
+    [...w.text].forEach((ch, k) => {
+      const half = width(ch) / 2, px = (lx + half) * scale;
+      items.push({ ch, wi, k, x: cx + px * Math.cos(rot), y: cy + px * Math.sin(rot), rot, scale, group });
+      lx += adv(ch);
+    });
+  };
+  if (mode === 'disperso') {
+    const first = Math.floor(hash(li * 7 + 3) * 8);
+    words.forEach((w, wi) => place(wi, 0, 0, (hash(li * 31 + wi + 101) - 0.5) * 0.25, SLOTS[(first + wi * 3) % 8][2], wi));
+  } else if (mode === 'flotante') {
+    const sc = words.map((w, wi) => 0.85 + hash(li * 31 + wi + 7) * 0.35);
+    const rows = [[]];
+    let used = 0;
+    words.forEach((w, wi) => {
+      const ww = wordWidth(w) * sc[wi];
+      if (rows[rows.length - 1].length && used + space + ww > NEO.rowMax) { rows.push([]); used = 0; }
+      used += (rows[rows.length - 1].length ? space : 0) + ww;
+      rows[rows.length - 1].push(wi);
+    });
+    rows.forEach((row, r) => {
+      const total = row.reduce((a, wi) => a + wordWidth(words[wi]) * sc[wi], 0) + space * (row.length - 1);
+      let x = -total / 2;
+      const ry = ((rows.length - 1) / 2 - r) * NEO.rowGap;
+      for (const wi of row) {
+        const ww = wordWidth(words[wi]) * sc[wi];
+        place(wi, x + ww / 2, ry + (hash(li * 31 + wi + 211) - 0.5) * 0.3, (hash(li * 31 + wi + 101) - 0.5) * 0.2, sc[wi], -1);
+        x += ww + space;
+      }
+    });
+  } else {
+    const total = words.reduce((a, w) => a + wordWidth(w), 0) + space * (words.length - 1);
+    let x = -total / 2;
+    words.forEach((w, wi) => { const ww = wordWidth(w); place(wi, x + ww / 2, 0, 0, 1, -1); x += ww + space; });
+  }
+  return items;
+}
+// Colores: {relleno, halo}; Arcoíris y Karaoke cambian por letra.
+const COLORS = {
+  blanco: ['#ffffff', '#dcebff'], lila: ['#f1e6ff', '#b48cff'], rosa: ['#ffe3f1', '#ff3fa4'],
+  cian: ['#eafcff', '#3fd7ff'], dorado: ['#fff3c4', '#ffb43f']
+};
+function hsl(h, s, l) { // h en grados, s y l de 0 a 1 → '#rrggbb'
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return '#' + [r, g, b].map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
+}
+function letterColor(mode, t, word, n, st) {
+  let fill, halo;
+  if (mode === 'arcoiris') { const h = (n * 22 + t * 90) % 360; fill = hsl(h, 0.85, 0.82); halo = hsl(h, 0.95, 0.62); }
+  else if (mode === 'karaoke') { const sung = t >= word.start; fill = sung ? '#d6b8ff' : '#b9b4c8'; halo = sung ? '#a66bff' : '#6d6680'; return [st.flash > 0.5 ? '#ffffff' : fill, halo]; }
+  else [fill, halo] = COLORS[mode];
+  return [st.flash > 0.5 || st.singing ? '#ffffff' : fill, halo];
+}
+function mixHex(a, b, t) {
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const [x, y] = [p(a), p(b)];
+  return '#' + x.map((v, i) => Math.round(v * (1 - t) + y[i] * t).toString(16).padStart(2, '0')).join('');
+}
+
+// ============================================================================================
+// VISTA PREVIA (solo para ver el diseño: mundo de bloques simplificado y cámara)
+// ============================================================================================
+(function () {
+  const canvas = document.getElementById('game'), g = canvas.getContext('2d');
+  const W = 960, H = 540, FOV = 70, focal = (H / 2) / Math.tan(FOV / 2 * Math.PI / 180);
+  const LINES = parseLrc(LRC), SONG = LINES[LINES.length - 1].t + 2;
+  const TIMED = LINES.map((l, i) => ({ ...l, ...wordTimes(l, LINES[i + 1]) })).filter(l => l.text);
+  const FONTS = { minecraft: ['500', '"Pixelify Sans", monospace'], redonda: ['700', 'Fredoka, "Nunito", sans-serif'],
+    manuscrita: ['700', 'Kalam, "Comic Sans MS", cursive'], cursiva: ['400', 'Pacifico, "Brush Script MT", cursive'], futurista: ['700', '"Chakra Petch", "Arial Narrow", sans-serif'] };
+  const SKIES = { dia: ['#4f8fe0', '#a8d6ff', '#6aa84a', '#4f8a35'], atardecer: ['#2a1640', '#f2915c', '#4b6d34', '#3a5528'], noche: ['#05071a', '#1d2a5c', '#1d3818', '#14260f'] };
+  const opt = { layout: 'cartel', font: 'redonda', color: 'blanco', appear: 'salto', leave: 'subir', depth: true, glow: true, size: 1, pill: true, intro: true, sky: 'atardecer' };
+  const cam = { x: 0, y: 1.62, z: 0, yaw: 0, pitch: 6 };
+  let playing = true, walking = false, songT = 0, last = performance.now();
+  const anchors = new Map();
+
+  const group = (id, list, key, after) => {
+    const row = document.getElementById(id);
+    list.forEach(([v, label]) => {
+      const b = document.createElement('button'); b.textContent = label; b.setAttribute('aria-pressed', opt[key] === v);
+      b.onclick = () => { row.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); opt[key] = v; if (after) after(); };
+      row.append(b);
+    });
+  };
+  const resetAnchors = () => anchors.clear();
+  group('oLayout', [['cartel', 'Cartel 3D'], ['flotante', 'Flotante'], ['disperso', 'Disperso'], ['recta', 'Recta']], 'layout', resetAnchors);
+  group('oFont', [['minecraft', 'Minecraft'], ['redonda', 'Redonda'], ['manuscrita', 'Manuscrita'], ['cursiva', 'Cursiva'], ['futurista', 'Futurista']], 'font', () => widths.clear());
+  group('oColor', [['blanco', 'Blanco'], ['lila', 'Lila'], ['rosa', 'Rosa'], ['cian', 'Cian'], ['dorado', 'Dorado'], ['arcoiris', 'Arcoíris'], ['karaoke', 'Karaoke']], 'color');
+  group('oAppear', [['salto', 'Saltito'], ['fundido', 'Fundido'], ['maquina', 'Máquina de escribir'], ['zoom', 'Zoom']], 'appear');
+  group('oLeave', [['subir', 'Subir'], ['desvanecer', 'Desvanecer'], ['caer', 'Caer'], ['viento', 'Viento'], ['romper', 'Romperse'], ['encoger', 'Encoger']], 'leave');
+  group('oDepth', [[true, 'Sí'], [false, 'No']], 'depth');
+  group('oGlow', [[true, 'Sí'], [false, 'No']], 'glow');
+  group('oSize', [[0.75, 'Pequeña'], [1, 'Normal'], [1.35, 'Grande']], 'size', resetAnchors);
+  group('oPill', [[true, 'Sí'], [false, 'No']], 'pill');
+  group('oIntro', [[true, 'Al empezar'], [false, 'No']], 'intro');
+  group('oSky', [['dia', 'Día'], ['atardecer', 'Atardecer'], ['noche', 'Noche']], 'sky');
+
+  const bPlay = document.getElementById('bPlay'), bWalk = document.getElementById('bWalk'), bar = document.getElementById('bar'), time = document.getElementById('time');
+  bPlay.onclick = () => { playing = !playing; bPlay.textContent = playing ? 'Pausa' : 'Seguir'; bPlay.setAttribute('aria-pressed', playing); };
+  bWalk.onclick = () => { walking = !walking; bWalk.setAttribute('aria-pressed', walking); };
+  bar.oninput = () => { songT = bar.value / 1000 * SONG; anchors.clear(); };
+  let drag = null;
+  canvas.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
+  canvas.addEventListener('pointermove', e => {
+    if (!drag) return; const k = FOV / canvas.clientHeight;
+    cam.yaw += (e.clientX - drag.x) * k; cam.pitch = Math.max(-40, Math.min(75, cam.pitch - (e.clientY - drag.y) * k)); drag = { x: e.clientX, y: e.clientY };
+  });
+  const end = () => { drag = null; canvas.style.cursor = 'grab'; };
+  canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+  const keys = new Set();
+  addEventListener('keydown', e => { if (/^(w|a|s|d)$/i.test(e.key)) keys.add(e.key.toLowerCase()); });
+  addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
+
+  // Medida de las letras (em) con la fuente elegida; se rehace al cargar las fuentes.
+  const widths = new Map(), mctx = document.createElement('canvas').getContext('2d');
+  const fontCss = (f, px) => `${FONTS[f][0]} ${px}px ${FONTS[f][1]}`;
+  const width = ch => { const key = opt.font + ch; if (!widths.has(key)) { mctx.font = fontCss(opt.font, 100); widths.set(key, mctx.measureText(ch).width / 100); } return widths.get(key); };
+  if (document.fonts) { Object.keys(FONTS).forEach(f => document.fonts.load(fontCss(f, 40), 'Aa')); document.fonts.ready.then(() => widths.clear()); }
+
+  // Cámara: yaw 0 mira a +z, pitch hacia arriba positivo.
+  let basis;
+  function setBasis() {
+    const y = cam.yaw * Math.PI / 180, p = cam.pitch * Math.PI / 180;
+    basis = { f: [Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p)], r: [Math.cos(y), 0, -Math.sin(y)], u: [-Math.sin(y) * Math.sin(p), Math.cos(p), -Math.cos(y) * Math.sin(p)] };
+  }
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  function project(p) {
+    const d = [p[0] - cam.x, p[1] - cam.y, p[2] - cam.z], z = dot(d, basis.f);
+    if (z < 0.3) return null;
+    return { x: W / 2 + dot(d, basis.r) / z * focal, y: H / 2 - dot(d, basis.u) / z * focal, z };
+  }
+  const dir = (yaw, elev) => { const y = yaw * Math.PI / 180, e = elev * Math.PI / 180; return [Math.sin(y) * Math.cos(e), Math.sin(e), Math.cos(y) * Math.cos(e)]; };
+
+  // ---------- Mundo ----------
+  const TREES = [];
+  for (let i = 0; i < 46; i++) { const a = hash(i * 3 + 1) * Math.PI * 2, r = 16 + hash(i * 3 + 2) * 34; TREES.push([Math.cos(a) * r | 0, Math.sin(a) * r | 0, 3 + (hash(i * 3 + 3) * 3 | 0)]); }
+  const BOXES = [];
+  for (const [x, z, h] of TREES) { BOXES.push([x, 0, z, x + 1, h, z + 1, '#6b4a2b']); BOXES.push([x - 1, h - 1, z - 1, x + 2, h + 2, z + 2, '#3f7a2c']); }
+  for (let i = 0; i < 10; i++) { const a = hash(i + 500) * Math.PI * 2, r = 28 + hash(i + 600) * 18, x = Math.cos(a) * r | 0, z = Math.sin(a) * r | 0, w = 4 + (hash(i + 700) * 6 | 0); BOXES.push([x, 0, z, x + w, 1 + (hash(i + 800) * 3 | 0), z + w, '#5f9440']); }
+  const shade = (hex, k) => mixHex(hex, '#000000', k);
+  function poly(pts, fill) { if (pts.some(p => !p)) return; g.fillStyle = fill; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.closePath(); g.fill(); }
+  function world(now) {
+    const [top, hor, grass, grid] = SKIES[opt.sky];
+    const horizon = H / 2 + Math.tan(cam.pitch * Math.PI / 180) * focal;
+    const gr = g.createLinearGradient(0, horizon - H * 1.2, 0, horizon); gr.addColorStop(0, top); gr.addColorStop(1, hor);
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    if (opt.sky !== 'dia') for (let i = 0; i < 120; i++) { const p = project([cam.x + dir(i * 137.5, 6 + (i * 53) % 70)[0] * 500, cam.y + dir(i * 137.5, 6 + (i * 53) % 70)[1] * 500, cam.z + dir(i * 137.5, 6 + (i * 53) % 70)[2] * 500]); if (p && (Math.floor(now * 2) + i) % 11) { g.fillStyle = opt.sky === 'noche' ? '#ffffff' : 'rgba(255,255,255,.5)'; g.fillRect(p.x, p.y, 2, 2); } }
+    g.fillStyle = opt.sky === 'noche' ? 'rgba(80,90,140,.45)' : 'rgba(255,255,255,.6)';
+    for (let i = 0; i < 12; i++) { const a = i * 31 + now * 0.3, d = dir(a, 20 + (i % 3) * 6); const p = project([cam.x + d[0] * 300, cam.y + d[1] * 300, cam.z + d[2] * 300]); if (p) { g.fillRect(p.x - 50, p.y, 100 + (i % 2) * 50, 22); g.fillRect(p.x - 20, p.y - 12, 60, 12); } }
+    g.fillStyle = grass; g.fillRect(0, horizon, W, H - horizon + 2);
+    // Rejilla de bloques del suelo.
+    g.strokeStyle = grid; g.lineWidth = 1;
+    const cx = Math.round(cam.x), cz = Math.round(cam.z);
+    for (let i = -40; i <= 40; i += 2) {
+      for (const [a, b] of [[[cx + i, 0, cz - 40], [cx + i, 0, cz + 40]], [[cx - 40, 0, cz + i], [cx + 40, 0, cz + i]]]) segment(a, b);
+    }
+    // Árboles y montículos, de lejos a cerca.
+    const list = BOXES.map(b => ({ b, d: (b[0] + b[3]) / 2 - cam.x, e: (b[2] + b[5]) / 2 - cam.z })).sort((p, q) => (q.d * q.d + q.e * q.e) - (p.d * p.d + p.e * p.e));
+    for (const { b } of list) box(b);
+  }
+  function segment(a, b) {
+    // Recorta contra el plano cercano.
+    const cz = p => dot([p[0] - cam.x, p[1] - cam.y, p[2] - cam.z], basis.f);
+    let za = cz(a), zb = cz(b);
+    if (za < 0.3 && zb < 0.3) return;
+    if (za < 0.3) { const t = (0.3 - za) / (zb - za); a = a.map((v, i) => v + (b[i] - v) * t); }
+    if (zb < 0.3) { const t = (0.3 - zb) / (za - zb); b = b.map((v, i) => v + (a[i] - v) * t); }
+    const p = project(a), q = project(b); if (!p || !q) return;
+    g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(q.x, q.y); g.stroke();
+  }
+  function box([x0, y0, z0, x1, y1, z1, c]) {
+    const P = (x, y, z) => project([x, y, z]);
+    if (cam.y > y1) poly([P(x0, y1, z0), P(x1, y1, z0), P(x1, y1, z1), P(x0, y1, z1)], mixHex(c, '#ffffff', 0.12));
+    if (cam.x < x0) poly([P(x0, y0, z0), P(x0, y1, z0), P(x0, y1, z1), P(x0, y0, z1)], shade(c, 0.25));
+    if (cam.x > x1) poly([P(x1, y0, z0), P(x1, y1, z0), P(x1, y1, z1), P(x1, y0, z1)], shade(c, 0.25));
+    if (cam.z < z0) poly([P(x0, y0, z0), P(x1, y0, z0), P(x1, y1, z0), P(x0, y1, z0)], shade(c, 0.12));
+    if (cam.z > z1) poly([P(x0, y0, z1), P(x1, y0, z1), P(x1, y1, z1), P(x0, y1, z1)], shade(c, 0.12));
+  }
+
+  // ---------- La letra ----------
+  // Un «marco» lleva un punto (lx, ly, lz) en em al punto de la pantalla.
+  function skyFrame(yaw, elev, scale) {
+    const d = dir(yaw, elev), a = project([cam.x + d[0] * 1000, cam.y + d[1] * 1000, cam.z + d[2] * 1000]);
+    if (!a || dot(d, basis.f) < 0.2) return null;
+    const px = Math.tan(NEO.size * opt.size * scale * Math.PI / 180) * focal;
+    return (lx, ly, lz) => ({ x: a.x + (lx - lz * 0.35) * px, y: a.y - (ly + lz * 0.55) * px });
+  }
+  function worldFrame(an) {
+    const hgt = Math.tan(NEO.size * opt.size * Math.PI / 180) * NEO.distance;
+    return (lx, ly, lz) => project([0, 1, 2].map(i => an.c[i] + an.r[i] * lx * hgt + an.u[i] * ly * hgt + an.n[i] * lz * hgt));
+  }
+  function anchorFor(li) {
+    if (!anchors.has(li)) {
+      const y = cam.yaw * Math.PI / 180, e = NEO.elevation * Math.PI / 180, d = dir(cam.yaw, NEO.elevation);
+      anchors.set(li, { yaw: cam.yaw, c: [cam.x + d[0] * NEO.distance, cam.y + d[1] * NEO.distance, cam.z + d[2] * NEO.distance],
+        r: [Math.cos(y), 0, -Math.sin(y)], u: [-Math.sin(y) * Math.sin(e), Math.cos(e), -Math.cos(y) * Math.sin(e)], n: d.map(v => -v) });
+    }
+    return anchors.get(li);
+  }
+  // Dibuja un carácter: el punto (gx, gy) del marco es su centro; rot y sc lo giran y escalan.
+  function glyph(frame, ch, gx, gy, gz, rot, sc, draw) {
+    const c = Math.cos(rot) * sc / 100, s = Math.sin(rot) * sc / 100;
+    const o = frame(gx, gy, gz), a = frame(gx + c, gy + s, gz), b = frame(gx + s, gy - c, gz);
+    if (!o || !a || !b) return;
+    g.setTransform(a.x - o.x, a.y - o.y, b.x - o.x, b.y - o.y, o.x, o.y);
+    draw();
+    g.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  const RING = [[1, 0], [-1, 0], [0, 1], [0, -1], [0.7, 0.7], [-0.7, 0.7], [0.7, -0.7], [-0.7, -0.7]];
+  function drawLetter(frame, it, st, word, n, t) {
+    const gx = it.x + st.x * it.scale, gy = it.y + st.y * it.scale, rot = it.rot + st.rot, sc = it.scale * st.s;
+    const [fill, halo] = letterColor(opt.color, t, word, n, st);
+    const face = st.alpha * (1 - ease(st.burst * 3));
+    const text = () => g.fillText(it.ch, 0, 0);
+    if (face > 0.01) {
+      if (opt.depth) {
+        const side = mixHex(fill, '#3a3550', 0.55);
+        for (let k = NEO.layers; k >= 1; k--) glyph(frame, it.ch, gx, gy, -NEO.depth * k / NEO.layers, rot, sc, () => { g.globalAlpha = face; g.fillStyle = shade(side, 0.25 * k / NEO.layers); text(); });
+      } else {
+        glyph(frame, it.ch, gx, gy, 0, rot, sc, () => { g.globalAlpha = 0.45 * face; g.fillStyle = '#141028'; g.fillText(it.ch, 4, 4); });
+      }
+      if (opt.glow) {
+        const ga = (0.22 + 0.25 * st.flash + (st.singing ? 0.2 : 0)) * face;
+        glyph(frame, it.ch, gx, gy, 0, rot, sc, () => {
+          g.fillStyle = halo;
+          for (const [r, k] of [[5, 1], [10, 0.5]]) { g.globalAlpha = ga * k; for (const [dx, dy] of RING) g.fillText(it.ch, dx * r, dy * r); }
+        });
+      }
+      glyph(frame, it.ch, gx, gy, 0, rot, sc, () => { g.globalAlpha = face; g.fillStyle = fill; text(); });
+    }
+    if (st.burst > 0) {
+      // Romperse: seis trocitos cuadrados salen de la letra y caen.
+      glyph(frame, it.ch, gx, gy, 0, rot, sc, () => {
+        g.fillStyle = fill; g.globalAlpha = st.alpha;
+        for (let j = 0; j < 6; j++) {
+          const ang = hash(n * 8 + j) * Math.PI * 2, d = ease(st.burst) * (0.6 + hash(n * 8 + j + 100) * 1.2);
+          const sx = Math.cos(ang) * d, sy = Math.sin(ang) * d - st.burst * st.burst * 1.2, size = 14 * (1 - st.burst * 0.5);
+          g.fillRect(sx * 100 - size / 2, -sy * 100 - size / 2, size, size);
+        }
+      });
+    }
+    g.globalAlpha = 1;
+  }
+  function lyrics(t) {
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = fontCss(opt.font, 100);
+    TIMED.forEach((line, li) => {
+      const end = line.t + line.dur, chars = line.text.length;
+      if (t < line.t || t > end + NEO.leave + chars * 0.03 + 0.3) return;
+      const an = anchorFor(li), items = layoutLine(line, li, opt.layout, width);
+      const first = Math.floor(hash(li * 7 + 3) * 8);
+      let frames = new Map();
+      const frameOf = grp => {
+        if (!frames.has(grp)) {
+          if (opt.layout === 'cartel') frames.set(grp, worldFrame(an));
+          else if (grp < 0) frames.set(grp, skyFrame(an.yaw, NEO.elevation, 1));
+          else { const s = SLOTS[(first + grp * 3) % 8]; frames.set(grp, skyFrame(an.yaw + s[0], NEO.elevation + s[1], 1)); }
+        }
+        return frames.get(grp);
+      };
+      items.forEach((it, n) => {
+        const word = line.words[it.wi], st = letterState(opt.appear, opt.leave, t, word, it.k, end, n), frame = frameOf(it.group);
+        if (st && frame) drawLetter(frame, it, st, word, n, t);
+      });
+    });
+  }
+  // Título y artista al empezar la canción, con una estela de luz entre los dos.
+  function intro(t) {
+    if (!opt.intro) return;
+    const stop = Math.min(NEO.intro, TIMED[0].t - 0.2);
+    if (t > stop) return;
+    const a = ease(t / 0.6) * (1 - ease((t - (stop - 0.8)) / 0.8));
+    if (a <= 0.01) return;
+    if (!anchors.has('intro')) anchors.set('intro', cam.yaw);
+    const frame = skyFrame(anchors.get('intro'), NEO.elevation + 6, 1);
+    if (!frame) return;
+    const [fill, halo] = opt.color === 'arcoiris' || opt.color === 'karaoke' ? COLORS.lila : COLORS[opt.color];
+    const o = frame(0, 0, 0), u = frame(1, 0, 0), em = u.x - o.x;
+    // Estela: un óvalo de luz muy alargado.
+    g.save(); g.globalAlpha = a * 0.9; g.translate(o.x, o.y + em * 0.15); g.scale(1, 0.06);
+    const sg = g.createRadialGradient(0, 0, 0, 0, 0, em * 4.2); sg.addColorStop(0, '#ffffff'); sg.addColorStop(0.35, halo); sg.addColorStop(1, halo + '00');
+    g.fillStyle = sg; g.beginPath(); g.arc(0, 0, em * 4.2, 0, Math.PI * 2); g.fill(); g.restore();
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const [text, y, size] of [[SONG_TITLE, 1.4 + (1 - ease(t / 0.8)) * -0.4, 2.2], [SONG_ARTIST, -1.0, 1.2]]) {
+      const p = frame(0, y, 0);
+      g.font = fontCss(opt.font, Math.round(em * size));
+      if (opt.glow) { g.fillStyle = halo; g.globalAlpha = a * 0.25; for (const [dx, dy] of RING) g.fillText(text, p.x + dx * em * 0.08, p.y + dy * em * 0.08); }
+      g.globalAlpha = a; g.fillStyle = fill; g.fillText(text, p.x, p.y);
+    }
+    g.globalAlpha = 1;
+  }
+  // La píldora de arriba: carátula, tiempo, la línea que suena con la palabra cantada resaltada y unas barritas.
+  function pill(t) {
+    if (!opt.pill) return;
+    let cur = null;
+    TIMED.forEach(l => { if (t >= l.t && t < l.t + l.dur + 0.5) cur = l; });
+    const text = cur ? cur.text : '♪ ' + SONG_TITLE;
+    g.font = '700 21px Nunito, sans-serif'; g.textBaseline = 'middle'; g.textAlign = 'left';
+    const tw = Math.min(560, g.measureText(text).width), w = tw + 150, x = (W - w) / 2, y = 12, h = 44;
+    g.fillStyle = 'rgba(22,17,40,.85)'; g.beginPath(); g.roundRect(x, y, w, h, 22); g.fill();
+    g.strokeStyle = 'rgba(201,166,255,.45)'; g.lineWidth = 2; g.stroke();
+    const cg = g.createLinearGradient(x + 10, y + 8, x + 38, y + 36); cg.addColorStop(0, '#3fd7ff'); cg.addColorStop(1, '#6b5bff');
+    g.fillStyle = cg; g.beginPath(); g.arc(x + 26, y + h / 2, 14, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#b9b3d6'; g.font = '700 16px Nunito, sans-serif'; g.fillText(fmt(t), x + 48, y + h / 2 + 1);
+    const tx = x + 96;
+    g.save(); g.beginPath(); g.rect(tx, y, tw, h); g.clip();
+    g.font = '700 21px Nunito, sans-serif';
+    if (cur) {
+      let cx = tx;
+      // Se resalta solo la última palabra que ha empezado a cantarse.
+      const sung = cur.words.filter(w => t >= w.start).pop();
+      cur.words.forEach(word => {
+        const ww = g.measureText(word.text).width, sp = g.measureText(' ').width;
+        const now = word === sung;
+        if (now) { g.fillStyle = '#9b6bff'; g.beginPath(); g.roundRect(cx - 5, y + 9, ww + 10, h - 18, 7); g.fill(); }
+        g.fillStyle = t >= word.start ? '#ffffff' : 'rgba(255,255,255,.55)'; g.fillText(word.text, cx, y + h / 2 + 1);
+        cx += ww + sp;
+      });
+    } else { g.fillStyle = '#ffffff'; g.fillText(text, tx, y + h / 2 + 1); }
+    g.restore();
+    for (let i = 0; i < 4; i++) { const bh = 6 + Math.abs(Math.sin(t * 7 + i * 1.3)) * (playing ? 14 : 2); g.fillStyle = '#c9a6ff'; g.fillRect(x + w - 40 + i * 7, y + h / 2 - bh / 2, 4, bh); }
+  }
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  (function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000); last = now;
+    if (playing) { songT += dt; if (songT > SONG) { songT = 0; anchors.clear(); } }
+    const fwd = (walking ? 3 : 0) + (keys.has('w') ? 4 : 0) - (keys.has('s') ? 4 : 0), side = (keys.has('d') ? 4 : 0) - (keys.has('a') ? 4 : 0);
+    const y = cam.yaw * Math.PI / 180;
+    cam.x += (Math.sin(y) * fwd + Math.cos(y) * side) * dt; cam.z += (Math.cos(y) * fwd - Math.sin(y) * side) * dt;
+    setBasis();
+    world(reduce ? 0 : now / 1000);
+    intro(songT); lyrics(songT); pill(songT);
+    g.fillStyle = 'rgba(255,255,255,.8)'; g.fillRect(W / 2 - 1, H / 2 - 8, 2, 16); g.fillRect(W / 2 - 8, H / 2 - 1, 16, 2);
+    bar.value = Math.round(songT / SONG * 1000); time.textContent = `${fmt(songT)} / ${fmt(SONG)}`;
+    requestAnimationFrame(loop);
+  })(performance.now());
+})();
+</script>
