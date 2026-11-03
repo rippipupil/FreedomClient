@@ -139,7 +139,7 @@ public class MusicPage implements MenuPage {
 			}
 			default -> {
 				text = sync.linked() ? "Linked with your phone (it syncs while the game is open)."
-						: "Not linked yet: press Link phone to bring your FreedomPlayer songs from your phone.";
+						: "Not linked: press Link phone to bring your phone's songs.";
 				dot = sync.linked() ? 0xFF3FD7A0 : ThemeManager.textMuted();
 			}
 		}
@@ -199,9 +199,14 @@ public class MusicPage implements MenuPage {
 				ty += 10;
 			}
 			button(ui, "Try again", textX + ui.font.width("Try again") + 12, ty + 2, true, sync::startLinking);
-		} else if (sync.myId() != null && ty + 10 < y + h) {
-			// El id también se puede escribir a mano en el móvil si la cámara no lo lee.
-			ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(sync.myId(), textW), textX, Math.max(ty, y + h - 10), ThemeManager.withAlpha(ThemeManager.textMuted(), 0.7F), false);
+		} else if (sync.myId() != null && ty + 20 < y + h) {
+			// El id de este dispositivo en Syncthing (lo que lleva el QR), en dos líneas para que quepa.
+			String id = sync.myId();
+			int half = id.length() / 2 + 1;
+			int idY = Math.max(ty, y + h - 20);
+			int color = ThemeManager.withAlpha(ThemeManager.textMuted(), 0.7F);
+			ui.g.drawString(ui.font, id.substring(0, Math.min(half, id.length())), textX, idY, color, false);
+			ui.g.drawString(ui.font, id.substring(Math.min(half, id.length())), textX, idY + 10, color, false);
 		}
 	}
 
