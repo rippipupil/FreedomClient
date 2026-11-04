@@ -795,13 +795,13 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			// Título al empezar; el cartel 3D de frente y, después de girarse, en perspectiva.
 			neo(context, "title", 1.6);
 			neo(context, "sign", 7.0);
-			float[] yaw = new float[1];
+			float[] signYaw = new float[1];
 			context.runOnClient(client -> {
-				yaw[0] = client.player.getYRot();
-				client.player.setYRot(yaw[0] + 28.0F);
+				signYaw[0] = client.player.getYRot();
+				client.player.setYRot(signYaw[0] + 28.0F);
 			});
 			neo(context, "sign_side", 7.4);
-			context.runOnClient(client -> client.player.setYRot(yaw[0]));
+			context.runOnClient(client -> client.player.setYRot(signYaw[0]));
 			neo(context, "shatter", 9.55, "Disappear", "Shatter");
 			neo(context, "floating", 7.0, "Layout", "Floating", "Font", "Handwritten", "3D depth", "false", "Disappear", "Rise");
 			neo(context, "scattered", 7.0, "Layout", "Scattered", "Font", "Script", "Color", "Lilac");
