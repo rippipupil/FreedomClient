@@ -405,7 +405,7 @@ public class NeoLyricsModule extends Module {
 		}
 		String text = current != null ? current.text() : "♪ " + songTitle;
 		int textW = Math.min(240, mcFont.width(text));
-		int w = textW + 64, h = 16, x = (graphics.guiWidth() - w) / 2, y = 4;
+		int w = textW + 64, h = 16, x = (graphics.guiWidth() - w) / 2, y = freeY(x, w, h);
 		int accent = 0xFFC9A6FF;
 		graphics.fill(x + 3, y, x + w - 3, y + h, 0xD9161128);
 		graphics.fill(x + 1, y + 2, x + w - 1, y + h - 2, 0xD9161128);
@@ -438,6 +438,21 @@ public class NeoLyricsModule extends Module {
 			int bh = 3 + (int) Math.round(Math.abs(Math.sin(t * 7 + i * 1.3)) * 6);
 			graphics.fill(x + w - 17 + i * 3, y + 8 - bh / 2, x + w - 15 + i * 3, y + 8 - bh / 2 + bh, accent);
 		}
+	}
+
+	/** Arriba del todo, salvo que algo del HUD (el reloj, por ejemplo) ocupe ese sitio: entonces justo debajo. */
+	private int freeY(int x, int w, int h) {
+		int y = 4;
+		for (int pass = 0; pass < 2; pass++) {
+			for (Module module : FreedomClient.getModuleManager().getModules()) {
+				if (!(module instanceof com.freedomclient.hud.HudModule hud) || !hud.isEnabled() || !hud.shouldRender(client)) continue;
+				float scale = hud.getPosition().getScale();
+				int hw = Math.round(hud.getWidth(client, false) * scale), hh = Math.round(hud.getHeight(client, false) * scale);
+				int hx = hud.getPosition().resolveX(graphics.guiWidth(), hw), hy = hud.getPosition().resolveY(graphics.guiHeight(), hh);
+				if (hx < x + w && hx + hw > x && hy < y + h && hy + hh > y && hy < 60) y = hy + hh + 2;
+			}
+		}
+		return y;
 	}
 
 	private static int argb(float alpha, int rgb) {
