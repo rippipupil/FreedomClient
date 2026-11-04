@@ -107,6 +107,19 @@ public final class LocalMusicPlayer {
 		if (stopped) play();
 	}
 
+	/** El nombre de la canción que suena (sin el artista), o null. */
+	public String songName() {
+		Track track = current;
+		if (track == null || title == null) return null;
+		return track.name() != null ? track.name() : track.title();
+	}
+
+	/** El artista de la canción que suena, o null si no se sabe. */
+	public String songArtist() {
+		Track track = current;
+		return track != null && title != null ? track.artist() : null;
+	}
+
 	/** El id en FreedomPlayer de la canción que suena, o null. */
 	public String songId() {
 		Track track = current;

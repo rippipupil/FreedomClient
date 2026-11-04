@@ -123,10 +123,27 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				hand, wantHand, hand.distance(wantHand), foot, wantFoot, foot.distance(wantFoot), key, wantKey, key.distance(wantKey));
 	}
 
-	/** La letra de prueba del diseño de NeoLyrics. */
-	private static final String NEO_LRC = String.join("\n", "[00:01.00] Bajo un cielo de cubos", "[00:05.20] guardo tu canción",
-			"[00:09.00] cada bloque que pongo", "[00:13.10] late con tu voz", "[00:17.40] y cuando cae la noche", "[00:21.50] la luna se enciende",
-			"[00:25.40] escribo tu nombre", "[00:29.00] en las estrellas de siempre", "[00:33.60] ");
+	/** La letra de prueba del diseño de NeoLyrics (neolyrics_estilos.html). */
+	private static final String NEO_LRC = String.join("\n", "[00:04.00] Bajo un cielo de cubos guardo tu canción",
+			"[00:09.20] cada bloque que pongo late con tu voz", "[00:14.40] y cuando cae la noche", "[00:18.30] la luna se enciende",
+			"[00:22.20] escribo tu nombre en las estrellas", "[00:27.60] y brillan para ti", "[00:32.00] ");
+
+	/** Pone un ajuste de NeoLyrics (de modo o de sí/no) y la letra de prueba en el segundo {@code time}. */
+	private static void neo(ClientGameTestContext context, String shot, double time, String... settings) {
+		context.runOnClient(client -> {
+			Module neo = FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class);
+			for (int i = 0; i + 1 < settings.length; i += 2) {
+				for (Setting<?> setting : neo.getSettings()) {
+					if (!setting.getName().equals(settings[i])) continue;
+					if (setting instanceof ModeSetting mode) mode.set(settings[i + 1]);
+					if (setting instanceof com.freedomclient.setting.BooleanSetting flag) flag.set(Boolean.parseBoolean(settings[i + 1]));
+				}
+			}
+			com.freedomclient.module.visual.NeoLyricsModule.forceForTest(NEO_LRC, time, "Cielo de cubos", "Demo FreedomPlayer");
+		});
+		context.waitTicks(4);
+		context.takeScreenshot("neolyrics_" + shot);
+	}
 
 	/**
 	 * Pestaña Music (FreedomPlayer): vincular de verdad (descarga Syncthing oficial, lo comprueba, lo arranca y enseña el
@@ -775,17 +792,22 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 				client.player.setXRot(-12.0F);
 				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class).setEnabled(true);
 			});
-			for (double[] shot : new double[][]{{2.6}, {3.9}, {5.75}}) {
-				context.runOnClient(client -> com.freedomclient.module.visual.NeoLyricsModule.forceForTest(NEO_LRC, shot[0]));
-				context.waitTicks(4);
-				context.takeScreenshot("neolyrics_" + String.valueOf(shot[0]).replace('.', '_'));
-			}
+			// Título al empezar; el cartel 3D de frente y, después de girarse, en perspectiva.
+			neo(context, "title", 1.6);
+			neo(context, "sign", 7.0);
+			float[] yaw = new float[1];
 			context.runOnClient(client -> {
-				setMode(FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class), "Color", "Theme");
-				com.freedomclient.module.visual.NeoLyricsModule.forceForTest(NEO_LRC, 9.9);
+				yaw[0] = client.player.getYRot();
+				client.player.setYRot(yaw[0] + 28.0F);
 			});
-			context.waitTicks(4);
-			context.takeScreenshot("neolyrics_theme");
+			neo(context, "sign_side", 7.4);
+			context.runOnClient(client -> client.player.setYRot(yaw[0]));
+			neo(context, "shatter", 9.55, "Disappear", "Shatter");
+			neo(context, "floating", 7.0, "Layout", "Floating", "Font", "Handwritten", "3D depth", "false", "Disappear", "Rise");
+			neo(context, "scattered", 7.0, "Layout", "Scattered", "Font", "Script", "Color", "Lilac");
+			neo(context, "straight", 7.0, "Layout", "Straight", "Font", "Minecraft", "Color", "Karaoke", "3D depth", "true");
+			neo(context, "fall", 9.6, "Layout", "3D sign", "Font", "Futuristic", "Color", "Rainbow", "Disappear", "Fall");
+			neo(context, "defaults", 7.0, "Layout", "3D sign", "Font", "Rounded", "Color", "White", "Disappear", "Rise");
 			context.runOnClient(client -> {
 				com.freedomclient.module.visual.NeoLyricsModule.forceForTest(null, 0);
 				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class).setEnabled(false);
