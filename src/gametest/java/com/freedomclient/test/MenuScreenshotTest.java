@@ -209,6 +209,9 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 		context.runOnClient(client -> menu[0].musicPage().openFirstPlaylist());
 		context.waitTicks(6);
 		context.takeScreenshot("music_playlist");
+		context.runOnClient(client -> menu[0].musicPage().showKeys());
+		context.waitTicks(6);
+		context.takeScreenshot("music_keys");
 		context.runOnClient(client -> FreedomClient.LOGGER.info("[freedomplayer] lyrics test {}",
 				com.freedomclient.freedomplayer.FreedomPlayerHub.lrclib().synced("yt:test", "Yellow", "Coldplay", null, 269) != null));
 	}

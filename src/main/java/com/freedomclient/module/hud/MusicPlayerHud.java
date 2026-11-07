@@ -67,6 +67,16 @@ public class MusicPlayerHud extends HudModule {
 				new HudPosition(HudPosition.Anchor.CENTER, 0, HudPosition.Anchor.START, 34));
 	}
 
+	/** El volumen (la pestaña Music lo enseña con su deslizador). */
+	public NumberSetting volume() {
+		return volume;
+	}
+
+	/** Las teclas de acceso rápido, en el orden en que salen en la pestaña Music. */
+	public java.util.List<KeybindSetting> keys() {
+		return java.util.List.of(playKey, nextKey, previousKey, volumeUpKey, volumeDownKey, stopKey, shuffleKey);
+	}
+
 	/** El reproductor (NeoLyrics lee de él la canción y su letra). */
 	public LocalMusicPlayer player() {
 		return player;

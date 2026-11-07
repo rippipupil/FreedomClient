@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class MusicPage implements MenuPage {
 	private enum View {
-		SONGS("Songs"), PLAYLISTS("Playlists"), RANKINGS("Rankings");
+		SONGS("Songs"), PLAYLISTS("Playlists"), RANKINGS("Rankings"), KEYS("Keys");
 
 		private final String label;
 
@@ -49,6 +49,13 @@ public class MusicPage implements MenuPage {
 	private static final String[] NEXT = {"#..#", "##.#", "####", "##.#", "#..#"};
 	private static final String[] PREVIOUS = {"#..#", "#.##", "####", "#.##", "#..#"};
 	private static final String[] BACK = {"..#", ".#.", "#..", ".#.", "..#"};
+	private static final String[] SPEAKER = {"...#..", "..##.#", "####..", "####.#", "..##..", "...#.."};
+	private static final String[] MUTED = {"...#..", "..##..", "####.#", "####..", "..##.#", "...#.."};
+	private static final int SLIDER_WIDTH = 54;
+
+	private final SettingRows rows = new SettingRows();
+	/** El volumen de antes de silenciar con el altavoz. */
+	private double unmuted = 60;
 
 	private final ScrollArea scroll = new ScrollArea();
 	private final TextField search = new TextField(40);
@@ -69,6 +76,8 @@ public class MusicPage implements MenuPage {
 		int listH = h - (listY - y) - FOOTER_HEIGHT - 4;
 		if (linking) {
 			renderLink(ui, sync, x, listY, w, listH);
+		} else if (view == View.KEYS) {
+			renderKeys(ui, x, listY, w, listH);
 		} else {
 			renderLibrary(ui, x, listY, w, listH);
 		}
@@ -100,7 +109,7 @@ public class MusicPage implements MenuPage {
 			}
 		});
 		int searchW = Math.min(130, right - 4 - bx);
-		if (searchW > 40) search.render(ui, bx + 2, y + 1, searchW, BAR_HEIGHT - 2, "Search songs...");
+		if (searchW > 40 && view != View.KEYS) search.render(ui, bx + 2, y + 1, searchW, BAR_HEIGHT - 2, "Search songs...");
 	}
 
 	private void renderStatus(Ui ui, FreedomSync sync, int x, int y, int w) {
@@ -208,6 +217,30 @@ public class MusicPage implements MenuPage {
 			ui.g.drawString(ui.font, id.substring(0, Math.min(half, id.length())), textX, idY, color, false);
 			ui.g.drawString(ui.font, id.substring(Math.min(half, id.length())), textX, idY + 10, color, false);
 		}
+	}
+
+	// ---------------------------------------------------------------------------------------------------------------
+	// Teclas y volumen
+
+	/** El volumen y las teclas de acceso rápido del Music Player (saltar, anterior, pausa...). */
+	private void renderKeys(Ui ui, int x, int y, int w, int h) {
+		MusicPlayerHud hud = hud();
+		int offset = scroll.begin(ui, x, y, w, h);
+		int cursor = 0;
+		for (String line : wrap(ui, "Keys work while you play (not with a menu open). Click a box and press a key; right click clears it.", w - 8)) {
+			ui.g.drawString(ui.font, line, x + 2, y + cursor - offset, ThemeManager.textMuted(), false);
+			cursor += 10;
+		}
+		cursor += 4;
+		cursor += rows.render(ui, hud.volume(), x, y + cursor - offset, w) + SettingRows.ROW_GAP;
+		boolean bound = false;
+		for (com.freedomclient.setting.KeybindSetting key : hud.keys()) {
+			cursor += rows.render(ui, key, x, y + cursor - offset, w) + SettingRows.ROW_GAP;
+			bound |= key.isBound();
+		}
+		scroll.end(ui, x, y, w, h, cursor);
+		// Las teclas las lee el Music Player: si se pone una, se enciende.
+		if (bound) ensurePlayerOn();
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -397,13 +430,42 @@ public class MusicPage implements MenuPage {
 			player.togglePause();
 		});
 		bx = icon(ui, NEXT, bx + 4, y + 5, player::next);
+		int volumeX = renderVolume(ui, x + w - 5 - SLIDER_WIDTH, y);
 		String title = player.isActive() && player.title() != null ? player.title() : "Nothing playing: pick a song.";
 		long position = player.positionMs(), duration = player.durationMs();
 		String time = player.isActive() && duration > 0 ? format(position) + " / " + format(duration) : "";
 		int timeW = ui.font.width(time);
-		ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(title, w - (bx - x) - timeW - 16), bx + 8, y + 4,
+		ui.g.drawString(ui.font, ui.font.plainSubstrByWidth(title, volumeX - bx - timeW - 20), bx + 8, y + 4,
 				player.isActive() ? ThemeManager.text() : ThemeManager.textMuted(), false);
-		if (!time.isEmpty()) ui.g.drawString(ui.font, time, x + w - 5 - timeW, y + 4, ThemeManager.textMuted(), false);
+		if (!time.isEmpty()) ui.g.drawString(ui.font, time, volumeX - 8 - timeW, y + 4, ThemeManager.textMuted(), false);
+	}
+
+	/** Altavoz (silenciar) y deslizador del volumen; se arrastra o se mueve con la rueda. Devuelve su borde izquierdo. */
+	private int renderVolume(Ui ui, int sliderX, int y) {
+		com.freedomclient.setting.NumberSetting volume = hud().volume();
+		boolean muted = volume.get() <= 0;
+		int iconX = sliderX - 10;
+		boolean iconHovered = ui.hovered(iconX - 2, y + 2, 10, 12);
+		Draw.art(ui.g, muted ? MUTED : SPEAKER, iconX, y + 5, iconHovered ? ThemeManager.highlight() : ThemeManager.text());
+		ui.click(iconX - 2, y + 2, 10, 12, (mx, my, b) -> {
+			if (muted) {
+				volume.set(unmuted > 0 ? unmuted : 60);
+			} else {
+				unmuted = volume.get();
+				volume.set(0.0);
+			}
+			ui.playClick();
+			return true;
+		});
+		boolean hovered = ui.hovered(sliderX - 2, y + 2, SLIDER_WIDTH + 4, 12);
+		Draw.slider(ui.g, sliderX, y + 5, SLIDER_WIDTH, volume.getProgress(), hovered);
+		ui.click(sliderX - 2, y + 2, SLIDER_WIDTH + 4, 12, (mx, my, b) -> {
+			ui.startDrag((dx, dy) -> volume.setProgress((dx - sliderX) / (double) SLIDER_WIDTH), mx, my);
+			return true;
+		});
+		ui.scroll(iconX - 2, y, SLIDER_WIDTH + 14, FOOTER_HEIGHT, amount -> volume.set(Math.max(0, Math.min(100, volume.get() + Math.signum(amount) * 5))));
+		if (hovered || iconHovered) ui.tooltip("Volume " + volume.getInt() + "%" + (iconHovered ? (muted ? " (click to unmute)" : " (click to mute)") : ""));
+		return iconX;
 	}
 
 	private static int icon(Ui ui, String[] art, int x, int y, Runnable action) {
@@ -521,6 +583,13 @@ public class MusicPage implements MenuPage {
 	public void showSongs() {
 		linking = false;
 		view = View.SONGS;
+		opened = null;
+	}
+
+	/** Abre la vista de teclas y volumen (para las pruebas). */
+	public void showKeys() {
+		linking = false;
+		view = View.KEYS;
 		opened = null;
 	}
 
