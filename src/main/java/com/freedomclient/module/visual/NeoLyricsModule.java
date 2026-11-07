@@ -58,13 +58,16 @@ public class NeoLyricsModule extends Module {
 	private final BooleanSetting depth = add(new BooleanSetting("3D depth", "Give the letters a raised 3D edge.", true));
 	private final BooleanSetting glow = add(new BooleanSetting("Glow", "A soft glow around the letters.", true));
 	private final NumberSetting size = add(new NumberSetting("Size", "How big the letters are.", 1, 0.5, 2, 0.05, "x"));
+	private final ModeSetting position = add(new ModeSetting("Position",
+			"Where each line appears: where you are looking, or somewhere random in your view (it always fits on screen).",
+			"Where you look", "Where you look", "Random in view"));
 	private final NumberSetting height = add(new NumberSetting("Height", "How high above the horizon the lyrics appear.",
 			LyricsTimeline.ELEVATION, 0, 50, 1, "°"));
 	private final BooleanSetting pill = add(new BooleanSetting("Lyrics pill", "A pill at the top with the line that is playing and the word being sung.", true));
 	private final BooleanSetting title = add(new BooleanSetting("Song title", "Show the song title and artist in the sky when a song starts.", true));
 
 	/** Dónde quedó cada línea: el yaw de la cámara al empezar y, para el cartel, su sitio en el mundo. */
-	private record Anchor(float yaw, Vec3 center, Vec3 right, Vec3 up, Vec3 normal) {
+	private record Anchor(float yaw, double elev, Vec3 center, Vec3 right, Vec3 up, Vec3 normal) {
 	}
 
 	/** Lleva un punto de la letra (lx, ly, lz en em) a la pantalla, o null si queda detrás. */
@@ -205,14 +208,44 @@ public class NeoLyricsModule extends Module {
 		return (lx, ly, lz) -> project(an.center().add(an.right().scale(lx * hgt)).add(an.up().scale(ly * hgt)).add(an.normal().scale(lz * hgt)));
 	}
 
-	private Anchor anchor(Object key, Camera camera) {
+	/**
+	 * Dónde se queda una línea (o el título): donde miras, a la altura elegida, o, con «Random in view», en un sitio al
+	 * azar de lo que ves. {@code halfWidth} y {@code halfHeight} (en grados) dicen cuánto ocupa, para que quepa entera.
+	 */
+	private Anchor anchor(Object key, Camera camera, double halfWidth, double halfHeight) {
 		return anchors.computeIfAbsent(key, k -> {
 			float yaw = camera.yRot();
-			double y = Math.toRadians(yaw), e = Math.toRadians(height.get());
-			Vec3 d = dir(yaw, height.get());
-			return new Anchor(yaw, camera.position().add(d.scale(LyricsTimeline.DISTANCE)), new Vec3(-Math.cos(y), 0, -Math.sin(y)),
+			double elev = height.get();
+			if (position.is("Random in view")) {
+				// El campo de visión de verdad (con el FOV y la ventana), menos un margen y lo que ocupa la línea.
+				double hfov = Math.toDegrees(2 * Math.atan(graphics.guiWidth() / 2.0 / focal));
+				double vfov = Math.toDegrees(2 * Math.atan(graphics.guiHeight() / 2.0 / focal));
+				double maxYaw = Math.max(0, hfov / 2 * 0.9 - halfWidth), maxElev = Math.max(0, vfov / 2 * 0.8 - halfHeight);
+				java.util.concurrent.ThreadLocalRandom random = java.util.concurrent.ThreadLocalRandom.current();
+				yaw += (float) (random.nextDouble(-1, 1) * maxYaw);
+				elev = Math.max(-80, Math.min(80, -camera.xRot() + random.nextDouble(-1, 1) * maxElev));
+			}
+			double y = Math.toRadians(yaw), e = Math.toRadians(elev);
+			Vec3 d = dir(yaw, elev);
+			return new Anchor(yaw, elev, camera.position().add(d.scale(LyricsTimeline.DISTANCE)), new Vec3(-Math.cos(y), 0, -Math.sin(y)),
 					new Vec3(Math.sin(y) * Math.sin(e), Math.cos(e), -Math.cos(y) * Math.sin(e)), d.scale(-1));
 		});
+	}
+
+	/** Cuánto ocupa una línea colocada, en grados desde su centro: {mitad del ancho, mitad del alto}. */
+	private double[] extent(List<NeoStyle.Item> items, NeoStyle.Layout mode) {
+		double em = LyricsTimeline.SIZE * size.get();
+		if (mode == NeoStyle.Layout.DISPERSO) {
+			// Las palabras van repartidas por los sitios de NeoStyle.SLOTS (hasta 30° a los lados y 16° arriba y abajo).
+			return new double[]{30 + 4 * em, 16 + 2 * em};
+		}
+		double x = 0, y = 0;
+		for (NeoStyle.Item it : items) {
+			x = Math.max(x, Math.abs(it.x()) + 0.5 * it.scale());
+			y = Math.max(y, Math.abs(it.y()) + 0.7 * it.scale());
+		}
+		// Algo de sitio para lo que se mueven las letras (el salto, el balanceo y la subida al irse).
+		return new double[]{x * em, (y + 1.5) * em};
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------
@@ -248,8 +281,9 @@ public class NeoLyricsModule extends Module {
 				anchors.remove(li);
 				continue;
 			}
-			Anchor an = anchor(li, camera);
 			List<NeoStyle.Item> items = NeoStyle.layout(line, li, mode, this::width);
+			double[] extent = extent(items, mode);
+			Anchor an = anchor(li, camera, extent[0], extent[1]);
 			Map<Integer, Frame> frames = new HashMap<>();
 			for (int n = 0; n < items.size(); n++) {
 				NeoStyle.Item it = items.get(n);
@@ -259,9 +293,9 @@ public class NeoLyricsModule extends Module {
 				int lineIndex = li;
 				Frame frame = frames.computeIfAbsent(it.group(), group -> {
 					if (mode == NeoStyle.Layout.CARTEL) return worldFrame(an);
-					if (group < 0) return skyFrame(an.yaw(), height.get(), 1);
+					if (group < 0) return skyFrame(an.yaw(), an.elev(), 1);
 					double[] slot = NeoStyle.slot(lineIndex, group);
-					return skyFrame(an.yaw() + slot[0], height.get() + slot[1], 1);
+					return skyFrame(an.yaw() + slot[0], an.elev() + slot[1], 1);
 				});
 				if (frame != null) letter(frame, it, st, NeoStyle.letterColor(colors, t, word, n, st), n);
 			}
@@ -357,8 +391,9 @@ public class NeoLyricsModule extends Module {
 		if (t > stop) return;
 		float a = (float) (LyricsTimeline.ease(t / 0.6) * (1 - LyricsTimeline.ease((t - (stop - 0.8)) / 0.8)));
 		if (a <= 0.01F) return;
-		Anchor an = anchor("intro", camera);
-		Frame frame = skyFrame(an.yaw(), height.get() + 6, 1);
+		// El título va siempre donde miras (es lo primero que se ve al empezar la canción).
+		Anchor an = anchors.computeIfAbsent("intro", k -> new Anchor(camera.yRot(), height.get(), Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO));
+		Frame frame = skyFrame(an.yaw(), an.elev() + 6, 1);
 		if (frame == null) return;
 		int[] colors = NeoStyle.titleColor(NeoStyle.Color.values()[Math.max(0, color.getModes().indexOf(color.get()))]);
 		float[] o = frame.map(0, 0, 0), u = frame.map(1, 0, 0);

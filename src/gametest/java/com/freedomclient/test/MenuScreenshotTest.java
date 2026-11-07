@@ -810,7 +810,11 @@ public class MenuScreenshotTest implements FabricClientGameTest {
 			neo(context, "scattered", 7.0, "Layout", "Scattered", "Font", "Script", "Color", "Lilac");
 			neo(context, "straight", 7.0, "Layout", "Straight", "Font", "Minecraft", "Color", "Karaoke", "3D depth", "true");
 			neo(context, "fall", 9.6, "Layout", "3D sign", "Font", "Futuristic", "Color", "Rainbow", "Disappear", "Fall");
-			neo(context, "defaults", 7.0, "Layout", "3D sign", "Font", "Rounded", "Color", "White", "Disappear", "Rise");
+			// En cualquier sitio de lo que ves: dos líneas seguidas, cada una en un sitio distinto.
+			neo(context, "random", 2.0, "Layout", "Floating", "Font", "Rounded", "Color", "Pink", "Disappear", "Rise", "Position", "Random in view");
+			neo(context, "random_next", 7.0);
+			neo(context, "random_change", 9.6);
+			neo(context, "defaults", 7.0, "Layout", "3D sign", "Font", "Rounded", "Color", "White", "Disappear", "Rise", "Position", "Where you look");
 			context.runOnClient(client -> {
 				com.freedomclient.module.visual.NeoLyricsModule.forceForTest(null, 0);
 				FreedomClient.getModuleManager().get(com.freedomclient.module.visual.NeoLyricsModule.class).setEnabled(false);
